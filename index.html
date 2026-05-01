@@ -1383,6 +1383,186 @@
     }
   }
 
+
+
+  /* =============================================
+     MOBILE POLISH v128.4 — hero chips, Pulzzo acompaña, provider flow, confianza
+     Only mobile. Desktop, copy, routes, JS and assets untouched.
+  ============================================= */
+  @media (max-width: 767px) {
+    /* HERO: chips verticales y foto más visible sin perder legibilidad */
+    .hero-chips {
+      flex-direction: column !important;
+      align-items: flex-start !important;
+      gap: 8px !important;
+      margin-bottom: 22px !important;
+      max-width: 78% !important;
+    }
+    .hero-chip {
+      display: inline-flex !important;
+      width: auto !important;
+      max-width: 100% !important;
+      white-space: nowrap !important;
+      padding: 6px 11px !important;
+      background: rgba(255,255,255,.11) !important;
+      border-color: rgba(255,255,255,.24) !important;
+      backdrop-filter: blur(8px) !important;
+    }
+    .hero-bg-mobile-photo .hero-photo-img,
+    .hero > div:first-child picture img {
+      object-position: 66% 22% !important;
+      opacity: .78 !important;
+      filter: saturate(1.05) contrast(1.02) brightness(.98) !important;
+    }
+    .hero-photo-overlay,
+    .hero > div:first-child > div {
+      background:
+        linear-gradient(to bottom,
+          rgba(10,22,47,.90) 0%,
+          rgba(10,22,47,.78) 28%,
+          rgba(10,22,47,.58) 56%,
+          rgba(10,22,47,.84) 100%),
+        linear-gradient(to right,
+          rgba(10,22,47,.94) 0%,
+          rgba(10,22,47,.70) 52%,
+          rgba(10,22,47,.42) 100%) !important;
+    }
+
+    /* PULZZO ACOMPAÑA: mantener ✗ Ninguno alineado en la misma línea */
+    #protege-card-lateral > div:nth-of-type(2) > div {
+      display: grid !important;
+      grid-template-columns: minmax(0, 1fr) auto !important;
+      align-items: center !important;
+      gap: 12px !important;
+      padding: 13px 14px !important;
+    }
+    #protege-card-lateral > div:nth-of-type(2) > div > span:first-child {
+      min-width: 0 !important;
+      line-height: 1.35 !important;
+    }
+    #protege-card-lateral > div:nth-of-type(2) > div > span:last-child {
+      white-space: nowrap !important;
+      text-align: right !important;
+      font-size: 15px !important;
+      line-height: 1.2 !important;
+    }
+
+    /* FLUJO DOCTOR / CLÍNICA: formato más legible y sin columnas apretadas */
+    .prov-flow {
+      gap: 10px !important;
+    }
+    .prov-flow .flow-step {
+      display: grid !important;
+      grid-template-columns: 34px minmax(0, 1fr) !important;
+      gap: 10px 12px !important;
+      align-items: flex-start !important;
+      padding: 14px 14px !important;
+      border-radius: 12px !important;
+    }
+    .prov-flow .flow-step::after {
+      left: 50% !important;
+      transform: translateX(-50%) !important;
+      bottom: -14px !important;
+      color: rgba(10,22,47,.14) !important;
+    }
+    .prov-flow .flow-step-icon {
+      grid-column: 1 !important;
+      grid-row: 1 / span 2 !important;
+      width: 34px !important;
+      height: 34px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      font-size: 18px !important;
+    }
+    .prov-flow .flow-step-text {
+      grid-column: 2 !important;
+      font-size: 16px !important;
+      line-height: 1.35 !important;
+      min-width: 0 !important;
+    }
+    .prov-flow .flow-step-time {
+      grid-column: 2 !important;
+      justify-self: start !important;
+      text-align: left !important;
+      white-space: normal !important;
+      font-size: 12px !important;
+      line-height: 1.25 !important;
+      margin-top: 2px !important;
+    }
+
+    /* CONFIANZA PULZZO: evitar carrusel accidental / corte lateral en mobile */
+    #confianza-pulzzo {
+      padding: 56px 22px !important;
+      overflow: hidden !important;
+    }
+    #confianza-pulzzo .section-inner {
+      max-width: 100% !important;
+      width: 100% !important;
+    }
+    #confianza-pulzzo .confianza-grid {
+      display: grid !important;
+      grid-template-columns: 1fr !important;
+      gap: 14px !important;
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+    #confianza-pulzzo .confianza-card {
+      width: 100% !important;
+      max-width: 100% !important;
+      min-width: 0 !important;
+      padding: 22px 20px !important;
+      border-radius: 16px !important;
+    }
+    #confianza-pulzzo .confianza-card > div:first-child {
+      font-size: 26px !important;
+      margin-bottom: 10px !important;
+    }
+    #confianza-pulzzo .confianza-card > div:nth-child(2) {
+      font-size: 18px !important;
+      line-height: 1.3 !important;
+      margin-bottom: 8px !important;
+    }
+    #confianza-pulzzo .confianza-card > div:nth-child(3) {
+      font-size: 15px !important;
+      line-height: 1.55 !important;
+    }
+  }
+
+  @media (max-width: 430px) {
+    .hero-chips {
+      max-width: 86% !important;
+    }
+    .hero-bg-mobile-photo .hero-photo-img,
+    .hero > div:first-child picture img {
+      object-position: 68% 21% !important;
+      opacity: .80 !important;
+    }
+    .hero-photo-overlay,
+    .hero > div:first-child > div {
+      background:
+        linear-gradient(to bottom,
+          rgba(10,22,47,.88) 0%,
+          rgba(10,22,47,.76) 30%,
+          rgba(10,22,47,.56) 58%,
+          rgba(10,22,47,.84) 100%),
+        linear-gradient(to right,
+          rgba(10,22,47,.94) 0%,
+          rgba(10,22,47,.68) 54%,
+          rgba(10,22,47,.40) 100%) !important;
+    }
+    #protege-card-lateral {
+      padding: 20px !important;
+    }
+    #protege-card-lateral > div:nth-of-type(2) > div {
+      padding: 12px 12px !important;
+      gap: 10px !important;
+    }
+    #protege-card-lateral > div:nth-of-type(2) > div > span:last-child {
+      font-size: 14px !important;
+    }
+  }
+
 </style>
 </head>
 <body>
@@ -2092,28 +2272,28 @@
 
 
 <!-- CONFIANZA PULZZO -->
-<section class="section" style="background:var(--white);padding:64px 60px;">
+<section class="section" id="confianza-pulzzo" style="background:var(--white);padding:64px 60px;">
   <div class="section-inner" style="max-width:1280px;margin:0 auto;">
     <div style="text-align:center;margin-bottom:40px;">
       <span class="section-tag">Confianza Pulzzo</span>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:20px;">
-      <div style="padding:24px;background:var(--offwhite);border-radius:var(--radius-lg);border:1px solid var(--gray-light);">
+    <div class="confianza-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:20px;">
+      <div class="confianza-card" style="padding:24px;background:var(--offwhite);border-radius:var(--radius-lg);border:1px solid var(--gray-light);">
         <div style="font-size:24px;margin-bottom:12px;">📋</div>
         <div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:8px;">Diseñado para procedimientos programados</div>
         <div style="font-size:13px;color:var(--gray-dark);line-height:1.6;">No financiamos urgencias médicas; trabajamos con procedimientos planeados y validados.</div>
       </div>
-      <div style="padding:24px;background:var(--offwhite);border-radius:var(--radius-lg);border:1px solid var(--gray-light);">
+      <div class="confianza-card" style="padding:24px;background:var(--offwhite);border-radius:var(--radius-lg);border:1px solid var(--gray-light);">
         <div style="font-size:24px;margin-bottom:12px;">🩺</div>
         <div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:8px;">Validación con doctor o clínica</div>
         <div style="font-size:13px;color:var(--gray-dark);line-height:1.6;">Antes de avanzar, confirmamos información clave del procedimiento.</div>
       </div>
-      <div style="padding:24px;background:var(--offwhite);border-radius:var(--radius-lg);border:1px solid var(--gray-light);">
+      <div class="confianza-card" style="padding:24px;background:var(--offwhite);border-radius:var(--radius-lg);border:1px solid var(--gray-light);">
         <div style="font-size:24px;margin-bottom:12px;">📊</div>
         <div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:8px;">Condiciones claras antes de aceptar</div>
         <div style="font-size:13px;color:var(--gray-dark);line-height:1.6;">Conoces mensualidad, plazo, comisión y total a pagar.</div>
       </div>
-      <div style="padding:24px;background:var(--offwhite);border-radius:var(--radius-lg);border:1px solid var(--gray-light);">
+      <div class="confianza-card" style="padding:24px;background:var(--offwhite);border-radius:var(--radius-lg);border:1px solid var(--gray-light);">
         <div style="font-size:24px;margin-bottom:12px;">⚕️</div>
         <div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:8px;">Pulzzo no sustituye valoración médica</div>
         <div style="font-size:13px;color:var(--gray-dark);line-height:1.6;">Tu doctor o clínica conserva la responsabilidad médica del procedimiento.</div>
