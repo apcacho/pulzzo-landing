@@ -1222,6 +1222,167 @@
     }
   }
 
+
+
+  /* =============================================
+     HERO MOBILE COMPACT POLISH v128.3
+     Only mobile hero. Desktop, simulator, copy, routes and JS untouched.
+  ============================================= */
+  @media (max-width: 767px) {
+    .hero {
+      min-height: auto !important;
+      height: auto !important;
+      padding: 0 !important;
+      overflow: hidden !important;
+    }
+    .hero-inner {
+      min-height: auto !important;
+      height: auto !important;
+      display: block !important;
+      position: relative !important;
+      z-index: 2 !important;
+    }
+    .hero-inner > div:first-child {
+      padding: 92px 24px 34px !important;
+      max-width: 100% !important;
+    }
+    .hero-title {
+      font-size: 36px !important;
+      line-height: 1.12 !important;
+      margin-bottom: 18px !important;
+      letter-spacing: -.45px !important;
+    }
+    .hero-chips {
+      gap: 8px !important;
+      margin-bottom: 22px !important;
+    }
+    .hero-chip {
+      font-size: 12px !important;
+      line-height: 1.2 !important;
+      padding: 6px 10px !important;
+      white-space: normal !important;
+      max-width: 100% !important;
+    }
+    .hero-subtitle {
+      font-size: 16px !important;
+      line-height: 1.48 !important;
+      margin-bottom: 24px !important;
+      max-width: 100% !important;
+    }
+    .hero-ctas {
+      gap: 12px !important;
+      margin-bottom: 24px !important;
+    }
+    .hero-ctas .btn {
+      width: 100% !important;
+      min-height: 56px !important;
+      font-size: 16px !important;
+      white-space: normal !important;
+    }
+    .hero-stats {
+      display: grid !important;
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      gap: 14px 18px !important;
+      margin-top: 24px !important;
+      padding-top: 22px !important;
+      padding-bottom: 0 !important;
+      border-top: 1px solid rgba(255,255,255,.12) !important;
+    }
+    .hero-stats > div:not(.hero-stat-item) {
+      display: none !important;
+    }
+    .hero-stat-item {
+      min-width: 0 !important;
+    }
+    .hero-stat-num,
+    .hero-stat-num[style] {
+      font-size: 22px !important;
+      line-height: 1.05 !important;
+    }
+    .hero-stat-num span,
+    .hero-stat-num span[style] {
+      font-size: inherit !important;
+    }
+    .hero-stat-label {
+      font-size: 10px !important;
+      line-height: 1.25 !important;
+      letter-spacing: .7px !important;
+      margin-top: 5px !important;
+    }
+    .hero-inner > div:last-child {
+      display: none !important;
+    }
+    #fab {
+      display: none !important;
+    }
+    .hero-bg-mobile-photo .hero-photo-img,
+    .hero > div:first-child picture img {
+      object-position: 68% 28% !important;
+      opacity: .66 !important;
+      filter: saturate(1.02) contrast(.98) brightness(.92) !important;
+    }
+    .hero-photo-overlay,
+    .hero > div:first-child > div {
+      background:
+        linear-gradient(to bottom,
+          rgba(10,22,47,.96) 0%,
+          rgba(10,22,47,.90) 20%,
+          rgba(10,22,47,.74) 48%,
+          rgba(10,22,47,.90) 100%),
+        linear-gradient(to right,
+          rgba(10,22,47,.96) 0%,
+          rgba(10,22,47,.74) 58%,
+          rgba(10,22,47,.52) 100%) !important;
+    }
+    .hero::before {
+      content: '' !important;
+      position: absolute !important;
+      left: 0 !important;
+      right: 0 !important;
+      bottom: 0 !important;
+      height: 120px !important;
+      z-index: 1 !important;
+      pointer-events: none !important;
+      background: linear-gradient(to top, rgba(10,22,47,.96), rgba(10,22,47,0)) !important;
+    }
+  }
+
+  @media (max-width: 430px) {
+    .hero-inner > div:first-child {
+      padding: 88px 20px 30px !important;
+    }
+    .hero-title {
+      font-size: 33px !important;
+      line-height: 1.13 !important;
+      margin-bottom: 16px !important;
+    }
+    .hero-subtitle {
+      font-size: 15.5px !important;
+      line-height: 1.46 !important;
+      margin-bottom: 22px !important;
+    }
+    .hero-ctas {
+      margin-bottom: 22px !important;
+    }
+    .hero-stats {
+      gap: 13px 14px !important;
+      margin-top: 22px !important;
+      padding-top: 20px !important;
+    }
+    .hero-stat-num,
+    .hero-stat-num[style] {
+      font-size: 20px !important;
+    }
+    .hero-stat-label {
+      font-size: 9.5px !important;
+    }
+    .hero-bg-mobile-photo .hero-photo-img,
+    .hero > div:first-child picture img {
+      object-position: 70% 24% !important;
+      opacity: .62 !important;
+    }
+  }
+
 </style>
 </head>
 <body>
