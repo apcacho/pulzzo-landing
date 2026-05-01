@@ -7,8 +7,8 @@
 <meta property="og:title" content="Pulzzo. Financia tu procedimiento médico a meses">
 <meta property="og:description" content="Paga tu procedimiento médico a meses con Pulzzo. Proceso digital, mensualidades claras y coordinación de pago con tu doctor o clínica.">
 <meta property="og:type" content="website">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230A162F'/%3E%3Ctext x='50%25' y='57%25' dominant-baseline='middle' text-anchor='middle' font-family='system-ui,sans-serif' font-weight='900' font-size='20' fill='%2373CEDC'%3EP%3C/text%3E%3C/svg%3E">
-<link rel="icon alternate" type="image/png" href="assets/favicon/favicon.png">
+<link rel="icon" type="image/png" href="assets/favicon/favicon.png">
+<link rel="apple-touch-icon" href="assets/favicon/favicon.png">
 <title>Pulzzo: Financiamiento Médico Sin Barreras</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -842,16 +842,9 @@
     transition: var(--transition); text-decoration: none;
   }
   .social-btn:hover { background: rgba(115,206,220,.15); border-color: var(--cyan); color: var(--cyan); }
-  .social-btn.instagram,
-  .social-btn.facebook,
-  .social-btn.linkedin {
-    font-family: var(--font-display);
-    font-weight: 800;
-    color: rgba(255,255,255,.72);
-  }
-  .social-btn.instagram { font-size: 20px; }
-  .social-btn.facebook { font-size: 20px; }
-  .social-btn.linkedin { font-size: 16px; letter-spacing: -0.04em; }
+  .social-btn svg { width: 18px; height: 18px; display: block; }
+  .social-btn.facebook { font-family: var(--font-display); font-size: 20px; font-weight: 800; }
+  .social-btn.linkedin { font-family: var(--font-display); font-size: 16px; font-weight: 800; letter-spacing: -0.04em; }
   .social-btn:focus-visible {
     outline: 2px solid var(--cyan);
     outline-offset: 3px;
@@ -1080,7 +1073,14 @@
   }
 
 
-  /* v1289 logo text lowercase polish: visible brand lockup uses pulzzo lowercase */
+
+  /* v1291: logo visible lockup + footer social icons polish */
+  @media (max-width: 767px) {
+    .navbar-logo img { width: 38px !important; height: 38px !important; border-radius: 9px !important; }
+    .navbar-logo span { font-size: 25px !important; letter-spacing: -0.065em !important; }
+  }
+
+  /* v1291 logo lowercase + footer socials final */
 </style>
 </head>
 <body>
@@ -1093,9 +1093,9 @@
     <a href="#" class="navbar-logo">
       <picture>
       <source srcset="assets/images/logo-pulzzo.webp" type="image/webp">
-      <img src="assets/images/logo-pulzzo.png" alt="Pulzzo" style="height:32px;width:32px;object-fit:contain;border-radius:6px;">
+      <img src="assets/images/logo-pulzzo.png" alt="Pulzzo" style="height:42px;width:42px;object-fit:contain;">
     </picture>
-      <span style="color:#FFFFFF;letter-spacing:-0.06em;font-family:var(--font-display);font-size:23px;font-weight:800;text-transform:lowercase;line-height:1;">pulzzo</span>
+      <span style="color:#FFFFFF;letter-spacing:-0.065em;font-family:var(--font-display);font-size:25px;font-weight:800;text-transform:lowercase;line-height:1;">pulzzo</span>
     </a>
     <div class="navbar-links">
       <a href="#como-funciona">¿Cómo funciona?</a>
@@ -1878,17 +1878,21 @@
   <div class="footer-inner">
     <div class="footer-top">
       <div class="footer-brand">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
           <picture>
           <source srcset="assets/images/logo-pulzzo.webp" type="image/webp">
-          <img src="assets/images/logo-pulzzo.png" alt="Pulzzo" style="height:36px;width:36px;object-fit:contain;border-radius:8px;">
+          <img src="assets/images/logo-pulzzo.png" alt="Pulzzo" style="height:46px;width:46px;object-fit:contain;">
           </picture>
-          <span style="font-family:var(--font-display);font-size:23px;font-weight:800;color:var(--white);letter-spacing:-0.06em;text-transform:lowercase;line-height:1;">pulzzo</span>
+          <span style="font-family:var(--font-display);font-size:26px;font-weight:800;color:var(--white);letter-spacing:-0.065em;text-transform:lowercase;line-height:1;">pulzzo</span>
         </div>
         <p class="footer-tagline">Financiamiento médico para procedimientos programados en México.</p>
 
         <div class="footer-socials" aria-label="Redes sociales de Pulzzo">
-          <a href="#" onclick="return false;" class="social-btn instagram" aria-label="Instagram de Pulzzo">◎</a>
+          <a href="#" onclick="return false;" class="social-btn instagram" aria-label="Instagram de Pulzzo"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <rect x="4" y="4" width="16" height="16" rx="5" ry="5" fill="none" stroke="currentColor" stroke-width="2"/>
+              <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/>
+              <circle cx="17.5" cy="6.5" r="1.2" fill="currentColor"/>
+            </svg></a>
           <a href="#" onclick="return false;" class="social-btn facebook" aria-label="Facebook de Pulzzo">f</a>
           <a href="#" onclick="return false;" class="social-btn linkedin" aria-label="LinkedIn de Pulzzo">in</a>
         </div>
