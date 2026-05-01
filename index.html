@@ -1064,6 +1064,97 @@
     }
   }
 
+
+  /* =============================================
+     MOBILE HOTFIX v128 — viewport + simulator
+     Added after GitHub mobile QA. Desktop untouched.
+  ============================================= */
+  @media (max-width: 767px) {
+    html, body { width:100% !important; max-width:100% !important; overflow-x:hidden !important; }
+    *, *::before, *::after { max-width:100%; box-sizing:border-box; }
+    .section, section.section, #bloque-section, #simulador, .specialties, .providers, .faq, .cta-final, .footer { padding-left:24px !important; padding-right:24px !important; }
+    .section-inner { width:100% !important; max-width:100% !important; }
+    .hero { min-height:auto !important; padding:0 !important; }
+    .hero-inner { min-height:auto !important; display:block !important; }
+    .hero-inner > div:first-child { width:100% !important; padding:112px 24px 56px !important; }
+    .hero-title { font-size:40px !important; line-height:1.12 !important; letter-spacing:-.5px !important; margin-bottom:20px !important; }
+    .hero-subtitle { font-size:18px !important; line-height:1.55 !important; margin-bottom:28px !important; }
+    .hero-chips { display:flex !important; flex-wrap:wrap !important; gap:10px !important; margin-bottom:28px !important; }
+    .hero-chip { max-width:100% !important; white-space:normal !important; }
+    .hero-ctas { width:100% !important; display:flex !important; flex-direction:column !important; align-items:stretch !important; gap:14px !important; margin-bottom:32px !important; }
+    .hero-ctas .btn { width:100% !important; min-width:0 !important; white-space:normal !important; }
+    .hero-stats { display:grid !important; grid-template-columns:1fr 1fr !important; gap:22px 18px !important; padding-top:28px !important; }
+    .hero-stat-item { min-width:0 !important; }
+    .display-xl, .display-l, .h1, .section-title, .prov-title, .cta-title { font-size:34px !important; line-height:1.18 !important; letter-spacing:-.35px !important; }
+    .section-subtitle, .body-l, .prov-desc, .cta-subtitle { font-size:17px !important; line-height:1.55 !important; }
+    #bloque-section { padding-top:56px !important; padding-bottom:56px !important; }
+    #bloque-section h2 { font-size:34px !important; line-height:1.18 !important; margin-bottom:20px !important; }
+    #bloque-cards { gap:16px !important; }
+    #bloque-cards > div { min-height:auto !important; padding:24px 18px !important; }
+    .hiw-content.active { gap:18px !important; }
+    .step-card { padding:24px 20px !important; }
+    .step-title { font-size:20px !important; line-height:1.25 !important; }
+    .step-desc { font-size:16px !important; line-height:1.55 !important; }
+    #simulador { padding:56px 20px !important; overflow:hidden !important; }
+    #simulador .section-tag { font-size:11px !important; letter-spacing:1.1px !important; white-space:normal !important; text-align:center !important; }
+    #simulador h2 { font-size:34px !important; line-height:1.16 !important; }
+    #simulador p { max-width:100% !important; }
+    #simulador .section-inner > div[style*="background:rgba(255,255,255,.04)"] { width:100% !important; max-width:100% !important; margin:0 auto !important; padding:24px 18px !important; border-radius:18px !important; overflow:hidden !important; }
+    #simulador input#sc2-input { font-size:30px !important; line-height:1 !important; min-width:0 !important; }
+    #simulador #sc2-plans { display:grid !important; grid-template-columns:1fr 1fr !important; gap:12px !important; width:100% !important; max-width:100% !important; overflow:visible !important; }
+    #simulador .sc2-plan { min-width:0 !important; width:100% !important; padding:14px 12px !important; border-radius:12px !important; background:rgba(255,255,255,.03) !important; border:1px solid rgba(255,255,255,.08) !important; }
+    #simulador .sc2-plan-monthly { font-size:23px !important; line-height:1.05 !important; word-break:keep-all !important; }
+    #simulador .sc2-plan-total { font-size:11px !important; line-height:1.35 !important; }
+    #simulador .sc2-plan-active { border-color:rgba(115,206,220,.45) !important; background:rgba(115,206,220,.08) !important; }
+    #simulador .btn { width:100% !important; min-width:0 !important; white-space:normal !important; text-align:center !important; padding:16px 18px !important; }
+    #simulador [style*="display:flex;align-items:center;justify-content:space-between;gap:20px"] { flex-direction:column !important; align-items:stretch !important; gap:16px !important; padding:18px !important; }
+    #simulador [style*="display:flex;gap:32px"] { display:grid !important; grid-template-columns:1fr 1fr !important; gap:14px !important; width:100% !important; }
+    .timeline-row { gap:22px !important; }
+    .tl-step { padding:0 8px !important; }
+    .tl-title { font-size:20px !important; line-height:1.25 !important; }
+    .tl-desc { font-size:16px !important; line-height:1.55 !important; }
+    .spec-grid { grid-template-columns:repeat(2, minmax(0, 1fr)) !important; gap:14px !important; }
+    .spec-card { padding:22px 12px !important; min-width:0 !important; }
+    .spec-name { font-size:14px !important; }
+    .spec-tab { width:100% !important; justify-content:center !important; }
+    .protege-grid { gap:30px !important; }
+    #protege-card-lateral { width:100% !important; max-width:100% !important; padding:22px !important; border-radius:22px !important; }
+    #protege-card-lateral .btn { width:100% !important; white-space:normal !important; }
+    .providers { padding-top:56px !important; padding-bottom:56px !important; }
+    .prov-inner { gap:32px !important; }
+    .prov-title { font-size:36px !important; }
+    .prov-benefit { padding:18px 16px !important; gap:14px !important; }
+    .prov-benefit-title { font-size:17px !important; line-height:1.35 !important; }
+    .prov-benefit-desc { font-size:15px !important; line-height:1.55 !important; }
+    .prov-visual { padding:20px !important; border-radius:18px !important; }
+    .flow-step { padding:12px !important; gap:10px !important; align-items:flex-start !important; }
+    .flow-step-text { font-size:15px !important; line-height:1.35 !important; }
+    .flow-step-time { font-size:12px !important; white-space:normal !important; text-align:right !important; }
+    .search-filters > div { grid-template-columns:1fr !important; }
+    .search-filters > div > button { grid-column:auto !important; width:100% !important; }
+    .search-filters select, .search-filters input, .search-filters button { min-width:0 !important; width:100% !important; }
+    .faq-q { padding:18px 16px !important; font-size:18px !important; line-height:1.25 !important; }
+    .faq-a { padding-left:16px !important; padding-right:16px !important; }
+    .cta-btns, .footer-legal-links { flex-direction:column !important; align-items:stretch !important; width:100% !important; }
+    .cta-btns .btn { width:100% !important; white-space:normal !important; }
+    .footer { padding-top:56px !important; }
+  }
+  @media (max-width:430px) {
+    .navbar { height:64px !important; padding:0 20px !important; }
+    .navbar-logo { font-size:22px !important; gap:8px !important; }
+    .hero-inner > div:first-child { padding:104px 20px 52px !important; }
+    .hero-title { font-size:34px !important; line-height:1.16 !important; }
+    .hero-subtitle { font-size:16px !important; }
+    .btn { font-size:15px !important; padding-left:18px !important; padding-right:18px !important; }
+    .section, section.section, #bloque-section, #simulador, .specialties, .providers, .faq, .cta-final, .footer { padding-left:20px !important; padding-right:20px !important; }
+    .h1, .section-title, .prov-title, .cta-title { font-size:32px !important; }
+    #simulador .section-inner > div[style*="background:rgba(255,255,255,.04)"] { padding:22px 16px !important; }
+    #simulador #sc2-plans { grid-template-columns:1fr !important; }
+    #simulador .sc2-plan-monthly { font-size:25px !important; }
+    #simulador [style*="display:flex;gap:32px"] { grid-template-columns:1fr !important; }
+    .spec-grid { grid-template-columns:1fr 1fr !important; }
+  }
+
 </style>
 </head>
 <body>
