@@ -1155,6 +1155,46 @@
     .spec-grid { grid-template-columns:1fr 1fr !important; }
   }
 
+
+  /* =============================================
+     MOBILE POLISH v129 — hard fix for simulator + viewport
+     Desktop untouched. Applies only on real mobile widths.
+  ============================================= */
+  @media screen and (max-width: 767px) {
+    html, body { width:100% !important; max-width:100% !important; overflow-x:hidden !important; }
+    body { position:relative !important; }
+    body > * { max-width:100vw !important; }
+    .hero-inner > div:first-child { padding-top:92px !important; padding-bottom:44px !important; }
+    .hero-title { font-size:34px !important; line-height:1.14 !important; max-width:100% !important; }
+    .hero-subtitle { font-size:16px !important; line-height:1.5 !important; }
+    .hero-stats { grid-template-columns:1fr !important; gap:18px !important; border-top-color:rgba(255,255,255,.12) !important; }
+    .hero-stats > * { width:100% !important; border:0 !important; }
+    #simulador { padding:52px 18px !important; overflow-x:hidden !important; }
+    #simulador .section-inner { width:100% !important; max-width:100% !important; overflow-x:hidden !important; }
+    #simulador .section-inner > div[style*="background:rgba"],
+    #simulador .section-inner > div[style*="background: rgba"],
+    #simulador .section-inner > div:nth-of-type(2) { width:100% !important; max-width:100% !important; min-width:0 !important; padding:20px 16px !important; border-radius:18px !important; overflow:hidden !important; }
+    #simulador h2 { font-size:31px !important; line-height:1.15 !important; margin-bottom:12px !important; }
+    #simulador p { font-size:15px !important; line-height:1.55 !important; }
+    #simulador input#sc2-input { width:100% !important; min-width:0 !important; max-width:100% !important; font-size:28px !important; }
+    #simulador #sc2-plans { display:grid !important; grid-template-columns:1fr !important; gap:12px !important; width:100% !important; max-width:100% !important; min-width:0 !important; overflow:visible !important; }
+    #simulador .sc2-plan { width:100% !important; max-width:100% !important; min-width:0 !important; padding:16px !important; border:1px solid rgba(255,255,255,.12) !important; border-radius:14px !important; background:rgba(255,255,255,.035) !important; }
+    #simulador .sc2-plan-monthly { font-size:30px !important; line-height:1.05 !important; }
+    #simulador .btn, #simulador button.btn-primary { width:100% !important; max-width:100% !important; min-width:0 !important; white-space:normal !important; text-align:center !important; padding:16px 14px !important; font-size:15px !important; line-height:1.25 !important; }
+    #buscar-doctor select, #buscar-doctor input, #buscar-doctor button, .search-filters select, .search-filters input, .search-filters button { width:100% !important; max-width:100% !important; min-width:0 !important; text-overflow:ellipsis !important; }
+  }
+  @media screen and (max-width:430px) {
+    .navbar { padding:0 18px !important; }
+    .navbar-logo span { font-size:20px !important; }
+    .hero-inner > div:first-child { padding-left:18px !important; padding-right:18px !important; }
+    .hero-title { font-size:32px !important; }
+    .hero-chip { font-size:12px !important; padding:5px 9px !important; }
+    #simulador { padding-left:16px !important; padding-right:16px !important; }
+    #simulador .section-inner > div[style*="background:rgba"],
+    #simulador .section-inner > div[style*="background: rgba"],
+    #simulador .section-inner > div:nth-of-type(2) { padding:18px 14px !important; }
+  }
+
 </style>
 </head>
 <body>
@@ -2360,5 +2400,39 @@
   }
 
 </script>
+<script>
+/* MOBILE POLISH v129 — runtime safety for iOS/Chrome DevTools */
+(function(){
+  function applyPulzzoMobileV129(){
+    if (window.innerWidth > 767) return;
+    document.documentElement.style.overflowX='hidden';
+    document.body.style.overflowX='hidden';
+    var plans=document.getElementById('sc2-plans');
+    if(plans){
+      plans.style.setProperty('display','grid','important');
+      plans.style.setProperty('grid-template-columns','1fr','important');
+      plans.style.setProperty('gap','12px','important');
+      plans.style.setProperty('width','100%','important');
+      plans.style.setProperty('max-width','100%','important');
+      plans.style.setProperty('min-width','0','important');
+    }
+    document.querySelectorAll('#simulador .sc2-plan').forEach(function(el){
+      el.style.setProperty('width','100%','important');
+      el.style.setProperty('max-width','100%','important');
+      el.style.setProperty('min-width','0','important');
+      el.style.setProperty('box-sizing','border-box','important');
+    });
+    document.querySelectorAll('#simulador button, #simulador .btn').forEach(function(el){
+      el.style.setProperty('width','100%','important');
+      el.style.setProperty('max-width','100%','important');
+      el.style.setProperty('white-space','normal','important');
+    });
+  }
+  window.addEventListener('load',applyPulzzoMobileV129);
+  window.addEventListener('resize',applyPulzzoMobileV129);
+  setTimeout(applyPulzzoMobileV129,250);
+})();
+</script>
+
 </body>
 </html>
