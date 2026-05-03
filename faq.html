@@ -1993,9 +1993,9 @@
 .faq-tab.faq-pulzzo.active img{filter:none}
 
 .faq-logo-chip{
-  width:28px;
-  height:28px;
-  border-radius:8px;
+  width:24px;
+  height:24px;
+  border-radius:7px;
   background: var(--navy);
   display:inline-flex;
   align-items:center;
@@ -2004,8 +2004,8 @@
   box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
 }
 .faq-logo-chip img{
-  width:20px !important;
-  height:20px !important;
+  width:16px !important;
+  height:16px !important;
   object-fit:contain;
   display:block;
 }
@@ -3532,10 +3532,10 @@ html, body {
 </div></div></div>
       <div class="faq-cta-band">
         <div>
-          <h3>¿Listo para avanzar?</h3>
-          <p>Explora el simulador o regresa a la landing para iniciar tu solicitud de financiamiento.</p>
+          <h3 id="faqCtaTitle">¿Listo para avanzar?</h3>
+          <p id="faqCtaText">Explora el simulador o regresa a la landing para iniciar tu solicitud de financiamiento.</p>
         </div>
-        <a class="btn btn-primary" href="index.html#simulador">Solicitar financiamiento</a>
+        <a class="btn btn-primary" id="faqCtaButton" href="index.html#simulador">Solicitar financiamiento</a>
       </div>
     </div>
   </div>
@@ -3609,6 +3609,24 @@ html, body {
     const el=document.getElementById('faqpage-'+tab);
     if(el)el.style.display='block';
     document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('open'));
+
+    const ctaTitle=document.getElementById('faqCtaTitle');
+    const ctaText=document.getElementById('faqCtaText');
+    const ctaButton=document.getElementById('faqCtaButton');
+
+    if(!ctaTitle || !ctaText || !ctaButton) return;
+
+    if(tab==='doctores'){
+      ctaTitle.textContent='¿Listo para avanzar?';
+      ctaText.textContent='Registra tu consultorio o clínica para comenzar a recibir pacientes financiados con Pulzzo.';
+      ctaButton.textContent='Registrar consultorio o clínica';
+      ctaButton.href='index.html#proveedores';
+    } else {
+      ctaTitle.textContent='¿Listo para avanzar?';
+      ctaText.textContent='Explora el simulador o regresa a la landing para iniciar tu solicitud de financiamiento.';
+      ctaButton.textContent='Solicitar financiamiento';
+      ctaButton.href='index.html#simulador';
+    }
   }
   function toggleFaq(item){
     const isOpen=item.classList.contains('open');
