@@ -1351,9 +1351,6 @@
     .hero-inner > div:last-child {
       display: none !important;
     }
-    #fab {
-      display: none !important;
-    }
     .hero-bg-mobile-photo .hero-photo-img,
     .hero > div:first-child picture img {
       object-position: 68% 28% !important;
@@ -3320,6 +3317,100 @@ html, body {
   display:block !important;
 }
 
+
+
+  /* =============================================
+     MODALS + TOASTS · Design System aligned
+  ============================================= */
+  .pulzzo-modal {
+    display:none; position:fixed; inset:0; z-index:2000;
+    background:rgba(7,20,47,.65); backdrop-filter:blur(8px);
+    overflow-y:auto; padding:40px 20px;
+  }
+  .pulzzo-modal-card {
+    max-width:520px; margin:0 auto; background:var(--white);
+    border-radius:20px; box-shadow:0 24px 64px rgba(7,20,47,.3);
+    overflow:hidden; border:1px solid rgba(226,232,240,.9);
+  }
+  .pulzzo-modal-card.narrow { max-width:480px; }
+  .pulzzo-modal-header {
+    background:var(--navy); padding:28px 32px 24px; position:relative;
+  }
+  .pulzzo-modal-close {
+    position:absolute; top:16px; right:16px; width:32px; height:32px;
+    border-radius:50%; background:rgba(255,255,255,.1); border:none;
+    color:rgba(255,255,255,.7); font-size:16px; cursor:pointer;
+    transition:var(--transition);
+  }
+  .pulzzo-modal-close:hover { background:rgba(255,255,255,.18); color:var(--white); }
+  .pulzzo-modal-kicker {
+    font-size:11px; font-weight:600; letter-spacing:1.5px;
+    color:var(--cyan); text-transform:uppercase; margin-bottom:8px;
+  }
+  .pulzzo-modal-kicker.coral { color:var(--coral); }
+  .pulzzo-modal-title {
+    font-family:var(--font-display); font-size:22px; font-weight:700;
+    color:var(--white); line-height:1.3;
+  }
+  .pulzzo-modal-subtitle {
+    font-size:13px; color:rgba(255,255,255,.55); margin-top:8px;
+  }
+  .pulzzo-modal-body {
+    padding:28px 32px; display:flex; flex-direction:column; gap:16px;
+  }
+  .pulzzo-grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .form-group label {
+    display:block; font-size:13px; font-weight:600; color:var(--navy); margin-bottom:6px;
+  }
+  .form-group input, .form-group select {
+    width:100%; padding:11px 14px; border:1px solid var(--border);
+    border-radius:8px; font-size:14px; background:var(--white); color:var(--navy);
+    font-family:var(--font-body); outline:none; transition:var(--transition);
+  }
+  .form-group input:focus, .form-group select:focus {
+    border-color:var(--cyan); box-shadow:0 0 0 3px rgba(32,199,212,.12);
+  }
+  .pulzzo-note {
+    padding:12px 14px; background:var(--offwhite); border-radius:var(--radius);
+    border:1px solid var(--gray-light); font-size:12px; color:var(--gray-dark); line-height:1.6;
+  }
+  .pulzzo-warning {
+    padding:12px 14px; background:#FEF3C7; border:1px solid #F59E0B;
+    border-radius:8px; font-size:13px; color:#92400E; line-height:1.6;
+  }
+  .pulzzo-switch-row {
+    display:flex; align-items:center; justify-content:space-between; gap:14px;
+    padding:14px; background:rgba(115,206,220,.06);
+    border:1px solid rgba(115,206,220,.2); border-radius:8px;
+  }
+  .pulzzo-switch { position:relative; display:inline-block; width:44px; height:24px; flex-shrink:0; cursor:pointer; }
+  .pulzzo-switch input { opacity:0; width:0; height:0; }
+  .pulzzo-switch-track { position:absolute; inset:0; background:var(--aqua); border-radius:12px; }
+  .pulzzo-switch-thumb { position:absolute; height:18px; width:18px; left:3px; bottom:3px; background:white; border-radius:50%; }
+  .pulzzo-success-state { padding:48px 32px; text-align:center; }
+  .pulzzo-success-icon { font-size:52px; margin-bottom:16px; }
+  .pulzzo-success-title { font-family:var(--font-display); font-size:22px; font-weight:700; color:var(--navy); margin-bottom:10px; }
+  .pulzzo-success-text { font-size:15px; color:var(--gray-dark); line-height:1.6; }
+
+  .pulzzo-modal-action { font-size:16px !important; padding:18px !important; }
+  .pulzzo-modal-footnote { text-align:center; font-size:12px; color:var(--gray-mid); }
+  .pulzzo-switch-title { font-size:13px; font-weight:600; color:var(--navy); }
+  .pulzzo-switch-subtitle { font-size:11px; color:var(--gray-mid); margin-top:2px; }
+  #pulzzo-toast {
+    position:fixed; left:50%; bottom:28px; transform:translate(-50%,16px);
+    z-index:3000; min-width:min(420px,calc(100vw - 40px)); max-width:calc(100vw - 40px);
+    background:var(--white); color:var(--navy); border:1px solid var(--gray-light);
+    border-radius:14px; box-shadow:0 18px 48px rgba(7,20,47,.22);
+    padding:14px 18px; font-size:14px; font-weight:600; opacity:0; pointer-events:none;
+    transition:opacity 220ms ease, transform 220ms ease;
+  }
+  #pulzzo-toast.show { opacity:1; transform:translate(-50%,0); }
+  @media (max-width:767px) {
+    .pulzzo-modal { padding:24px 16px; }
+    .pulzzo-modal-header, .pulzzo-modal-body { padding-left:22px; padding-right:22px; }
+    .pulzzo-grid-2 { grid-template-columns:1fr; }
+  }
+
 </style>
 </head>
 <body>
@@ -3870,7 +3961,7 @@ html, body {
           <div style="display:flex;gap:14px;align-items:flex-start;">
             <div style="width:40px;height:40px;border-radius:8px;background:var(--aqua);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🛡️</div>
             <div>
-              <div style="font-size:15px;font-weight:600;color:var(--navy);margin-bottom:4px;">Protección de saldo deudor <span style="font-size:11px;color:var(--cyan);font-weight:700;background:rgba(115,206,220,.1);padding:2px 8px;border-radius:10px;">Próximamente</span></div>
+              <div style="font-size:15px;font-weight:600;color:var(--navy);margin-bottom:4px;">Protección de saldo deudor <span style="color:#16A34A;font-weight:700;margin-left:6px;">✓</span></div>
               <div style="font-size:13px;color:var(--gray-dark);line-height:1.6;">Si aplica y está contratada, esta protección podría liquidar el saldo pendiente en caso de fallecimiento del titular.</div>
             </div>
           </div>
@@ -3904,8 +3995,8 @@ html, body {
             <div style="display:flex;justify-content:space-between;align-items:center;padding:13px 16px;background:rgba(255,255,255,.05);border-radius:8px;border:1px solid rgba(255,255,255,.08);"><span style="font-size:14px;color:rgba(255,255,255,.85);">Pago al doctor antes del procedimiento</span><span style="color:#16A34A;font-weight:700;">✓</span></div>
             <div style="display:flex;justify-content:space-between;align-items:center;padding:13px 16px;background:rgba(255,255,255,.05);border-radius:8px;border:1px solid rgba(255,255,255,.08);"><span style="font-size:14px;color:rgba(255,255,255,.85);">Confirmación de pago al doctor o clínica</span><span style="color:#16A34A;font-weight:700;">✓</span></div>
             <div style="display:flex;justify-content:space-between;align-items:center;padding:13px 16px;background:rgba(255,255,255,.05);border-radius:8px;border:1px solid rgba(255,255,255,.08);"><span style="font-size:14px;color:rgba(255,255,255,.85);">Gestión de reagendamiento</span><span style="color:#16A34A;font-weight:700;">✓</span></div>
-            <div style="display:flex;justify-content:space-between;align-items:center;padding:13px 16px;background:rgba(115,206,220,.08);border-radius:8px;border:1px solid rgba(115,206,220,.2);"><span style="font-size:14px;color:rgba(255,255,255,.85);">Portal digital del paciente</span><span style="color:var(--cyan);font-weight:700;font-size:12px;">Próx.</span></div>
-            <div style="display:flex;justify-content:space-between;align-items:center;padding:13px 16px;background:rgba(255,255,255,.05);border-radius:8px;border:1px solid rgba(255,255,255,.08);"><span style="font-size:14px;color:rgba(255,255,255,.85);">Protección de saldo deudor</span><span style="color:var(--cyan);font-weight:700;font-size:12px;">Próx.</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:13px 16px;background:rgba(115,206,220,.08);border-radius:8px;border:1px solid rgba(115,206,220,.2);"><span style="font-size:14px;color:rgba(255,255,255,.85);">Portal digital del paciente</span><span style="color:#16A34A;font-weight:700;">✓</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:13px 16px;background:rgba(255,255,255,.05);border-radius:8px;border:1px solid rgba(255,255,255,.08);"><span style="font-size:14px;color:rgba(255,255,255,.85);">Protección de saldo deudor</span><span style="color:#16A34A;font-weight:700;">✓</span></div>
             <div style="display:flex;justify-content:space-between;align-items:center;padding:13px 16px;background:rgba(255,255,255,.05);border-radius:8px;border:1px solid rgba(255,255,255,.08);"><span style="font-size:14px;color:rgba(255,255,255,.85);">Costos ocultos o cargos sorpresa</span><span style="color:#DC2626;font-weight:600;font-size:14px;">✗ Ninguno</span></div>
           </div>
           <button type="button" class="btn btn-primary btn-full">Solicitar financiamiento</button>
@@ -4128,7 +4219,7 @@ html, body {
   <p class="cta-subtitle reveal" style="transition-delay:.1s">Conoce tus opciones en minutos antes de decidir.</p>
   <div class="cta-btns reveal" style="transition-delay:.2s">
     <button type="button" class="btn btn-primary btn-lg">Inicia tu solicitud</button>
-    <button type="button" class="btn btn-primary btn-lg doctor-cta-solid">Soy doctor o clínica</button>
+    <button type="button" class="btn btn-lg doctor-cta-ghost">Soy doctor o clínica</button>
   </div>
 </section>
 
@@ -4182,75 +4273,71 @@ html, body {
 
 
 
+
 <!-- PATIENT FORM MODAL -->
-<div id="modal-solicitar" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(7,20,47,.65);backdrop-filter:blur(8px);overflow-y:auto;padding:40px 20px;">
-  <div style="max-width:480px;margin:0 auto;background:var(--white);border-radius:20px;box-shadow:0 24px 64px rgba(7,20,47,.3);overflow:hidden;">
-    <div style="background:var(--navy);padding:28px 32px 24px;position:relative;">
-      <button onclick="closeModal('modal-solicitar')" style="position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.1);border:none;color:rgba(255,255,255,.7);font-size:16px;cursor:pointer;">✕</button>
-      <div style="font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--cyan);text-transform:uppercase;margin-bottom:8px;">Pulzzo Crédito</div>
-      <div style="font-family:var(--font-display);font-size:22px;font-weight:700;color:var(--white);line-height:1.3;">Inicia tu solicitud<br>de financiamiento</div>
-      <div style="font-size:13px;color:rgba(255,255,255,.5);margin-top:8px;">Un asesor te contacta en menos de 30 minutos</div>
+<div id="modal-solicitar" class="pulzzo-modal">
+  <div class="pulzzo-modal-card narrow">
+    <div class="pulzzo-modal-header">
+      <button onclick="closeModal('modal-solicitar')" class="pulzzo-modal-close" aria-label="Cerrar">✕</button>
+      <div class="pulzzo-modal-kicker">Pulzzo Crédito</div>
+      <div class="pulzzo-modal-title">Inicia tu solicitud<br>de financiamiento</div>
+      <div class="pulzzo-modal-subtitle">Un asesor te contacta en menos de 30 minutos</div>
     </div>
-    <div style="padding:28px 32px;display:flex;flex-direction:column;gap:16px;">
-      <div class="form-group"><label>Nombre completo *</label><input type="text" id="lead-nombre" placeholder="Tu nombre y apellidos" style="width:100%;"></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-        <div class="form-group"><label>Teléfono *</label><input type="tel" placeholder="55 1234 5678" style="width:100%;"></div>
-        <div class="form-group"><label>Correo *</label><input type="email" placeholder="tu@correo.com" style="width:100%;"></div>
+    <div class="pulzzo-modal-body">
+      <div class="form-group"><label>Nombre completo *</label><input type="text" id="lead-nombre" placeholder="Tu nombre y apellidos"></div>
+      <div class="pulzzo-grid-2">
+        <div class="form-group"><label>Teléfono *</label><input type="tel" placeholder="55 1234 5678"></div>
+        <div class="form-group"><label>Correo *</label><input type="email" placeholder="tu@correo.com"></div>
       </div>
       <div class="form-group"><label>¿Qué procedimiento buscas financiar? *</label>
-        <select style="width:100%;"><option value="">Selecciona</option><option>Cirugía Plástica o Estética</option><option>Cirugía Bariátrica</option><option>Dental</option><option>Oftalmología</option><option>Ortopedia</option><option>Reproducción Asistida</option><option>Ginecología</option><option>Fisioterapia / Rehabilitación</option><option>Medicina estética</option><option>Otro</option></select>
+        <select><option value="">Selecciona</option><option>Cirugía Plástica o Estética</option><option>Cirugía Bariátrica</option><option>Dental</option><option>Oftalmología</option><option>Ortopedia</option><option>Reproducción Asistida</option><option>Ginecología</option><option>Fisioterapia / Rehabilitación</option><option>Medicina estética</option><option>Otro</option></select>
       </div>
       <div class="form-group"><label>Monto aproximado</label>
-        <select style="width:100%;"><option>$10,000 – $30,000 MXN</option><option>$30,000 – $60,000 MXN</option><option>$60,000 – $100,000 MXN</option><option>$100,000 – $200,000 MXN</option><option>Más de $200,000 MXN</option></select>
+        <select><option>$10,000 – $30,000 MXN</option><option>$30,000 – $60,000 MXN</option><option>$60,000 – $100,000 MXN</option><option>$100,000 – $200,000 MXN</option><option>Más de $200,000 MXN</option></select>
       </div>
-      <div style="padding:12px 14px;background:var(--offwhite);border-radius:var(--radius);border:1px solid var(--gray-light);font-size:12px;color:var(--gray-dark);line-height:1.6;">🔒 Tus datos están protegidos. Al continuar aceptas nuestro <a href="#" style="color:var(--cyan);">Aviso de Privacidad</a>.</div>
-      <div style="padding:12px 14px;background:#FEF3C7;border:1px solid #F59E0B;border-radius:8px;font-size:13px;color:#92400E;line-height:1.6;">
-        ⚠️ Pulzzo financia únicamente procedimientos programados. No atendemos urgencias. Tu doctor debe aprobar el procedimiento antes de proceder.
-      </div>
-      <button onclick="submitLead()" class="btn btn-primary btn-full" style="font-size:16px;padding:18px;">Quiero que me contacten</button>
-      <p style="text-align:center;font-size:12px;color:var(--gray-mid);">El proceso completo de documentos se hace con tu asesor</p>
+      <div class="pulzzo-note">🔒 Tus datos están protegidos. Al continuar aceptas nuestro <a href="#" style="color:var(--cyan);">Aviso de Privacidad</a>.</div>
+      <div class="pulzzo-warning">⚠️ Pulzzo financia únicamente procedimientos programados. No atendemos urgencias. Tu doctor debe aprobar el procedimiento antes de proceder.</div>
+      <button onclick="submitLead()" class="btn btn-primary btn-full pulzzo-modal-action">Quiero que me contacten</button>
+      <p class="pulzzo-modal-footnote">El proceso completo de documentos se hace con tu asesor</p>
     </div>
   </div>
 </div>
 
 <!-- DOCTOR REGISTRATION MODAL -->
-<div id="modal-doctor" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(7,20,47,.65);backdrop-filter:blur(8px);overflow-y:auto;padding:40px 20px;">
-  <div style="max-width:520px;margin:0 auto;background:var(--white);border-radius:20px;box-shadow:0 24px 64px rgba(7,20,47,.3);overflow:hidden;">
-    <div style="background:var(--navy);padding:28px 32px 24px;position:relative;">
-      <button onclick="closeModal('modal-doctor')" style="position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.1);border:none;color:rgba(255,255,255,.7);font-size:16px;cursor:pointer;">✕</button>
-      <div style="font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--coral);text-transform:uppercase;margin-bottom:8px;">Pulzzo · Doctores y clínicas</div>
-      <div style="font-family:var(--font-display);font-size:22px;font-weight:700;color:var(--white);line-height:1.3;">Regístrate como<br>Doctor o Clínica</div>
-      <div style="font-size:13px;color:rgba(255,255,255,.5);margin-top:8px;">Alta gratuita · Cobras antes del procedimiento · </div>
+<div id="modal-doctor" class="pulzzo-modal">
+  <div class="pulzzo-modal-card">
+    <div class="pulzzo-modal-header">
+      <button onclick="closeModal('modal-doctor')" class="pulzzo-modal-close" aria-label="Cerrar">✕</button>
+      <div class="pulzzo-modal-kicker coral">Pulzzo · Doctores y clínicas</div>
+      <div class="pulzzo-modal-title">Regístrate como<br>Doctor o Clínica</div>
+      <div class="pulzzo-modal-subtitle">Alta gratuita · Cobras antes del procedimiento</div>
     </div>
-    <div style="padding:28px 32px;display:flex;flex-direction:column;gap:14px;">
-      <div class="form-group"><label>Nombre completo *</label><input type="text" placeholder="Dr./Dra. Nombre Apellidos" style="width:100%;"></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-        <div class="form-group"><label>Teléfono *</label><input type="tel" placeholder="55 1234 5678" style="width:100%;"></div>
-        <div class="form-group"><label>Correo *</label><input type="email" placeholder="contacto@clinica.com" style="width:100%;"></div>
+    <div class="pulzzo-modal-body">
+      <div class="form-group"><label>Nombre completo *</label><input type="text" placeholder="Dr./Dra. Nombre Apellidos"></div>
+      <div class="pulzzo-grid-2">
+        <div class="form-group"><label>Teléfono *</label><input type="tel" placeholder="55 1234 5678"></div>
+        <div class="form-group"><label>Correo *</label><input type="email" placeholder="contacto@clinica.com"></div>
       </div>
       <div class="form-group"><label>Especialidad principal *</label>
-        <select style="width:100%;"><option value="">Selecciona</option><option>Cirugía Plástica y Estética</option><option>Cirugía Bariátrica</option><option>Dental</option><option>Oftalmología</option><option>Ortopedia</option><option>Ginecología</option><option>Cirugía General</option><option>Neurocirugía</option><option>Medicina estética</option><option>Fisioterapia</option><option>Otra</option></select>
+        <select><option value="">Selecciona</option><option>Cirugía Plástica y Estética</option><option>Cirugía Bariátrica</option><option>Dental</option><option>Oftalmología</option><option>Ortopedia</option><option>Ginecología</option><option>Cirugía General</option><option>Neurocirugía</option><option>Medicina estética</option><option>Fisioterapia</option><option>Otra</option></select>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-        <div class="form-group"><label>Cédula profesional *</label><input type="text" placeholder="Número de cédula SEP" style="width:100%;"></div>
+      <div class="pulzzo-grid-2">
+        <div class="form-group"><label>Cédula profesional *</label><input type="text" placeholder="Número de cédula SEP"></div>
         <div class="form-group"><label>Estado donde ejerces *</label>
-          <select style="width:100%;"><option value="">Selecciona</option><option>Ciudad de México</option><option>Jalisco</option><option>Nuevo León</option><option>Estado de México</option><option>Puebla</option><option>Otro</option></select>
+          <select><option value="">Selecciona</option><option>Ciudad de México</option><option>Jalisco</option><option>Nuevo León</option><option>Estado de México</option><option>Puebla</option><option>Otro</option></select>
         </div>
       </div>
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px;background:rgba(115,206,220,.06);border:1px solid rgba(115,206,220,.2);border-radius:8px;">
-        <div><div style="font-size:13px;font-weight:600;color:var(--navy);">Activar perfil público en el directorio</div><div style="font-size:11px;color:var(--gray-mid);margin-top:2px;">Tus pacientes podrán encontrarte y solicitar crédito contigo</div></div>
-        <label style="position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0;cursor:pointer;"><input type="checkbox" checked style="opacity:0;width:0;height:0;"><span style="position:absolute;inset:0;background:var(--aqua);border-radius:12px;"></span><span style="position:absolute;height:18px;width:18px;left:3px;bottom:3px;background:white;border-radius:50%;"></span></label>
+      <div class="pulzzo-switch-row">
+        <div><div class="pulzzo-switch-title">Activar perfil público en el directorio</div><div class="pulzzo-switch-subtitle">Tus pacientes podrán encontrarte y solicitar crédito contigo</div></div>
+        <label class="pulzzo-switch"><input type="checkbox" checked><span class="pulzzo-switch-track"></span><span class="pulzzo-switch-thumb"></span></label>
       </div>
-      <div style="padding:12px 14px;background:var(--offwhite);border-radius:var(--radius);border:1px solid var(--gray-light);font-size:12px;color:var(--gray-dark);line-height:1.6;">🔒 Validamos tu cédula con el SIRVOES de la SEP. Tu perfil queda activo en 48 horas.</div>
-      <button onclick="submitDoctor()" class="btn btn-primary btn-full doctor-cta-solid" style="font-size:16px;padding:18px;">Enviar registro gratuito</button>
+      <div class="pulzzo-note">🔒 Validamos tu cédula con el SIRVOES de la SEP. Tu perfil queda activo en 48 horas.</div>
+      <button onclick="submitDoctor()" class="btn btn-primary btn-full doctor-cta-solid pulzzo-modal-action">Enviar registro gratuito</button>
     </div>
   </div>
 </div>
 
-<!-- FLOATING CTA -->
-<div id="fab" style="position:fixed;bottom:24px;right:24px;z-index:500;opacity:0;transform:translateY(16px);pointer-events:none;transition:opacity 300ms ease,transform 300ms ease;">
-  <button type="button" class="btn btn-primary" style="box-shadow:0 8px 24px rgba(115,206,220,.4);border-radius:50px;padding:14px 24px;font-size:14px;">Ver mi mensualidad</button>
-</div>
+<div id="pulzzo-toast" role="status" aria-live="polite"></div>
 
 <script>
   // ---- MODALS ----
@@ -4261,12 +4348,27 @@ html, body {
   // ---- LEAD FORM ----
   function submitLead() {
     const name=(document.getElementById('lead-nombre')||{}).value||'';
-    if(!name.trim()){alert('Por favor ingresa tu nombre');return;}
+    if(!name.trim()){showToast('Por favor ingresa tu nombre para continuar.');return;}
     const firstName=name.split(' ')[0];
     const modal=document.getElementById('modal-solicitar');
-    if(modal){const body=modal.querySelector('div:last-child');if(body){body.innerHTML='<div style="padding:48px 32px;text-align:center;"><div style="font-size:52px;margin-bottom:16px;">🎉</div><div style="font-family:var(--font-display);font-size:22px;font-weight:700;color:var(--navy);margin-bottom:10px;">¡Listo '+firstName+'!</div><div style="font-size:15px;color:var(--gray-dark);line-height:1.6;">Un asesor de Pulzzo te contactará en menos de 30 minutos.</div></div>';}}
+    if(modal){const body=modal.querySelector('.pulzzo-modal-body');if(body){body.innerHTML='<div class="pulzzo-success-state"><div class="pulzzo-success-icon">🎉</div><div class="pulzzo-success-title">¡Listo '+firstName+'!</div><div class="pulzzo-success-text">Un asesor de Pulzzo te contactará en menos de 30 minutos.</div></div>';}}
   }
-  function submitDoctor() { closeModal('modal-doctor'); alert('¡Registro enviado! Validaremos tu cédula y te notificamos en 48 horas.'); }
+  function submitDoctor() {
+    const modal=document.getElementById('modal-doctor');
+    if(modal){
+      const body=modal.querySelector('.pulzzo-modal-body');
+      if(body){body.innerHTML='<div class="pulzzo-success-state"><div class="pulzzo-success-icon">✅</div><div class="pulzzo-success-title">Registro enviado</div><div class="pulzzo-success-text">Validaremos tu cédula y te notificaremos en 48 horas.</div></div>';}
+    }
+    showToast('Registro enviado. Validaremos tu información y te notificaremos en 48 horas.');
+  }
+  function showToast(message){
+    const toast=document.getElementById('pulzzo-toast');
+    if(!toast)return;
+    toast.textContent=message;
+    toast.classList.add('show');
+    clearTimeout(window.__pulzzoToastTimer);
+    window.__pulzzoToastTimer=setTimeout(()=>toast.classList.remove('show'),3200);
+  }
 
   // ---- LOGIN DROPDOWN ----
   function toggleLogin() { document.getElementById('loginDropdown').classList.toggle('open'); document.getElementById('registerDropdown').classList.remove('open'); }
@@ -4305,7 +4407,13 @@ document.addEventListener('keydown', function(e){ if(e.key === 'Escape') toggleD
   });
 
   // ---- CALCULATOR v2 ----
-  const RATES={6:.18,12:.28,18:.38,24:.48};
+  const SIMULATOR_CONFIG={
+    // Factores planos temporales. Antes de publicar, sustituir por los valores comerciales aprobados o por respuesta del backend.
+    costFactorsFlat:{6:.18,12:.28,18:.38,24:.48}
+  };
+  function getTotalCostFactor(months){
+    return SIMULATOR_CONFIG.costFactorsFlat[months] || 0;
+  }
   let sc2Amount=75000;
   function setAmount(amount) {
     sc2Amount = amount;
@@ -4321,7 +4429,7 @@ document.addEventListener('keydown', function(e){ if(e.key === 'Escape') toggleD
     const activePlan = document.querySelector('.sc2-plan-active');
     const activeTerm = activePlan ? parseInt(activePlan.dataset.months) : 12;
     [6,12,18,24].forEach(m=>{
-      const total=Math.round(a+a*RATES[m]);
+      const total=Math.round(a+a*getTotalCostFactor(m));
       const monthly=Math.round(total/m);
       const mEl=document.getElementById('sc2-m'+m);
       const tEl=document.getElementById('sc2-t'+m);
@@ -4330,7 +4438,7 @@ document.addEventListener('keydown', function(e){ if(e.key === 'Escape') toggleD
     });
     // Update dynamic summary row with the selected term
     const sumTerm = activeTerm;
-    const sumTotal = Math.round(a + a * RATES[sumTerm]);
+    const sumTotal = Math.round(a + a * getTotalCostFactor(sumTerm));
     const sumMonthly = Math.round(sumTotal / sumTerm);
     const sp = document.getElementById('sum-principal');
     const sterm = document.getElementById('sum-term');
@@ -4398,47 +4506,6 @@ document.addEventListener('keydown', function(e){ if(e.key === 'Escape') toggleD
     document.getElementById('spec-postop').style.display=tab==='postop'?'grid':'none';
   }
 
-  // ---- MUNICIPIOS ----
-  const municipiosByEstado={
-    'Aguascalientes':['Aguascalientes','Jesús María','Calvillo','Pabellón de Arteaga','Rincón de Romos','San Francisco de los Romo','Tepezalá'],
-    'Baja California':['Tijuana','Mexicali','Ensenada','Rosarito','Tecate','San Felipe'],
-    'Baja California Sur':['La Paz','Los Cabos (Cabo San Lucas)','Loreto','Mulegé','Comondú'],
-    'Campeche':['Campeche','Ciudad del Carmen','Champotón','Calkiní','Escárcega'],
-    'Chiapas':['Tuxtla Gutiérrez','San Cristóbal de las Casas','Tapachula','Comitán','Palenque','Tonalá','Chiapa de Corzo'],
-    'Chihuahua':['Chihuahua','Ciudad Juárez','Delicias','Cuauhtémoc','Hidalgo del Parral','Ojinaga','Nuevo Casas Grandes'],
-    'Ciudad de México':['Álvaro Obregón','Azcapotzalco','Benito Juárez','Coyoacán','Cuajimalpa','Cuauhtémoc','Gustavo A. Madero','Iztacalco','Iztapalapa','Magdalena Contreras','Miguel Hidalgo','Milpa Alta','Tláhuac','Tlalpan','Venustiano Carranza','Xochimilco'],
-    'Coahuila':['Saltillo','Torreón','Monclova','Piedras Negras','Acuña','Ramos Arizpe','San Pedro'],
-    'Colima':['Colima','Manzanillo','Tecomán','Villa de Álvarez','Armería'],
-    'Durango':['Durango','Gómez Palacio','Lerdo','El Salto','Pueblo Nuevo','Canatlán'],
-    'Estado de México':['Toluca','Naucalpan','Ecatepec','Nezahualcóyotl','Tlalnepantla','Metepec','Atizapán','Texcoco','Cuautitlán Izcalli','Chalco','Tultitlán','Coacalco'],
-    'Guanajuato':['León','Guanajuato','Irapuato','Celaya','Salamanca','Silao','San Miguel de Allende','Acámbaro','Pénjamo','Dolores Hidalgo'],
-    'Guerrero':['Acapulco','Chilpancingo','Iguala','Zihuatanejo','Taxco','Tlapa de Comonfort'],
-    'Hidalgo':['Pachuca','Tulancingo','Tizayuca','Tula de Allende','Actopan','Tepeapulco','Ixmiquilpan'],
-    'Jalisco':['Guadalajara','Zapopan','Tlaquepaque','Tonalá','Puerto Vallarta','Tlajomulco','Lagos de Moreno','Ocotlán','Tepatitlán','Autlán'],
-    'Michoacán':['Morelia','Uruapan','Zamora','Lázaro Cárdenas','Apatzingán','Sahuayo','Zitácuaro','Pátzcuaro'],
-    'Morelos':['Cuernavaca','Jiutepec','Cuautla','Temixco','Yautepec','Emiliano Zapata','Jojutla'],
-    'Nayarit':['Tepic','Bahía de Banderas','Santiago Ixcuintla','Compostela','Tuxpan','Ixtlán del Río'],
-    'Nuevo León':['Monterrey','San Pedro Garza García','Apodaca','Santa Catarina','San Nicolás de los Garza','Guadalupe','Escobedo','Linares','Cadereyta'],
-    'Oaxaca':['Oaxaca de Juárez','Juchitán de Zaragoza','Tuxtepec','Salina Cruz','Puerto Escondido','Huajuapan de León','Miahuatlán'],
-    'Puebla':['Puebla','Tehuacán','Cholula','San Andrés Cholula','Atlixco','Izúcar de Matamoros','Teziutlán','Amozoc'],
-    'Querétaro':['Querétaro','San Juan del Río','El Marqués','Corregidora','Tequisquiapan','Pedro Escobedo'],
-    'Quintana Roo':['Cancún','Playa del Carmen','Chetumal','Cozumel','Tulum','Bacalar','Felipe Carrillo Puerto'],
-    'San Luis Potosí':['San Luis Potosí','Soledad de Graciano Sánchez','Ciudad Valles','Matehuala','Rioverde','Tamazunchale'],
-    'Sinaloa':['Culiacán','Mazatlán','Los Mochis','Guasave','Navolato','Guamúchil','Escuinapa'],
-    'Sonora':['Hermosillo','Ciudad Obregón','Nogales','San Luis Río Colorado','Navojoa','Agua Prieta','Caborca','Guaymas'],
-    'Tabasco':['Villahermosa','Cárdenas','Comalcalco','Macuspana','Cunduacán','Tenosique'],
-    'Tamaulipas':['Tampico','Reynosa','Matamoros','Nuevo Laredo','Ciudad Victoria','Laredo','Madero'],
-    'Tlaxcala':['Tlaxcala','Apizaco','Huamantla','Chiautempan','Calpulalpan','Zacatelco'],
-    'Veracruz':['Veracruz','Xalapa','Coatzacoalcos','Boca del Río','Poza Rica','Orizaba','Córdoba','Tuxpan','Minatitlán'],
-    'Yucatán':['Mérida','Valladolid','Tizimín','Progreso','Ticul','Umán','Kanasín'],
-    'Zacatecas':['Zacatecas','Fresnillo','Guadalupe','Jerez','Calera','Pinos','Río Grande'],
-  };
-  function loadMunicipios(){
-    const estado=document.getElementById('filter-estado').value;
-    const muni=document.getElementById('filter-municipio');
-    if(muni){muni.innerHTML='<option>Todos los municipios</option>';(municipiosByEstado[estado]||[]).forEach(m=>{const o=document.createElement('option');o.value=m;o.textContent=m;muni.appendChild(o);});}
-  }
-
   // ---- SCROLL REVEAL ----
   const revealEls=document.querySelectorAll('.reveal');
   const observer=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');observer.unobserve(e.target);}});},{threshold:.12,rootMargin:'0px 0px -40px 0px'});
@@ -4447,9 +4514,6 @@ document.addEventListener('keydown', function(e){ if(e.key === 'Escape') toggleD
   // ---- HERO STATS STATIC ----
   document.querySelectorAll('.counter-val').forEach(el=>{const t=parseInt(el.dataset.target);if(t)el.textContent=t.toLocaleString('es-MX');});
 
-  // ---- FLOATING CTA ----
-  const fab=document.getElementById('fab');
-  window.addEventListener('scroll',()=>{if(fab){if(window.scrollY>400){fab.style.opacity='1';fab.style.transform='translateY(0)';fab.style.pointerEvents='all';}else{fab.style.opacity='0';fab.style.transform='translateY(16px)';fab.style.pointerEvents='none';}}});
 
   // ---- SOCIAL PROOF ROTATION (if element exists) ----
   const spItems=document.querySelectorAll('.sp-item');
@@ -4508,9 +4572,11 @@ document.addEventListener('keydown', function(e){ if(e.key === 'Escape') toggleD
   function buscarDoctores() {
     var cat = document.getElementById('filter-categoria').value;
     var proc = document.getElementById('filter-procedimiento').value;
+    var estado = document.getElementById('filter-estado').value;
+    var municipio = document.getElementById('filter-municipio').value;
     var desc = document.getElementById('filter-descripcion').value;
-    // Placeholder — conectar a backend real
-    console.log('Buscar:', cat, proc, desc);
+    var filtros = [cat, proc, estado, municipio, desc].filter(Boolean);
+    showToast(filtros.length ? 'Búsqueda guardada. Pronto conectaremos el directorio con resultados reales.' : 'Elige al menos un filtro para buscar doctores.');
   }
 
 
