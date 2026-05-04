@@ -3228,6 +3228,30 @@ html, body {
   }
 }
 
+
+/* FINAL HERO REFRAME v2: bajar un poco la cara de la mujer */
+.hero-bg-mobile-photo .hero-photo-img,
+.hero > div:first-child picture img,
+.hero-photo-img {
+  object-position: 63% 14% !important;
+}
+
+@media (min-width: 1280px) {
+  .hero-bg-mobile-photo .hero-photo-img,
+  .hero > div:first-child picture img,
+  .hero-photo-img {
+    object-position: 63% 12% !important;
+  }
+}
+
+@media (max-width: 1023px) {
+  .hero-bg-mobile-photo .hero-photo-img,
+  .hero > div:first-child picture img,
+  .hero-photo-img {
+    object-position: 68% 18% !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -3250,7 +3274,7 @@ html, body {
       <a href="#especialidades">Especialidades</a>
       <a href="#proveedores">Doctores</a>
       <a href="#buscar-doctor">Directorio</a>
-      <a href="#faq">FAQ</a>
+      <a href="#faq">Preguntas Frecuentes</a>
     </div>
     <div class="navbar-actions">
       <!-- Iniciar Sesión dropdown -->
@@ -4025,7 +4049,7 @@ html, body {
     </div>
 
     <div style="text-align:center;margin-top:32px;">
-      <a href="#" onclick="return false;" class="btn btn-secondary" style="gap:8px;">Ver todas las preguntas <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+      <a href="faq.html" class="btn btn-secondary" style="gap:8px;">Ver todas las preguntas <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
     </div>
   </div>
 </section>
