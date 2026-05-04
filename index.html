@@ -3274,6 +3274,52 @@ html, body {
   }
 }
 
+
+/* FINAL REAL FIX: landing FAQ doctores en coral, no azul */
+#faq.faq-doctor-mode .faq-item.open,
+#faq.faq-doctor-mode .faq-item.open:hover,
+#faq #faq-doctor .faq-item.open,
+#faq #faq-doctor .faq-item.open:hover {
+  border-color: rgba(255,138,91,.95) !important;
+  box-shadow: 0 0 0 2px rgba(255,138,91,.14) !important;
+  background: #FFFFFF !important;
+}
+
+#faq.faq-doctor-mode .faq-item:hover,
+#faq #faq-doctor .faq-item:hover {
+  border-color: rgba(255,138,91,.55) !important;
+}
+
+#faq.faq-doctor-mode .faq-item.open .faq-icon,
+#faq #faq-doctor .faq-item.open .faq-icon {
+  background: var(--coral) !important;
+  color: var(--midnight) !important;
+  border-color: var(--coral) !important;
+}
+
+#faq.faq-doctor-mode .faq-item.open .faq-icon::before,
+#faq.faq-doctor-mode .faq-item.open .faq-icon::after,
+#faq #faq-doctor .faq-item.open .faq-icon::before,
+#faq #faq-doctor .faq-item.open .faq-icon::after {
+  background: var(--midnight) !important;
+}
+
+#faq .faq-logo-chip-small{
+  width:26px !important;
+  height:26px !important;
+  border-radius:8px !important;
+  background: var(--navy) !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+}
+#faq .faq-logo-chip-small img{
+  width:18px !important;
+  height:18px !important;
+  object-fit:contain !important;
+  display:block !important;
+}
+
 </style>
 </head>
 <body>
@@ -4043,7 +4089,7 @@ html, body {
     <div class="faq-tabs reveal" style="margin-bottom:28px;">
       <button class="faq-tab faq-paciente active" onclick="switchFaqTab('paciente',this)">👤 Pacientes</button>
       <button class="faq-tab faq-doctor" onclick="switchFaqTab('doctor',this)">🩺 Doctores y clínicas</button>
-      <button class="faq-tab faq-pulzzo" onclick="switchFaqTab('pulzzo',this)" style="display:inline-flex;align-items:center;gap:8px;"><img src="assets/favicon/favicon.png" style="height:18px;width:18px;object-fit:cover;border-radius:4px;display:block;"> Pulzzo y legal</button>
+      <button class="faq-tab faq-pulzzo" onclick="switchFaqTab('pulzzo',this)" style="display:inline-flex;align-items:center;gap:8px;"><span class="faq-logo-chip-small"><img src="assets/images/logo-pulzzo.png" alt="Pulzzo"></span> Pulzzo y legal</button>
     </div>
 
     <div class="faq-grid" id="faq-paciente" style="display:block;">
@@ -4324,9 +4370,17 @@ document.addEventListener('keydown', function(e){ if(e.key === 'Escape') toggleD
   function switchFaqTab(tab,btn){
     document.querySelectorAll('.faq-tab').forEach(t=>t.classList.remove('active'));
     btn.classList.add('active');
+
+    const faqSection=document.getElementById('faq');
+    if(faqSection){
+      faqSection.classList.toggle('faq-doctor-mode', tab==='doctor');
+      faqSection.classList.toggle('faq-pulzzo-mode', tab==='pulzzo');
+    }
+
     document.querySelectorAll('.faq-grid[id^="faq-"]').forEach(c=>c.style.display='none');
     const el=document.getElementById('faq-'+tab);
     if(el)el.style.display='block';
+    document.querySelectorAll('#faq .faq-item').forEach(i=>i.classList.remove('open'));
   }
 
   // ---- FAQ ACCORDION ----
