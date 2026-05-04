@@ -3209,6 +3209,170 @@ html, body {
   color: var(--white) !important;
 }
 
+
+/* FINAL FIX: Doctores y clínicas usa coral en acordeones activos */
+body.faq-doctor-mode .faq-item.open,
+body.faq-doctor-mode .faq-item.open:hover {
+  border-color: rgba(255,138,91,.90) !important;
+  box-shadow: 0 0 0 2px rgba(255,138,91,.13) !important;
+  background: #FFFFFF !important;
+}
+
+body.faq-doctor-mode .faq-item.open .faq-icon,
+body.faq-doctor-mode .faq-item.open .icon-plus {
+  background: var(--coral) !important;
+  color: var(--midnight) !important;
+  border-color: var(--coral) !important;
+}
+
+body.faq-doctor-mode .faq-item.open .faq-icon::before,
+body.faq-doctor-mode .faq-item.open .faq-icon::after,
+body.faq-doctor-mode .faq-item.open .icon-plus::before,
+body.faq-doctor-mode .faq-item.open .icon-plus::after {
+  background: var(--midnight) !important;
+}
+
+body.faq-doctor-mode .faq-item:hover {
+  border-color: rgba(255,138,91,.55) !important;
+}
+
+body.faq-doctor-mode .faq-cta-band,
+body.faq-doctor-mode #faqCtaBand {
+  background: linear-gradient(135deg, rgba(255,138,91,.13) 0%, rgba(255,255,255,.96) 58%, rgba(255,241,234,.95) 100%) !important;
+  border-color: rgba(255,138,91,.35) !important;
+}
+
+body.faq-doctor-mode .faq-cta-band .btn-primary,
+body.faq-doctor-mode #faqCtaBand .btn-primary {
+  background: var(--coral) !important;
+  color: var(--midnight) !important;
+  box-shadow: var(--shadow-coral) !important;
+}
+
+body.faq-doctor-mode .faq-cta-band .btn-primary:hover,
+body.faq-doctor-mode #faqCtaBand .btn-primary:hover {
+  background: var(--coral-d) !important;
+  color: var(--white) !important;
+}
+
+
+/* FINAL FIX 3: Doctores activo fuerza coral en acordeones, sin depender de JS */
+body:has(.faq-tab.faq-doctor.active) .faq-item.open,
+body:has(.faq-tab.faq-doctor.active) .faq-item.open:hover {
+  border-color: rgba(255,138,91,.95) !important;
+  box-shadow: 0 0 0 2px rgba(255,138,91,.16) !important;
+  background: #FFFFFF !important;
+}
+
+body:has(.faq-tab.faq-doctor.active) .faq-item.open .faq-icon,
+body:has(.faq-tab.faq-doctor.active) .faq-item.open .icon-plus {
+  background: var(--coral) !important;
+  color: var(--midnight) !important;
+  border-color: var(--coral) !important;
+}
+
+body:has(.faq-tab.faq-doctor.active) .faq-item.open .faq-icon::before,
+body:has(.faq-tab.faq-doctor.active) .faq-item.open .faq-icon::after,
+body:has(.faq-tab.faq-doctor.active) .faq-item.open .icon-plus::before,
+body:has(.faq-tab.faq-doctor.active) .faq-item.open .icon-plus::after {
+  background: var(--midnight) !important;
+}
+
+body:has(.faq-tab.faq-doctor.active) .faq-item:hover {
+  border-color: rgba(255,138,91,.55) !important;
+}
+
+body:has(.faq-tab.faq-doctor.active) .faq-cta-band,
+body:has(.faq-tab.faq-doctor.active) #faqCtaBand {
+  background: linear-gradient(135deg, rgba(255,138,91,.13) 0%, rgba(255,255,255,.96) 58%, rgba(255,241,234,.95) 100%) !important;
+  border-color: rgba(255,138,91,.35) !important;
+}
+
+body:has(.faq-tab.faq-doctor.active) .faq-cta-band .btn-primary,
+body:has(.faq-tab.faq-doctor.active) #faqCtaBand .btn-primary {
+  background: var(--coral) !important;
+  color: var(--midnight) !important;
+  box-shadow: var(--shadow-coral) !important;
+}
+
+/* Fallback adicional por clase JS, por compatibilidad */
+body.faq-doctor-mode .faq-item.open,
+body.faq-doctor-mode .faq-item.open:hover {
+  border-color: rgba(255,138,91,.95) !important;
+  box-shadow: 0 0 0 2px rgba(255,138,91,.16) !important;
+}
+body.faq-doctor-mode .faq-item.open .faq-icon,
+body.faq-doctor-mode .faq-item.open .icon-plus {
+  background: var(--coral) !important;
+  color: var(--midnight) !important;
+  border-color: var(--coral) !important;
+}
+
+
+/* FINAL BRANDBOOK CTA BANDS */
+.faq-cta-band,
+#faqCtaBand {
+  background: linear-gradient(135deg, rgba(247,250,252,.98) 0%, rgba(255,255,255,.98) 100%) !important;
+  border: 1px solid rgba(46,199,212,.26) !important;
+  box-shadow: none !important;
+}
+
+.faq-cta-band .btn-primary,
+#faqCtaBand .btn-primary {
+  background: var(--aqua) !important;
+  color: var(--midnight) !important;
+  box-shadow: none !important;
+}
+
+.faq-cta-band .btn-primary:hover,
+#faqCtaBand .btn-primary:hover {
+  filter: brightness(.96) !important;
+}
+
+/* Pacientes: base clara, aqua muy sutil */
+body:not(.faq-doctor-mode) .faq-cta-band,
+body:not(.faq-doctor-mode) #faqCtaBand {
+  background:
+    radial-gradient(circle at top left, rgba(46,199,212,.08), transparent 38%),
+    linear-gradient(135deg, rgba(248,252,253,.98) 0%, rgba(255,255,255,.99) 100%) !important;
+  border-color: rgba(46,199,212,.28) !important;
+}
+
+body:not(.faq-doctor-mode) .faq-cta-band .btn-primary,
+body:not(.faq-doctor-mode) #faqCtaBand .btn-primary {
+  background: var(--aqua) !important;
+  color: var(--midnight) !important;
+}
+
+/* Doctores y clínicas: misma base de marca + coral como acento */
+body.faq-doctor-mode .faq-cta-band,
+body.faq-doctor-mode #faqCtaBand,
+body:has(.faq-tab.faq-doctor.active) .faq-cta-band,
+body:has(.faq-tab.faq-doctor.active) #faqCtaBand {
+  background:
+    radial-gradient(circle at top left, rgba(255,138,91,.07), transparent 36%),
+    linear-gradient(135deg, rgba(252,249,247,.98) 0%, rgba(255,255,255,.99) 100%) !important;
+  border-color: rgba(255,138,91,.34) !important;
+  box-shadow: none !important;
+}
+
+body.faq-doctor-mode .faq-cta-band .btn-primary,
+body.faq-doctor-mode #faqCtaBand .btn-primary,
+body:has(.faq-tab.faq-doctor.active) .faq-cta-band .btn-primary,
+body:has(.faq-tab.faq-doctor.active) #faqCtaBand .btn-primary {
+  background: var(--coral) !important;
+  color: var(--midnight) !important;
+  box-shadow: none !important;
+}
+
+body.faq-doctor-mode .faq-cta-band .btn-primary:hover,
+body.faq-doctor-mode #faqCtaBand .btn-primary:hover,
+body:has(.faq-tab.faq-doctor.active) .faq-cta-band .btn-primary:hover,
+body:has(.faq-tab.faq-doctor.active) #faqCtaBand .btn-primary:hover {
+  background: var(--coral-d) !important;
+  color: var(--white) !important;
+}
+
 </style>
 </head>
 <body>
@@ -3725,11 +3889,10 @@ html, body {
   function switchFaqPageTab(tab, btn){
     document.querySelectorAll('.faq-tab').forEach(t=>t.classList.remove('active'));
     btn.classList.add('active');
+    document.body.classList.toggle('faq-doctor-mode', tab==='doctores');
     document.querySelectorAll('.faq-page-tab-panel').forEach(p=>p.style.display='none');
     const el=document.getElementById('faqpage-'+tab);
     if(el)el.style.display='block';
-    const faqPageCard=document.getElementById('faqPageCard');
-    if(faqPageCard) faqPageCard.classList.toggle('doctor-mode', tab==='doctores');
     document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('open'));
 
     const ctaBand=document.getElementById('faqCtaBand');
@@ -3737,15 +3900,22 @@ html, body {
     const ctaText=document.getElementById('faqCtaText');
     const ctaButton=document.getElementById('faqCtaButton');
 
-    if(!ctaBand || !ctaTitle || !ctaText || !ctaButton) return;
-
-    if(tab==='doctores'){
-      ctaBand.classList.add('doctor-mode');
-      ctaTitle.textContent='¿Listo para avanzar?';
-      ctaText.textContent='Registra tu consultorio o clínica para comenzar a recibir pacientes financiados con Pulzzo.';
-      ctaButton.textContent='Registrar consultorio o clínica';
-      ctaButton.href='index.html#proveedores';
-    } else {
+    if(ctaBand && ctaTitle && ctaText && ctaButton){
+      if(tab==='doctores'){
+        ctaBand.classList.add('doctor-mode');
+        ctaTitle.textContent='¿Listo para avanzar?';
+        ctaText.textContent='Registra tu consultorio o clínica para comenzar a recibir pacientes financiados con Pulzzo.';
+        ctaButton.textContent='Registrar consultorio o clínica';
+        ctaButton.href='index.html#proveedores';
+      } else {
+        ctaBand.classList.remove('doctor-mode');
+        ctaTitle.textContent='¿Listo para avanzar?';
+        ctaText.textContent='Explora el simulador o regresa a la landing para iniciar tu solicitud de financiamiento.';
+        ctaButton.textContent='Solicitar financiamiento';
+        ctaButton.href='index.html#simulador';
+      }
+    }
+  } else {
       ctaBand.classList.remove('doctor-mode');
       ctaTitle.textContent='¿Listo para avanzar?';
       ctaText.textContent='Explora el simulador o regresa a la landing para iniciar tu solicitud de financiamiento.';
@@ -3767,6 +3937,14 @@ html, body {
     const dropdown=document.getElementById('loginDropdown');
     if(dropdown && !dropdown.contains(e.target)) dropdown.classList.remove('open');
   });
+</script>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  const activeDoctor = document.querySelector('.faq-tab.faq-doctor.active');
+  document.body.classList.toggle('faq-doctor-mode', !!activeDoctor);
+});
 </script>
 
 </body>
