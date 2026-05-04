@@ -1,0 +1,3836 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="description" content="Preguntas frecuentes sobre Pulzzo: financiamiento médico, pagos, registro de pacientes, alta de doctores y clínicas, facturación y privacidad.">
+<meta property="og:title" content="Preguntas frecuentes Pulzzo">
+<meta property="og:description" content="Resuelve tus dudas sobre el financiamiento médico de Pulzzo para pacientes, doctores y clínicas.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="assets/social/og-pulzzo.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Preguntas frecuentes Pulzzo">
+<meta name="twitter:description" content="Resuelve tus dudas sobre el financiamiento médico de Pulzzo para pacientes, doctores y clínicas.">
+<meta name="twitter:image" content="assets/social/og-pulzzo.png">
+<meta name="theme-color" content="#07142F">
+<link rel="icon" type="image/png" href="assets/favicon/favicon-v1337.png">
+<link rel="apple-touch-icon" href="assets/favicon/apple-touch-icon-v1337.png">
+<title>Preguntas frecuentes Pulzzo</title>
+
+<script>
+  document.title = 'Preguntas frecuentes Pulzzo';
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+
+  /* =============================================
+     PULZZO DESIGN SYSTEM: CSS VARIABLES
+  ============================================= */
+  :root {
+    --midnight:   #030A18;
+    --navy:       #07142F;
+    --navy-dark:  #030A18;
+    --navy2:      #0B1E3D;
+    --surface:    #101B35;
+    --bdr:        #22304D;
+
+    --cyan:       #20C7D4;
+    --aqua:       #20C7D4;
+    --cyan-soft:  #55DCE2;
+    --aqua-l:     #55DCE2;
+    --mint:       #BDF7F4;
+    --aqua-bg:    #EFFFFF;
+
+    --coral:      #FF8A5B;
+    --coral-d:    #F9734A;
+    --coral-s:    #FFF1EA;
+
+    --green:      #16A34A;
+    --amber:      #F59E0B;
+    --red:        #DC2626;
+    --blue:       #3B82F6;
+    --white:      #FFFFFF;
+    --offwhite:   #F8FAFC;
+    --bg:         #F8FAFC;
+    --gray-light: #E2E8F0;
+    --gray-mid:   #64748B;
+    --gray-dark:  #1E293B;
+    --slate:      #1E293B;
+    --muted:      #64748B;
+    --border:     #E2E8F0;
+
+    --cyan-grad:  #20C7D4;
+    --shadow-sm:  0 2px 8px rgba(7,20,47,.08);
+    --shadow-md:  0 4px 16px rgba(7,20,47,.12);
+    --shadow-lg:  0 8px 24px rgba(7,20,47,.15);
+    --shadow-xl:  0 20px 48px rgba(7,20,47,.16);
+    --shadow-aqua: 0 14px 36px rgba(32,199,212,.26);
+    --shadow-coral: 0 14px 30px rgba(255,138,91,.24);
+
+    --radius-sm:  6px;
+    --radius:     8px;
+    --radius-lg:  12px;
+    --radius-xl:  24px;
+    --transition: all 300ms cubic-bezier(.4,0,.2,1);
+    --font-display: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-body:    'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+  /* =============================================
+     RESET & BASE
+  ============================================= */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; font-size: 16px; }
+  body {
+    font-family: var(--font-body);
+    color: var(--navy);
+    background: var(--white);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { text-decoration: none; color: inherit; }
+  img { max-width: 100%; display: block; }
+  ul { list-style: none; }
+
+  /* =============================================
+     TYPOGRAPHY
+  ============================================= */
+  .display-xl { font-family: var(--font-display); font-size: 48px; font-weight: 700; line-height: 56px; letter-spacing: -.5px; }
+  .display-l  { font-family: var(--font-display); font-size: 40px; font-weight: 700; line-height: 48px; letter-spacing: -.3px; }
+  .h1  { font-family: var(--font-display); font-size: 32px; font-weight: 700; line-height: 40px; letter-spacing: -.2px; }
+  .h2  { font-family: var(--font-body); font-size: 28px; font-weight: 600; line-height: 36px; }
+  .h3  { font-family: var(--font-body); font-size: 24px; font-weight: 600; line-height: 32px; }
+  .h4  { font-family: var(--font-body); font-size: 20px; font-weight: 600; line-height: 28px; }
+  .body-l { font-size: 18px; font-weight: 400; line-height: 28px; }
+  .body-m { font-size: 16px; font-weight: 400; line-height: 24px; }
+  .body-s { font-size: 14px; font-weight: 400; line-height: 20px; }
+  .label-m { font-size: 16px; font-weight: 500; line-height: 20px; letter-spacing: .3px; }
+  .label-s { font-size: 14px; font-weight: 500; line-height: 18px; letter-spacing: .2px; }
+  .caption { font-size: 12px; font-weight: 400; line-height: 18px; letter-spacing: .3px; }
+
+  /* =============================================
+     BUTTONS
+  ============================================= */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    font-family: var(--font-body); font-size: 16px; font-weight: 600;
+    padding: 16px 32px; border-radius: var(--radius); border: none;
+    cursor: pointer; transition: var(--transition); white-space: nowrap;
+    min-height: 52px; text-decoration: none;
+  }
+  .btn-primary {
+    background: var(--aqua);
+    color: var(--navy-dark);
+    box-shadow: 0 4px 12px rgba(115,206,220,.25);
+  }
+  .btn-primary:hover {
+    background: linear-gradient(135deg, #19B9C5 0%, #83E5E8 100%);
+    box-shadow: 0 6px 16px rgba(115,206,220,.35);
+    transform: translateY(-2px);
+  }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-secondary {
+    background: var(--white); color: var(--navy);
+    border: 2px solid var(--navy);
+  }
+  .btn-secondary:hover {
+    background: var(--offwhite);
+    box-shadow: var(--shadow-sm);
+  }
+  .btn-ghost {
+    background: transparent; color: var(--cyan);
+    border: 1px solid var(--cyan);
+  }
+  .btn-ghost:hover {
+    background: rgba(115,206,220,.08);
+    border-color: #19B9C5;
+  }
+  .btn-sm { padding: 10px 18px; font-size: 13px; min-height: 40px; }
+  .btn-lg { padding: 20px 40px; font-size: 18px; min-height: 60px; }
+  .btn-full { width: 100%; }
+
+  /* =============================================
+     BADGES
+  ============================================= */
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 12px; border-radius: 20px;
+    font-family: var(--font-body); font-size: 12px; font-weight: 600;
+  }
+  .badge-cyan { background: rgba(115,206,220,.15); color: var(--navy); }
+  .badge-green { background: #DCFCE7; color: #15803D; }
+  .badge-amber { background: #FEF3C7; color: #92400E; }
+  .badge-red   { background: #FEE2E2; color: #991B1B; }
+  .badge-info  { background: #DBEAFE; color: #1E40AF; }
+
+  /* LOGO ENTRANCE ANIMATION */
+
+  @keyframes heroTitleIn {
+    from { opacity:0; transform:translateY(28px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+  @keyframes heroCyanWord {
+    from { opacity:0; transform:translateY(12px) skewX(-4deg); }
+    to   { opacity:1; transform:translateY(0) skewX(0deg); }
+  }
+
+  @keyframes logoReveal {
+    0%   { opacity:0; transform:scale(.6) rotate(-10deg); filter:blur(4px); }
+    60%  { opacity:1; transform:scale(1.08) rotate(2deg); filter:blur(0); }
+    80%  { transform:scale(.97) rotate(-1deg); }
+    100% { opacity:1; transform:scale(1) rotate(0deg); filter:blur(0); }
+  }
+  @keyframes logoTextReveal {
+    0%   { opacity:0; transform:translateX(-12px); }
+    100% { opacity:1; transform:translateX(0); }
+  }
+  .navbar-logo img {
+    animation: logoReveal .7s cubic-bezier(.34,1.56,.64,1) .1s both;
+  }
+  .navbar-logo span {
+    animation: logoTextReveal .5s ease .5s both;
+  }
+
+  /* =============================================
+     NAVBAR
+  ============================================= */
+  /* LOGIN DROPDOWN */
+  .login-dropdown { position: relative; }
+  .login-btn {
+    display: flex; align-items: center; gap: 6px;
+    padding: 8px 12px; border-radius: var(--radius);
+    font-size: 13px; font-weight: 500; color: rgba(255,255,255,.85);
+    background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15);
+    cursor: pointer; transition: var(--transition); white-space: nowrap;
+    font-family: var(--font-body);
+  }
+  .login-btn:hover { background: rgba(255,255,255,.14); border-color: rgba(255,255,255,.55); color: #fff; }
+  .login-btn svg { transition: transform 200ms ease; }
+  .login-dropdown.open .login-btn svg { transform: rotate(180deg); }
+  .login-menu {
+    position: absolute; top: calc(100% + 8px); right: 0;
+    background: var(--white); border: 1px solid var(--gray-light);
+    border-radius: var(--radius-lg); padding: 6px;
+    box-shadow: var(--shadow-xl);
+    min-width: 200px; opacity: 0; pointer-events: none;
+    transform: translateY(-6px);
+    transition: opacity 200ms ease, transform 200ms ease;
+    z-index: 200;
+  }
+  .login-dropdown.open .login-menu { opacity: 1; pointer-events: all; transform: translateY(0); }
+  .login-option {
+    display: flex; align-items: center; gap: 10px;
+    padding: 11px 14px; border-radius: 8px; cursor: pointer;
+    transition: background 150ms; text-decoration: none;
+  }
+  .login-option:hover { background: var(--offwhite); }
+  .login-option-icon {
+    width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; font-size: 14px;
+  }
+  .login-option-icon.patient { background: rgba(115,206,220,.12); }
+  .login-option-icon.doctor  { background: rgba(7,20,47,.07); }
+  .login-option-label { font-size: 13px; font-weight: 600; color: var(--navy); display: block; }
+  .login-option-sub   { font-size: 11px; color: var(--gray-mid); display: block; margin-top: 1px; }
+  .login-divider { height: 1px; background: var(--gray-light); margin: 4px 0; }
+
+  .navbar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: var(--navy);
+    height: 64px;
+    display: flex; align-items: center;
+    padding: 0 60px;
+    transition: var(--transition);
+  }
+  .navbar-scrolled { box-shadow: 0 4px 24px rgba(7,20,47,.3); }
+  .navbar-inner { width: 100%; display: flex; align-items: center; gap: 0; }
+  .navbar-logo {
+    font-family: var(--font-display); font-size: 20px; font-weight: 800;
+    color: var(--white); letter-spacing: -.5px;
+    display: flex; align-items: center; gap: 8px;
+    margin-right: 24px; flex-shrink: 0;
+  }
+  .navbar-logo span { color: var(--cyan); }
+  .logo-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--aqua);
+    display: inline-block;
+  }
+  .navbar-links {
+    display: flex; align-items: center; gap: 20px; flex: 1; max-width: 560px; margin-left: 40px;
+  }
+  .navbar-links a {
+    font-size: 13px; font-weight: 500; color: rgba(255,255,255,.8);
+    transition: var(--transition); position: relative; padding-bottom: 2px;
+    white-space: nowrap;
+  }
+  .navbar-links a:hover { color: var(--cyan); }
+  .navbar-links a.active { color: var(--cyan); }
+  .navbar-links a.active::after {
+    content: ''; position: absolute; bottom: -2px; left: 0; right: 0;
+    height: 2px; background: var(--cyan); border-radius: 1px;
+  }
+  .navbar-actions { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+  .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; }
+  .hamburger span { display: block; width: 24px; height: 2px; background: var(--white); border-radius: 2px; transition: var(--transition); }
+
+  /* Mobile Drawer */
+  .mobile-drawer {
+    position: fixed; top: 64px; right: -100%; width: 100%; height: calc(100vh - 64px);
+    background: var(--navy); z-index: 99;
+    padding: 24px; overflow-y: auto;
+    transition: right 300ms cubic-bezier(.4,0,.2,1);
+  }
+  .mobile-drawer.open { right: 0; }
+  .mobile-drawer a {
+    display: flex; align-items: center; height: 52px; padding: 0 16px;
+    font-size: 16px; font-weight: 500; color: var(--white);
+    border-radius: var(--radius); transition: var(--transition);
+  }
+  .mobile-drawer a:hover { background: rgba(115,206,220,.15); color: var(--cyan); }
+  .mobile-drawer .drawer-divider { border: none; border-top: 1px solid rgba(255,255,255,.1); margin: 16px 0; }
+  .mobile-drawer .drawer-btns { display: flex; flex-direction: column; gap: 12px; padding-top: 16px; }
+
+  /* =============================================
+     HERO
+  ============================================= */
+  .hero {
+    background: var(--navy);
+    min-height: 100vh;
+    display: flex; flex-direction: column; justify-content: center;
+    position: relative; overflow: hidden;
+    padding: 0;
+    isolation: isolate;
+  }
+
+  .hero-chips { display:flex; flex-wrap:nowrap; gap:10px; margin-bottom:28px; }
+  .hero-chip {
+    font-size:12px; font-weight:500; color:rgba(255,255,255,.8);
+    background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.15);
+    padding:5px 10px; border-radius:20px; letter-spacing:.2px; white-space:nowrap;
+  }
+  @media (max-width:1023px) { .hero-chips { flex-wrap:wrap; } }
+
+  .hero-bg {
+    position: absolute; inset: 0; pointer-events: none;
+  }
+  .hero-orb {
+    position: absolute; border-radius: 50%; filter: blur(80px); opacity: .18;
+  }
+  .hero-orb-1 {
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, #20C7D4 0%, transparent 70%);
+    top: -200px; right: -100px;
+    animation: float1 8s ease-in-out infinite;
+  }
+  .hero-orb-2 {
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, #BDF7F4 0%, transparent 70%);
+    bottom: 0; left: -100px;
+    animation: float2 10s ease-in-out infinite;
+  }
+
+  @keyframes float1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-30px,40px)} }
+  @keyframes float2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(20px,-30px)} }
+
+  .hero-inner {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 100vh;
+    position: relative; z-index: 2;
+  }
+  .hero-eyebrow {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 24px;
+  }
+  .eyebrow-pill {
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(115,206,220,.12);
+    border: 1px solid rgba(115,206,220,.25);
+    padding: 6px 14px; border-radius: 20px;
+    font-size: 13px; font-weight: 500; color: var(--cyan);
+    letter-spacing: .3px;
+  }
+  .eyebrow-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--cyan); animation: pulse 2s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.8)} }
+
+  .hero-title {
+    font-family: var(--font-display);
+    font-size: 64px; font-weight: 800; line-height: 72px; letter-spacing: -.8px;
+    color: var(--white); margin-bottom: 20px;
+  }
+  .hero-title em { font-style: normal; color: var(--cyan); }
+  .hero-title .underline-cyan {
+    position: relative; display: inline-block;
+    background: var(--aqua); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .hero-subtitle {
+    font-size: 17px; font-weight: 400; line-height: 27px;
+    color: rgba(255,255,255,.75); margin-bottom: 28px;
+  }
+  .hero-ctas { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 40px; }
+  .hero-stats {
+    display: flex; gap: 40px;
+    padding-top: 40px; border-top: 1px solid rgba(255,255,255,.1);
+  }
+  .hero-stat-item {}
+  .hero-stat-num {
+    font-family: var(--font-display); font-size: 28px; font-weight: 700;
+    color: var(--white); line-height: 1;
+  }
+  .hero-stat-num span { color: var(--cyan); }
+  .hero-stat-label { font-size: 12px; color: rgba(255,255,255,.5); margin-top: 4px; letter-spacing: .3px; }
+
+  /* Hero Right: Simulator preview card */
+  .hero-card {
+    background: rgba(255,255,255,.05);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(115,206,220,.2);
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 20px 60px rgba(7,20,47,.4);
+    position: relative;
+  }
+  .hero-card::before {
+    content: '';
+    position: absolute; top: -1px; left: 24px; right: 24px; height: 2px;
+    background: var(--aqua); border-radius: 0 0 2px 2px;
+  }
+  .hc-label {
+    font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--cyan); margin-bottom: 20px;
+  }
+  .hc-amount-display {
+    font-family: var(--font-display);
+    font-size: 44px; font-weight: 800; color: var(--white);
+    line-height: 1; margin-bottom: 8px;
+  }
+  .hc-amount-display small { font-size: 20px; font-weight: 500; margin-right: 4px; color: rgba(255,255,255,.6); }
+  .hc-amount-sub { font-size: 12px; color: rgba(255,255,255,.4); margin-bottom: 24px; }
+  .hc-slider-wrap { margin-bottom: 28px; }
+  .hc-slider {
+    -webkit-appearance: none; appearance: none;
+    width: 100%; height: 4px; border-radius: 2px;
+    background: rgba(255,255,255,.15); outline: none; cursor: pointer;
+    background: linear-gradient(to right, var(--cyan) 0%, var(--cyan) 50%, rgba(255,255,255,.15) 50%, rgba(255,255,255,.15) 100%);
+  }
+  .hc-slider::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 20px; height: 20px; border-radius: 50%;
+    background: var(--white); cursor: pointer;
+    box-shadow: 0 0 0 4px rgba(115,206,220,.3);
+    transition: box-shadow 200ms;
+  }
+  .hc-slider::-webkit-slider-thumb:hover { box-shadow: 0 0 0 6px rgba(115,206,220,.4); }
+  .hc-range-labels { display: flex; justify-content: space-between; margin-top: 8px; }
+  .hc-range-labels span { font-size: 11px; color: rgba(255,255,255,.55); }
+  .hc-terms { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-bottom: 24px; }
+  .term-btn {
+    padding: 10px 8px; border-radius: var(--radius-sm); text-align: center;
+    font-size: 13px; font-weight: 600; cursor: pointer;
+    border: 1px solid rgba(255,255,255,.15); background: transparent;
+    color: rgba(255,255,255,.6); transition: var(--transition);
+  }
+  .term-btn.active {
+    background: var(--aqua); color: var(--navy); border-color: transparent;
+    box-shadow: 0 2px 8px rgba(115,206,220,.3);
+  }
+  .term-btn:hover:not(.active) { border-color: var(--cyan); color: var(--cyan); }
+  .hc-result {
+    background: rgba(115,206,220,.08); border: 1px solid rgba(115,206,220,.2);
+    border-radius: var(--radius); padding: 16px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .hc-result-label { font-size: 13px; color: rgba(255,255,255,.6); }
+  .hc-result-value { font-family: var(--font-display); font-size: 24px; font-weight: 700; color: var(--cyan); }
+  .hc-note { font-size: 11px; color: rgba(255,255,255,.3); text-align: center; margin-bottom: 20px; line-height: 1.6; }
+  .hc-approval {
+    display: flex; align-items: center; gap: 8px; padding: 10px 14px;
+    background: rgba(16,185,129,.1); border: 1px solid rgba(16,185,129,.25);
+    border-radius: var(--radius-sm);
+  }
+  .hc-approval-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+  .hc-approval span { font-size: 12px; color: rgba(255,255,255,.7); }
+
+  /* =============================================
+     SOCIAL PROOF CARD
+  ============================================= */
+  .sp-feed { display:flex; flex-direction:column; gap:12px; }
+  .sp-item {
+    display:flex; align-items:center; gap:12px;
+    padding:12px 14px; border-radius:var(--radius);
+    background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.07);
+    transition:var(--transition); opacity:.55;
+  }
+  .sp-item.sp-item-active { opacity:1; background:rgba(115,206,220,.08); border-color:rgba(115,206,220,.2); }
+  .sp-avatar {
+    width:38px; height:38px; border-radius:50%; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    font-size:15px; font-weight:700; color:var(--navy);
+  }
+  .sp-content { flex:1; min-width:0; }
+  .sp-name { font-size:13px; font-weight:600; color:rgba(255,255,255,.9); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .sp-detail { font-size:12px; color:rgba(255,255,255,.6); margin-top:2px; }
+  .sp-meta { font-size:11px; color:rgba(255,255,255,.35); margin-top:2px; }
+  .sp-check {
+    width:24px; height:24px; border-radius:50%; flex-shrink:0;
+    background:rgba(16,185,129,.2); border:1px solid rgba(16,185,129,.4);
+    display:flex; align-items:center; justify-content:center;
+    font-size:11px; color:#16A34A; font-weight:700;
+  }
+  .sp-stats { display:flex; align-items:center; gap:0; }
+  .sp-stat { flex:1; text-align:center; }
+  .sp-stat-num { font-family:var(--font-display); font-size:20px; font-weight:700; color:var(--cyan); }
+  .sp-stat-lbl { font-size:10px; color:rgba(255,255,255,.4); margin-top:3px; letter-spacing:.3px; }
+  .sp-stat-divider { width:1px; height:36px; background:rgba(255,255,255,.1); flex-shrink:0; }
+
+  /* =============================================
+     TRUST BAR
+  ============================================= */
+  .trust-bar {
+    background: var(--white); border-top: 1px solid var(--gray-light); border-bottom: 1px solid var(--gray-light);
+    padding: 24px 60px; position:relative; z-index:1;
+  }
+  .trust-bar-inner {
+    max-width: 1280px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  }
+  .trust-item {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .trust-icon {
+    width: 44px; height: 44px; border-radius: var(--radius);
+    background: var(--white); border: 1px solid var(--gray-light);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; flex-shrink: 0;
+    box-shadow: var(--shadow-sm);
+  }
+  .trust-text strong { font-size: 18px; font-weight: 700; color: var(--navy); display: block; line-height: 1.2; }
+  .trust-text span { font-size: 12px; color: var(--gray-mid); }
+  .trust-divider { width: 1px; height: 40px; background: var(--gray-light); }
+
+  /* =============================================
+     SECTION BASE
+  ============================================= */
+  .section { padding: 80px 60px; }
+  .section-center { text-align: center; }
+  .section-inner { max-width: 1280px; margin: 0 auto; }
+  .section-tag {
+    display: inline-block;
+    font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--cyan); margin-bottom: 16px;
+    padding: 6px 14px; border-radius: 20px;
+    background: rgba(115,206,220,.1); border: 1px solid rgba(115,206,220,.2);
+  }
+  .section-title { margin-bottom: 16px; }
+  .section-subtitle { color: var(--gray-dark); max-width: 600px; margin: 0 auto 48px; }
+
+  /* =============================================
+     HOW IT WORKS: TABS
+  ============================================= */
+  .hiw { background: var(--white); }
+  .hiw-tabs {
+    display: flex; gap: 0; margin: 0 auto 48px;
+    max-width: 400px; border: 1px solid var(--gray-light);
+    border-radius: var(--radius); overflow: hidden; padding: 4px;
+    background: var(--offwhite);
+  }
+  .hiw-tab {
+    flex: 1; padding: 12px 20px; text-align: center;
+    font-size: 15px; font-weight: 600; cursor: pointer;
+    border-radius: 6px; transition: var(--transition);
+    color: var(--gray-mid); background: transparent; border: none;
+    font-family: var(--font-body);
+  }
+  .hiw-tab.active { background: var(--white); color: var(--navy); box-shadow: var(--shadow-sm); }
+  .hiw-content { display: none; }
+  .hiw-content.active { display: grid; grid-template-columns: repeat(3,1fr); gap: 32px; }
+  .step-card {
+    background: var(--offwhite); border: 1px solid var(--gray-light);
+    border-radius: var(--radius-lg); padding: 32px;
+    position: relative; overflow: hidden;
+    transition: var(--transition);
+  }
+  .step-card:hover { box-shadow: var(--shadow-md); transform: translateY(-4px); border-color: var(--cyan); }
+  .step-num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--aqua);
+    font-family: var(--font-display); font-size: 13px; font-weight: 700;
+    color: var(--navy); position: absolute;
+    top: 20px; right: 20px; line-height: 1;
+  }
+  .step-icon {
+    width: 52px; height: 52px; border-radius: var(--radius);
+    background: var(--aqua);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; margin-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(115,206,220,.3);
+  }
+  .step-title { font-size: 18px; font-weight: 600; margin-bottom: 10px; color: var(--navy); }
+  .step-desc { font-size: 14px; color: var(--gray-dark); line-height: 1.6; }
+
+  /* =============================================
+     SIMULATOR SECTION
+  ============================================= */
+  .simulator { background: var(--navy); position: relative; overflow: hidden; }
+  .simulator::before {
+    content: '';
+    position: absolute; top: -200px; left: 50%; transform: translateX(-50%);
+    width: 800px; height: 800px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(115,206,220,.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .simulator-inner {
+    max-width: 1280px; margin: 0 auto; position: relative; z-index: 2;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;
+  }
+  .simulator-left {}
+  .sim-tag { color: var(--cyan); margin-bottom: 16px; font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; }
+  .sim-title {
+    font-family: var(--font-display); font-size: 36px; font-weight: 700;
+    color: var(--white); line-height: 44px; margin-bottom: 20px;
+  }
+  .sim-title em { font-style: normal; color: var(--cyan); }
+  .sim-desc { font-size: 16px; color: rgba(255,255,255,.6); line-height: 1.6; margin-bottom: 32px; }
+  .sim-bullets { display: flex; flex-direction: column; gap: 16px; }
+  .sim-bullet {
+    display: flex; align-items: flex-start; gap: 12px;
+  }
+  .sim-bullet-icon {
+    width: 32px; height: 32px; border-radius: var(--radius-sm);
+    background: rgba(115,206,220,.12); border: 1px solid rgba(115,206,220,.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; flex-shrink: 0;
+  }
+  .sim-bullet-text { font-size: 14px; color: rgba(255,255,255,.7); line-height: 1.5; }
+  .sim-bullet-text strong { color: var(--white); font-weight: 600; }
+
+  /* Big simulator card */
+  .simulator-card {
+    background: rgba(255,255,255,.04);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(115,206,220,.2);
+    border-radius: 20px; padding: 40px;
+    box-shadow: 0 20px 60px rgba(7,20,47,.5);
+  }
+  .sc-label { font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--cyan); margin-bottom: 28px; }
+  .sc-amount-row {
+    display: flex; align-items: baseline; gap: 4px; margin-bottom: 4px;
+  }
+  .sc-currency { font-size: 20px; font-weight: 500; color: rgba(255,255,255,.5); }
+  .sc-amount { font-family: var(--font-display); font-size: 52px; font-weight: 800; color: var(--white); line-height: 1; }
+  .sc-subtitle { font-size: 12px; color: rgba(255,255,255,.55); margin-bottom: 28px; }
+  .sc-slider-track { margin-bottom: 32px; }
+  .sc-slider {
+    -webkit-appearance: none; appearance: none;
+    width: 100%; height: 6px; border-radius: 3px; outline: none; cursor: pointer;
+    transition: var(--transition);
+  }
+  .sc-slider::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%;
+    background: var(--white); cursor: pointer;
+    box-shadow: 0 0 0 4px rgba(115,206,220,.4), 0 2px 8px rgba(0,0,0,.3);
+    transition: var(--transition);
+  }
+  .sc-slider::-webkit-slider-thumb:hover { box-shadow: 0 0 0 6px rgba(115,206,220,.5), 0 2px 8px rgba(0,0,0,.3); }
+  .sc-range-row { display: flex; justify-content: space-between; margin-top: 10px; }
+  .sc-range-row span { font-size: 11px; color: rgba(255,255,255,.3); }
+  .sc-terms-label { font-size: 12px; font-weight: 500; color: rgba(255,255,255,.5); margin-bottom: 12px; letter-spacing: .3px; }
+  .sc-terms { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-bottom: 28px; }
+  .sc-term {
+    padding: 12px 8px; border-radius: var(--radius-sm); text-align: center;
+    cursor: pointer; border: 1px solid rgba(255,255,255,.15);
+    background: transparent; color: rgba(255,255,255,.5);
+    font-size: 13px; font-weight: 600; font-family: var(--font-body);
+    transition: var(--transition); line-height: 1.3;
+  }
+  .sc-term.active {
+    background: var(--aqua); color: var(--navy);
+    border-color: transparent; box-shadow: 0 2px 10px rgba(115,206,220,.4);
+  }
+  .sc-term:hover:not(.active) { border-color: var(--cyan); color: var(--cyan); }
+  .sc-term small { font-size: 10px; font-weight: 400; display: block; margin-top: 2px; }
+  .sc-results { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+  .sc-result-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 18px; border-radius: var(--radius);
+    background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
+  }
+  .sc-result-row.highlight {
+    background: rgba(115,206,220,.08); border-color: rgba(115,206,220,.25);
+  }
+  .sc-result-lbl { font-size: 13px; color: rgba(255,255,255,.55); }
+  .sc-result-val { font-family: var(--font-display); font-size: 20px; font-weight: 700; color: var(--white); }
+  .sc-result-row.highlight .sc-result-val { color: var(--cyan); font-size: 24px; }
+  .sc-disclaimer { font-size: 11px; color: rgba(255,255,255,.55); text-align: center; line-height: 1.6; margin-bottom: 20px; }
+
+  /* =============================================
+     SPECIALTIES
+  ============================================= */
+  .specialties { background: var(--offwhite); }
+  .spec-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+    gap: 16px;
+  }
+
+  .protege-grid { display:grid; grid-template-columns:1fr 1fr; gap:64px; align-items:center; }
+  @media (max-width:1023px) { .protege-grid { grid-template-columns:1fr; gap:40px; } }
+
+  .spec-tab {
+    padding:9px 20px; border-radius:var(--radius); font-size:13px; font-weight:600;
+    font-family:var(--font-body); cursor:pointer; transition:var(--transition);
+    background:var(--white); color:var(--gray-dark); border:1px solid var(--gray-light);
+  }
+  .spec-tab:hover { border-color:var(--cyan); color:var(--navy); }
+  .spec-tab.active { background:var(--navy); color:var(--white); border-color:var(--navy); }
+
+  .spec-card {
+    background: var(--white); border: 1px solid var(--gray-light);
+    border-radius: var(--radius-lg); padding: 20px 16px;
+    text-align: center; cursor: pointer; transition: var(--transition);
+    text-decoration: none; color: var(--navy);
+  }
+  .spec-card:hover { border-color: var(--cyan); box-shadow: var(--shadow-md); transform: translateY(-4px); }
+.spec-note {
+  cursor: default !important;
+  background: rgba(255,255,255,.92) !important;
+  border-style: dashed !important;
+  box-shadow: none !important;
+}
+.spec-note:hover {
+  border-color: var(--gray-light) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+  .spec-emoji { font-size: 28px; margin-bottom: 10px; display: block; }
+  .spec-name { font-size: 13px; font-weight: 600; line-height: 1.4; }
+  .spec-count { font-size: 11px; color: var(--gray-mid); margin-top: 4px; }
+
+  /* =============================================
+     TESTIMONIALS
+  ============================================= */
+  .testimonials { background: var(--white); }
+  .testi-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; }
+  .testi-card {
+    background: var(--offwhite); border: 1px solid var(--gray-light);
+    border-radius: var(--radius-lg); padding: 28px;
+    transition: var(--transition); position: relative;
+  }
+  .testi-card:hover { box-shadow: var(--shadow-md); border-color: var(--cyan); transform: translateY(-4px); }
+  .testi-card.featured {
+    background: var(--navy); border-color: var(--cyan);
+    grid-row: span 1;
+  }
+  .testi-card.featured .testi-text { color: rgba(255,255,255,.8); }
+  .testi-card.featured .testi-name { color: var(--white); }
+  .testi-card.featured .testi-role { color: rgba(255,255,255,.5); }
+  .testi-card.featured .testi-stars { color: var(--cyan); }
+  .testi-quote-mark {
+    font-size: 48px; line-height: 1; color: var(--cyan); opacity: .4;
+    font-family: Georgia, serif; position: absolute; top: 16px; left: 24px;
+  }
+  .testi-stars { color: #F59E0B; font-size: 14px; margin-bottom: 14px; letter-spacing: 2px; padding-top: 20px; }
+  .testi-text { font-size: 15px; line-height: 1.6; color: var(--gray-dark); margin-bottom: 20px; }
+  .testi-avatar {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: var(--aqua); display: flex; align-items: center;
+    justify-content: center; font-size: 16px; font-weight: 700; color: var(--navy);
+    flex-shrink: 0;
+  }
+  .testi-meta { display: flex; align-items: center; gap: 12px; }
+  .testi-name { font-size: 14px; font-weight: 600; color: var(--navy); }
+  .testi-role { font-size: 12px; color: var(--gray-mid); }
+  .testi-badge { margin-left: auto; }
+
+  /* =============================================
+     PROVIDER SECTION (B2B)
+  ============================================= */
+  .providers {
+    background: linear-gradient(135deg, #F0FDFE 0%, #E0F7FA 100%);
+    border-top: 1px solid rgba(115,206,220,.3);
+    border-bottom: 1px solid rgba(115,206,220,.3);
+  }
+  .prov-inner { max-width: 1280px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+  .prov-tag { font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--cyan); margin-bottom: 16px; }
+  .prov-title { font-family: var(--font-display); font-size: 36px; font-weight: 700; color: var(--navy); line-height: 44px; margin-bottom: 20px; }
+  .prov-desc { font-size: 16px; color: var(--gray-dark); line-height: 1.7; margin-bottom: 32px; }
+  .prov-benefits { display: flex; flex-direction: column; gap: 16px; margin-bottom: 36px; }
+  .prov-benefit {
+    display: flex; align-items: flex-start; gap: 14px;
+    padding: 16px 20px; background: var(--white);
+    border: 1px solid var(--gray-light); border-radius: var(--radius-lg);
+    transition: var(--transition);
+  }
+  .prov-benefit:hover { border-color: var(--cyan); box-shadow: var(--shadow-sm); }
+  .prov-benefit-icon {
+    width: 40px; height: 40px; border-radius: var(--radius-sm);
+    background: var(--aqua); display: flex; align-items: center;
+    justify-content: center; font-size: 18px; flex-shrink: 0;
+  }
+  .prov-benefit-title { font-size: 14px; font-weight: 600; color: var(--navy); margin-bottom: 4px; }
+  .prov-benefit-desc { font-size: 13px; color: var(--gray-dark); line-height: 1.5; }
+  .prov-visual {
+    background: var(--white); border: 1px solid var(--gray-light);
+    border-radius: 20px; padding: 32px;
+    box-shadow: var(--shadow-lg);
+  }
+  .prov-stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+  .prov-stat {
+    background: var(--offwhite); border: 1px solid var(--gray-light);
+    border-radius: var(--radius-lg); padding: 20px;
+    text-align: center; transition: var(--transition);
+  }
+  .prov-stat:hover { border-color: var(--cyan); }
+  .prov-stat-num { font-family: var(--font-display); font-size: 30px; font-weight: 800; color: var(--navy); line-height: 1; margin-bottom: 6px; }
+  .prov-stat-num span { color: var(--cyan); }
+  .prov-stat-lbl { font-size: 11px; color: var(--gray-mid); font-weight: 500; letter-spacing: .3px; }
+  .prov-flow { display: flex; flex-direction: column; gap: 4px; }
+  .flow-step {
+    display: flex; align-items: center; gap: 12px;
+    padding: 8px 12px; border-radius: var(--radius);
+    background: var(--offwhite); border: 1px solid var(--gray-light);
+  }
+  .flow-step-icon { font-size: 18px; }
+  .flow-step-text { font-size: 13px; font-weight: 500; color: var(--navy); flex: 1; }
+  .flow-step-time { font-size: 11px; color: var(--cyan); font-weight: 600; }
+  .flow-arrow { text-align: center; color: var(--gray-light); font-size: 14px; line-height: 1; margin: -2px 0; }
+
+  /* =============================================
+     FAQ
+  ============================================= */
+
+  /* FAQ TABS */
+  .faq-tabs { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; }
+  .faq-tab {
+    padding:10px 22px; border-radius:var(--radius); font-size:14px; font-weight:600;
+    font-family:var(--font-body); cursor:pointer; transition:var(--transition);
+    background:var(--white); color:var(--gray-dark);
+    border:1px solid var(--gray-light);
+  }
+  .faq-tab:hover { border-color:var(--cyan); color:var(--navy); }
+  .faq-tab.active { background:var(--navy); color:var(--white); border-color:var(--navy); }
+
+  .faq { background: var(--offwhite); }
+  .faq-grid { max-width: 800px; margin: 0 auto; }
+  .faq-item {
+    border: 1px solid var(--gray-light); border-radius: var(--radius-lg);
+    background: var(--white); margin-bottom: 12px; overflow: hidden;
+    transition: var(--transition);
+  }
+  .faq-item:hover { border-color: var(--cyan); }
+  .faq-item.open { border-color: var(--cyan); box-shadow: 0 0 0 2px rgba(115,206,220,.1); }
+  .faq-q {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    padding: 20px 24px; cursor: pointer; font-weight: 600; font-size: 15px;
+    color: var(--navy); font-family: var(--font-body);
+    background: transparent; border: none; width: 100%; text-align: left;
+  }
+  .faq-icon {
+    width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+    background: var(--offwhite); border: 1px solid var(--gray-light);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; transition: var(--transition); color: var(--gray-dark);
+  }
+  .faq-item.open .faq-icon { background: var(--aqua); color: var(--navy); transform: rotate(45deg); }
+  .faq-a {
+    padding: 0 24px; max-height: 0; overflow: hidden;
+    transition: max-height 350ms cubic-bezier(.4,0,.2,1), padding 350ms;
+    font-size: 14px; color: var(--gray-dark); line-height: 1.7;
+  }
+  .faq-item.open .faq-a { max-height: 300px; padding: 0 24px 20px; }
+
+  /* =============================================
+     CTA FINAL
+  ============================================= */
+  .cta-final {
+    background: var(--navy); padding: 100px 60px; text-align: center;
+    position: relative; overflow: hidden;
+  }
+  .cta-final::before {
+    content: '';
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    width: 800px; height: 400px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(115,206,220,.08) 0%, transparent 70%);
+  }
+  .cta-title { font-family: var(--font-display); font-size: 38px; font-weight: 800; color: var(--white); margin-bottom: 20px; position: relative; z-index: 2; line-height: 1.2; }
+  .cta-title span { color: var(--cyan); }
+  .cta-subtitle { font-size: 18px; color: rgba(255,255,255,.6); margin-bottom: 40px; max-width: 560px; margin-left: auto; margin-right: auto; position: relative; z-index: 2; }
+  .cta-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; position: relative; z-index: 2; }
+
+  /* =============================================
+     FOOTER
+  ============================================= */
+  .footer { background: var(--navy-dark); padding: 64px 60px 32px; }
+  .footer-inner { max-width: 1280px; margin: 0 auto; }
+  .footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 60px; margin-bottom: 48px; }
+  .footer-brand { }
+  .footer-logo { font-family: var(--font-display); font-size: 22px; font-weight: 800; color: var(--white); margin-bottom: 12px; }
+  .footer-logo span { color: var(--cyan); }
+  .footer-tagline { font-size: 14px; color: rgba(255,255,255,.4); line-height: 1.6; max-width: 240px; margin-bottom: 24px; }
+  .footer-socials { display: flex; gap: 10px; }
+  .social-btn {
+    width: 36px; height: 36px; border-radius: var(--radius-sm);
+    background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; color: rgba(255,255,255,.5); cursor: pointer;
+    transition: var(--transition); text-decoration: none;
+  }
+  .social-btn:hover { background: rgba(115,206,220,.15); border-color: var(--cyan); color: var(--cyan); }
+  .footer-col h4 { font-size: 13px; font-weight: 600; color: rgba(255,255,255,.5); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 20px; }
+  .footer-col ul { display: flex; flex-direction: column; gap: 12px; }
+  .footer-col li a { font-size: 14px; color: rgba(255,255,255,.5); transition: var(--transition); }
+  .footer-col li a:hover { color: var(--cyan); }
+  .footer-bottom {
+    border-top: 1px solid rgba(255,255,255,.06);
+    padding-top: 24px; display: flex; justify-content: space-between;
+    align-items: center; gap: 16px; flex-wrap: wrap;
+  }
+  .footer-legal { font-size: 12px; color: rgba(255,255,255,.55); }
+  .footer-legal a { color: rgba(255,255,255,.55); transition: var(--transition); }
+  .footer-legal a:hover { color: var(--cyan); }
+  .footer-legal-links { display: flex; gap: 24px; }
+
+  /* =============================================
+     ANIMATIONS
+  ============================================= */
+
+  @media (max-width: 1023px) {
+    #doctor-results { grid-template-columns: 1fr 1fr !important; }
+    .search-filters > div { grid-template-columns: 1fr 1fr !important; }
+  }
+  @media (max-width: 767px) {
+    #doctor-results { grid-template-columns: 1fr !important; }
+    .search-filters > div { grid-template-columns: 1fr 1fr !important; }
+    .search-filters > div > button { grid-column: span 2; }
+  }
+
+  /* Firefox slider */
+  .sc-slider::-moz-range-thumb {
+    width:22px; height:22px; border-radius:50%; border:none;
+    background:var(--white); cursor:pointer;
+    box-shadow:0 0 0 4px rgba(115,206,220,.4), 0 2px 8px rgba(0,0,0,.3);
+  }
+  .hc-slider::-moz-range-thumb {
+    width:20px; height:20px; border-radius:50%; border:none;
+    background:var(--white); cursor:pointer;
+    box-shadow:0 0 0 4px rgba(115,206,220,.3);
+  }
+  .sc-slider::-moz-range-track { height:6px; border-radius:3px; background:rgba(255,255,255,.15); }
+  .hc-slider::-moz-range-track { height:4px; border-radius:2px; background:rgba(255,255,255,.15); }
+
+  /* TIMELINE */
+  .timeline-row { display:flex; align-items:flex-start; gap:0; justify-content:center; }
+  .tl-step { flex:1; max-width:200px; text-align:center; }
+  .tl-icon-wrap {
+    width:64px; height:64px; border-radius:16px; margin:0 auto 14px;
+    background:var(--white); border:1px solid var(--gray-light); box-shadow:0 2px 8px rgba(7,20,47,.08);
+    display:flex; align-items:center; justify-content:center;
+    font-size:26px; transition:var(--transition);
+  }
+  .tl-icon-wrap:hover { background:rgba(115,206,220,.18); transform:translateY(-3px); }
+  .tl-icon-active { background:var(--white); border-color:var(--gray-light); }
+  .tl-icon { font-size:26px; }
+  .tl-icon-logo { width:34px; height:34px; display:flex; align-items:center; justify-content:center; }
+  .tl-icon-logo picture, .tl-icon-logo img { width:34px; height:34px; display:block; object-fit:contain; }
+  .tl-time { font-size:11px; font-weight:600; color:var(--navy); letter-spacing:.8px; text-transform:uppercase; margin-bottom:8px; }
+  .tl-title { font-family:var(--font-display); font-size:17px; font-weight:700; color:var(--navy); margin-bottom:8px; }
+  .tl-desc { font-size:14px; color:var(--gray-dark); line-height:1.6; }
+  .tl-arrow { font-size:24px; color:var(--cyan); padding:0 16px; margin-top:20px; flex-shrink:0; }
+  @media (max-width:1023px) {
+    .timeline-row { flex-direction:column; align-items:center; gap:24px; }
+    .tl-arrow { transform:rotate(90deg); margin:0; }
+    .tl-step { max-width:100%; }
+  }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .animate { animation: fadeInUp .6s ease forwards; }
+  .delay-1 { animation-delay: .1s; opacity: 0; }
+  .delay-2 { animation-delay: .2s; opacity: 0; }
+  .delay-3 { animation-delay: .3s; opacity: 0; }
+  .delay-4 { animation-delay: .4s; opacity: 0; }
+
+  /* Stats fade-in */
+  .counter-val { display: inline; }
+  @keyframes statFadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+  .hero-stat-num { animation: statFadeIn .6s ease forwards; }
+
+  /* =============================================
+     SCROLL REVEAL
+  ============================================= */
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity .6s ease, transform .6s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* =============================================
+     RESPONSIVE
+  ============================================= */
+  @media (max-width: 1023px) {
+    .navbar { padding: 0 24px; }
+    .navbar-links { display: none; }
+    .navbar-actions { display: none; }
+    .hamburger { display: flex; }
+    .hero { padding: 100px 24px 60px; }
+    .hero-inner { grid-template-columns: 1fr; gap: 40px; }
+    .hero-title { font-size: 36px; line-height: 44px; }
+    .hero-inner { grid-template-columns: 1fr; }
+    .hero-inner > div:last-child { display: none; }
+    .hero-inner > div:first-child { padding: 120px 24px 80px; max-width: 100%; }
+    .hero { }
+
+    .hero-stats { gap: 24px; flex-wrap: wrap; }
+    .trust-bar { padding: 24px; }
+    .trust-bar-inner { gap: 20px; }
+    .trust-divider { display: none; }
+    .section { padding: 60px 24px; }
+    .hiw-content.active { grid-template-columns: 1fr; }
+    .simulator-inner { grid-template-columns: 1fr; gap: 40px; }
+    .simulator-left { order: 2; }
+    .testi-grid { grid-template-columns: 1fr; }
+    .prov-inner { grid-template-columns: 1fr; gap: 40px; }
+    .spec-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+    .footer-top { grid-template-columns: 1fr 1fr; gap: 32px; }
+    .cta-final { padding: 60px 24px; }
+    .cta-title { font-size: 32px; }
+  }
+  @media (max-width: 767px) {
+    .hero-stats { gap: 20px; }
+    .hero-stat-num { font-size: 22px; }
+    .trust-bar-inner { grid-template-columns: 1fr 1fr; display: grid; }
+    .footer-top { grid-template-columns: 1fr; }
+    .footer-bottom { flex-direction: column; text-align: center; }
+    .sc-terms { grid-template-columns: repeat(2,1fr); }
+    .prov-stat-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* =============================================
+     MOBILE RESPONSIVE FIXES v121
+  ============================================= */
+
+  /* 1. Hero mobile reduce padding-top */
+  @media (max-width: 767px) {
+    .hero-inner > div:first-child {
+      padding-top: 90px !important;
+    }
+  }
+
+  /* 2. Bloque "Financiamiento médico..." fix 5-col inline grid */
+  @media (max-width: 767px) {
+    #bloque-cards {
+      grid-template-columns: 1fr 1fr !important;
+    }
+    #bloque-section {
+      padding: 40px 24px !important;
+    }
+  }
+  @media (max-width: 480px) {
+    #bloque-cards {
+      grid-template-columns: 1fr !important;
+    }
+  }
+
+  /* 3. HIW tabs allow wrap on small screens */
+  @media (max-width: 480px) {
+    .hiw-tabs {
+      flex-wrap: wrap !important;
+      max-width: 100% !important;
+    }
+    .hiw-tab {
+      flex: 1 1 auto !important;
+      text-align: center !important;
+      font-size: 12px !important;
+      padding: 8px 12px !important;
+    }
+  }
+
+  /* 4. Pulzzo acompaña reduce card lateral padding */
+  @media (max-width: 767px) {
+    #protege-card-lateral {
+      padding: 22px !important;
+    }
+  }
+
+  /* 5. Doctores doctor image height + flow padding */
+  @media (max-width: 767px) {
+    #doctor-hero-img {
+      height: 220px !important;
+    }
+    .prov-flow {
+      padding: 0 !important;
+    }
+  }
+
+  /* 6. Directorio inputs full width */
+  @media (max-width: 767px) {
+    #filter-categoria,
+    #filter-procedimiento,
+    #filter-estado,
+    #filter-municipio,
+    #filter-descripcion {
+      width: 100% !important;
+      box-sizing: border-box !important;
+    }
+    .search-filters {
+      padding: 20px 16px !important;
+    }
+  }
+
+  /* 7. FAQ tabs allow wrap + smaller font */
+  @media (max-width: 480px) {
+    .faq-tabs {
+      flex-wrap: wrap !important;
+      gap: 6px !important;
+    }
+    .faq-tab {
+      font-size: 12px !important;
+      padding: 8px 12px !important;
+    }
+  }
+
+  /* 8. Footer legal better legibility on mobile */
+  @media (max-width: 767px) {
+    .footer-bottom p {
+      opacity: 0.75 !important;
+    }
+  }
+
+  /* =============================================
+     MOBILE HOTFIX v128 viewport + simulator
+     Added after GitHub mobile QA. Desktop untouched.
+  ============================================= */
+  @media (max-width: 767px) {
+    html, body { width:100% !important; max-width:100% !important; overflow-x:hidden !important; }
+    *, *::before, *::after { max-width:100%; box-sizing:border-box; }
+    .section, section.section, #bloque-section, #simulador, .specialties, .providers, .faq, .cta-final, .footer { padding-left:24px !important; padding-right:24px !important; }
+    .section-inner { width:100% !important; max-width:100% !important; }
+    .hero { min-height:auto !important; padding:0 !important; }
+    .hero-inner { min-height:auto !important; display:block !important; }
+    .hero-inner > div:first-child { width:100% !important; padding:112px 24px 56px !important; }
+    .hero-title { font-size:40px !important; line-height:1.12 !important; letter-spacing:-.5px !important; margin-bottom:20px !important; }
+    .hero-subtitle { font-size:18px !important; line-height:1.55 !important; margin-bottom:28px !important; }
+    .hero-chips { display:flex !important; flex-wrap:wrap !important; gap:10px !important; margin-bottom:28px !important; }
+    .hero-chip { max-width:100% !important; white-space:normal !important; }
+    .hero-ctas { width:100% !important; display:flex !important; flex-direction:column !important; align-items:stretch !important; gap:14px !important; margin-bottom:32px !important; }
+    .hero-ctas .btn { width:100% !important; min-width:0 !important; white-space:normal !important; }
+    .hero-stats { display:grid !important; grid-template-columns:1fr 1fr !important; gap:22px 18px !important; padding-top:28px !important; }
+    .hero-stat-item { min-width:0 !important; }
+    .display-xl, .display-l, .h1, .section-title, .prov-title, .cta-title { font-size:34px !important; line-height:1.18 !important; letter-spacing:-.35px !important; }
+    .section-subtitle, .body-l, .prov-desc, .cta-subtitle { font-size:17px !important; line-height:1.55 !important; }
+    #bloque-section { padding-top:56px !important; padding-bottom:56px !important; }
+    #bloque-section h2 { font-size:34px !important; line-height:1.18 !important; margin-bottom:20px !important; }
+    #bloque-cards { gap:16px !important; }
+    #bloque-cards > div { min-height:auto !important; padding:24px 18px !important; }
+    .hiw-content.active { gap:18px !important; }
+    .step-card { padding:24px 20px !important; }
+    .step-title { font-size:20px !important; line-height:1.25 !important; }
+    .step-desc { font-size:16px !important; line-height:1.55 !important; }
+    #simulador { padding:56px 20px !important; overflow:hidden !important; }
+    #simulador .section-tag { font-size:11px !important; letter-spacing:1.1px !important; white-space:normal !important; text-align:center !important; }
+    #simulador h2 { font-size:34px !important; line-height:1.16 !important; }
+    #simulador p { max-width:100% !important; }
+    #simulador .section-inner > div[style*="background:rgba(255,255,255,.04)"] { width:100% !important; max-width:100% !important; margin:0 auto !important; padding:24px 18px !important; border-radius:18px !important; overflow:hidden !important; }
+    #simulador input#sc2-input { font-size:30px !important; line-height:1 !important; min-width:0 !important; }
+    #simulador #sc2-plans { display:grid !important; grid-template-columns:1fr 1fr !important; gap:12px !important; width:100% !important; max-width:100% !important; overflow:visible !important; }
+    #simulador .sc2-plan { min-width:0 !important; width:100% !important; padding:14px 12px !important; border-radius:12px !important; background:rgba(255,255,255,.03) !important; border:1px solid rgba(255,255,255,.08) !important; }
+    #simulador .sc2-plan-monthly { font-size:23px !important; line-height:1.05 !important; word-break:keep-all !important; }
+    #simulador .sc2-plan-total { font-size:11px !important; line-height:1.35 !important; }
+    #simulador .sc2-plan-active { border-color:rgba(115,206,220,.45) !important; background:rgba(115,206,220,.08) !important; }
+    #simulador .btn { width:100% !important; min-width:0 !important; white-space:normal !important; text-align:center !important; padding:16px 18px !important; }
+    #simulador [style*="display:flex;align-items:center;justify-content:space-between;gap:20px"] { flex-direction:column !important; align-items:stretch !important; gap:16px !important; padding:18px !important; }
+    #simulador [style*="display:flex;gap:32px"] { display:grid !important; grid-template-columns:1fr 1fr !important; gap:14px !important; width:100% !important; }
+    .timeline-row { gap:22px !important; }
+    .tl-step { padding:0 8px !important; }
+    .tl-title { font-size:20px !important; line-height:1.25 !important; }
+    .tl-desc { font-size:16px !important; line-height:1.55 !important; }
+    .spec-grid { grid-template-columns:repeat(2, minmax(0, 1fr)) !important; gap:14px !important; }
+    .spec-card { padding:22px 12px !important; min-width:0 !important; }
+    .spec-name { font-size:14px !important; }
+    .spec-tab { width:100% !important; justify-content:center !important; }
+    .protege-grid { gap:30px !important; }
+    #protege-card-lateral { width:100% !important; max-width:100% !important; padding:22px !important; border-radius:22px !important; }
+    #protege-card-lateral .btn { width:100% !important; white-space:normal !important; }
+    .providers { padding-top:56px !important; padding-bottom:56px !important; }
+    .prov-inner { gap:32px !important; }
+    .prov-title { font-size:36px !important; }
+    .prov-benefit { padding:18px 16px !important; gap:14px !important; }
+    .prov-benefit-title { font-size:17px !important; line-height:1.35 !important; }
+    .prov-benefit-desc { font-size:15px !important; line-height:1.55 !important; }
+    .prov-visual { padding:20px !important; border-radius:18px !important; }
+    .flow-step { padding:12px !important; gap:10px !important; align-items:flex-start !important; }
+    .flow-step-text { font-size:15px !important; line-height:1.35 !important; }
+    .flow-step-time { font-size:12px !important; white-space:normal !important; text-align:right !important; }
+    .search-filters > div { grid-template-columns:1fr !important; }
+    .search-filters > div > button { grid-column:auto !important; width:100% !important; }
+    .search-filters select, .search-filters input, .search-filters button { min-width:0 !important; width:100% !important; }
+    .faq-q { padding:18px 16px !important; font-size:18px !important; line-height:1.25 !important; }
+    .faq-a { padding-left:16px !important; padding-right:16px !important; }
+    .cta-btns, .footer-legal-links { flex-direction:column !important; align-items:stretch !important; width:100% !important; }
+    .cta-btns .btn { width:100% !important; white-space:normal !important; }
+    .footer { padding-top:56px !important; }
+  }
+  @media (max-width:430px) {
+    .navbar { height:64px !important; padding:0 20px !important; }
+    .navbar-logo { font-size:22px !important; gap:8px !important; }
+    .hero-inner > div:first-child { padding:104px 20px 52px !important; }
+    .hero-title { font-size:34px !important; line-height:1.16 !important; }
+    .hero-subtitle { font-size:16px !important; }
+    .btn { font-size:15px !important; padding-left:18px !important; padding-right:18px !important; }
+    .section, section.section, #bloque-section, #simulador, .specialties, .providers, .faq, .cta-final, .footer { padding-left:20px !important; padding-right:20px !important; }
+    .h1, .section-title, .prov-title, .cta-title { font-size:32px !important; }
+    #simulador .section-inner > div[style*="background:rgba(255,255,255,.04)"] { padding:22px 16px !important; }
+    #simulador #sc2-plans { grid-template-columns:1fr !important; }
+    #simulador .sc2-plan-monthly { font-size:25px !important; }
+    #simulador [style*="display:flex;gap:32px"] { grid-template-columns:1fr !important; }
+    .spec-grid { grid-template-columns:1fr 1fr !important; }
+  }
+
+  /* =============================================
+     HERO IMAGE MOBILE FIX v128.2 keep hero photo visible on mobile
+     Desktop untouched. Starts from v128 hotfix.
+  ============================================= */
+  @media (max-width: 767px) {
+    .hero-bg-mobile-photo {
+      position: absolute !important;
+      inset: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      overflow: hidden !important;
+      background: var(--navy) !important;
+    }
+    .hero-bg-mobile-photo picture,
+    .hero-bg-mobile-photo .hero-photo-img {
+      display: block !important;
+      width: 100% !important;
+      height: 100% !important;
+      max-width: none !important;
+    }
+    .hero-bg-mobile-photo .hero-photo-img {
+      object-fit: cover !important;
+      object-position: 64% center !important;
+      opacity: .82 !important;
+      filter: saturate(.96) contrast(.95) brightness(.82) !important;
+    }
+    .hero-photo-overlay {
+      background:
+        linear-gradient(to bottom,
+          rgba(7,20,47,.94) 0%,
+          rgba(7,20,47,.84) 34%,
+          rgba(7,20,47,.68) 62%,
+          rgba(7,20,47,.88) 100%) !important;
+    }
+    .hero::after {
+      content: '' !important;
+      position: absolute !important;
+      inset: 0 !important;
+      z-index: 1 !important;
+      pointer-events: none !important;
+      background: radial-gradient(circle at 82% 26%, rgba(115,206,220,.16) 0%, rgba(115,206,220,0) 42%) !important;
+    }
+    .hero-inner {
+      position: relative !important;
+      z-index: 2 !important;
+    }
+    .hero-inner > div:first-child {
+      padding-top: 96px !important;
+      padding-bottom: 48px !important;
+    }
+  }
+  @media (max-width: 430px) {
+    .hero-bg-mobile-photo .hero-photo-img {
+      object-position: 69% center !important;
+      opacity: .78 !important;
+    }
+    .hero-photo-overlay {
+      background:
+        linear-gradient(to bottom,
+          rgba(7,20,47,.96) 0%,
+          rgba(7,20,47,.88) 36%,
+          rgba(7,20,47,.70) 66%,
+          rgba(7,20,47,.90) 100%) !important;
+    }
+  }
+
+  /* =============================================
+     HERO MOBILE COMPACT POLISH v128.3
+     Only mobile hero. Desktop, simulator, copy, routes and JS untouched.
+  ============================================= */
+  @media (max-width: 767px) {
+    .hero {
+      min-height: auto !important;
+      height: auto !important;
+      padding: 0 !important;
+      overflow: hidden !important;
+    }
+    .hero-inner {
+      min-height: auto !important;
+      height: auto !important;
+      display: block !important;
+      position: relative !important;
+      z-index: 2 !important;
+    }
+    .hero-inner > div:first-child {
+      padding: 92px 24px 34px !important;
+      max-width: 100% !important;
+    }
+    .hero-title {
+      font-size: 36px !important;
+      line-height: 1.12 !important;
+      margin-bottom: 18px !important;
+      letter-spacing: -.45px !important;
+    }
+    .hero-chips {
+      gap: 8px !important;
+      margin-bottom: 22px !important;
+    }
+    .hero-chip {
+      font-size: 12px !important;
+      line-height: 1.2 !important;
+      padding: 6px 10px !important;
+      white-space: normal !important;
+      max-width: 100% !important;
+    }
+    .hero-subtitle {
+      font-size: 16px !important;
+      line-height: 1.48 !important;
+      margin-bottom: 24px !important;
+      max-width: 100% !important;
+    }
+    .hero-ctas {
+      gap: 12px !important;
+      margin-bottom: 24px !important;
+    }
+    .hero-ctas .btn {
+      width: 100% !important;
+      min-height: 56px !important;
+      font-size: 16px !important;
+      white-space: normal !important;
+    }
+    .hero-stats {
+      display: grid !important;
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      gap: 14px 18px !important;
+      margin-top: 24px !important;
+      padding-top: 22px !important;
+      padding-bottom: 0 !important;
+      border-top: 1px solid rgba(255,255,255,.12) !important;
+    }
+    .hero-stats > div:not(.hero-stat-item) {
+      display: none !important;
+    }
+    .hero-stat-item {
+      min-width: 0 !important;
+    }
+    .hero-stat-num,
+    .hero-stat-num[style] {
+      font-size: 22px !important;
+      line-height: 1.05 !important;
+    }
+    .hero-stat-num span,
+    .hero-stat-num span[style] {
+      font-size: inherit !important;
+    }
+    .hero-stat-label {
+      font-size: 10px !important;
+      line-height: 1.25 !important;
+      letter-spacing: .7px !important;
+      margin-top: 5px !important;
+    }
+    .hero-inner > div:last-child {
+      display: none !important;
+    }
+    #fab {
+      display: none !important;
+    }
+    .hero-bg-mobile-photo .hero-photo-img,
+    .hero > div:first-child picture img {
+      object-position: 68% 28% !important;
+      opacity: .66 !important;
+      filter: saturate(1.02) contrast(.98) brightness(.92) !important;
+    }
+    .hero-photo-overlay,
+    .hero > div:first-child > div {
+      background:
+        linear-gradient(to bottom,
+          rgba(7,20,47,.96) 0%,
+          rgba(7,20,47,.90) 20%,
+          rgba(7,20,47,.74) 48%,
+          rgba(7,20,47,.90) 100%),
+        linear-gradient(to right,
+          rgba(7,20,47,.96) 0%,
+          rgba(7,20,47,.74) 58%,
+          rgba(7,20,47,.52) 100%) !important;
+    }
+    .hero::before {
+      content: '' !important;
+      position: absolute !important;
+      left: 0 !important;
+      right: 0 !important;
+      bottom: 0 !important;
+      height: 120px !important;
+      z-index: 1 !important;
+      pointer-events: none !important;
+      background: linear-gradient(to top, rgba(7,20,47,.96), rgba(7,20,47,0)) !important;
+    }
+  }
+
+  @media (max-width: 430px) {
+    .hero-inner > div:first-child {
+      padding: 88px 20px 30px !important;
+    }
+    .hero-title {
+      font-size: 33px !important;
+      line-height: 1.13 !important;
+      margin-bottom: 16px !important;
+    }
+    .hero-subtitle {
+      font-size: 15.5px !important;
+      line-height: 1.46 !important;
+      margin-bottom: 22px !important;
+    }
+    .hero-ctas {
+      margin-bottom: 22px !important;
+    }
+    .hero-stats {
+      gap: 13px 14px !important;
+      margin-top: 22px !important;
+      padding-top: 20px !important;
+    }
+    .hero-stat-num,
+    .hero-stat-num[style] {
+      font-size: 20px !important;
+    }
+    .hero-stat-label {
+      font-size: 9.5px !important;
+    }
+    .hero-bg-mobile-photo .hero-photo-img,
+    .hero > div:first-child picture img {
+      object-position: 70% 24% !important;
+      opacity: .62 !important;
+    }
+  }
+
+  /* =============================================
+     MOBILE POLISH v128.4 hero chips, Pulzzo acompaña, provider flow, confianza
+     Only mobile. Desktop, copy, routes, JS and assets untouched.
+  ============================================= */
+  @media (max-width: 767px) {
+    /* HERO: chips verticales y foto más visible sin perder legibilidad */
+    .hero-chips {
+      flex-direction: column !important;
+      align-items: flex-start !important;
+      gap: 8px !important;
+      margin-bottom: 22px !important;
+      max-width: 78% !important;
+    }
+    .hero-chip {
+      display: inline-flex !important;
+      width: auto !important;
+      max-width: 100% !important;
+      white-space: nowrap !important;
+      padding: 6px 11px !important;
+      background: rgba(255,255,255,.11) !important;
+      border-color: rgba(255,255,255,.24) !important;
+      backdrop-filter: blur(8px) !important;
+    }
+    .hero-bg-mobile-photo .hero-photo-img,
+    .hero > div:first-child picture img {
+      object-position: 66% 22% !important;
+      opacity: .78 !important;
+      filter: saturate(1.05) contrast(1.02) brightness(.98) !important;
+    }
+    .hero-photo-overlay,
+    .hero > div:first-child > div {
+      background:
+        linear-gradient(to bottom,
+          rgba(7,20,47,.90) 0%,
+          rgba(7,20,47,.78) 28%,
+          rgba(7,20,47,.58) 56%,
+          rgba(7,20,47,.84) 100%),
+        linear-gradient(to right,
+          rgba(7,20,47,.94) 0%,
+          rgba(7,20,47,.70) 52%,
+          rgba(7,20,47,.42) 100%) !important;
+    }
+
+    /* PULZZO ACOMPAÑA: mantener ✗ Ninguno alineado en la misma línea */
+    #protege-card-lateral > div:nth-of-type(2) > div {
+      display: grid !important;
+      grid-template-columns: minmax(0, 1fr) auto !important;
+      align-items: center !important;
+      gap: 12px !important;
+      padding: 13px 14px !important;
+    }
+    #protege-card-lateral > div:nth-of-type(2) > div > span:first-child {
+      min-width: 0 !important;
+      line-height: 1.35 !important;
+    }
+    #protege-card-lateral > div:nth-of-type(2) > div > span:last-child {
+      white-space: nowrap !important;
+      text-align: right !important;
+      font-size: 15px !important;
+      line-height: 1.2 !important;
+    }
+
+    /* FLUJO DOCTOR / CLÍNICA: formato más legible y sin columnas apretadas */
+    .prov-flow {
+      gap: 10px !important;
+    }
+    .prov-flow .flow-step {
+      display: grid !important;
+      grid-template-columns: 34px minmax(0, 1fr) !important;
+      gap: 10px 12px !important;
+      align-items: flex-start !important;
+      padding: 14px 14px !important;
+      border-radius: 12px !important;
+    }
+    .prov-flow .flow-step::after {
+      left: 50% !important;
+      transform: translateX(-50%) !important;
+      bottom: -14px !important;
+      color: rgba(7,20,47,.14) !important;
+    }
+    .prov-flow .flow-step-icon {
+      grid-column: 1 !important;
+      grid-row: 1 / span 2 !important;
+      width: 34px !important;
+      height: 34px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      font-size: 18px !important;
+    }
+    .prov-flow .flow-step-text {
+      grid-column: 2 !important;
+      font-size: 16px !important;
+      line-height: 1.35 !important;
+      min-width: 0 !important;
+    }
+    .prov-flow .flow-step-time {
+      grid-column: 2 !important;
+      justify-self: start !important;
+      text-align: left !important;
+      white-space: normal !important;
+      font-size: 12px !important;
+      line-height: 1.25 !important;
+      margin-top: 2px !important;
+    }
+
+    /* CONFIANZA PULZZO: evitar carrusel accidental / corte lateral en mobile */
+    #confianza-pulzzo {
+      padding: 56px 22px !important;
+      overflow: hidden !important;
+    }
+    #confianza-pulzzo .section-inner {
+      max-width: 100% !important;
+      width: 100% !important;
+    }
+    #confianza-pulzzo .confianza-grid {
+      display: grid !important;
+      grid-template-columns: 1fr !important;
+      gap: 14px !important;
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+    #confianza-pulzzo .confianza-card {
+      width: 100% !important;
+      max-width: 100% !important;
+      min-width: 0 !important;
+      padding: 22px 20px !important;
+      border-radius: 16px !important;
+    }
+    #confianza-pulzzo .confianza-card > div:first-child {
+      font-size: 26px !important;
+      margin-bottom: 10px !important;
+    }
+    #confianza-pulzzo .confianza-card > div:nth-child(2) {
+      font-size: 18px !important;
+      line-height: 1.3 !important;
+      margin-bottom: 8px !important;
+    }
+    #confianza-pulzzo .confianza-card > div:nth-child(3) {
+      font-size: 15px !important;
+      line-height: 1.55 !important;
+    }
+  }
+
+  @media (max-width: 430px) {
+    .hero-chips {
+      max-width: 86% !important;
+    }
+    .hero-bg-mobile-photo .hero-photo-img,
+    .hero > div:first-child picture img {
+      object-position: 68% 21% !important;
+      opacity: .80 !important;
+    }
+    .hero-photo-overlay,
+    .hero > div:first-child > div {
+      background:
+        linear-gradient(to bottom,
+          rgba(7,20,47,.88) 0%,
+          rgba(7,20,47,.76) 30%,
+          rgba(7,20,47,.56) 58%,
+          rgba(7,20,47,.84) 100%),
+        linear-gradient(to right,
+          rgba(7,20,47,.94) 0%,
+          rgba(7,20,47,.68) 54%,
+          rgba(7,20,47,.40) 100%) !important;
+    }
+    #protege-card-lateral {
+      padding: 20px !important;
+    }
+    #protege-card-lateral > div:nth-of-type(2) > div {
+      padding: 12px 12px !important;
+      gap: 10px !important;
+    }
+    #protege-card-lateral > div:nth-of-type(2) > div > span:last-child {
+      font-size: 14px !important;
+    }
+  }
+
+  /* =============================================
+     MOBILE DRAWER FINAL POLISH v1295 mobile only
+     Fixes blank button + organizes login/register cards
+  ============================================= */
+  @media (max-width: 767px) {
+    .mobile-drawer {
+      top: 72px !important;
+      height: calc(100vh - 72px) !important;
+      padding: 18px 18px 28px !important;
+      background: linear-gradient(180deg, #07142F 0%, #071225 100%) !important;
+      overflow-x: hidden !important;
+      overflow-y: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+    }
+
+    .drawer-nav-list {
+      display: grid !important;
+      grid-template-columns: 1fr !important;
+      gap: 2px !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+
+    .mobile-drawer a.drawer-nav-link {
+      display: flex !important;
+      align-items: center !important;
+      height: auto !important;
+      min-height: 40px !important;
+      padding: 8px 10px !important;
+      font-size: 16px !important;
+      line-height: 1.2 !important;
+      font-weight: 650 !important;
+      color: rgba(255,255,255,.92) !important;
+      border-radius: 10px !important;
+      background: transparent !important;
+      border: 0 !important;
+      box-shadow: none !important;
+      text-align: left !important;
+    }
+
+    .mobile-drawer a.drawer-nav-link:hover,
+    .mobile-drawer a.drawer-nav-link:active {
+      background: rgba(115,206,220,.12) !important;
+      color: #fff !important;
+    }
+
+    .mobile-drawer .drawer-divider {
+      margin: 14px 0 !important;
+      border: 0 !important;
+      border-top: 1px solid rgba(255,255,255,.14) !important;
+    }
+
+    .drawer-section {
+      display: grid !important;
+      grid-template-columns: 1fr !important;
+      gap: 9px !important;
+      margin: 0 0 16px !important;
+      padding: 0 !important;
+    }
+
+    .drawer-section-title {
+      display: block !important;
+      margin: 0 0 1px !important;
+      font-size: 11px !important;
+      line-height: 1 !important;
+      letter-spacing: 1.35px !important;
+      text-transform: uppercase !important;
+      font-weight: 800 !important;
+      color: var(--cyan) !important;
+      opacity: .95 !important;
+    }
+
+    .mobile-drawer a.drawer-option-card {
+      display: grid !important;
+      grid-template-columns: 40px minmax(0, 1fr) !important;
+      align-items: center !important;
+      gap: 12px !important;
+      width: 100% !important;
+      height: auto !important;
+      min-height: 66px !important;
+      padding: 11px 13px !important;
+      border-radius: 16px !important;
+      color: #fff !important;
+      background: rgba(255,255,255,.055) !important;
+      border: 1px solid rgba(255,255,255,.16) !important;
+      box-shadow: 0 10px 24px rgba(0,0,0,.14) !important;
+      text-align: left !important;
+    }
+
+    .mobile-drawer a.drawer-option-card:hover,
+    .mobile-drawer a.drawer-option-card:active {
+      background: rgba(115,206,220,.11) !important;
+      border-color: rgba(115,206,220,.55) !important;
+    }
+
+    .drawer-option-icon {
+      width: 40px !important;
+      height: 40px !important;
+      border-radius: 12px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      background: rgba(115,206,220,.14) !important;
+      font-size: 19px !important;
+      line-height: 1 !important;
+      flex-shrink: 0 !important;
+    }
+
+    .drawer-option-copy {
+      min-width: 0 !important;
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 3px !important;
+    }
+
+    .drawer-option-copy strong {
+      display: block !important;
+      font-size: 15px !important;
+      line-height: 1.18 !important;
+      font-weight: 800 !important;
+      color: #fff !important;
+      white-space: normal !important;
+    }
+
+    .drawer-option-copy small {
+      display: block !important;
+      font-size: 12px !important;
+      line-height: 1.25 !important;
+      color: rgba(255,255,255,.62) !important;
+      white-space: normal !important;
+    }
+
+    .drawer-primary-wrap {
+      padding-top: 0 !important;
+      margin: 2px 0 8px !important;
+    }
+
+    .drawer-primary-wrap .btn {
+      min-height: 54px !important;
+      border-radius: 14px !important;
+      font-size: 15px !important;
+      font-weight: 800 !important;
+      width: 100% !important;
+      color: var(--navy-dark) !important;
+      background: var(--aqua) !important;
+      border: 0 !important;
+      box-shadow: 0 12px 28px rgba(115,206,220,.18) !important;
+    }
+
+    /* Safety: hide any legacy empty/white drawer buttons from older versions */
+    .mobile-drawer > .btn:not(.drawer-primary-wrap .btn),
+    .mobile-drawer > button,
+    .mobile-drawer > a.btn-secondary,
+    .mobile-drawer > a.login-btn {
+      display: none !important;
+    }
+  }
+
+  @media (max-width: 390px) {
+    .mobile-drawer { padding-left: 16px !important; padding-right: 16px !important; }
+    .mobile-drawer a.drawer-nav-link { font-size: 15px !important; min-height: 38px !important; }
+    .mobile-drawer a.drawer-option-card { grid-template-columns: 38px minmax(0, 1fr) !important; gap: 10px !important; padding: 10px 12px !important; min-height: 62px !important; }
+    .drawer-option-icon { width: 38px !important; height: 38px !important; font-size: 18px !important; }
+    .drawer-option-copy strong { font-size: 14px !important; }
+    .drawer-option-copy small { font-size: 11.5px !important; }
+  }
+
+  /* =============================================
+     MOBILE ONLY v1297 provider CTA position + drawer nav anchors
+     Desktop untouched.
+  ============================================= */
+  .provider-cta-mobile { display: none !important; }
+
+  @media (max-width: 767px) {
+    .provider-cta-desktop { display: none !important; }
+    .provider-cta-mobile {
+      display: inline-flex !important;
+      width: 100% !important;
+      margin: 20px auto 0 !important;
+      min-height: 56px !important;
+      border-radius: 14px !important;
+      font-size: 16px !important;
+      font-weight: 800 !important;
+      text-align: center !important;
+      white-space: normal !important;
+    }
+  }
+
+  /* =============================================
+     FINAL LOGO + SOCIALS POLISH v1294
+  ============================================= */
+  .navbar-logo { gap: 12px !important; }
+  .navbar-logo .brand-symbol { border-radius: 0 !important; background: transparent !important; box-shadow: none !important; }
+  .navbar-logo .brand-word { color: #fff !important; text-transform: lowercase !important; letter-spacing: -0.065em !important; line-height: 1 !important; }
+  .footer-brand .brand-symbol { border-radius: 0 !important; background: transparent !important; box-shadow: none !important; }
+  .footer-brand .brand-word { color: #fff !important; text-transform: lowercase !important; letter-spacing: -0.065em !important; line-height: 1 !important; }
+  .footer-logo-lockup {
+    display: inline-flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 10px !important;
+    margin-bottom: 22px !important;
+  }
+  .footer-logo-lockup picture { display: block !important; }
+  .footer-logo-lockup .brand-symbol {
+    width: 74px !important;
+    height: 74px !important;
+    object-fit: contain !important;
+  }
+  .footer-logo-lockup .brand-word {
+    display: block !important;
+    font-size: 34px !important;
+    font-weight: 800 !important;
+    color: #fff !important;
+    letter-spacing: -0.065em !important;
+    text-transform: lowercase !important;
+  }
+  .social-btn svg { width: 18px; height: 18px; display: block; }
+  .social-btn.facebook { font-family: var(--font-display); font-size: 20px; font-weight: 800; }
+  .social-btn.linkedin { font-family: var(--font-display); font-size: 16px; font-weight: 800; letter-spacing: -0.04em; }
+  .social-btn:focus-visible { outline: 2px solid var(--cyan); outline-offset: 3px; }
+  @media (max-width: 767px) {
+    .navbar-logo { gap: 9px !important; }
+    .navbar-logo .brand-symbol { width: 32px !important; height: 32px !important; }
+    .navbar-logo .brand-word { font-size: 24px !important; }
+    .footer-logo-lockup { align-items: flex-start !important; gap: 8px !important; margin-bottom: 18px !important; }
+    .footer-logo-lockup .brand-symbol { width: 58px !important; height: 58px !important; }
+    .footer-logo-lockup .brand-word { font-size: 30px !important; }
+  }
+
+/* v1299 fix: keep emojis, transparent new logo, and simpler hero */
+.navbar-logo, .footer-logo-lockup { gap: 10px !important; }
+.navbar-logo .brand-word, .footer-logo-lockup .brand-word { color:#FFFFFF !important; letter-spacing:-0.06em !important; }
+.navbar-logo .brand-symbol, .footer-logo-lockup .brand-symbol { background:transparent !important; box-shadow:none !important; border-radius:0 !important; display:block; }
+.hero-photo-img { object-position: 74% center !important; }
+.hero-photo-overlay { background:linear-gradient(to right,var(--navy) 0%,var(--navy) 31%,rgba(7,20,47,.86) 47%,rgba(7,20,47,.18) 72%,rgba(7,20,47,.02) 100%) !important; }
+.hero-chip { background:rgba(255,255,255,.09) !important; border:1px solid rgba(255,255,255,.15) !important; }
+@media (max-width: 1023px){
+  .hero-photo-img { object-position: 68% center !important; }
+}
+
+/* ================================
+   V1300 · Brand kit exacto
+   ================================ */
+.btn-primary {
+  background: var(--aqua) !important;
+  color: var(--midnight) !important;
+  box-shadow: var(--shadow-aqua) !important;
+  border: 1px solid rgba(32,199,212,.16) !important;
+}
+.btn-primary:hover {
+  background: var(--aqua-l) !important;
+  color: var(--midnight) !important;
+  box-shadow: 0 16px 38px rgba(32,199,212,.30) !important;
+  transform: translateY(-2px);
+}
+.btn-secondary {
+  background: transparent !important;
+  color: var(--navy) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: none !important;
+}
+.btn-secondary:hover {
+  background: var(--aqua-bg) !important;
+  border-color: rgba(32,199,212,.35) !important;
+}
+.btn-coral {
+  background: var(--coral) !important;
+  color: var(--midnight) !important;
+  border: 1px solid rgba(255,138,91,.18) !important;
+  box-shadow: var(--shadow-coral) !important;
+}
+.btn-coral:hover {
+  background: var(--coral-d) !important;
+  color: var(--white) !important;
+  box-shadow: 0 16px 38px rgba(255,138,91,.30) !important;
+  transform: translateY(-2px);
+}
+.badge-cyan { background: rgba(32,199,212,.14) !important; color: var(--navy) !important; }
+.badge-amber, .badge-coral { background: var(--coral-s) !important; color: var(--coral-d) !important; }
+.login-option-icon.doctor,
+.drawer-option-icon.doctor,
+.prov-benefit-icon {
+  background: var(--coral-s) !important;
+  color: var(--coral-d) !important;
+  border-color: rgba(255,138,91,.28) !important;
+}
+.eyebrow-pill,
+.hero-chip {
+  background: rgba(32,199,212,.12) !important;
+  border-color: rgba(32,199,212,.22) !important;
+}
+.hero-chip:nth-child(2) {
+  background: rgba(255,138,91,.13) !important;
+  border-color: rgba(255,138,91,.28) !important;
+}
+.hero-title .underline-cyan,
+.hero-title em {
+  color: var(--aqua) !important;
+  -webkit-text-fill-color: var(--aqua) !important;
+  background: none !important;
+}
+.navbar { background: var(--midnight) !important; }
+.mobile-drawer { background: var(--midnight) !important; }
+.navbar-links a:hover, .navbar-links a.active { color: var(--aqua) !important; }
+.navbar-links a.active::after { background: var(--aqua) !important; }
+.navbar-logo .brand-symbol, .footer-logo-lockup .brand-symbol {
+  background: transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  filter: drop-shadow(0 8px 18px rgba(32,199,212,.22)) !important;
+}
+.hero-photo-overlay {
+  background: linear-gradient(to right,var(--midnight) 0%,var(--navy) 31%,rgba(7,20,47,.86) 47%,rgba(7,20,47,.18) 72%,rgba(7,20,47,.02) 100%) !important;
+}
+.hero-bg::before,
+.hero-bg::after {
+  display:none !important;
+}
+.term-btn.active,
+.sc-term.active,
+.faq-tab.active {
+  background: var(--aqua) !important;
+  color: var(--midnight) !important;
+  border-color: var(--aqua) !important;
+}
+#proveedores .btn-primary,
+.provider-cta .btn-primary {
+  background: var(--coral) !important;
+  color: var(--midnight) !important;
+  box-shadow: var(--shadow-coral) !important;
+}
+#proveedores .btn-primary:hover,
+.provider-cta .btn-primary:hover {
+  background: var(--coral-d) !important;
+  color: var(--white) !important;
+}
+
+.doctor-cta-solid {
+  background: var(--coral) !important;
+  color: var(--midnight) !important;
+  border: 1px solid var(--coral) !important;
+  box-shadow: none !important;
+}
+.doctor-cta-solid:hover {
+  background: var(--coral-d) !important;
+  color: var(--white) !important;
+  border-color: var(--coral-d) !important;
+}
+.doctor-cta-ghost {
+  background: transparent !important;
+  color: var(--coral) !important;
+  border: 1px solid rgba(255,127,90,.75) !important;
+  box-shadow: none !important;
+}
+.doctor-cta-ghost:hover {
+  background: rgba(255,127,90,.10) !important;
+  color: var(--coral) !important;
+  border-color: var(--coral) !important;
+}
+
+.faq-tab.faq-paciente.active {
+  background: var(--aqua) !important;
+  color: var(--midnight) !important;
+  border-color: var(--aqua) !important;
+}
+.faq-tab.faq-doctor.active {
+  background: var(--coral) !important;
+  color: var(--midnight) !important;
+  border-color: var(--coral) !important;
+}
+.faq-tab.faq-pulzzo.active {
+  background: var(--navy) !important;
+  color: var(--white) !important;
+  border-color: var(--navy) !important;
+}
+.faq-tab.faq-doctor:hover { border-color: rgba(255,127,90,.55); color: var(--navy); }
+.faq-tab.faq-paciente:hover { border-color: var(--cyan); color: var(--navy); }
+.faq-tab.faq-pulzzo:hover { border-color: var(--navy); color: var(--navy); }
+.faq-tab img{display:inline-block;vertical-align:middle}
+.faq-tab.faq-pulzzo.active img{filter:none}
+
+.faq-logo-chip{
+  width:24px;
+  height:24px;
+  border-radius:7px;
+  background: var(--navy);
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  flex-shrink:0;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
+}
+.faq-logo-chip img{
+  width:16px !important;
+  height:16px !important;
+  object-fit:contain;
+  display:block;
+}
+.faq-tab.faq-pulzzo{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+}
+.faq-tab.faq-pulzzo.active .faq-logo-chip{
+  background: var(--navy);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.10);
+}
+
+/* CTA dinámico para flujo Doctores y clínicas */
+.faq-cta-band.doctor-mode {
+  background: linear-gradient(135deg, rgba(255,138,91,.13) 0%, rgba(255,255,255,.96) 58%, rgba(255,241,234,.95) 100%) !important;
+  border-color: rgba(255,138,91,.35) !important;
+}
+.faq-cta-band.doctor-mode .btn-primary {
+  background: var(--coral) !important;
+  color: var(--midnight) !important;
+  box-shadow: var(--shadow-coral) !important;
+}
+.faq-cta-band.doctor-mode .btn-primary:hover {
+  background: var(--coral-d) !important;
+  color: var(--white) !important;
+}
+
+.footer { background: var(--midnight) !important; }
+
+/* V1310 regenerated: hero fix + clean calculator */
+.navbar {
+  height:64px !important;
+  padding:0 22px !important;
+  background:rgba(3,10,24,.88) !important;
+  backdrop-filter:blur(10px) saturate(120%);
+  -webkit-backdrop-filter:blur(10px) saturate(120%);
+}
+.navbar-logo .brand-symbol{width:36px!important;height:36px!important;}
+.navbar-logo .brand-word{font-size:25px!important;font-weight:700!important;letter-spacing:-.055em!important;}
+.navbar-links{gap:16px!important;max-width:590px!important;margin-left:18px!important;}
+.navbar-links a{font-size:13px!important;font-weight:400!important;color:rgba(255,255,255,.86)!important;}
+.login-btn{min-height:42px!important;padding:8px 15px!important;font-size:14px!important;font-weight:500!important;background:rgba(255,255,255,.035)!important;border-color:rgba(148,163,184,.22)!important;}
+.login-menu{min-width:300px!important;max-width:300px!important;padding:10px!important;border-radius:18px!important;box-shadow:0 16px 34px rgba(3,10,24,.12)!important;}
+.login-option{padding:11px 12px!important;gap:12px!important;border-radius:16px!important;}
+.login-option-icon{width:42px!important;height:42px!important;border-radius:12px!important;border-width:1.5px!important;}
+.login-option-icon svg,.drawer-option-icon svg{width:22px!important;height:22px!important;}
+.login-option-label{font-size:15px!important;font-weight:700!important;line-height:1.15!important;}
+.login-option-sub{font-size:12.5px!important;margin-top:3px!important;line-height:1.25!important;}
+.navbar-actions .btn-sm{min-height:42px!important;padding:10px 16px!important;font-size:14px!important;font-weight:600!important;border-radius:16px!important;}
+
+.hero,.hero-inner{min-height:830px!important;}
+.hero-inner{grid-template-columns:minmax(0,620px) 1fr!important;}
+.hero-inner>div:first-child{padding:112px 0 96px 82px!important;max-width:590px!important;}
+.hero-side-panel{padding:126px 58px 96px 0!important;}
+.hero-title{font-size:60px!important;line-height:1.06!important;font-weight:700!important;margin-bottom:28px!important;max-width:560px!important;}
+.hero-chips-main{margin-bottom:26px!important;gap:12px!important;}
+.hero-chip{font-size:11.5px!important;font-weight:500!important;padding:7px 14px!important;border-radius:999px!important;background:rgba(255,255,255,.05)!important;border-color:rgba(255,255,255,.10)!important;}
+.hero-copy{margin-bottom:28px!important;max-width:520px!important;font-size:16px!important;line-height:1.78!important;color:rgba(255,255,255,.78)!important;}
+.hero-ctas-main{margin-bottom:22px!important;gap:16px!important;}
+.hero .btn-lg{min-height:60px!important;padding:16px 30px!important;font-size:15px!important;font-weight:600!important;border-radius:18px!important;box-shadow:none!important;}
+.hero-subnote{margin-bottom:26px!important;max-width:520px!important;font-size:12.5px!important;line-height:1.7!important;color:rgba(255,255,255,.58)!important;}
+.hero-stats-main{padding-top:24px!important;gap:24px!important;margin-top:0!important;}
+.hero-stat-num{font-size:21px!important;font-weight:700!important;}
+.hero-stat-num[style]{font-size:16px!important;}
+.hero-stat-label{margin-top:6px!important;font-size:10px!important;}
+.hero-photo-img{transform:none!important;object-fit:cover!important;object-position:center center!important;}
+.hero-photo-overlay{background:linear-gradient(to right,rgba(3,10,24,.965) 0%,rgba(7,20,47,.86) 23%,rgba(7,20,47,.50) 43%,rgba(7,20,47,.16) 63%,rgba(7,20,47,.03) 84%,rgba(7,20,47,0) 100%)!important;}
+.hero-offer-card{min-width:176px!important;padding:11px 14px!important;box-shadow:0 10px 24px rgba(3,10,24,.10)!important;animation:none!important;}
+/* clean calculator: no coral accents */
+#simulador .sc2-plan-active{border-color:rgba(32,199,212,.45)!important;background:rgba(32,199,212,.08)!important;box-shadow:none!important;}
+#simulador .sc2-plan-active::before{display:none!important;}
+#simulador .sc2-plan-badge-popular{background:var(--cyan)!important;color:var(--navy)!important;border:0!important;}
+#simulador .sc2-mini-disclaimer::before{display:none!important;}
+@media (max-width:1280px){
+  .hero,.hero-inner{min-height:790px!important;}
+  .hero-inner>div:first-child{padding-top:108px!important;padding-bottom:86px!important;padding-left:46px!important;}
+  .hero-side-panel{padding-top:120px!important;padding-bottom:88px!important;}
+  .hero-title{font-size:56px!important;}
+}
+@media (max-width:1023px){
+  .login-menu{min-width:calc(100vw - 40px)!important;max-width:calc(100vw - 40px)!important;}
+  .hero,.hero-inner{min-height:auto!important;}
+  .hero-inner>div:first-child{padding:98px 22px 30px 22px!important;max-width:100%!important;}
+  .hero-side-panel{padding:0 22px 30px 22px!important;}
+  .hero-title{font-size:42px!important;line-height:1.08!important;}
+}
+
+/* =============================================
+   V1311 · hero higher + more vertical spacing + no button glow
+============================================= */
+
+/* Remove glow from all buttons globally */
+.btn,
+.btn-primary,
+.btn-secondary,
+.btn-coral,
+button.btn,
+a.btn,
+input[type="button"],
+input[type="submit"] {
+  box-shadow: none !important;
+  filter: none !important;
+  text-shadow: none !important;
+  background-image: none !important;
+}
+.btn:hover,
+.btn-primary:hover,
+.btn-secondary:hover,
+.btn-coral:hover,
+button.btn:hover,
+a.btn:hover,
+input[type="button"]:hover,
+input[type="submit"]:hover {
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+/* Specific old inline/button shadows cleaned */
+#simulador .btn,
+.cta-final .btn,
+.provider-cta .btn,
+.provider-cta-desktop,
+.provider-cta-mobile,
+.navbar-actions .btn,
+.hero .btn,
+#protege-card-lateral .btn,
+button[style*="box-shadow"],
+a[style*="box-shadow"] {
+  box-shadow: none !important;
+}
+
+/* Remove ambient glow behind CTA buttons section */
+.cta-final::before {
+  display: none !important;
+  opacity: 0 !important;
+}
+
+/* Hero: move content up while keeping generous inner spacing */
+.hero,
+.hero-inner {
+  min-height: 790px !important;
+}
+.hero-inner > div:first-child {
+  padding-top: 78px !important;
+  padding-bottom: 88px !important;
+  max-width: 600px !important;
+}
+.hero-side-panel {
+  padding-top: 94px !important;
+  padding-bottom: 88px !important;
+}
+
+/* More vertical breathing room between text elements */
+.hero-title {
+  margin-bottom: 34px !important;
+  max-width: 570px !important;
+}
+.hero-chips-main {
+  margin-bottom: 34px !important;
+  gap: 12px !important;
+}
+.hero-copy {
+  margin-bottom: 36px !important;
+  max-width: 540px !important;
+  line-height: 1.78 !important;
+}
+.hero-ctas-main {
+  margin-bottom: 28px !important;
+  gap: 18px !important;
+}
+.hero-subnote {
+  margin-bottom: 32px !important;
+  max-width: 540px !important;
+  line-height: 1.72 !important;
+}
+.hero-stats-main {
+  padding-top: 30px !important;
+  gap: 28px !important;
+  margin-top: 0 !important;
+}
+
+/* Keep hero image natural, not enlarged */
+.hero-photo-img {
+  transform: none !important;
+  object-fit: cover !important;
+  object-position: center center !important;
+}
+.hero-photo-overlay {
+  background: linear-gradient(to right,
+    rgba(3,10,24,.965) 0%,
+    rgba(7,20,47,.86) 24%,
+    rgba(7,20,47,.50) 44%,
+    rgba(7,20,47,.16) 64%,
+    rgba(7,20,47,.03) 84%,
+    rgba(7,20,47,0) 100%) !important;
+}
+
+/* Also kill residual glow utilities */
+.hero-orb,
+.hero-orb-1,
+.hero-orb-2 {
+  opacity: .14 !important;
+}
+
+/* CTA section buttons stay clean */
+.cta-btns .btn {
+  box-shadow: none !important;
+}
+
+/* Calculator submit button clean */
+#simulador .btn-primary,
+#simulador .btn-primary:hover {
+  box-shadow: none !important;
+}
+
+@media (max-width: 1280px) {
+  .hero,
+  .hero-inner {
+    min-height: 760px !important;
+  }
+  .hero-inner > div:first-child {
+    padding-top: 74px !important;
+    padding-bottom: 84px !important;
+  }
+  .hero-side-panel {
+    padding-top: 88px !important;
+    padding-bottom: 84px !important;
+  }
+}
+
+@media (max-width: 1023px) {
+  .hero,
+  .hero-inner {
+    min-height: auto !important;
+  }
+  .hero-inner > div:first-child {
+    padding-top: 88px !important;
+    padding-bottom: 36px !important;
+  }
+  .hero-side-panel {
+    padding-top: 0 !important;
+    padding-bottom: 36px !important;
+  }
+  .hero-title {
+    margin-bottom: 24px !important;
+  }
+  .hero-chips-main {
+    margin-bottom: 22px !important;
+  }
+  .hero-copy {
+    margin-bottom: 24px !important;
+  }
+  .hero-ctas-main {
+    margin-bottom: 20px !important;
+  }
+  .hero-subnote {
+    margin-bottom: 24px !important;
+  }
+  .hero-stats-main {
+    padding-top: 22px !important;
+    gap: 18px !important;
+  }
+}
+
+/* =============================================
+   V1312 · correct hero issues + remove button glow for real
+============================================= */
+
+/* 1) Hero higher, but with breathing room between internal blocks */
+.hero,
+.hero-inner {
+  min-height: 750px !important;
+}
+.hero-inner > div:first-child {
+  padding-top: 54px !important;
+  padding-bottom: 86px !important;
+  max-width: 600px !important;
+}
+.hero-side-panel {
+  padding-top: 68px !important;
+  padding-bottom: 84px !important;
+}
+.hero-title {
+  margin-bottom: 38px !important;
+  max-width: 570px !important;
+}
+.hero-chips-main {
+  margin-bottom: 34px !important;
+  gap: 12px !important;
+}
+.hero-copy {
+  margin-bottom: 38px !important;
+  max-width: 540px !important;
+  line-height: 1.82 !important;
+}
+.hero-ctas-main {
+  margin-bottom: 30px !important;
+  gap: 18px !important;
+}
+.hero-subnote {
+  margin-bottom: 34px !important;
+  max-width: 540px !important;
+  line-height: 1.74 !important;
+}
+.hero-stats-main {
+  padding-top: 30px !important;
+  gap: 28px !important;
+}
+
+/* 2) Remove orange from the middle chip; make all 3 uniform */
+.hero-chip,
+.hero-chip:nth-child(2) {
+  background: rgba(255,255,255,.08) !important;
+  border: 1px solid rgba(255,255,255,.14) !important;
+  color: rgba(255,255,255,.92) !important;
+}
+
+/* 3) Hero image natural and clean */
+.hero-photo-img {
+  transform: none !important;
+  object-fit: cover !important;
+  object-position: 61% center !important;
+}
+.hero-photo-overlay {
+  background: linear-gradient(to right,
+    rgba(3,10,24,.975) 0%,
+    rgba(7,20,47,.88) 24%,
+    rgba(7,20,47,.52) 45%,
+    rgba(7,20,47,.17) 65%,
+    rgba(7,20,47,.04) 84%,
+    rgba(7,20,47,0) 100%) !important;
+}
+.hero::after {
+  display: none !important;
+}
+.hero-orb,
+.hero-orb-1,
+.hero-orb-2 {
+  opacity: .08 !important;
+}
+
+/* 4) Kill glow on buttons everywhere */
+.btn,
+.btn-primary,
+.btn-secondary,
+.btn-coral,
+.btn-ghost,
+button,
+a.btn,
+input[type="button"],
+input[type="submit"] {
+  box-shadow: none !important;
+  filter: none !important;
+  text-shadow: none !important;
+  background-image: none !important;
+}
+.btn:hover,
+.btn-primary:hover,
+.btn-secondary:hover,
+.btn-coral:hover,
+.btn-ghost:hover,
+button:hover,
+a.btn:hover,
+input[type="button"]:hover,
+input[type="submit"]:hover {
+  box-shadow: none !important;
+  filter: none !important;
+}
+.btn::before,
+.btn::after,
+button::before,
+button::after,
+a.btn::before,
+a.btn::after {
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+/* remove glowy section backgrounds that visually read like button glow */
+.cta-final::before,
+#simulador .hc-card::before,
+#simulador .sim-card::before,
+.provider-cta::before,
+.provider-cta::after {
+  display: none !important;
+}
+.cta-final,
+#simulador,
+.provider-cta {
+  background-image: none !important;
+}
+
+/* Explicit cleanup for known button zones */
+.hero .btn,
+.cta-final .btn,
+#simulador .btn,
+#proveedores .btn,
+.provider-cta .btn,
+.provider-cta-desktop,
+.provider-cta-mobile,
+.navbar-actions .btn,
+.mobile-drawer .btn {
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+/* 5) Keep calculator clean (no coral accents) */
+#simulador .sc2-plan-active,
+#simulador .sc2-plan-popular,
+#simulador .sc2-plan-active::before,
+#simulador .sc2-plan-popular::before {
+  background: rgba(32,199,212,.08) !important;
+  border-color: rgba(32,199,212,.45) !important;
+  box-shadow: none !important;
+}
+#simulador .sc2-mini-disclaimer::before {
+  display: none !important;
+}
+
+@media (max-width: 1280px) {
+  .hero,
+  .hero-inner {
+    min-height: 720px !important;
+  }
+  .hero-inner > div:first-child {
+    padding-top: 52px !important;
+    padding-bottom: 78px !important;
+  }
+  .hero-side-panel {
+    padding-top: 64px !important;
+    padding-bottom: 76px !important;
+  }
+}
+
+@media (max-width: 1023px) {
+  .hero,
+  .hero-inner {
+    min-height: auto !important;
+  }
+  .hero-inner > div:first-child {
+    padding-top: 78px !important;
+    padding-bottom: 34px !important;
+  }
+  .hero-side-panel {
+    padding-top: 0 !important;
+    padding-bottom: 32px !important;
+  }
+  .hero-title {
+    margin-bottom: 24px !important;
+  }
+  .hero-chips-main {
+    margin-bottom: 22px !important;
+  }
+  .hero-copy {
+    margin-bottom: 24px !important;
+  }
+  .hero-ctas-main {
+    margin-bottom: 20px !important;
+  }
+  .hero-subnote {
+    margin-bottom: 24px !important;
+  }
+  .hero-stats-main {
+    padding-top: 22px !important;
+    gap: 18px !important;
+  }
+  .hero-photo-img {
+    object-position: 64% center !important;
+  }
+}
+
+/* =============================================
+   V1313 · calculator curve 18 / 28 / 38 / 48
+============================================= */
+#simulador .sc2-summary-grid > div { min-width: 0; }
+#simulador .sc2-summary { box-shadow: none !important; }
+#simulador .sc2-plan-active { border-color: rgba(32,199,212,.55) !important; background: rgba(32,199,212,.09) !important; }
+#simulador .sc2-plan-active::before { display:none !important; }
+@media (max-width: 1023px) {
+  #simulador .sc2-summary-grid { grid-template-columns: 1fr 1fr !important; gap: 16px !important; width: 100% !important; }
+  #simulador .sc2-summary > button { width: auto !important; }
+}
+@media (max-width: 520px) {
+  #simulador .sc2-summary-grid { grid-template-columns: 1fr !important; }
+}
+
+/* V1317 calculator summary polish */
+@media (max-width: 1180px) {
+  .sc2-summary-grid { grid-template-columns: repeat(2, minmax(140px, 1fr)) !important; }
+  .sc2-summary .btn { width: 100% !important; min-width: 0 !important; }
+  .sc2-summary > div:last-child { justify-content: stretch !important; }
+}
+@media (max-width: 640px) {
+  .sc2-summary-grid { grid-template-columns: 1fr 1fr !important; gap: 18px !important; }
+}
+
+/* =============================================
+   V1325 · final UX/UI polish
+============================================= */
+/* Hero: make chips and stats feel lighter and more premium */
+.hero-chips-main {
+  gap: 10px !important;
+  margin-bottom: 28px !important;
+}
+.hero-chip,
+.hero-chip:nth-child(2) {
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  padding: 6px 11px !important;
+  border-radius: 999px !important;
+  background: rgba(255,255,255,.055) !important;
+  border-color: rgba(255,255,255,.10) !important;
+  color: rgba(255,255,255,.82) !important;
+}
+.hero-stats-main {
+  gap: 22px !important;
+  padding-top: 26px !important;
+}
+.hero-stat-item {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: flex-start !important;
+  min-height: 54px !important;
+}
+.hero-stat-num,
+.hero-stat-num[style] {
+  font-size: 18px !important;
+  line-height: 1.14 !important;
+  font-weight: 700 !important;
+  letter-spacing: -.02em !important;
+}
+.hero-stat-num span,
+.hero-stat-num span[style] {
+  font-size: inherit !important;
+}
+.hero-stat-label {
+  font-size: 10px !important;
+  letter-spacing: .08em !important;
+  line-height: 1.25 !important;
+  color: rgba(255,255,255,.46) !important;
+}
+
+/* Calculator summary: CTA as clean full-width action row */
+.sc2-summary {
+  border-radius: 14px !important;
+}
+.sc2-summary-grid > div > div:first-child {
+  line-height: 1.35 !important;
+}
+.sc2-cta-row {
+  width: 100% !important;
+}
+.sc2-cta-button {
+  min-height: 50px !important;
+  height: 50px !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  letter-spacing: -.01em !important;
+  box-shadow: none !important;
+}
+.sc2-cta-button:hover {
+  box-shadow: none !important;
+}
+
+/* Specialties helper cards: informative, not false buttons */
+.spec-note {
+  background: #FBFDFF !important;
+  border: 1px dashed #CBD5E1 !important;
+  color: #334155 !important;
+  cursor: default !important;
+}
+.spec-note .spec-name {
+  font-weight: 600 !important;
+  color: #334155 !important;
+}
+.spec-note .spec-emoji {
+  opacity: .78 !important;
+}
+.spec-note:hover {
+  transform: none !important;
+  box-shadow: none !important;
+  border-color: #CBD5E1 !important;
+}
+
+/* FAQ tabs: consistent size and color logic */
+.faq-tabs {
+  gap: 10px !important;
+}
+.faq-tab {
+  min-height: 44px !important;
+  padding: 11px 18px !important;
+  border-radius: 999px !important;
+  font-size: 13.5px !important;
+  font-weight: 650 !important;
+}
+.faq-tab.faq-paciente.active {
+  background: var(--aqua) !important;
+  color: var(--midnight) !important;
+  border-color: var(--aqua) !important;
+}
+.faq-tab.faq-doctor.active {
+  background: var(--coral) !important;
+  color: var(--midnight) !important;
+  border-color: var(--coral) !important;
+}
+.faq-tab.faq-pulzzo.active {
+  background: var(--navy) !important;
+  color: var(--white) !important;
+  border-color: var(--navy) !important;
+}
+
+/* CTA final: both primary routes solid, same geometry */
+.cta-btns {
+  gap: 14px !important;
+}
+.cta-btns .btn {
+  min-height: 56px !important;
+  height: 56px !important;
+  padding: 16px 30px !important;
+  border-radius: 18px !important;
+  min-width: 230px !important;
+  box-shadow: none !important;
+}
+.cta-title {
+  font-weight: 750 !important;
+}
+.cta-subtitle {
+  margin-bottom: 34px !important;
+}
+
+/* Keep buttons clean globally */
+.btn, .btn:hover, .btn-primary, .btn-primary:hover, .doctor-cta-solid, .doctor-cta-solid:hover {
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+/* Mobile final QA guards */
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+@media (max-width: 1023px) {
+  .hero-chips-main {
+    gap: 8px !important;
+    margin-bottom: 22px !important;
+  }
+  .hero-chip {
+    font-size: 10.8px !important;
+    padding: 6px 10px !important;
+  }
+  .hero-stats-main {
+    gap: 16px !important;
+  }
+  .sc2-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 18px !important;
+  }
+  .sc2-cta-button {
+    width: 100% !important;
+  }
+  .cta-btns {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    max-width: 420px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+  .cta-btns .btn {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+}
+@media (max-width: 640px) {
+  .faq-tabs {
+    justify-content: flex-start !important;
+    overflow-x: auto !important;
+    flex-wrap: nowrap !important;
+    padding-bottom: 4px !important;
+  }
+  .faq-tab {
+    flex: 0 0 auto !important;
+  }
+  .sc2-summary {
+    padding: 20px 18px !important;
+  }
+  .sc2-summary-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 16px 14px !important;
+  }
+  .sc2-cta-button {
+    font-size: 14.5px !important;
+    height: 48px !important;
+    min-height: 48px !important;
+  }
+}
+
+/* V1328 · hero artifact cleanup on lower-right corner */
+.hero-bg-mobile-photo{overflow:hidden !important;}
+.hero-bg-mobile-photo::after{
+  content:"";
+  position:absolute;
+  right:0;
+  bottom:0;
+  width:180px;
+  height:220px;
+  pointer-events:none;
+  z-index:1;
+  background:linear-gradient(135deg,
+    rgba(7,20,47,0) 0%,
+    rgba(7,20,47,.10) 24%,
+    rgba(7,20,47,.42) 52%,
+    rgba(7,20,47,.78) 78%,
+    var(--navy) 100%);
+}
+@media (max-width: 1023px){
+  .hero-bg-mobile-photo::after{
+    width:150px;
+    height:190px;
+  }
+}
+
+/* V1329 · mobile FAQ tabs + clearer Pulzzo logo badge */
+.tl-icon-wrap-logo {
+  background: var(--navy) !important;
+  border-color: rgba(7,20,47,.22) !important;
+  box-shadow: 0 14px 28px rgba(7,20,47,.14) !important;
+}
+.tl-icon-wrap-logo:hover {
+  background: var(--navy) !important;
+}
+.tl-icon-wrap-logo .tl-icon-logo {
+  width: 34px;
+  height: 34px;
+}
+.tl-icon-wrap-logo .tl-icon-logo picture,
+.tl-icon-wrap-logo .tl-icon-logo img {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  display: block;
+}
+@media (max-width: 640px) {
+  .faq-tabs {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+    justify-content: stretch !important;
+    overflow: visible !important;
+    flex-wrap: nowrap !important;
+    padding-bottom: 0 !important;
+  }
+  .faq-tab {
+    width: 100% !important;
+    flex: none !important;
+    justify-content: center !important;
+    text-align: center !important;
+    white-space: normal !important;
+    line-height: 1.25 !important;
+    min-height: 48px !important;
+  }
+}
+
+/* V1330 · mobile drawer option cards match desktop dropdown */
+.mobile-drawer a.drawer-option-card {
+  color: var(--navy) !important;
+  background: rgba(255,255,255,.98) !important;
+  border: 1px solid rgba(220,227,236,.95) !important;
+  box-shadow: 0 12px 26px rgba(7,20,47,.12) !important;
+}
+.mobile-drawer a.drawer-option-card:hover,
+.mobile-drawer a.drawer-option-card:active {
+  background: #ffffff !important;
+  border-color: rgba(196,208,224,.95) !important;
+}
+.drawer-option-copy strong {
+  color: var(--navy) !important;
+}
+.drawer-option-copy small {
+  color: #6f7f99 !important;
+}
+.drawer-option-icon.patient {
+  background: #edf6f9 !important;
+  color: var(--aqua) !important;
+  border: 1px solid rgba(115,206,220,.26) !important;
+}
+.drawer-option-icon.doctor {
+  background: #fff2ec !important;
+  color: var(--coral) !important;
+  border: 1px solid rgba(255,138,91,.24) !important;
+}
+
+/* V1331 · premium compact mobile drawer */
+@media (max-width: 1023px) {
+  .mobile-drawer {
+    padding-top: 16px !important;
+    padding-bottom: 18px !important;
+  }
+  .drawer-nav-list {
+    gap: 0 !important;
+  }
+  .mobile-drawer a.drawer-nav-link {
+    min-height: 34px !important;
+    padding: 6px 10px !important;
+    font-size: 15px !important;
+  }
+  .mobile-drawer .drawer-divider {
+    margin: 12px 0 !important;
+  }
+  .drawer-section {
+    gap: 8px !important;
+    margin: 0 0 12px !important;
+  }
+  .drawer-section-title {
+    margin: 0 0 2px !important;
+    font-size: 10.5px !important;
+    letter-spacing: 1.2px !important;
+  }
+  .mobile-drawer a.drawer-option-card {
+    grid-template-columns: 38px minmax(0, 1fr) !important;
+    gap: 11px !important;
+    min-height: 58px !important;
+    padding: 9px 12px !important;
+    border-radius: 15px !important;
+  }
+  .drawer-option-icon {
+    width: 38px !important;
+    height: 38px !important;
+    font-size: 17px !important;
+    border-radius: 11px !important;
+  }
+  .drawer-option-copy {
+    gap: 1px !important;
+  }
+  .drawer-option-copy strong {
+    font-size: 13.5px !important;
+    line-height: 1.15 !important;
+  }
+  .drawer-option-copy small {
+    font-size: 11px !important;
+    line-height: 1.2 !important;
+  }
+  .drawer-primary-wrap {
+    margin: 0 !important;
+    padding-top: 2px !important;
+  }
+  .drawer-primary-wrap .btn {
+    min-height: 50px !important;
+    border-radius: 14px !important;
+    font-size: 14px !important;
+    box-shadow: none !important;
+  }
+}
+@media (max-width: 390px) {
+  .mobile-drawer {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+  .mobile-drawer a.drawer-nav-link {
+    min-height: 32px !important;
+    font-size: 14.5px !important;
+  }
+  .mobile-drawer a.drawer-option-card {
+    grid-template-columns: 36px minmax(0, 1fr) !important;
+    gap: 9px !important;
+    min-height: 56px !important;
+    padding: 8px 11px !important;
+  }
+  .drawer-option-icon {
+    width: 36px !important;
+    height: 36px !important;
+    font-size: 16px !important;
+  }
+  .drawer-option-copy strong { font-size: 13px !important; }
+  .drawer-option-copy small { font-size: 10.5px !important; }
+}
+
+/* V1332 · finer mobile header */
+@media (max-width: 1023px) {
+  .navbar {
+    height: 60px !important;
+    padding: 0 18px !important;
+  }
+  .navbar-inner {
+    min-height: 60px !important;
+  }
+  .navbar-logo {
+    gap: 7px !important;
+  }
+  .navbar-logo .brand-symbol {
+    width: 32px !important;
+    height: 32px !important;
+  }
+  .navbar-logo .brand-word {
+    font-size: 22px !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.055em !important;
+  }
+  .hamburger {
+    gap: 4px !important;
+    padding: 2px !important;
+  }
+  .hamburger span {
+    width: 22px !important;
+    height: 2px !important;
+  }
+}
+@media (max-width: 430px) {
+  .navbar {
+    height: 58px !important;
+    padding: 0 16px !important;
+  }
+  .navbar-inner {
+    min-height: 58px !important;
+  }
+  .navbar-logo {
+    gap: 6px !important;
+  }
+  .navbar-logo .brand-symbol {
+    width: 30px !important;
+    height: 30px !important;
+  }
+  .navbar-logo .brand-word {
+    font-size: 21px !important;
+  }
+  .hamburger span {
+    width: 20px !important;
+  }
+}
+
+  /* =============================================
+     FAQ PAGE CUSTOM
+  ============================================= */
+  body { background: var(--offwhite); }
+  .faq-page-header {
+    background: radial-gradient(circle at 20% 10%, rgba(32,199,212,.20), transparent 34%), var(--navy);
+    padding: 132px 60px 72px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .faq-page-header::after {
+    content: '';
+    position: absolute;
+    width: 520px; height: 520px;
+    border-radius: 999px;
+    background: radial-gradient(circle, rgba(189,247,244,.16), transparent 70%);
+    right: -160px; top: -180px;
+    pointer-events: none;
+  }
+  .faq-page-header > * { position: relative; z-index: 1; }
+  .faq-page-title {
+    font-family: var(--font-display);
+    font-size: 52px;
+    font-weight: 800;
+    line-height: 1.08;
+    color: var(--white);
+    letter-spacing: -.8px;
+    margin: 0 0 18px;
+  }
+  .faq-page-title span { color: var(--cyan); }
+  .faq-page-subtitle {
+    font-size: 18px;
+    line-height: 1.65;
+    color: rgba(255,255,255,.72);
+    max-width: 780px;
+    margin: 0 auto;
+  }
+  .faq-page-shell {
+    max-width: 1040px;
+    margin: -32px auto 0;
+    padding: 0 24px 88px;
+    position: relative;
+    z-index: 3;
+  }
+  .faq-page-card {
+    background: rgba(255,255,255,.96);
+    border: 1px solid var(--gray-light);
+    border-radius: 24px;
+    box-shadow: var(--shadow-xl);
+    overflow: hidden;
+  }
+  .faq-tabs-wrap {
+    position: sticky;
+    top: 64px;
+    z-index: 10;
+    background: rgba(255,255,255,.94);
+    backdrop-filter: blur(16px);
+    padding: 18px 20px;
+    border-bottom: none;
+  }
+  .faq-page-body { padding: 44px 28px 36px; }
+  .faq-section-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    color: var(--cyan);
+    margin: 36px 0 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--gray-light);
+  }
+  .faq-section-title:first-child { margin-top: 0; }
+  .faq-a {
+    max-height: 0;
+  }
+  .faq-item.open .faq-a {
+    max-height: 900px;
+  }
+  .faq-a table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+  .faq-a p + p { margin-top: 10px; }
+  .faq-cta-band {
+    margin-top: 28px;
+    padding: 24px;
+    background: linear-gradient(135deg, rgba(32,199,212,.12), rgba(255,138,91,.10));
+    border: 1px solid rgba(32,199,212,.18);
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+  }
+  .faq-cta-band h3 {
+    font-family: var(--font-display);
+    font-size: 22px;
+    margin-bottom: 4px;
+    color: var(--navy);
+  }
+  .faq-cta-band p {
+    color: var(--gray-dark);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  @media (max-width: 767px) {
+    .faq-page-header { padding: 104px 24px 56px; }
+    .faq-page-title { font-size: 38px; }
+    .faq-page-subtitle { font-size: 16px; }
+    .faq-page-shell { padding: 0 16px 64px; margin-top: -22px; }
+    .faq-page-card { border-radius: 18px; }
+    .faq-tabs-wrap { top: 64px; padding: 14px 12px; }
+    .faq-tabs { justify-content: flex-start; overflow-x: auto; flex-wrap: nowrap; padding-bottom: 2px; }
+    .faq-tab { white-space: nowrap; flex: 0 0 auto; }
+    .faq-page-body { padding: 32px 14px 28px; }
+    .faq-q { padding: 18px 18px; font-size: 14px; }
+    .faq-item.open .faq-a { padding: 0 18px 18px; }
+    .faq-cta-band { flex-direction: column; align-items: stretch; }
+    .faq-cta-band .btn { width: 100%; }
+  }
+
+/* FAQ v16 same mobile menu behavior as landing */
+@media (max-width: 1023px) {
+  .mobile-drawer {
+    top: 64px !important;
+    height: calc(100vh - 64px) !important;
+    background: var(--navy) !important;
+    z-index: 99 !important;
+  }
+  .mobile-drawer.open { right: 0 !important; }
+  .hamburger { display: flex !important; }
+  .navbar-links, .navbar-actions { display: none !important; }
+}
+
+/* FAQ v19: navbar y menú mobile igual al index final */
+.navbar {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 100 !important;
+  background: var(--navy) !important;
+  height: 64px !important;
+  display: flex !important;
+  align-items: center !important;
+  padding: 0 60px !important;
+  transition: var(--transition) !important;
+}
+.navbar-inner {
+  width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0 !important;
+}
+.navbar-logo {
+  font-family: var(--font-display) !important;
+  font-size: 20px !important;
+  font-weight: 800 !important;
+  color: var(--white) !important;
+  letter-spacing: -.5px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin-right: 24px !important;
+  flex-shrink: 0 !important;
+}
+.navbar-logo .brand-symbol {
+  height:44px !important;
+  width:44px !important;
+  object-fit:contain !important;
+  border-radius:0 !important;
+  background:transparent !important;
+}
+.navbar-logo .brand-word {
+  color:#FFFFFF !important;
+  letter-spacing:-0.065em !important;
+  font-family:var(--font-display) !important;
+  font-size:30px !important;
+  font-weight:800 !important;
+}
+.navbar-links {
+  display:flex !important;
+  align-items:center !important;
+  gap:20px !important;
+  flex:1 !important;
+  max-width:680px !important;
+  margin-left:32px !important;
+}
+.navbar-links a {
+  font-size:13px !important;
+  font-weight:500 !important;
+  color:rgba(255,255,255,.8) !important;
+  transition:var(--transition) !important;
+  position:relative !important;
+  padding-bottom:2px !important;
+  white-space:nowrap !important;
+}
+.navbar-links a:hover,
+.navbar-links a.active { color:var(--cyan) !important; }
+.navbar-links a.active::after {
+  content:'' !important;
+  position:absolute !important;
+  bottom:-2px !important;
+  left:0 !important;
+  right:0 !important;
+  height:2px !important;
+  background:var(--cyan) !important;
+  border-radius:1px !important;
+}
+.navbar-actions { display:flex !important; align-items:center !important; gap:10px !important; margin-left:auto !important; }
+.hamburger { display:none !important; flex-direction:column !important; gap:5px !important; cursor:pointer !important; padding:4px !important; }
+.hamburger span { display:block !important; width:24px !important; height:2px !important; background:var(--white) !important; border-radius:2px !important; transition:var(--transition) !important; }
+.mobile-drawer {
+  position:fixed !important;
+  top:64px !important;
+  right:-100% !important;
+  width:100% !important;
+  height:calc(100vh - 64px) !important;
+  background:var(--navy) !important;
+  z-index:99 !important;
+  padding:24px !important;
+  overflow-y:auto !important;
+  transition:right 300ms cubic-bezier(.4,0,.2,1) !important;
+}
+.mobile-drawer.open { right:0 !important; }
+.mobile-drawer a {
+  display:flex !important;
+  align-items:center !important;
+  height:52px !important;
+  padding:0 16px !important;
+  font-size:16px !important;
+  font-weight:500 !important;
+  color:var(--white) !important;
+  border-radius:var(--radius) !important;
+  transition:var(--transition) !important;
+}
+.mobile-drawer a:hover { background:rgba(115,206,220,.15) !important; color:var(--cyan) !important; }
+.mobile-drawer .drawer-divider { border:none !important; border-top:1px solid rgba(255,255,255,.1) !important; margin:16px 0 !important; }
+.mobile-drawer .drawer-btns { display:flex !important; flex-direction:column !important; gap:12px !important; padding-top:16px !important; }
+@media (max-width:1023px) {
+  .navbar { padding:0 24px !important; }
+  .navbar-links { display:none !important; }
+  .navbar-actions { display:none !important; }
+  .hamburger { display:flex !important; }
+}
+
+
+/* FINAL FAQ: acentos coral para sección Doctores y clínicas */
+#faqPageCard.doctor-mode .faq-item.open {
+  border-color: rgba(255,138,91,.65) !important;
+  box-shadow: 0 0 0 2px rgba(255,138,91,.10) !important;
+  background: #FFFFFF !important;
+}
+
+#faqPageCard.doctor-mode .faq-item:hover {
+  border-color: rgba(255,138,91,.45) !important;
+}
+
+#faqPageCard.doctor-mode .faq-item.open .faq-icon {
+  background: var(--coral) !important;
+  color: var(--midnight) !important;
+  border-color: var(--coral) !important;
+}
+
+#faqPageCard.doctor-mode .faq-item.open .faq-q {
+  color: var(--navy) !important;
+}
+
+#faqPageCard.doctor-mode .faq-section-title {
+  color: var(--navy) !important;
+}
+
+#faqPageCard.doctor-mode .faq-cta-band {
+  background: linear-gradient(135deg, rgba(255,138,91,.13) 0%, rgba(255,255,255,.96) 58%, rgba(255,241,234,.95) 100%) !important;
+  border-color: rgba(255,138,91,.35) !important;
+}
+
+#faqPageCard.doctor-mode .faq-cta-band .btn-primary {
+  background: var(--coral) !important;
+  color: var(--midnight) !important;
+  box-shadow: var(--shadow-coral) !important;
+}
+
+#faqPageCard.doctor-mode .faq-cta-band .btn-primary:hover {
+  background: var(--coral-d) !important;
+  color: var(--white) !important;
+}
+
+
+/* FINAL FIX: Doctores y clínicas usa coral en acordeones activos */
+body.faq-doctor-mode .faq-item.open,
+body.faq-doctor-mode .faq-item.open:hover {
+  border-color: rgba(255,138,91,.90) !important;
+  box-shadow: 0 0 0 2px rgba(255,138,91,.13) !important;
+  background: #FFFFFF !important;
+}
+
+body.faq-doctor-mode .faq-item.open .faq-icon,
+body.faq-doctor-mode .faq-item.open .icon-plus {
+  background: var(--coral) !important;
+  color: var(--midnight) !important;
+  border-color: var(--coral) !important;
+}
+
+body.faq-doctor-mode .faq-item.open .faq-icon::before,
+body.faq-doctor-mode .faq-item.open .faq-icon::after,
+body.faq-doctor-mode .faq-item.open .icon-plus::before,
+body.faq-doctor-mode .faq-item.open .icon-plus::after {
+  background: var(--midnight) !important;
+}
+
+body.faq-doctor-mode .faq-item:hover {
+  border-color: rgba(255,138,91,.55) !important;
+}
+
+body.faq-doctor-mode .faq-cta-band,
+body.faq-doctor-mode #faqCtaBand {
+  background: linear-gradient(135deg, rgba(255,138,91,.13) 0%, rgba(255,255,255,.96) 58%, rgba(255,241,234,.95) 100%) !important;
+  border-color: rgba(255,138,91,.35) !important;
+}
+
+body.faq-doctor-mode .faq-cta-band .btn-primary,
+body.faq-doctor-mode #faqCtaBand .btn-primary {
+  background: var(--coral) !important;
+  color: var(--midnight) !important;
+  box-shadow: var(--shadow-coral) !important;
+}
+
+body.faq-doctor-mode .faq-cta-band .btn-primary:hover,
+body.faq-doctor-mode #faqCtaBand .btn-primary:hover {
+  background: var(--coral-d) !important;
+  color: var(--white) !important;
+}
+
+
+
+/* FINAL FIX · FAQ CTA bands requested: solid white background in all sections */
+.faq-cta-band,
+#faqCtaBand,
+.faq-cta-band.doctor-mode,
+#faqPageCard.doctor-mode .faq-cta-band,
+body.faq-doctor-mode .faq-cta-band,
+body.faq-doctor-mode #faqCtaBand {
+  background: #FFFFFF !important;
+  background-image: none !important;
+}
+
+</style>
+</head>
+<body>
+<!-- NAVBAR -->
+<nav class="navbar" id="navbar">
+  <div class="navbar-inner">
+    <a href="index.html" class="navbar-logo">
+      <picture>
+      <source srcset="assets/images/logo-pulzzo.webp" type="image/webp">
+      <img src="assets/images/logo-pulzzo.png" alt="Pulzzo" class="brand-symbol" style="height:44px;width:44px;object-fit:contain;border-radius:0;background:transparent;">
+    </picture>
+      <span class="brand-word" style="color:#FFFFFF;letter-spacing:-0.065em;font-family:var(--font-display);font-size:30px;font-weight:800;text-transform:lowercase;line-height:1;">pulzzo</span>
+    </a>
+    <div class="navbar-links">
+      <a href="index.html#como-funciona">¿Cómo funciona?</a>
+      <a href="index.html#simulador">Simulador</a>
+      <a href="index.html#especialidades">Especialidades</a>
+      <a href="index.html#proveedores">Doctores</a>
+      <a href="index.html#buscar-doctor">Directorio</a>
+      <a href="index.html#faq" class="active">Preguntas Frecuentes</a>
+    </div>
+    <div class="navbar-actions">
+      <!-- Iniciar Sesión dropdown -->
+      <div class="login-dropdown" id="loginDropdown">
+        <button class="login-btn" onclick="toggleLogin()">
+          Iniciar Sesión
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M3 5l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <div class="login-menu">
+          <a href="#" onclick="showPortalMsg('paciente');return false;" class="login-option">
+            <div class="login-option-icon patient">👤</div>
+            <div>
+              <span class="login-option-label">Soy Paciente</span>
+              <span class="login-option-sub">Accede a tu solicitud</span>
+            </div>
+          </a>
+          <div class="login-divider"></div>
+          <a href="#" onclick="showPortalMsg('doctor');return false;" class="login-option">
+            <div class="login-option-icon doctor">🩺</div>
+            <div>
+              <span class="login-option-label">Soy Doctor / Clínica</span>
+              <span class="login-option-sub">Accede a tu portal médico</span>
+            </div>
+          </a>
+        </div>
+      </div>
+      <!-- Regístrate dropdown -->
+      <div class="login-dropdown" id="registerDropdown">
+        <button class="login-btn" onclick="toggleRegister()" style="border-color:rgba(255,255,255,.3);">
+          Regístrate
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M3 5l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <div class="login-menu" style="min-width:220px;">
+          <a href="#" onclick="return false;" class="login-option">
+            <div class="login-option-icon patient">👤</div>
+            <div>
+              <span class="login-option-label">Soy Paciente</span>
+              <span class="login-option-sub">Solicita tu financiamiento</span>
+            </div>
+          </a>
+          <div class="login-divider"></div>
+          <a href="#" onclick="return false;" class="login-option">
+            <div class="login-option-icon doctor">🩺</div>
+            <div>
+              <span class="login-option-label">Soy Doctor / Clínica</span>
+              <span class="login-option-sub">Registra tu consultorio o clínica</span>
+            </div>
+          </a>
+        </div>
+      </div>
+      <!-- Solicitar crédito -->
+      <button type="button" class="btn btn-primary btn-sm">Solicitar financiamiento</button>
+    </div>
+    <div class="hamburger" id="hamburger" onclick="toggleDrawer()">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+</nav>
+
+<!-- Mobile Drawer -->
+<div class="mobile-drawer" id="drawer">
+  <div class="drawer-nav-list">
+    <a class="drawer-nav-link" href="index.html#como-funciona" onclick="toggleDrawer()">¿Cómo funciona?</a>
+    <a class="drawer-nav-link" href="index.html#simulador" onclick="toggleDrawer()">Simulador</a>
+    <a class="drawer-nav-link" href="index.html#especialidades" onclick="toggleDrawer()">Especialidades</a>
+    <a class="drawer-nav-link" href="index.html#proveedores" onclick="toggleDrawer()">Doctores</a>
+    <a class="drawer-nav-link" href="index.html#buscar-doctor" onclick="toggleDrawer()">Encuentra tu doctor</a>
+    <a class="drawer-nav-link" href="faq.html" onclick="toggleDrawer()">Preguntas frecuentes</a>
+  </div>
+
+  <hr class="drawer-divider">
+
+  <div class="drawer-section">
+    <p class="drawer-section-title">Iniciar sesión</p>
+    <a href="#" onclick="showPortalMsg('paciente');toggleDrawer();return false;" class="drawer-option-card">
+      <span class="drawer-option-icon patient">👤</span>
+      <span class="drawer-option-copy">
+        <strong>Soy Paciente</strong>
+        <small>Accede a tu solicitud</small>
+      </span>
+    </a>
+    <a href="#" onclick="showPortalMsg('doctor');toggleDrawer();return false;" class="drawer-option-card">
+      <span class="drawer-option-icon doctor">🩺</span>
+      <span class="drawer-option-copy">
+        <strong>Soy Doctor / Clínica</strong>
+        <small>Accede a tu portal médico</small>
+      </span>
+    </a>
+  </div>
+
+  <div class="drawer-section">
+    <p class="drawer-section-title">Regístrate</p>
+    <a href="index.html#simulador" onclick="toggleDrawer()" class="drawer-option-card">
+      <span class="drawer-option-icon patient">👤</span>
+      <span class="drawer-option-copy">
+        <strong>Soy Paciente</strong>
+        <small>Solicita tu financiamiento</small>
+      </span>
+    </a>
+    <a href="#" onclick="toggleDrawer();return false;" class="drawer-option-card">
+      <span class="drawer-option-icon doctor">🩺</span>
+      <span class="drawer-option-copy">
+        <strong>Soy Doctor / Clínica</strong>
+        <small>Registra tu consultorio o clínica</small>
+      </span>
+    </a>
+  </div>
+
+  <div class="drawer-primary-wrap">
+    <a href="index.html#simulador" onclick="toggleDrawer()" class="btn btn-primary btn-full">Solicitar financiamiento</a>
+  </div>
+</div>
+
+<!-- =============================================
+     HERO
+============================================= -->
+
+<header class="faq-page-header">
+  <span class="section-tag" style="background:rgba(32,199,212,.12);border-color:rgba(32,199,212,.25);color:var(--cyan);">Preguntas frecuentes</span>
+  <h1 class="faq-page-title">Todo sobre <span>Pulzzo</span></h1>
+  <p class="faq-page-subtitle">Resolvemos las dudas más comunes sobre financiamiento médico, pagos, registro de pacientes, alta de doctores y clínicas, facturación, privacidad y responsabilidad médica.</p>
+</header>
+
+<main class="faq-page-shell">
+  <div class="faq-page-card" id="faqPageCard">
+    <div class="faq-tabs-wrap">
+      <div class="faq-tabs">
+        <button class="faq-tab faq-paciente active" onclick="switchFaqPageTab('pacientes', this)"><span>👤</span> Pacientes</button>
+<button class="faq-tab faq-doctor" onclick="switchFaqPageTab('doctores', this)"><span>🩺</span> Doctores y clínicas</button>
+<button class="faq-tab faq-paciente" onclick="switchFaqPageTab('pagos', this)"><span>💳</span> Pagos y crédito</button>
+<button class="faq-tab faq-paciente" onclick="switchFaqPageTab('facturacion', this)"><span>🧾</span> Facturación</button>
+<button class="faq-tab faq-pulzzo" onclick="switchFaqPageTab('pulzzo', this)"><span class="faq-logo-chip"><img src="assets/images/logo-pulzzo.png" alt="Pulzzo"></span> <span>Sobre Pulzzo</span></button>
+<button class="faq-tab faq-paciente" onclick="switchFaqPageTab('seguridad', this)"><span>🛡️</span> Seguridad</button>
+<button class="faq-tab faq-paciente" onclick="switchFaqPageTab('legal', this)"><span>⚖️</span> Aclaraciones legales</button>
+      </div>
+    </div>
+    <div class="faq-page-body">
+      <div class="faq-page-tab-panel" id="faqpage-pacientes" style="display:block;"><div class="faq-section-title">Solicitud y requisitos</div>
+<div class="faq-grid" style="display:block;"><div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Qué es Pulzzo?<span class="faq-icon">+</span></button>
+  <div class="faq-a">Pulzzo es una plataforma mexicana de financiamiento médico para procedimientos programados. Si tu solicitud es aprobada, Pulzzo paga directamente al doctor, clínica u hospital participante, y tú pagas el financiamiento en mensualidades claras. Pulzzo no entrega el dinero directamente al paciente.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Cómo puedo solicitar mi financiamiento?<span class="faq-icon">+</span></button>
+  <div class="faq-a">La solicitud es digital. Puedes iniciar desde el sitio web de Pulzzo, completar tus datos, cargar la documentación solicitada y compartir la información del procedimiento médico que deseas financiar. Después, Pulzzo revisará tu información, validará tu identidad, evaluará tu capacidad de pago y confirmará los datos del proveedor médico antes de liberar cualquier pago.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Qué documentos necesito?<span class="faq-icon">+</span></button>
+  <div class="faq-a">Para evaluar tu solicitud normalmente podemos solicitar identificación oficial vigente, comprobante de domicilio, estados de cuenta bancarios, comprobante de ingresos, selfie o prueba de vida, información del procedimiento y datos del doctor o clínica. Pulzzo podrá solicitar información adicional dependiendo del monto, tipo de procedimiento y perfil del solicitante.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Cuál es el monto mínimo y máximo?<span class="faq-icon">+</span></button>
+  <div class="faq-a">El monto mínimo sugerido es de $10,000 MXN y el monto máximo puede ser de hasta $300,000 MXN, sujeto a evaluación. El monto final aprobado dependerá de tu perfil crediticio, ingresos, capacidad de pago, historial, procedimiento y validación del proveedor médico.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Necesito aval, garantía o colateral?<span class="faq-icon">+</span></button>
+  <div class="faq-a">En principio, Pulzzo no solicita hipoteca, garantía patrimonial ni colateral. Evaluamos tu perfil crediticio, ingresos, capacidad de pago y documentación. En algunos casos, si tu perfil no califica por sí solo, Pulzzo puede solicitar información adicional o evaluar alternativas como un cofirmante.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Un familiar puede solicitar el crédito por mí?<span class="faq-icon">+</span></button>
+  <div class="faq-a">Sí. Un familiar mayor de edad puede solicitar el financiamiento para cubrir tu procedimiento médico. En ese caso, el crédito quedará legalmente a nombre de la persona que firma el contrato y asume la obligación de pago.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Puedo solicitarlo si soy menor de edad?<span class="faq-icon">+</span></button>
+  <div class="faq-a">No directamente. Para solicitar un financiamiento debes ser mayor de edad. Sin embargo, un familiar mayor de edad puede solicitar el financiamiento para cubrir tu procedimiento, sujeto a aprobación y validación del caso.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Puedo solicitarlo si soy extranjero?<span class="faq-icon">+</span></button>
+  <div class="faq-a">Sí, siempre que cuentes con residencia legal en México y documentación vigente. Pulzzo podrá solicitar pasaporte, documento migratorio, comprobante de domicilio en México, información de ingresos y documentación adicional para validar tu identidad y capacidad de pago.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Pulzzo consulta Buró de Crédito?<span class="faq-icon">+</span></button>
+  <div class="faq-a">Sí. Pulzzo puede consultar tu historial crediticio como parte del análisis de tu solicitud. También podrá reportar el comportamiento de pago del financiamiento conforme a la autorización correspondiente y la normativa aplicable.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Todos los pacientes son aprobados?<span class="faq-icon">+</span></button>
+  <div class="faq-a">No. Todas las solicitudes están sujetas a evaluación crediticia, validación de identidad, revisión documental, capacidad de pago, validación del procedimiento y confirmación del proveedor médico. Pulzzo puede aprobar, rechazar o solicitar información adicional según cada caso.</div>
+</div></div>
+<div class="faq-section-title">Procedimiento médico</div>
+<div class="faq-grid" style="display:block;"><div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Para qué procedimientos aplica el financiamiento?<span class="faq-icon">+</span></button>
+  <div class="faq-a">Pulzzo puede financiar procedimientos médicos programados como cirugía plástica y estética, cirugía bariátrica, dental, oftalmología, ortopedia y traumatología, ginecología, otorrinolaringología, reproducción asistida, Med Spa, fisioterapia y rehabilitación vinculada al procedimiento aprobado. La disponibilidad dependerá del tipo de procedimiento, proveedor médico, documentación y políticas internas.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Pulzzo financia urgencias médicas?<span class="faq-icon">+</span></button>
+  <div class="faq-a">No. Pulzzo no financia urgencias médicas. El producto está diseñado para procedimientos programados, donde existe tiempo suficiente para evaluar la solicitud, validar la identidad del paciente, confirmar el procedimiento y coordinar el pago con el proveedor médico.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Qué procedimientos no financia Pulzzo?<span class="faq-icon">+</span></button>
+  <div class="faq-a">Pulzzo no financia urgencias médicas, procedimientos experimentales, tratamientos sin respaldo clínico suficiente, procedimientos fuera de establecimientos adecuados, servicios no relacionados con salud ni procedimientos que no hayan sido validados por el proveedor.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Puedo elegir a mi propio doctor?<span class="faq-icon">+</span></button>
+  <div class="faq-a">Sí, siempre que el doctor, clínica u hospital pueda ser validado por Pulzzo y acepte participar en el proceso. Si tu doctor todavía no está registrado, puedes compartirnos sus datos para que Pulzzo lo contacte.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿El doctor tiene que estar registrado en Pulzzo?<span class="faq-icon">+</span></button>
+  <div class="faq-a">Sí. Para que Pulzzo pueda pagar directamente el procedimiento, el doctor, clínica u hospital debe estar registrado y validado como proveedor Pulzzo. El financiamiento solo podrá avanzar al pago cuando el proveedor haya sido validado y haya confirmado el procedimiento.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Qué pasa si mi doctor todavía no está registrado?<span class="faq-icon">+</span></button>
+  <div class="faq-a">Puedes iniciar tu solicitud y compartirnos los datos de tu doctor o clínica. Pulzzo podrá contactarlo para explicarle el proceso, solicitar documentación y validar si puede registrarse como proveedor. El pago no se liberará hasta que el proveedor esté validado y confirme el procedimiento.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿El doctor tiene que confirmar el procedimiento?<span class="faq-icon">+</span></button>
+  <div class="faq-a">Sí. Antes de que Pulzzo realice el pago, el doctor, clínica u hospital debe confirmar que el procedimiento está programado y que puede realizarse. Esta confirmación ayuda a proteger al paciente, al proveedor y a Pulzzo.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Pulzzo recomienda doctores?<span class="faq-icon">+</span></button>
+  <div class="faq-a">Pulzzo puede mostrar doctores, clínicas u hospitales registrados o validados dentro de su red, pero eso no significa que garantice resultados médicos. La decisión final del paciente debe tomarse con base en la valoración médica, experiencia del proveedor, riesgos, beneficios y consentimiento informado.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Pulzzo garantiza resultados médicos?<span class="faq-icon">+</span></button>
+  <div class="faq-a">No. Pulzzo no presta servicios médicos, no realiza diagnósticos, no recomienda tratamientos y no garantiza resultados clínicos, quirúrgicos o estéticos. La responsabilidad médica corresponde exclusivamente al doctor, clínica u hospital que presta el servicio.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Qué pasa si hay una complicación médica después del procedimiento?<span class="faq-icon">+</span></button>
+  <div class="faq-a">Cualquier complicación médica debe ser atendida directamente por el doctor, clínica u hospital responsable del procedimiento. El financiamiento con Pulzzo permanece vigente conforme al contrato firmado, salvo que exista una cancelación, devolución o ajuste formalmente acordado entre las partes.</div>
+</div></div></div>
+<div class="faq-page-tab-panel" id="faqpage-doctores" style="display:none;"><div class="faq-section-title">Registro y operación</div>
+<div class="faq-grid" style="display:block;"><div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Qué es Pulzzo para doctores y clínicas?<span class="faq-icon">+</span></button>
+  <div class="faq-a">Pulzzo es una alternativa para que doctores, clínicas y hospitales puedan ofrecer a sus pacientes una opción de pago a meses para procedimientos médicos programados. El paciente solicita el financiamiento; si es aprobado, Pulzzo paga directamente al proveedor médico, y el paciente paga el crédito a Pulzzo.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Cómo me registro como proveedor en Pulzzo?<span class="faq-icon">+</span></button>
+  <div class="faq-a">El registro es digital. Pueden registrarse doctores independientes, clínicas, consultorios, hospitales o centros médicos. El proveedor debe completar su información profesional, fiscal, bancaria y de contacto. Pulzzo revisa la documentación y valida el perfil antes de activar la cuenta.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Qué documentos necesita un doctor independiente?<span class="faq-icon">+</span></button>
+  <div class="faq-a">Para una persona física normalmente se podrá solicitar identificación oficial, cédula profesional, especialidad médica, Constancia de Situación Fiscal, comprobante de domicilio, CLABE bancaria, datos de contacto y documentación adicional según especialidad o procedimiento.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Qué documentos necesita una clínica, hospital o centro médico?<span class="faq-icon">+</span></button>
+  <div class="faq-a">Para una persona moral o establecimiento médico normalmente se podrá solicitar acta constitutiva, poder del representante legal, identificación del representante legal, Constancia de Situación Fiscal, comprobante de domicilio, CLABE bancaria, licencias, avisos o permisos aplicables, información de médicos participantes y datos de contacto.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Pulzzo solicita permisos o documentación sanitaria?<span class="faq-icon">+</span></button>
+  <div class="faq-a">Cuando aplique, Pulzzo podrá solicitar documentación relacionada con permisos, avisos, licencias sanitarias o autorizaciones necesarias. No todos los proveedores requieren la misma documentación; dependerá de si se trata de un doctor independiente, consultorio, clínica, hospital, centro quirúrgico o centro especializado.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Pulzzo solicita seguro de responsabilidad profesional?<span class="faq-icon">+</span></button>
+  <div class="faq-a">Pulzzo puede solicitarlo como parte de sus criterios de validación o afiliación, especialmente para ciertos procedimientos, especialidades o establecimientos. En México no siempre es obligatorio para todos los médicos, pero muchos hospitales privados sí lo solicitan como requisito para operar dentro de sus instalaciones.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Cuánto tarda la validación?<span class="faq-icon">+</span></button>
+  <div class="faq-a">La validación normalmente puede tomar hasta 48 horas hábiles, siempre que la información esté completa. Si falta algún documento o hay datos por aclarar, Pulzzo podrá contactar al proveedor para completar el registro.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Cuánto cuesta registrarme?<span class="faq-icon">+</span></button>
+  <div class="faq-a">El alta como proveedor puede ser gratuita. Pulzzo puede cobrar únicamente cuando se financia un procedimiento a través de la plataforma, conforme al convenio comercial aplicable.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Tengo que aprobar cada procedimiento antes de que Pulzzo libere el pago?<span class="faq-icon">+</span></button>
+  <div class="faq-a">Sí. Antes de liberar el pago, Pulzzo requiere que el proveedor confirme que el procedimiento está programado y que puede realizarse. Esta confirmación protege al paciente, al proveedor y a Pulzzo.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Puedo rechazar a un paciente que ya tiene crédito aprobado?<span class="faq-icon">+</span></button>
+  <div class="faq-a">Sí. La decisión médica siempre corresponde al profesional de salud. Si por razones clínicas, de agenda, documentación o criterio profesional decides no atender a un paciente, Pulzzo podrá cancelar o pausar el financiamiento antes de liberar el pago.</div>
+</div></div>
+<div class="faq-section-title">Pagos al proveedor</div>
+<div class="faq-grid" style="display:block;"><div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Cuándo recibe el pago el doctor o clínica?<span class="faq-icon">+</span></button>
+  <div class="faq-a">El proveedor puede recibir el pago antes de realizar el procedimiento, una vez que la solicitud del paciente esté aprobada, las condiciones del crédito hayan sido aceptadas, la documentación esté completa, el procedimiento esté confirmado, el proveedor esté registrado y el contrato haya sido formalizado cuando aplique.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Pulzzo le paga al paciente o al doctor?<span class="faq-icon">+</span></button>
+  <div class="faq-a">Pulzzo paga directamente al doctor, clínica u hospital participante. El paciente no recibe el dinero del crédito. El financiamiento tiene un destino específico: cubrir el procedimiento médico aprobado.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Qué pasa si el paciente no paga sus mensualidades?<span class="faq-icon">+</span></button>
+  <div class="faq-a">El proveedor médico no asume el riesgo de cobranza del paciente, salvo que exista un acuerdo comercial distinto. Una vez que Pulzzo paga al proveedor, el paciente queda obligado a pagar el financiamiento a Pulzzo conforme al contrato.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Qué pasa si el paciente cancela después de que Pulzzo ya pagó?<span class="faq-icon">+</span></button>
+  <div class="faq-a">Si el paciente cancela antes del procedimiento y Pulzzo ya realizó el pago, el caso se revisará conforme al convenio con el proveedor. El proveedor podrá tener que devolver el monto recibido o coordinar una reprogramación, según las condiciones acordadas.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Cómo envío la solicitud de financiamiento a mi paciente?<span class="faq-icon">+</span></button>
+  <div class="faq-a">Desde el portal o flujo de proveedor, el doctor o clínica podrá compartir un link personalizado al paciente por WhatsApp, correo o SMS. El paciente completa su solicitud desde su celular y el proveedor puede dar seguimiento al avance conforme a las herramientas disponibles.</div>
+</div></div></div>
+<div class="faq-page-tab-panel" id="faqpage-pagos" style="display:none;"><div class="faq-section-title">Flujo del crédito</div>
+<div class="faq-grid" style="display:block;"><div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Cómo funciona el flujo del dinero?<span class="faq-icon">+</span></button>
+  <div class="faq-a">El paciente solicita el financiamiento, Pulzzo evalúa su perfil, el paciente acepta las condiciones, el proveedor confirma el procedimiento, Pulzzo paga directamente al doctor, clínica u hospital, y el paciente paga a Pulzzo en mensualidades.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Pulzzo me deposita el dinero a mí?<span class="faq-icon">+</span></button>
+  <div class="faq-a">No. Pulzzo no deposita el dinero al paciente. El pago se realiza directamente al proveedor médico validado, para asegurar que el financiamiento se utilice para el procedimiento autorizado.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Cuánto cuesta usar Pulzzo?<span class="faq-icon">+</span></button>
+  <div class="faq-a">El costo dependerá del monto aprobado, plazo, perfil del paciente, tasa, comisiones y condiciones del financiamiento. Antes de firmar, el paciente deberá recibir una oferta clara con monto aprobado, plazo, mensualidad, tasa, comisión si aplica y total a pagar.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Hay comisión de apertura?<span class="faq-icon">+</span></button>
+  <div class="faq-a">Pulzzo puede ofrecer productos con o sin comisión de apertura, dependiendo del tipo de financiamiento y la oferta aprobada. Si existe comisión, se informará claramente antes de firmar cualquier contrato.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Cuándo empieza mi primer pago?<span class="faq-icon">+</span></button>
+  <div class="faq-a">El primer pago normalmente se realiza después de que Pulzzo libera el monto al proveedor médico. La fecha exacta de pago se establecerá en el contrato y en la tabla de pagos correspondiente.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Cómo se realizan los pagos mensuales?<span class="faq-icon">+</span></button>
+  <div class="faq-a">Los pagos podrán realizarse mediante cargo automático, transferencia, referencia de pago u otros medios habilitados por Pulzzo. El método específico se informará al paciente antes de formalizar el crédito.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Las mensualidades son fijas?<span class="faq-icon">+</span></button>
+  <div class="faq-a">Sí. La intención del producto es que el paciente conozca desde el inicio cuánto pagará cada mes. La mensualidad final dependerá del monto aprobado, plazo, tasa, comisiones y condiciones del financiamiento.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Puedo pagar antes de tiempo?<span class="faq-icon">+</span></button>
+  <div class="faq-a">Sí. El paciente podrá liquidar anticipadamente o realizar pagos adelantados, conforme a las condiciones establecidas en su contrato. Antes de pagar, deberá solicitar a Pulzzo el saldo actualizado.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Qué pasa si no puedo pagar una mensualidad?<span class="faq-icon">+</span></button>
+  <div class="faq-a">Si el paciente anticipa dificultades de pago, debe contactar a Pulzzo antes de la fecha de vencimiento. Dependiendo del caso, Pulzzo podrá revisar alternativas como prórroga, plan de regularización o reestructura, conforme a sus políticas internas. El incumplimiento puede generar cargos, intereses moratorios, gestiones de cobranza y reportes negativos.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Me puedo arrepentir después de firmar?<span class="faq-icon">+</span></button>
+  <div class="faq-a">Depende del momento. Si el pago al proveedor todavía no ha sido procesado, el paciente debe contactar a Pulzzo lo antes posible para revisar la cancelación. Una vez que Pulzzo libera el pago al proveedor, el financiamiento queda activo conforme al contrato.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Qué pasa si cancelo mi procedimiento?<span class="faq-icon">+</span></button>
+  <div class="faq-a">Si cancelas antes de la aprobación, se cancela la solicitud. Si cancelas después de aprobación pero antes del pago, puede cancelarse antes de dispersar. Si el pago ya fue realizado, se revisa devolución o reprogramación con el proveedor. Pulzzo no controla directamente las políticas médicas, de cancelación o devolución del doctor, clínica u hospital.</div>
+</div></div></div>
+<div class="faq-page-tab-panel" id="faqpage-facturacion" style="display:none;"><div class="faq-section-title">CFDI y comisiones</div>
+<div class="faq-grid" style="display:block;"><div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Quién factura el procedimiento médico?<span class="faq-icon">+</span></button>
+  <div class="faq-a">El doctor, clínica u hospital debe facturarle al paciente por el procedimiento médico. Aunque Pulzzo realice físicamente el pago al proveedor, el servicio médico se presta al paciente, no a Pulzzo.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿El doctor debe facturarle a Pulzzo?<span class="faq-icon">+</span></button>
+  <div class="faq-a">En principio, no. El doctor o clínica no le presta el servicio médico a Pulzzo. El proveedor presta el servicio médico al paciente, por lo que el CFDI del procedimiento debe emitirse al paciente. Pulzzo únicamente financia el procedimiento y paga al proveedor conforme al destino autorizado del crédito.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Pulzzo le factura algo al paciente?<span class="faq-icon">+</span></button>
+  <div class="faq-a">Sí. Pulzzo podrá facturar al paciente los conceptos financieros que correspondan, como intereses, comisiones u otros cargos relacionados con el financiamiento, conforme al contrato y estructura fiscal aplicable.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">Entonces, ¿puede haber dos facturas para el paciente?<span class="faq-icon">+</span></button>
+  <div class="faq-a">Sí. Puede haber un CFDI del doctor, clínica u hospital al paciente por el servicio médico, y un CFDI de Pulzzo al paciente por conceptos financieros como intereses, comisiones o cargos aplicables.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Pulzzo puede cobrar comisión al doctor o clínica?<span class="faq-icon">+</span></button>
+  <div class="faq-a">Sí. Pulzzo puede cobrar una comisión al doctor, clínica u hospital por uso de plataforma, originación, referenciación, coordinación o acceso al canal de financiamiento. Esta comisión debe documentarse en un convenio comercial separado con el proveedor médico.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Cómo se factura la comisión al doctor o clínica?<span class="faq-icon">+</span></button>
+  <div class="faq-a">Si existe comisión al proveedor, Pulzzo emitirá el CFDI correspondiente al doctor, clínica u hospital por el concepto pactado. La estructura final debe validarse con asesoría fiscal y legal.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿El paciente puede deducir el procedimiento médico?<span class="faq-icon">+</span></button>
+  <div class="faq-a">Dependerá de su situación fiscal, tipo de procedimiento, CFDI emitido por el proveedor médico y reglas fiscales aplicables. Pulzzo no sustituye la asesoría fiscal. Para confirmar deducibilidad, el paciente debe consultarlo con su contador.</div>
+</div></div></div>
+<div class="faq-page-tab-panel" id="faqpage-pulzzo" style="display:none;"><div class="faq-section-title">Empresa y operación</div>
+<div class="faq-grid" style="display:block;"><div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Pulzzo es una clínica, hospital o proveedor médico?<span class="faq-icon">+</span></button>
+  <div class="faq-a">No. Pulzzo no es una clínica, hospital, consultorio ni proveedor de servicios médicos. Pulzzo únicamente facilita financiamiento para procedimientos médicos programados, sujeto a aprobación crediticia, validación del procedimiento y validación del proveedor médico.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Pulzzo es un banco o una SOFOM?<span class="faq-icon">+</span></button>
+  <div class="faq-a">No. Pulzzo no es un banco y no capta ahorro del público. Pulzzo ofrece soluciones de financiamiento médico bajo una estructura privada. La operación, contratos y comunicación deben mantenerse alineados con el marco legal aplicable.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Qué diferencia a Pulzzo de otras opciones?<span class="faq-icon">+</span></button>
+  <div class="faq-a">Pulzzo se enfoca en financiar procedimientos médicos programados y pagar directamente al proveedor médico. Esto permite que el paciente no tenga que recibir ni administrar el dinero del crédito, y que el doctor o clínica tenga mayor claridad sobre el pago antes del procedimiento.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Pulzzo tiene app móvil?<span class="faq-icon">+</span></button>
+  <div class="faq-a">Próximamente. Actualmente el proceso puede operar desde el sitio web, optimizado para celular. Cuando el portal esté disponible, el paciente y el proveedor podrán acceder a sus respectivos flujos.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿En qué ciudades opera Pulzzo?<span class="faq-icon">+</span></button>
+  <div class="faq-a">Pulzzo puede operar gradualmente por zonas, ciudades, proveedores o alianzas disponibles. La disponibilidad dependerá del proveedor médico, cobertura operativa y etapa de lanzamiento.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Cómo contacto a Pulzzo?<span class="faq-icon">+</span></button>
+  <div class="faq-a">Puedes contactar a Pulzzo a través de los canales oficiales indicados en el sitio web. Ejemplo: hola@pulzzo.mx. Horario de atención sugerido: lunes a viernes de 9:00 a.m. a 7:00 p.m.</div>
+</div></div></div>
+<div class="faq-page-tab-panel" id="faqpage-seguridad" style="display:none;"><div class="faq-section-title">Privacidad</div>
+<div class="faq-grid" style="display:block;"><div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Mis datos personales están seguros?<span class="faq-icon">+</span></button>
+  <div class="faq-a">Pulzzo debe tratar tus datos personales conforme a su Aviso de Privacidad y la legislación aplicable en México. La información se utiliza para evaluar solicitudes, validar identidad, coordinar el procedimiento, administrar el financiamiento y cumplir obligaciones legales.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Pulzzo comparte mis datos con el doctor?<span class="faq-icon">+</span></button>
+  <div class="faq-a">Pulzzo puede compartir con el doctor, clínica u hospital únicamente la información necesaria para validar y coordinar el procedimiento. No debe compartir más información de la necesaria para operar el servicio.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Pulzzo maneja información médica?<span class="faq-icon">+</span></button>
+  <div class="faq-a">Pulzzo puede requerir información básica del procedimiento para validar el destino del financiamiento. Sin embargo, Pulzzo no sustituye el expediente clínico del doctor o institución médica. La información médica debe tratarse con especial cuidado conforme a la regulación aplicable.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Pulzzo puede rechazar una solicitud por seguridad o validación?<span class="faq-icon">+</span></button>
+  <div class="faq-a">Sí. Pulzzo puede rechazar o pausar una solicitud si detecta inconsistencias, documentación incompleta, posible suplantación de identidad, información no verificable, riesgo crediticio o falta de validación del proveedor médico.</div>
+</div></div></div>
+<div class="faq-page-tab-panel" id="faqpage-legal" style="display:none;"><div class="faq-section-title">Responsabilidad médica</div>
+<div class="faq-grid" style="display:block;"><div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Pulzzo interviene en la decisión médica?<span class="faq-icon">+</span></button>
+  <div class="faq-a">No. Pulzzo no interviene en el diagnóstico, recomendación, valoración médica ni decisión clínica. La indicación del procedimiento, sus riesgos, beneficios, alternativas y resultados esperados son responsabilidad exclusiva del doctor, clínica u hospital.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Quién es responsable del consentimiento informado?<span class="faq-icon">+</span></button>
+  <div class="faq-a">El consentimiento informado es responsabilidad del doctor, clínica u hospital. El proveedor médico debe explicar al paciente los riesgos, beneficios, alternativas y condiciones del procedimiento antes de realizarlo. Pulzzo no sustituye este proceso médico.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Pulzzo garantiza que el procedimiento saldrá bien?<span class="faq-icon">+</span></button>
+  <div class="faq-a">No. Pulzzo no garantiza resultados médicos, quirúrgicos, estéticos ni clínicos. Pulzzo únicamente facilita el financiamiento. La responsabilidad médica corresponde al proveedor de salud.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Pulzzo puede rechazar un procedimiento?<span class="faq-icon">+</span></button>
+  <div class="faq-a">Sí. Pulzzo puede rechazar procedimientos que no cumplan sus políticas internas, criterios de riesgo, documentación, validación médica, legal o reputacional.</div>
+</div>
+<div class="faq-item" onclick="toggleFaq(this)">
+  <button class="faq-q" type="button">¿Pulzzo puede rechazar a un doctor o clínica?<span class="faq-icon">+</span></button>
+  <div class="faq-a">Sí. Pulzzo puede rechazar o suspender proveedores que no cumplan criterios de documentación, validación, reputación, cumplimiento, especialidad o calidad operativa.</div>
+</div></div></div>
+      <div class="faq-cta-band" id="faqCtaBand">
+        <div>
+          <h3 id="faqCtaTitle">¿Listo para avanzar?</h3>
+          <p id="faqCtaText">Explora el simulador o regresa a la landing para iniciar tu solicitud de financiamiento.</p>
+        </div>
+        <a class="btn btn-primary" id="faqCtaButton" href="#" onclick="return false;">Solicitar financiamiento</a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="footer-logo-lockup">
+          <picture>
+            <source srcset="assets/images/logo-pulzzo.webp" type="image/webp">
+            <img src="assets/images/logo-pulzzo.png" alt="Pulzzo" class="brand-symbol">
+          </picture>
+          <span class="brand-word">pulzzo</span>
+        </div>
+        <p class="footer-tagline">Financiamiento médico para procedimientos programados en México.</p>
+
+        <div class="footer-socials" aria-label="Redes sociales de Pulzzo">
+          <a href="#" onclick="return false;" class="social-btn instagram" aria-label="Instagram de Pulzzo"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <rect x="4" y="4" width="16" height="16" rx="5" ry="5" fill="none" stroke="currentColor" stroke-width="2"/>
+            <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/>
+            <circle cx="17.5" cy="6.5" r="1.2" fill="currentColor"/>
+          </svg></a>
+          <a href="#" onclick="return false;" class="social-btn facebook" aria-label="Facebook de Pulzzo">f</a>
+          <a href="#" onclick="return false;" class="social-btn linkedin" aria-label="LinkedIn de Pulzzo">in</a>
+          <a href="#" onclick="return false;" class="social-btn whatsapp" aria-label="WhatsApp de Pulzzo"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M12 3.2c-4.85 0-8.8 3.82-8.8 8.52 0 1.51.41 2.99 1.18 4.29L3.2 20.8l4.94-1.12a9.03 9.03 0 0 0 3.86.85c4.85 0 8.8-3.82 8.8-8.52S16.85 3.2 12 3.2zm0 15.87c-1.2 0-2.39-.29-3.44-.85l-.25-.13-2.93.66.71-2.79-.16-.27a7.15 7.15 0 0 1-1.07-3.77c0-3.85 3.18-6.99 7.09-6.99s7.09 3.13 7.09 6.99-3.18 7-7.09 7zm3.89-5.19c-.21-.1-1.24-.6-1.43-.67-.19-.07-.33-.1-.47.1-.14.2-.54.67-.66.81-.12.14-.24.16-.45.05-.21-.1-.9-.33-1.7-1.06-.62-.56-1.04-1.25-1.16-1.46-.12-.2-.01-.31.09-.41.09-.09.21-.24.31-.36.1-.12.14-.2.21-.34.07-.14.03-.26-.02-.36-.05-.1-.47-1.12-.64-1.54-.17-.4-.35-.35-.47-.36h-.4c-.14 0-.36.05-.55.24s-.72.69-.72 1.68.74 1.95.84 2.08c.1.14 1.46 2.31 3.61 3.14 2.14.82 2.14.55 2.53.51.39-.04 1.24-.49 1.41-.96.17-.47.17-.87.12-.96-.05-.09-.19-.14-.4-.24z" fill="currentColor"/>
+          </svg></a>
+        </div>
+        
+      </div>
+      <div class="footer-col"><h4>Pacientes</h4><ul><li><a href="index.html#como-funciona">¿Cómo funciona?</a></li><li><a href="index.html#especialidades">Especialidades</a></li><li><a href="index.html#simulador">Solicitar financiamiento</a></li><li><a href="faq.html">Preguntas frecuentes</a></li><li><a href="index.html#simulador">Solicitar ahora</a></li></ul></div>
+      <div class="footer-col"><h4>Doctores y clínicas</h4><ul><li><a href="#" onclick="return false;">Alta gratuita</a></li><li><a href="index.html#proveedores">Portal médico</a></li><li><a href="index.html#proveedores">Beneficios</a></li><li><a href="mailto:hola@pulzzo.mx">Contacto B2B</a></li></ul></div>
+      <div class="footer-col"><h4>Empresa</h4><ul><li><a href="#" onclick="return false;">Sobre Pulzzo</a></li><li><a href="#" onclick="return false;">Términos y condiciones</a></li><li><a href="#" onclick="return false;">Aviso de privacidad</a></li></ul></div>
+    </div>
+
+    <div class="footer-bottom">
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <p style="font-size:12px;color:rgba(255,255,255,.65);line-height:1.9;max-width:760px;">PULZZO SAPI DE CV ("PULZZO") es una plataforma de financiamiento médico para procedimientos programados. Pulzzo no presta servicios médicos, no sustituye la valoración de un profesional de la salud y no garantiza resultados clínicos. La aprobación del financiamiento está sujeta a evaluación, validación del procedimiento y condiciones aplicables.</p>
+        <p style="font-size:12px;color:rgba(255,255,255,.6);line-height:1.9;max-width:760px;margin-top:6px;">Pulzzo no es banco ni institución de salud. Las condiciones financieras, comisiones, tasas, plazos y proveedor del financiamiento se informan antes de contratar.</p>
+        <p class="footer-legal" style="margin-top:8px;">© 2026 PULZZO SAPI DE CV · Todos los derechos reservados · Ciudad de México, México</p>
+        <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;margin-top:6px;">
+          <span style="font-size:11px;color:rgba(255,255,255,.2);">Empresa registrada · Financiamiento médico · Pulzzo no es banco ni SOFOM.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  function toggleLogin(){
+    const d=document.getElementById('loginDropdown');
+    if(d)d.classList.toggle('open');
+  }
+  function toggleDrawer(){
+    const drawer=document.getElementById('drawer');
+    const hamburger=document.getElementById('hamburger');
+    if(drawer)drawer.classList.toggle('open');
+    if(hamburger)hamburger.classList.toggle('open');
+  }
+  function showPortalMsg(type){
+    alert('Muy pronto podrás acceder a tu portal Pulzzo. Si ya iniciaste una solicitud, nuestro equipo te dará seguimiento.');
+    return false;
+  }
+  function switchFaqPageTab(tab, btn){
+    document.querySelectorAll('.faq-tab').forEach(t=>t.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.faq-page-tab-panel').forEach(p=>p.style.display='none');
+    const el=document.getElementById('faqpage-'+tab);
+    if(el)el.style.display='block';
+    
+    document.body.classList.toggle('faq-doctor-mode', tab==='doctores');
+const faqPageCard=document.getElementById('faqPageCard');
+    if(faqPageCard) faqPageCard.classList.toggle('doctor-mode', tab==='doctores');
+    document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('open'));
+
+    const ctaBand=document.getElementById('faqCtaBand');
+    const ctaTitle=document.getElementById('faqCtaTitle');
+    const ctaText=document.getElementById('faqCtaText');
+    const ctaButton=document.getElementById('faqCtaButton');
+
+    if(!ctaBand || !ctaTitle || !ctaText || !ctaButton) return;
+
+    if(tab==='doctores'){
+      ctaBand.classList.add('doctor-mode');
+      ctaTitle.textContent='¿Listo para avanzar?';
+      ctaText.textContent='Registra tu consultorio o clínica para comenzar a recibir pacientes financiados con Pulzzo.';
+      ctaButton.textContent='Registrar consultorio o clínica';
+      ctaButton.href='#';
+      ctaButton.onclick=function(e){ if(e) e.preventDefault(); return false; };
+    } else {
+      ctaBand.classList.remove('doctor-mode');
+      ctaTitle.textContent='¿Listo para avanzar?';
+      ctaText.textContent='Explora el simulador o regresa a la landing para iniciar tu solicitud de financiamiento.';
+      ctaButton.textContent='Solicitar financiamiento';
+      ctaButton.href='#';
+      ctaButton.onclick=function(e){ if(e) e.preventDefault(); return false; };
+    }
+  }
+  function toggleFaq(item){
+    const isOpen=item.classList.contains('open');
+    const panel=item.closest('.faq-page-tab-panel') || document;
+    panel.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('open'));
+    if(!isOpen)item.classList.add('open');
+  }
+  window.addEventListener('scroll', function(){
+    const nav=document.getElementById('navbar');
+    if(nav) nav.classList.toggle('navbar-scrolled', window.scrollY > 8);
+  });
+  document.addEventListener('click', function(e){
+    const dropdown=document.getElementById('loginDropdown');
+    if(dropdown && !dropdown.contains(e.target)) dropdown.classList.remove('open');
+  });
+</script>
+
+</body>
+</html>
