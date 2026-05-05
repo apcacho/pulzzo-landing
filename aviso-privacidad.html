@@ -19,30 +19,147 @@
 <style>
 :root{--midnight:#030A18;--navy:#07142F;--navy2:#0B1E3D;--surface:#101B35;--aqua:#20C7D4;--aqua-l:#55DCE2;--aqua-bg:#EFFFFF;--coral:#FF8A5B;--coral-s:#FFF1EA;--white:#fff;--offwhite:#F8FAFC;--border:#E2E8F0;--muted:#64748B;--slate:#1E293B;--green:#16A34A;--amber:#F59E0B;--red:#DC2626;--shadow:0 18px 50px rgba(7,20,47,.12);--shadow-sm:0 8px 24px rgba(7,20,47,.08);--radius:14px;--radius-lg:24px;--font-display:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,sans-serif;--font-body:'Inter',-apple-system,BlinkMacSystemFont,sans-serif}
 *{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth;font-size:16px}body{font-family:var(--font-body);color:var(--navy);background:linear-gradient(180deg,#fff 0%,#F8FAFC 100%);line-height:1.65;-webkit-font-smoothing:antialiased}a{text-decoration:none;color:inherit}ul{padding-left:1.2rem}.navbar{position:sticky;top:0;z-index:50;background:rgba(7,20,47,.96);backdrop-filter:blur(16px);height:64px;display:flex;align-items:center;padding:0 60px;box-shadow:0 4px 24px rgba(7,20,47,.2)}.navbar-inner{width:100%;max-width:1280px;margin:0 auto;display:flex;align-items:center;gap:24px}.navbar-logo{font-family:var(--font-display);font-size:20px;font-weight:800;color:#fff;display:flex;align-items:center;gap:9px;margin-right:20px}.navbar-logo img{width:30px;height:30px;border-radius:8px}.navbar-links{display:flex;gap:22px;align-items:center;flex:1}.navbar-links a{font-size:13px;font-weight:600;color:rgba(255,255,255,.78)}.navbar-links a:hover{color:var(--aqua)}.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:15px;font-weight:700;min-height:46px;padding:13px 20px;border-radius:10px;border:0;cursor:pointer;transition:.25s}.btn-primary{background:var(--aqua);color:var(--midnight);box-shadow:0 12px 25px rgba(32,199,212,.22)}.btn-primary:hover{transform:translateY(-1px);background:var(--aqua-l)}.btn-outline{background:transparent;border:1px solid rgba(255,255,255,.24);color:#fff}.btn-outline:hover{border-color:var(--aqua);color:var(--aqua)}.hamburger{display:none;margin-left:auto;background:transparent;border:0;color:#fff;font-size:26px}.mobile-drawer{display:none}.legal-hero{background:var(--navy);color:#fff;position:relative;overflow:hidden}.legal-hero::before{content:'';position:absolute;right:-180px;top:-220px;width:520px;height:520px;border-radius:50%;background:radial-gradient(circle,rgba(32,199,212,.38) 0%,transparent 68%);filter:blur(28px)}.legal-hero::after{content:'';position:absolute;left:-220px;bottom:-260px;width:620px;height:620px;border-radius:50%;background:radial-gradient(circle,rgba(189,247,244,.20) 0%,transparent 70%);filter:blur(30px)}.legal-hero-inner{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:88px 60px 72px}.eyebrow{display:inline-flex;align-items:center;gap:8px;background:rgba(32,199,212,.12);border:1px solid rgba(32,199,212,.28);color:var(--aqua-l);border-radius:999px;padding:7px 13px;font-size:12px;font-weight:800;letter-spacing:1.1px;text-transform:uppercase;margin-bottom:22px}.legal-hero h1{font-family:var(--font-display);font-size:clamp(36px,5vw,58px);line-height:1.05;letter-spacing:-.7px;margin-bottom:18px;max-width:880px}.legal-hero p{max-width:780px;color:rgba(255,255,255,.72);font-size:17px}.hero-actions{display:flex;gap:14px;flex-wrap:wrap;margin-top:30px}.updated{display:inline-block;margin-top:20px;color:rgba(255,255,255,.58);font-size:13px}.legal-wrap{max-width:1180px;margin:0 auto;padding:52px 60px 80px;display:grid;grid-template-columns:290px minmax(0,1fr);gap:34px}.toc{position:sticky;top:88px;align-self:start;background:#fff;border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;box-shadow:var(--shadow-sm);max-height:calc(100vh - 112px);overflow:auto}.toc h3{font-family:var(--font-display);font-size:15px;margin-bottom:12px}.toc a{display:block;font-size:13px;color:var(--muted);padding:8px 0;border-bottom:1px solid #F1F5F9}.toc a:hover{color:var(--aqua)}.legal-content{min-width:0}.legal-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius-lg);padding:34px;margin-bottom:20px;box-shadow:0 10px 30px rgba(7,20,47,.05)}.legal-card h2{font-family:var(--font-display);font-size:28px;line-height:1.2;letter-spacing:-.3px;margin-bottom:16px;color:var(--navy)}.legal-card h3{font-family:var(--font-display);font-size:20px;margin:22px 0 10px}.legal-card p{color:#334155;margin:12px 0}.legal-card li{margin:7px 0;color:#334155}.summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.summary-box{background:var(--offwhite);border:1px solid var(--border);border-radius:14px;padding:16px}.summary-box strong{display:block;font-family:var(--font-display);font-size:14px;color:var(--navy);margin-bottom:6px}.summary-box span{font-size:13px;color:var(--muted)}.table-wrap{overflow:auto;border:1px solid var(--border);border-radius:16px;margin:16px 0;background:#fff}table{width:100%;border-collapse:collapse;min-width:620px}th,td{padding:13px 14px;text-align:left;border-bottom:1px solid var(--border);vertical-align:top;font-size:14px}th{background:#F8FAFC;color:var(--navy);font-weight:800}td{color:#334155}.notice{border-radius:16px;padding:18px 20px;background:var(--aqua-bg);border:1px solid rgba(32,199,212,.24);color:#0B1E3D;margin:18px 0}.notice.coral{background:var(--coral-s);border-color:rgba(255,138,91,.3)}.footer{background:var(--midnight);padding:58px 60px 30px;color:#fff}.footer-inner{max-width:1280px;margin:0 auto}.footer-top{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:44px;margin-bottom:42px}.footer-logo-lockup{display:flex;align-items:center;gap:9px;margin-bottom:12px}.footer-logo-lockup img{width:34px;height:34px;border-radius:9px}.brand-word{font-family:var(--font-display);font-size:22px;font-weight:800;color:#fff}.footer-tagline{font-size:14px;color:rgba(255,255,255,.55);max-width:270px}.footer-col h4{font-family:var(--font-display);font-size:14px;margin-bottom:12px;color:#fff}.footer-col ul{list-style:none;padding:0}.footer-col li{margin:8px 0}.footer-col a{font-size:13px;color:rgba(255,255,255,.58)}.footer-col a:hover{color:var(--aqua)}.footer-bottom{border-top:1px solid rgba(255,255,255,.08);padding-top:24px;color:rgba(255,255,255,.6);font-size:12px}.backtop{position:fixed;right:20px;bottom:20px;width:44px;height:44px;border-radius:12px;background:var(--aqua);color:var(--midnight);display:flex;align-items:center;justify-content:center;font-weight:900;box-shadow:0 14px 30px rgba(32,199,212,.25)}@media (max-width:1023px){.navbar{padding:0 22px}.navbar-links,.navbar .btn{display:none}.hamburger{display:block}.mobile-drawer{position:fixed;top:64px;left:0;right:0;background:var(--navy);padding:18px 24px;z-index:45;box-shadow:0 20px 30px rgba(0,0,0,.22)}.mobile-drawer.open{display:block}.mobile-drawer a{display:block;color:#fff;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.08);font-weight:600}.legal-hero-inner{padding:64px 24px}.legal-wrap{grid-template-columns:1fr;padding:32px 24px 60px}.toc{position:relative;top:auto;max-height:none}.legal-card{padding:24px}.summary-grid{grid-template-columns:1fr}.footer{padding:46px 24px 26px}.footer-top{grid-template-columns:1fr 1fr;gap:30px}}@media (max-width:640px){.footer-top{grid-template-columns:1fr}.legal-card h2{font-size:24px}.hero-actions{flex-direction:column}.hero-actions a{width:100%}}
+
+
+/* =============================================
+   NAVBAR FULL MENU FIX - LEGAL PAGES
+============================================= */
+.navbar{position:sticky!important;top:0!important;z-index:100!important;background:var(--navy)!important;height:92px!important;display:flex!important;align-items:center!important;padding:0 60px!important;box-shadow:0 4px 24px rgba(7,20,47,.22)!important;}
+.navbar-inner{width:100%!important;max-width:none!important;margin:0 auto!important;display:flex!important;align-items:center!important;gap:0!important;}
+.navbar-logo{font-family:var(--font-display)!important;font-size:20px!important;font-weight:800!important;color:#fff!important;letter-spacing:-.5px!important;display:flex!important;align-items:center!important;gap:12px!important;margin-right:42px!important;flex-shrink:0!important;}
+.navbar-logo .brand-symbol{width:44px!important;height:44px!important;object-fit:contain!important;border-radius:0!important;background:transparent!important;display:block!important;}
+.navbar-logo .brand-word{font-family:var(--font-display)!important;font-size:30px!important;font-weight:800!important;color:#fff!important;letter-spacing:-.065em!important;line-height:1!important;text-transform:lowercase!important;}
+.navbar-links{display:flex!important;align-items:center!important;gap:22px!important;flex:1!important;min-width:0!important;}
+.navbar-links a{font-size:15px!important;font-weight:500!important;color:rgba(255,255,255,.82)!important;transition:all .25s ease!important;white-space:nowrap!important;}
+.navbar-links a:hover{color:var(--aqua)!important;}
+.navbar-actions{display:flex!important;align-items:center!important;gap:14px!important;margin-left:auto!important;}
+.btn-sm{min-height:54px!important;padding:15px 26px!important;font-size:15px!important;border-radius:14px!important;white-space:nowrap!important;}
+.login-dropdown{position:relative!important;}
+.login-btn{display:flex!important;align-items:center!important;gap:8px!important;min-height:54px!important;padding:0 22px!important;border-radius:14px!important;font-size:15px!important;font-weight:500!important;color:rgba(255,255,255,.9)!important;background:rgba(255,255,255,.04)!important;border:1px solid rgba(255,255,255,.18)!important;cursor:pointer!important;font-family:var(--font-body)!important;transition:all .25s ease!important;white-space:nowrap!important;}
+.login-btn:hover{background:rgba(255,255,255,.08)!important;border-color:rgba(255,255,255,.36)!important;color:#fff!important;}
+.login-btn svg{transition:transform .2s ease!important;}
+.login-dropdown.open .login-btn svg{transform:rotate(180deg)!important;}
+.login-menu{position:absolute!important;top:calc(100% + 10px)!important;right:0!important;background:#fff!important;border:1px solid var(--border)!important;border-radius:16px!important;padding:8px!important;box-shadow:0 20px 48px rgba(7,20,47,.16)!important;min-width:245px!important;opacity:0!important;pointer-events:none!important;transform:translateY(-6px)!important;transition:opacity .2s ease, transform .2s ease!important;z-index:200!important;}
+.login-dropdown.open .login-menu{opacity:1!important;pointer-events:all!important;transform:translateY(0)!important;}
+.login-option{display:flex!important;align-items:center!important;gap:12px!important;padding:12px 14px!important;border-radius:12px!important;transition:background .15s ease!important;color:var(--navy)!important;}
+.login-option:hover{background:var(--offwhite)!important;}
+.login-option-icon{width:34px!important;height:34px!important;border-radius:10px!important;display:flex!important;align-items:center!important;justify-content:center!important;flex-shrink:0!important;font-size:15px!important;}
+.login-option-icon.patient{background:rgba(32,199,212,.12)!important;}
+.login-option-icon.doctor{background:rgba(255,138,91,.13)!important;}
+.login-option-label{display:block!important;font-size:13px!important;font-weight:700!important;color:var(--navy)!important;line-height:1.2!important;}
+.login-option-sub{display:block!important;font-size:11px!important;color:var(--muted)!important;margin-top:2px!important;line-height:1.2!important;}
+.login-divider{height:1px!important;background:var(--border)!important;margin:5px 0!important;}
+.hamburger{display:none!important;background:transparent!important;border:0!important;margin-left:auto!important;cursor:pointer!important;padding:6px!important;flex-direction:column!important;gap:5px!important;}
+.hamburger span{display:block!important;width:24px!important;height:2px!important;background:#fff!important;border-radius:999px!important;}
+.mobile-drawer{display:block!important;position:fixed!important;top:92px!important;left:0!important;right:0!important;background:var(--navy)!important;z-index:90!important;padding:22px 24px 30px!important;box-shadow:0 20px 30px rgba(0,0,0,.22)!important;transform:translateY(-120%)!important;opacity:0!important;pointer-events:none!important;transition:all .28s ease!important;max-height:calc(100vh - 92px)!important;overflow:auto!important;}
+.mobile-drawer.open{transform:translateY(0)!important;opacity:1!important;pointer-events:all!important;}
+.mobile-drawer a{display:block!important;color:#fff!important;padding:13px 0!important;border-bottom:1px solid rgba(255,255,255,.08)!important;font-weight:600!important;}
+.drawer-divider{border:0!important;border-top:1px solid rgba(255,255,255,.1)!important;margin:18px 0!important;}
+.drawer-section{margin:18px 0!important;}
+.drawer-section-title{font-size:12px!important;font-weight:800!important;text-transform:uppercase!important;letter-spacing:1.2px!important;color:var(--aqua)!important;margin-bottom:10px!important;}
+.drawer-option-card{display:flex!important;align-items:center!important;gap:12px!important;padding:12px!important;border:1px solid rgba(255,255,255,.12)!important;border-radius:14px!important;margin-bottom:10px!important;background:rgba(255,255,255,.04)!important;}
+.drawer-option-card strong{display:block!important;font-size:14px!important;color:#fff!important;}
+.drawer-option-card small{display:block!important;font-size:12px!important;color:rgba(255,255,255,.62)!important;}
+.drawer-option-icon{width:34px!important;height:34px!important;border-radius:10px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:rgba(255,255,255,.08)!important;flex-shrink:0!important;}
+.btn-full{width:100%!important;}
+@media (max-width:1180px){.navbar{padding:0 28px!important;}.navbar-links{gap:16px!important;}.navbar-links a{font-size:14px!important;}.login-btn{padding:0 16px!important;}.btn-sm{padding:14px 18px!important;}}
+@media (max-width:1023px){.navbar{height:64px!important;padding:0 22px!important;}.navbar-logo{margin-right:0!important;}.navbar-logo .brand-symbol{width:36px!important;height:36px!important;}.navbar-logo .brand-word{font-size:25px!important;}.navbar-links,.navbar-actions{display:none!important;}.hamburger{display:flex!important;}.mobile-drawer{top:64px!important;max-height:calc(100vh - 64px)!important;}}
+
 </style>
 </head>
 <body>
-<nav class="navbar">
+<nav class="navbar" id="navbar">
   <div class="navbar-inner">
-    <a class="navbar-logo" href="index.html" aria-label="Ir a inicio Pulzzo"><img src="assets/images/logo-pulzzo.png" alt=""><span>pulzzo</span></a>
+    <a href="index.html" class="navbar-logo" aria-label="Ir a inicio Pulzzo">
+      <picture>
+        <source srcset="assets/images/logo-pulzzo.webp" type="image/webp">
+        <img src="assets/images/logo-pulzzo.png" alt="Pulzzo" class="brand-symbol">
+      </picture>
+      <span class="brand-word">pulzzo</span>
+    </a>
+
     <div class="navbar-links">
       <a href="index.html#como-funciona">¿Cómo funciona?</a>
       <a href="index.html#simulador">Simulador</a>
+      <a href="index.html#especialidades">Especialidades</a>
       <a href="index.html#proveedores">Doctores</a>
-      <a href="faq.html">FAQ</a>
+      <a href="index.html#buscar-doctor">Directorio</a>
+      <a href="faq.html">Preguntas Frecuentes</a>
     </div>
-    <a class="btn btn-outline" href="index.html">Volver a landing</a>
-    <a class="btn btn-primary" href="index.html#simulador">Solicitar financiamiento</a>
-    <button class="hamburger" onclick="toggleDrawer()" aria-label="Abrir menú">☰</button>
+
+    <div class="navbar-actions">
+      <div class="login-dropdown" id="loginDropdown">
+        <button type="button" class="login-btn" onclick="toggleLogin()">
+          Iniciar Sesión
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+            <path d="M3 5l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <div class="login-menu">
+          <a href="#" onclick="showPortalMsg('paciente');return false;" class="login-option">
+            <span class="login-option-icon patient">👤</span>
+            <span><span class="login-option-label">Soy Paciente</span><span class="login-option-sub">Accede a tu solicitud</span></span>
+          </a>
+          <div class="login-divider"></div>
+          <a href="#" onclick="showPortalMsg('doctor');return false;" class="login-option">
+            <span class="login-option-icon doctor">🩺</span>
+            <span><span class="login-option-label">Soy Doctor / Clínica</span><span class="login-option-sub">Accede a tu portal médico</span></span>
+          </a>
+        </div>
+      </div>
+
+      <div class="login-dropdown" id="registerDropdown">
+        <button type="button" class="login-btn" onclick="toggleRegister()">
+          Regístrate
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+            <path d="M3 5l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <div class="login-menu">
+          <a href="index.html#simulador" class="login-option">
+            <span class="login-option-icon patient">👤</span>
+            <span><span class="login-option-label">Soy Paciente</span><span class="login-option-sub">Solicita tu financiamiento</span></span>
+          </a>
+          <div class="login-divider"></div>
+          <a href="#" onclick="showPortalMsg('doctor-registro');return false;" class="login-option">
+            <span class="login-option-icon doctor">🩺</span>
+            <span><span class="login-option-label">Soy Doctor / Clínica</span><span class="login-option-sub">Registra tu consultorio o clínica</span></span>
+          </a>
+        </div>
+      </div>
+
+      <a class="btn btn-primary btn-sm" href="index.html#simulador">Solicitar financiamiento</a>
+    </div>
+
+    <button type="button" class="hamburger" id="hamburger" onclick="toggleDrawer()" aria-label="Abrir menú">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </nav>
+
 <div class="mobile-drawer" id="drawer">
-  <a href="index.html#como-funciona">¿Cómo funciona?</a>
-  <a href="index.html#simulador">Simulador</a>
-  <a href="index.html#proveedores">Doctores</a>
-  <a href="faq.html">Preguntas frecuentes</a>
-  <a href="terminos-condiciones.html">Términos y condiciones</a>
-  <a href="aviso-privacidad.html">Aviso de privacidad</a>
+  <div class="drawer-nav-list">
+    <a href="index.html#como-funciona" onclick="toggleDrawer()">¿Cómo funciona?</a>
+    <a href="index.html#simulador" onclick="toggleDrawer()">Simulador</a>
+    <a href="index.html#especialidades" onclick="toggleDrawer()">Especialidades</a>
+    <a href="index.html#proveedores" onclick="toggleDrawer()">Doctores</a>
+    <a href="index.html#buscar-doctor" onclick="toggleDrawer()">Directorio</a>
+    <a href="faq.html" onclick="toggleDrawer()">Preguntas frecuentes</a>
+    <a href="terminos-condiciones.html" onclick="toggleDrawer()">Términos y condiciones</a>
+    <a href="aviso-privacidad.html" onclick="toggleDrawer()">Aviso de privacidad</a>
+  </div>
+  <hr class="drawer-divider">
+  <div class="drawer-section">
+    <p class="drawer-section-title">Iniciar sesión</p>
+    <a href="#" onclick="showPortalMsg('paciente');toggleDrawer();return false;" class="drawer-option-card"><span class="drawer-option-icon patient">👤</span><span><strong>Soy Paciente</strong><small>Accede a tu solicitud</small></span></a>
+    <a href="#" onclick="showPortalMsg('doctor');toggleDrawer();return false;" class="drawer-option-card"><span class="drawer-option-icon doctor">🩺</span><span><strong>Soy Doctor / Clínica</strong><small>Accede a tu portal médico</small></span></a>
+  </div>
+  <div class="drawer-section">
+    <p class="drawer-section-title">Regístrate</p>
+    <a href="index.html#simulador" onclick="toggleDrawer()" class="drawer-option-card"><span class="drawer-option-icon patient">👤</span><span><strong>Soy Paciente</strong><small>Solicita tu financiamiento</small></span></a>
+    <a href="#" onclick="showPortalMsg('doctor-registro');toggleDrawer();return false;" class="drawer-option-card"><span class="drawer-option-icon doctor">🩺</span><span><strong>Soy Doctor / Clínica</strong><small>Registra tu consultorio o clínica</small></span></a>
+  </div>
+  <a href="index.html#simulador" onclick="toggleDrawer()" class="btn btn-primary btn-full">Solicitar financiamiento</a>
 </div>
 <header class="legal-hero">
   <div class="legal-hero-inner">
@@ -120,11 +237,37 @@
       <div><div class="footer-logo-lockup"><img src="assets/images/logo-pulzzo.png" alt=""><span class="brand-word">pulzzo</span></div><p class="footer-tagline">Financiamiento médico para procedimientos programados en México.</p></div>
       <div class="footer-col"><h4>Pacientes</h4><ul><li><a href="index.html#como-funciona">¿Cómo funciona?</a></li><li><a href="index.html#especialidades">Especialidades</a></li><li><a href="index.html#simulador">Solicitar financiamiento</a></li><li><a href="faq.html">Preguntas frecuentes</a></li></ul></div>
       <div class="footer-col"><h4>Doctores y clínicas</h4><ul><li><a href="index.html#proveedores">Portal médico</a></li><li><a href="index.html#proveedores">Beneficios</a></li><li><a href="mailto:hola@pulzzo.mx">Contacto B2B</a></li></ul></div>
-      <div class="footer-col"><h4>Empresa</h4><ul><li><a href="index.html">Sobre Pulzzo</a></li><li><a href="terminos-condiciones.html">Términos y condiciones</a></li><li><a href="aviso-privacidad.html">Aviso de privacidad</a></li></ul></div>
+      <div class="footer-col"><h4>Empresa</h4><ul><li><a href="faq.html">Sobre Pulzzo</a></li><li><a href="terminos-condiciones.html">Términos y condiciones</a></li><li><a href="aviso-privacidad.html">Aviso de privacidad</a></li></ul></div>
     </div>
     <div class="footer-bottom"><p>PULZZO SAPI DE CV ("PULZZO") es una plataforma de financiamiento médico para procedimientos programados. Pulzzo no presta servicios médicos, no sustituye la valoración de un profesional de la salud y no garantiza resultados clínicos.</p><p style="margin-top:8px;">© 2026 PULZZO SAPI DE CV · Todos los derechos reservados · Ciudad de México, México</p></div>
   </div>
 </footer>
-<script>function toggleDrawer(){document.getElementById('drawer').classList.toggle('open')}</script>
+<script>
+function toggleDrawer(){
+  var drawer=document.getElementById('drawer');
+  if(drawer) drawer.classList.toggle('open');
+}
+function toggleLogin(){
+  var login=document.getElementById('loginDropdown');
+  var register=document.getElementById('registerDropdown');
+  if(register) register.classList.remove('open');
+  if(login) login.classList.toggle('open');
+}
+function toggleRegister(){
+  var login=document.getElementById('loginDropdown');
+  var register=document.getElementById('registerDropdown');
+  if(login) login.classList.remove('open');
+  if(register) register.classList.toggle('open');
+}
+function showPortalMsg(type){
+  return false;
+}
+document.addEventListener('click',function(e){
+  var login=document.getElementById('loginDropdown');
+  var register=document.getElementById('registerDropdown');
+  if(login && !login.contains(e.target)) login.classList.remove('open');
+  if(register && !register.contains(e.target)) register.classList.remove('open');
+});
+</script>
 </body>
 </html>
