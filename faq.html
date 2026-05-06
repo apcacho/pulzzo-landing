@@ -3684,22 +3684,33 @@ body.faq-doctor-mode #faqCtaBand {
 }
 .faq-tab .faq-tab-logo {
   display: inline-flex !important;
-  width: 26px !important;
-  height: 26px !important;
-  min-width: 26px !important;
-  min-height: 26px !important;
-  border-radius: 8px !important;
-  background-color: var(--navy) !important;
-  background-image: url('assets/images/logo-pulzzo.png') !important;
-  background-repeat: no-repeat !important;
-  background-position: center !important;
-  background-size: 22px 22px !important;
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,.08) !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  min-height: 40px !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  background: transparent !important;
+  box-shadow: none !important;
   flex-shrink: 0 !important;
 }
+.faq-tab .faq-tab-logo img {
+  display: block !important;
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  min-height: 40px !important;
+  max-width: none !important;
+  max-height: none !important;
+  object-fit: contain !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
 .faq-tab.faq-pulzzo.active .faq-tab-logo {
-  background-color: rgba(255,255,255,.14) !important;
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,.18) !important;
+  background: transparent !important;
+  box-shadow: none !important;
 }
 @media (max-width: 640px) {
   .faq-tabs {
@@ -3870,7 +3881,7 @@ body.faq-doctor-mode #faqCtaBand {
 <button class="faq-tab faq-doctor" onclick="switchFaqPageTab('doctores', this)"><span>🩺</span> Doctores y clínicas</button>
 <button class="faq-tab faq-paciente" onclick="switchFaqPageTab('pagos', this)"><span>💳</span> Pagos y crédito</button>
 <button class="faq-tab faq-paciente" onclick="switchFaqPageTab('facturacion', this)"><span>🧾</span> Facturación</button>
-<button class="faq-tab faq-pulzzo" onclick="switchFaqPageTab('pulzzo', this)"><span class="faq-tab-logo" aria-hidden="true"></span> Sobre Pulzzo</button>
+<button class="faq-tab faq-pulzzo" onclick="switchFaqPageTab('pulzzo', this)"><span class="faq-tab-logo" aria-hidden="true"><img src="assets/images/logo-pulzzo.png" alt=""></span> Sobre Pulzzo</button>
 <button class="faq-tab faq-paciente" onclick="switchFaqPageTab('seguridad', this)"><span>🛡️</span> Seguridad</button>
 <button class="faq-tab faq-paciente" onclick="switchFaqPageTab('legal', this)"><span>⚖️</span> Aclaraciones legales</button>
       </div>
