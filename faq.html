@@ -3640,7 +3640,8 @@ body.faq-doctor-mode #faqCtaBand {
 }
 
 
-/* FINAL FIX · FAQ category buttons clean, no Pulzzo logo image inside tab */
+
+/* FINAL FIX · FAQ category buttons clean, with Pulzzo logo icon only on Sobre Pulzzo */
 .faq-tabs {
   display: flex !important;
   flex-wrap: wrap !important;
@@ -3681,9 +3682,29 @@ body.faq-doctor-mode #faqCtaBand {
   opacity: 0 !important;
   visibility: hidden !important;
 }
+.faq-tab .faq-tab-logo {
+  display: inline-flex !important;
+  width: 26px !important;
+  height: 26px !important;
+  min-width: 26px !important;
+  min-height: 26px !important;
+  border-radius: 8px !important;
+  background-color: var(--navy) !important;
+  background-image: url('assets/images/logo-pulzzo.png') !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: 22px 22px !important;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.08) !important;
+  flex-shrink: 0 !important;
+}
+.faq-tab.faq-pulzzo.active .faq-tab-logo {
+  background-color: rgba(255,255,255,.14) !important;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.18) !important;
+}
 @media (max-width: 640px) {
   .faq-tabs {
     display: grid !important;
+
     grid-template-columns: 1fr !important;
     gap: 10px !important;
     align-items: stretch !important;
@@ -3701,7 +3722,7 @@ body.faq-doctor-mode #faqCtaBand {
 <!-- NAVBAR -->
 <nav class="navbar" id="navbar">
   <div class="navbar-inner">
-    <a href="#" class="navbar-logo">
+    <a href="./index.html" class="navbar-logo" aria-label="Ir a la landing de Pulzzo" onclick="window.location.href='./index.html'; return false;">
       <picture>
       <source srcset="assets/images/logo-pulzzo.webp" type="image/webp">
       <img src="assets/images/logo-pulzzo.png" alt="Pulzzo" class="brand-symbol" style="height:44px;width:44px;object-fit:contain;border-radius:0;background:transparent;">
@@ -3849,7 +3870,7 @@ body.faq-doctor-mode #faqCtaBand {
 <button class="faq-tab faq-doctor" onclick="switchFaqPageTab('doctores', this)"><span>🩺</span> Doctores y clínicas</button>
 <button class="faq-tab faq-paciente" onclick="switchFaqPageTab('pagos', this)"><span>💳</span> Pagos y crédito</button>
 <button class="faq-tab faq-paciente" onclick="switchFaqPageTab('facturacion', this)"><span>🧾</span> Facturación</button>
-<button class="faq-tab faq-pulzzo" onclick="switchFaqPageTab('pulzzo', this)"><span aria-hidden="true">✦</span> Sobre Pulzzo</button>
+<button class="faq-tab faq-pulzzo" onclick="switchFaqPageTab('pulzzo', this)"><span class="faq-tab-logo" aria-hidden="true"></span> Sobre Pulzzo</button>
 <button class="faq-tab faq-paciente" onclick="switchFaqPageTab('seguridad', this)"><span>🛡️</span> Seguridad</button>
 <button class="faq-tab faq-paciente" onclick="switchFaqPageTab('legal', this)"><span>⚖️</span> Aclaraciones legales</button>
       </div>
