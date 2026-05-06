@@ -468,6 +468,299 @@
   .mobile-drawer { top: 56px !important; height: calc(100vh - 56px) !important; }
 }
 
+
+
+/* =========================================================
+   NAVBAR MATCH INDEX / LANDING - FINAL HARD OVERRIDE
+   Do not change: this block forces FAQ, Aviso and Términos
+   to use the same navbar geometry/colors as index.html.
+========================================================= */
+.navbar {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 1000 !important;
+  height: 64px !important;
+  min-height: 64px !important;
+  max-height: 64px !important;
+  padding: 0 22px !important;
+  display: flex !important;
+  align-items: center !important;
+  background: rgba(3,10,24,.88) !important;
+  backdrop-filter: blur(10px) saturate(120%) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(120%) !important;
+  box-shadow: none !important;
+}
+.navbar.navbar-scrolled,
+.navbar-scrolled {
+  box-shadow: 0 4px 24px rgba(7,20,47,.30) !important;
+}
+.navbar-inner {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0 !important;
+}
+.navbar-logo {
+  height: 64px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  margin-right: 24px !important;
+  flex-shrink: 0 !important;
+  color: #FFFFFF !important;
+  text-decoration: none !important;
+}
+.navbar-logo picture {
+  width: 36px !important;
+  height: 36px !important;
+  display: block !important;
+  flex: 0 0 36px !important;
+}
+.navbar-logo .brand-symbol,
+.navbar-logo img.brand-symbol,
+.navbar-logo img {
+  width: 36px !important;
+  height: 36px !important;
+  max-width: 36px !important;
+  max-height: 36px !important;
+  min-width: 36px !important;
+  min-height: 36px !important;
+  object-fit: contain !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  filter: drop-shadow(0 8px 18px rgba(32,199,212,.22)) !important;
+  display: block !important;
+}
+.navbar-logo .brand-word,
+.navbar-logo span.brand-word {
+  font-family: var(--font-display) !important;
+  font-size: 25px !important;
+  font-weight: 700 !important;
+  letter-spacing: -.055em !important;
+  line-height: 1 !important;
+  text-transform: lowercase !important;
+  color: #FFFFFF !important;
+  display: block !important;
+}
+.navbar-links {
+  display: flex !important;
+  align-items: center !important;
+  gap: 16px !important;
+  flex: 1 1 auto !important;
+  max-width: 590px !important;
+  margin-left: 18px !important;
+  min-width: 0 !important;
+}
+.navbar-links a {
+  font-family: var(--font-body) !important;
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 1.2 !important;
+  color: rgba(255,255,255,.86) !important;
+  padding: 0 0 2px 0 !important;
+  white-space: nowrap !important;
+  text-decoration: none !important;
+}
+.navbar-links a:hover,
+.navbar-links a.active {
+  color: var(--aqua) !important;
+}
+.navbar-links a.active::after {
+  background: var(--aqua) !important;
+}
+.navbar-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  margin-left: auto !important;
+  flex-shrink: 0 !important;
+}
+.login-dropdown {
+  position: relative !important;
+}
+.login-btn {
+  height: 42px !important;
+  min-height: 42px !important;
+  max-height: 42px !important;
+  padding: 8px 15px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  border-radius: var(--radius) !important;
+  font-family: var(--font-body) !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  line-height: 1 !important;
+  color: rgba(255,255,255,.85) !important;
+  background: rgba(255,255,255,.035) !important;
+  border: 1px solid rgba(148,163,184,.22) !important;
+  box-shadow: none !important;
+  cursor: pointer !important;
+  white-space: nowrap !important;
+}
+.login-btn:hover {
+  background: rgba(255,255,255,.10) !important;
+  border-color: rgba(255,255,255,.45) !important;
+  color: #FFFFFF !important;
+}
+.login-btn svg {
+  width: 14px !important;
+  height: 14px !important;
+  transition: transform 200ms ease !important;
+}
+.login-dropdown.open .login-btn svg {
+  transform: rotate(180deg) !important;
+}
+.login-menu {
+  position: absolute !important;
+  top: calc(100% + 8px) !important;
+  right: 0 !important;
+  min-width: 300px !important;
+  max-width: 300px !important;
+  padding: 10px !important;
+  background: #FFFFFF !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 18px !important;
+  box-shadow: 0 16px 34px rgba(3,10,24,.12) !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: translateY(-6px) !important;
+  transition: opacity 200ms ease, transform 200ms ease !important;
+  z-index: 2000 !important;
+}
+.login-dropdown.open .login-menu {
+  opacity: 1 !important;
+  pointer-events: all !important;
+  transform: translateY(0) !important;
+}
+.login-option {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 11px 12px !important;
+  border-radius: 16px !important;
+  text-decoration: none !important;
+  transition: background 150ms ease !important;
+}
+.login-option:hover {
+  background: var(--offwhite) !important;
+}
+.login-option-icon {
+  width: 42px !important;
+  height: 42px !important;
+  min-width: 42px !important;
+  min-height: 42px !important;
+  border-radius: 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 18px !important;
+  flex-shrink: 0 !important;
+}
+.login-option-icon.patient { background: rgba(32,199,212,.12) !important; }
+.login-option-icon.doctor { background: rgba(7,20,47,.07) !important; }
+.login-option-label {
+  display: block !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  line-height: 1.15 !important;
+  color: var(--navy) !important;
+}
+.login-option-sub {
+  display: block !important;
+  font-size: 12.5px !important;
+  font-weight: 400 !important;
+  line-height: 1.25 !important;
+  color: var(--muted) !important;
+  margin-top: 3px !important;
+}
+.login-divider {
+  height: 1px !important;
+  background: var(--border) !important;
+  margin: 5px 0 !important;
+}
+.navbar-actions .btn,
+.navbar-actions .btn-sm,
+.navbar-actions .btn-primary {
+  height: 42px !important;
+  min-height: 42px !important;
+  max-height: 42px !important;
+  padding: 10px 16px !important;
+  border-radius: 16px !important;
+  border: 0 !important;
+  font-family: var(--font-body) !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+  background: var(--aqua) !important;
+  color: var(--midnight) !important;
+  box-shadow: none !important;
+  white-space: nowrap !important;
+}
+.navbar-actions .btn:hover,
+.navbar-actions .btn-sm:hover,
+.navbar-actions .btn-primary:hover {
+  background: var(--aqua-l) !important;
+  color: var(--midnight) !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+.hamburger {
+  display: none !important;
+  flex-direction: column !important;
+  gap: 5px !important;
+  cursor: pointer !important;
+  padding: 4px !important;
+  margin-left: auto !important;
+}
+.hamburger span {
+  display: block !important;
+  width: 24px !important;
+  height: 2px !important;
+  background: #FFFFFF !important;
+  border-radius: 2px !important;
+}
+.mobile-drawer {
+  position: fixed !important;
+  top: 64px !important;
+  right: -100% !important;
+  left: auto !important;
+  width: 100% !important;
+  height: calc(100vh - 64px) !important;
+  background: var(--midnight) !important;
+  z-index: 999 !important;
+  padding: 24px !important;
+  overflow-y: auto !important;
+  display: block !important;
+  transition: right 300ms cubic-bezier(.4,0,.2,1) !important;
+}
+.mobile-drawer.open {
+  right: 0 !important;
+}
+@media (max-width: 1280px) {
+  .navbar-links { gap: 14px !important; max-width: 540px !important; margin-left: 14px !important; }
+  .navbar-links a { font-size: 12.5px !important; }
+  .login-btn { padding-left: 13px !important; padding-right: 13px !important; }
+  .navbar-actions .btn-sm { padding-left: 14px !important; padding-right: 14px !important; }
+}
+@media (max-width: 1023px) {
+  .navbar { height: 64px !important; padding: 0 22px !important; }
+  .navbar-logo { height: 64px !important; margin-right: 0 !important; gap: 9px !important; }
+  .navbar-logo picture,
+  .navbar-logo .brand-symbol,
+  .navbar-logo img.brand-symbol,
+  .navbar-logo img { width: 32px !important; height: 32px !important; min-width: 32px !important; min-height: 32px !important; }
+  .navbar-logo .brand-word { font-size: 24px !important; }
+  .navbar-links,
+  .navbar-actions { display: none !important; }
+  .hamburger { display: flex !important; }
+}
 </style>
 </head>
 <body>
