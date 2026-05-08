@@ -4478,5 +4478,16 @@ img{max-width:100%;display:block}
     </section>
   </section>
 </main>
+<script>
+// Detección inteligente: si el campo empieza con dígitos, aplica máscara XX XXXX XXXX
+document.getElementById('email').addEventListener('input', function() {
+  var v = this.value;
+  if (/^\d/.test(v)) {
+    var digits = v.replace(/\D/g, '').slice(0, 10);
+    if (digits.length > 6) digits = digits.slice(0,2) + ' ' + digits.slice(2,6) + ' ' + digits.slice(6);
+    else if (digits.length > 2) digits = digits.slice(0,2) + ' ' + digits.slice(2);
+    this.value = digits;
+  }
+});
+</script>
 </body>
-</html>
