@@ -3445,7 +3445,7 @@ html, body {
           </svg>
         </button>
         <div class="login-menu">
-          <a href="#" onclick="showPortalMsg('paciente');return false;" class="login-option">
+          <a href="login-paciente.html" class="login-option">
             <div class="login-option-icon patient">👤</div>
             <div>
               <span class="login-option-label">Soy Paciente</span>
@@ -3453,7 +3453,7 @@ html, body {
             </div>
           </a>
           <div class="login-divider"></div>
-          <a href="#" onclick="showPortalMsg('doctor');return false;" class="login-option">
+          <a href="login-doctor.html" class="login-option">
             <div class="login-option-icon doctor">🩺</div>
             <div>
               <span class="login-option-label">Soy Doctor / Clínica</span>
@@ -3471,7 +3471,7 @@ html, body {
           </svg>
         </button>
         <div class="login-menu" style="min-width:220px;">
-          <a href="#" onclick="return false;" class="login-option">
+          <a href="#simulador" class="login-option">
             <div class="login-option-icon patient">👤</div>
             <div>
               <span class="login-option-label">Soy Paciente</span>
@@ -3512,14 +3512,14 @@ html, body {
 
   <div class="drawer-section">
     <p class="drawer-section-title">Iniciar sesión</p>
-    <a href="#" onclick="showPortalMsg('paciente');toggleDrawer();return false;" class="drawer-option-card">
+    <a href="login-paciente.html" onclick="toggleDrawer()" class="drawer-option-card">
       <span class="drawer-option-icon patient">👤</span>
       <span class="drawer-option-copy">
         <strong>Soy Paciente</strong>
         <small>Accede a tu solicitud</small>
       </span>
     </a>
-    <a href="#" onclick="showPortalMsg('doctor');toggleDrawer();return false;" class="drawer-option-card">
+    <a href="login-doctor.html" onclick="toggleDrawer()" class="drawer-option-card">
       <span class="drawer-option-icon doctor">🩺</span>
       <span class="drawer-option-copy">
         <strong>Soy Doctor / Clínica</strong>
