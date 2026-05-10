@@ -3759,7 +3759,7 @@ body.faq-doctor-mode #faqCtaBand {
           </svg>
         </button>
         <div class="login-menu">
-          <a href="#" onclick="showPortalMsg('paciente');return false;" class="login-option">
+          <a href="login-paciente.html" class="login-option">
             <div class="login-option-icon patient">👤</div>
             <div>
               <span class="login-option-label">Soy Paciente</span>
@@ -3767,7 +3767,7 @@ body.faq-doctor-mode #faqCtaBand {
             </div>
           </a>
           <div class="login-divider"></div>
-          <a href="#" onclick="showPortalMsg('doctor');return false;" class="login-option">
+          <a href="login-doctor.html" class="login-option">
             <div class="login-option-icon doctor">🩺</div>
             <div>
               <span class="login-option-label">Soy Doctor / Clínica</span>
@@ -3785,7 +3785,7 @@ body.faq-doctor-mode #faqCtaBand {
           </svg>
         </button>
         <div class="login-menu" style="min-width:220px;">
-          <a href="#" onclick="return false;" class="login-option">
+          <a href="registro-paciente.html" class="login-option">
             <div class="login-option-icon patient">👤</div>
             <div>
               <span class="login-option-label">Soy Paciente</span>
@@ -3793,7 +3793,7 @@ body.faq-doctor-mode #faqCtaBand {
             </div>
           </a>
           <div class="login-divider"></div>
-          <a href="#" onclick="return false;" class="login-option">
+          <a href="registro-doctor.html" class="login-option">
             <div class="login-option-icon doctor">🩺</div>
             <div>
               <span class="login-option-label">Soy Doctor / Clínica</span>
@@ -3803,7 +3803,7 @@ body.faq-doctor-mode #faqCtaBand {
         </div>
       </div>
       <!-- Solicitar crédito -->
-      <button type="button" class="btn btn-primary btn-sm" onclick="window.location.href='index.html#simulador'">Solicitar financiamiento</button>
+      <a href="registro-paciente.html" class="btn btn-primary btn-sm" style="text-decoration:none;">Solicitar financiamiento</a>
     </div>
     <div class="hamburger" id="hamburger" onclick="toggleDrawer()">
       <span></span><span></span><span></span>
@@ -3826,14 +3826,14 @@ body.faq-doctor-mode #faqCtaBand {
 
   <div class="drawer-section">
     <p class="drawer-section-title">Iniciar sesión</p>
-    <a href="#" onclick="showPortalMsg('paciente');toggleDrawer();return false;" class="drawer-option-card">
+    <a href="login-paciente.html" onclick="toggleDrawer()" class="drawer-option-card">
       <span class="drawer-option-icon patient">👤</span>
       <span class="drawer-option-copy">
         <strong>Soy Paciente</strong>
         <small>Accede a tu solicitud</small>
       </span>
     </a>
-    <a href="#" onclick="showPortalMsg('doctor');toggleDrawer();return false;" class="drawer-option-card">
+    <a href="login-doctor.html" onclick="toggleDrawer()" class="drawer-option-card">
       <span class="drawer-option-icon doctor">🩺</span>
       <span class="drawer-option-copy">
         <strong>Soy Doctor / Clínica</strong>
@@ -3844,14 +3844,14 @@ body.faq-doctor-mode #faqCtaBand {
 
   <div class="drawer-section">
     <p class="drawer-section-title">Regístrate</p>
-    <a href="index.html#simulador" onclick="toggleDrawer()" class="drawer-option-card">
+    <a href="registro-paciente.html" onclick="toggleDrawer()" class="drawer-option-card">
       <span class="drawer-option-icon patient">👤</span>
       <span class="drawer-option-copy">
         <strong>Soy Paciente</strong>
         <small>Solicita tu financiamiento</small>
       </span>
     </a>
-    <a href="#" onclick="toggleDrawer();return false;" class="drawer-option-card">
+    <a href="registro-doctor.html" onclick="toggleDrawer()" class="drawer-option-card">
       <span class="drawer-option-icon doctor">🩺</span>
       <span class="drawer-option-copy">
         <strong>Soy Doctor / Clínica</strong>
@@ -3861,7 +3861,7 @@ body.faq-doctor-mode #faqCtaBand {
   </div>
 
   <div class="drawer-primary-wrap">
-    <a href="index.html#simulador" onclick="toggleDrawer()" class="btn btn-primary btn-full">Solicitar financiamiento</a>
+    <a href="registro-paciente.html" onclick="toggleDrawer()" class="btn btn-primary btn-full">Solicitar financiamiento</a>
   </div>
 </div>
 
