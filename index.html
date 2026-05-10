@@ -4793,104 +4793,343 @@ document.addEventListener('keydown', function(e){ if(e.key === 'Escape') toggleD
 
 </script>
 
+
 <!-- ══════════════════════════════════════════
-     MODAL: REFERIR DOCTOR O CLÍNICA
+     MODAL: REFERIR DOCTOR O CLÍNICA — estilo Pulzzo
 ══════════════════════════════════════════ -->
 <style>
-.refer-overlay{display:none;position:fixed;inset:0;z-index:9000;background:rgba(3,10,24,.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:16px;}
+/* Overlay */
+.refer-overlay{
+  display:none;position:fixed;inset:0;z-index:9000;
+  background:rgba(3,10,24,.78);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  align-items:center;justify-content:center;padding:16px;
+}
 .refer-overlay.active{display:flex}
-.refer-modal{background:#fff;border-radius:24px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 32px 80px rgba(3,10,24,.32);position:relative;}
-.refer-header{padding:28px 32px 20px;border-bottom:1px solid #F1F5F9;position:sticky;top:0;background:#fff;z-index:1;border-radius:24px 24px 0 0;}
-.refer-close{position:absolute;top:20px;right:24px;width:32px;height:32px;border-radius:50%;background:#F1F5F9;border:none;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:#64748B;transition:background .15s;}
-.refer-close:hover{background:#E2E8F0}
-.refer-kicker{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--cyan);margin-bottom:8px;}
-.refer-modal h2{font-family:var(--font-display);font-size:22px;font-weight:800;color:var(--navy);margin-bottom:4px;}
-.refer-modal p{font-size:14px;color:#64748B;line-height:1.5;}
-.refer-body{padding:24px 32px 32px;}
-.refer-section-label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#94A3B8;margin:20px 0 12px;display:flex;align-items:center;gap:8px;}
-.refer-section-label::after{content:"";flex:1;height:1px;background:#F1F5F9;}
+
+/* Modal container */
+.refer-modal{
+  width:100%;max-width:580px;max-height:92vh;
+  overflow:hidden;display:flex;flex-direction:column;
+  border-radius:24px;
+  box-shadow:0 32px 80px rgba(3,10,24,.44);
+  position:relative;
+}
+
+/* ── HEADER navy ── */
+.refer-header{
+  background:var(--navy);
+  padding:28px 32px 24px;
+  flex-shrink:0;
+}
+.refer-header-top{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
+}
+.refer-close{
+  width:34px;height:34px;border-radius:50%;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);
+  cursor:pointer;font-size:15px;
+  display:flex;align-items:center;justify-content:center;
+  color:rgba(255,255,255,.7);transition:background .15s;flex-shrink:0;
+}
+.refer-close:hover{background:rgba(255,255,255,.16)}
+.refer-kicker{
+  font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--aqua);margin-bottom:8px;
+}
+.refer-modal h2{
+  font-family:var(--font-display);font-size:24px;font-weight:800;
+  color:#fff;margin-bottom:6px;line-height:1.15;
+}
+.refer-modal .refer-subtitle{
+  font-size:14px;color:rgba(255,255,255,.65);line-height:1.5;margin-bottom:20px;
+}
+
+/* Toggle tipo: Doctor / Clínica */
+.refer-tipo-toggle{
+  display:inline-flex;background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:3px;gap:2px;
+}
+.refer-tipo-btn{
+  padding:8px 18px;border-radius:999px;border:none;
+  font-size:13px;font-weight:700;font-family:var(--font-body);
+  cursor:pointer;transition:all .2s;color:rgba(255,255,255,.65);
+  background:transparent;
+}
+.refer-tipo-btn.active{
+  background:#fff;color:var(--navy);
+  box-shadow:0 2px 8px rgba(3,10,24,.18);
+}
+
+/* ── BODY blanco ── */
+.refer-body{
+  background:#fff;padding:28px 32px 32px;
+  overflow-y:auto;flex:1;
+}
+
+/* Section label — estilo registro-doctor */
+.refer-section-label{
+  display:flex;align-items:center;gap:10px;
+  margin:4px 0 16px;
+  color:#334155;font-size:11.5px;font-weight:800;
+  text-transform:uppercase;letter-spacing:.08em;
+}
+.refer-section-label::after{content:"";height:1px;background:#E8EEF6;flex:1}
+
+/* Fields */
 .refer-field{margin-bottom:14px;}
-.refer-field label{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--navy);margin-bottom:6px;}
-.refer-optional{font-size:11px;font-weight:500;color:#94A3B8;margin-left:2px;}
+.refer-field label{
+  display:flex;align-items:center;gap:6px;
+  font-size:13px;font-weight:700;color:var(--navy);margin-bottom:6px;
+}
+.refer-optional{font-size:11px;font-weight:500;color:#94A3B8;}
+.refer-field input,.refer-field select,.refer-field textarea{
+  width:100%;border:1px solid #D7E1EE;border-radius:14px;
+  padding:11px 14px;font-size:14px;color:var(--navy);
+  font-family:var(--font-body);outline:none;
+  transition:border-color .2s,box-shadow .2s;background:#fff;
+  box-sizing:border-box;
+}
+.refer-field input::placeholder,.refer-field textarea::placeholder{color:#94A3B8}
+.refer-field input:hover,.refer-field select:hover{border-color:rgba(32,199,212,.55)}
+.refer-field input:focus,.refer-field select:focus,.refer-field textarea:focus{
+  border-color:var(--aqua);box-shadow:0 0 0 3px rgba(32,199,212,.15);
+}
+.refer-field select{
+  appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%2364748B' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;
+}
+.refer-field textarea{resize:vertical;min-height:76px;}
+
+/* Inline prefix + name */
+.refer-name-wrap{
+  display:flex;align-items:stretch;
+  border:1px solid #D7E1EE;border-radius:14px;
+  background:#fff;overflow:hidden;
+  transition:border-color .2s,box-shadow .2s;
+}
+.refer-name-wrap:focus-within{border-color:var(--aqua);box-shadow:0 0 0 3px rgba(32,199,212,.15);}
+.refer-name-wrap:hover{border-color:rgba(32,199,212,.55)}
+.refer-prefix-sel{
+  flex:0 0 72px;width:72px;min-height:46px;
+  border:none!important;border-right:1px solid #D7E1EE!important;
+  border-radius:0!important;background:#F8FAFC!important;
+  padding:0 22px 0 12px!important;font-size:14px!important;
+  font-weight:600!important;color:var(--navy)!important;
+  appearance:none!important;-webkit-appearance:none!important;
+  box-shadow:none!important;outline:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath d='M2 3.5l3 3 3-3' stroke='%2364748B' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")!important;
+  background-repeat:no-repeat!important;background-position:right 6px center!important;
+  cursor:pointer!important;font-family:var(--font-body)!important;
+}
+.refer-prefix-sel:focus{background-color:#fff!important}
+.refer-name-input{
+  flex:1;min-width:0;border:none!important;border-radius:0!important;
+  background:transparent!important;padding:0 14px!important;
+  font-size:14px!important;color:var(--navy)!important;
+  outline:none!important;box-shadow:none!important;
+  min-height:46px!important;
+  font-family:var(--font-body)!important;
+}
+.refer-name-input::placeholder{color:#94A3B8}
+
+/* Tooltip */
 .refer-tooltip{position:relative;display:inline-flex;cursor:help;}
-.refer-tooltip-icon{width:16px;height:16px;border-radius:50%;background:#E8F4FF;color:#60A5FA;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.refer-tooltip-text{display:none;position:absolute;left:50%;bottom:calc(100% + 6px);transform:translateX(-50%);background:#1E293B;color:#fff;font-size:12px;font-weight:500;padding:8px 12px;border-radius:10px;white-space:nowrap;max-width:260px;white-space:normal;line-height:1.45;z-index:10;width:240px;text-align:left;pointer-events:none;}
+.refer-tooltip-icon{
+  width:16px;height:16px;border-radius:50%;
+  background:rgba(32,199,212,.12);color:var(--aqua);
+  font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;
+}
+.refer-tooltip-text{
+  display:none;position:absolute;left:50%;bottom:calc(100% + 6px);
+  transform:translateX(-50%);background:#1E293B;color:#fff;
+  font-size:12px;font-weight:500;padding:8px 12px;border-radius:10px;
+  width:240px;text-align:left;line-height:1.45;z-index:10;pointer-events:none;
+}
 .refer-tooltip-text::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:#1E293B;}
 .refer-tooltip:hover .refer-tooltip-text{display:block;}
-.refer-field input,.refer-field select,.refer-field textarea{width:100%;border:1px solid #E2E8F0;border-radius:12px;padding:11px 14px;font-size:14px;color:var(--navy);font-family:var(--font-body);outline:none;transition:border-color .2s,box-shadow .2s;background:#fff;}
-.refer-field input::placeholder,.refer-field textarea::placeholder{color:#94A3B8}
-.refer-field input:focus,.refer-field select:focus,.refer-field textarea:focus{border-color:#20C7D4;box-shadow:0 0 0 3px rgba(32,199,212,.12);}
-.refer-field select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%2364748B' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;}
-.refer-field textarea{resize:vertical;min-height:72px;}
+
+/* Grid row */
 .refer-form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-.refer-submit{width:100%;min-height:52px;border:none;border-radius:14px;background:#20C7D4;color:var(--navy);font-size:15px;font-weight:800;font-family:var(--font-body);cursor:pointer;margin-top:20px;transition:background .2s,transform .15s;display:flex;align-items:center;justify-content:center;gap:8px;}
-.refer-submit:hover{background:#55DCE2;transform:translateY(-1px);}
-.refer-submit:disabled{opacity:.6;cursor:not-allowed;transform:none;}
-.refer-success{display:none;text-align:center;padding:40px 32px;flex-direction:column;align-items:center;gap:12px;}
-.refer-success-icon{width:56px;height:56px;border-radius:50%;background:#ECFDF5;display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto;}
-.refer-success h3{font-family:var(--font-display);font-size:20px;font-weight:800;color:var(--navy);}
-.refer-success p{font-size:14px;color:#64748B;line-height:1.55;max-width:380px;}
-@media(max-width:600px){
-  .refer-modal{border-radius:20px;}
-  .refer-header,.refer-body{padding-left:20px;padding-right:20px;}
-  .refer-form-row{grid-template-columns:1fr;}
+
+/* Submit button */
+.refer-submit{
+  width:100%;min-height:52px;border:none;border-radius:14px;
+  background:var(--aqua);color:var(--navy);
+  font-size:15px;font-weight:800;font-family:var(--font-body);
+  cursor:pointer;margin-top:20px;
+  transition:background .2s,transform .15s;
+  display:flex;align-items:center;justify-content:center;gap:8px;
 }
+.refer-submit:hover{background:var(--cyan-soft,#55DCE2);transform:translateY(-1px);}
+.refer-submit:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+
+/* Success state */
+.refer-success{
+  display:none;text-align:center;padding:48px 32px;
+  flex-direction:column;align-items:center;gap:14px;
+  background:#fff;
+}
+.refer-success-icon{
+  width:60px;height:60px;border-radius:50%;background:#ECFDF5;
+  display:flex;align-items:center;justify-content:center;font-size:28px;
+}
+.refer-success h3{
+  font-family:var(--font-display);font-size:22px;font-weight:800;color:var(--navy);
+}
+.refer-success p{font-size:14px;color:#64748B;line-height:1.6;max-width:380px;}
+
+@media(max-width:600px){
+  .refer-header{padding:22px 20px 20px;}
+  .refer-body{padding:20px 20px 28px;}
+  .refer-form-row{grid-template-columns:1fr;}
+  .refer-modal h2{font-size:20px;}
+}
+
+/* ── Modal multi-select especialidades (clínica) — aqua ── */
+.ref-ms{position:relative}
+.ref-ms-toggle{
+  width:100%;min-height:46px;
+  border:1px solid #D7E1EE;border-radius:14px;
+  background:#fff;color:var(--navy);padding:0 14px;
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  cursor:pointer;outline:none;font-size:14px;font-family:var(--font-body);
+  transition:border-color .2s,box-shadow .2s;
+}
+.ref-ms-toggle:hover{border-color:rgba(32,199,212,.55)}
+.ref-ms.open .ref-ms-toggle,.ref-ms-toggle:focus{
+  border-color:var(--aqua);box-shadow:0 0 0 3px rgba(32,199,212,.15);
+}
+.ref-ms-summary{flex:1;min-width:0;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14px;}
+.ref-ms-summary.ph{color:#94A3B8}
+.ref-ms-caret{width:10px;height:10px;flex:0 0 10px;border-right:1.5px solid #94A3B8;border-bottom:1.5px solid #94A3B8;transform:rotate(45deg) translateY(-2px);transition:transform .2s;}
+.ref-ms.open .ref-ms-caret{transform:rotate(225deg) translateY(-1px);border-color:var(--aqua);}
+.ref-ms-menu{
+  position:absolute;top:calc(100% + 6px);left:0;right:0;
+  background:#fff;border:1px solid #E2E8F0;border-radius:14px;
+  box-shadow:0 16px 36px rgba(3,10,24,.12);padding:8px;z-index:50;
+}
+.ref-ms-search{
+  width:100%;height:34px;box-sizing:border-box;
+  border:1px solid #E8EEF6;border-radius:8px;
+  background:#F8FAFC url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 14 14'%3E%3Ccircle cx='5.5' cy='5.5' r='3.5' stroke='%2394A3B8' stroke-width='1.5' fill='none'/%3E%3Cpath d='m8.5 8.5 2.5 2.5' stroke='%2394A3B8' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat 9px center;
+  padding:0 10px 0 28px;font-size:13px;color:var(--navy);
+  font-family:var(--font-body);outline:none;margin-bottom:6px;
+  transition:border-color .2s;
+}
+.ref-ms-search:focus{border-color:var(--aqua);background-color:#fff;}
+.ref-ms-search::placeholder{color:#94A3B8}
+.ref-ms-toolbar{display:flex;align-items:center;justify-content:space-between;padding:0 2px 6px;border-bottom:1px solid #F1F5F9;margin-bottom:4px;}
+.ref-ms-toolbar span{font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.06em;}
+.ref-ms-clear{background:transparent;color:var(--aqua);border:1px solid rgba(32,199,212,.3);border-radius:999px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font-body);}
+.ref-ms-options{max-height:196px;overflow-y:auto;display:flex;flex-direction:column;gap:2px;}
+.ref-ms-opt{
+  display:grid;grid-template-columns:18px 1fr;align-items:center;gap:0 10px;
+  padding:8px 8px;border-radius:9px;cursor:pointer;
+  font-size:13.5px;font-weight:500;color:#334155;
+  border:1px solid transparent;background:transparent;
+  transition:background .12s,border-color .12s;user-select:none;
+}
+.ref-ms-opt:hover{background:#F0FDFE;border-color:rgba(32,199,212,.2)}
+.ref-ms-opt.selected{background:#E8FFFE;border-color:rgba(32,199,212,.3);font-weight:600;}
+.ref-ms-box{
+  width:18px;height:18px;min-width:18px;max-width:18px;min-height:18px;max-height:18px;
+  border:1.5px solid #C8D5E5;border-radius:5px;background:#fff;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;flex-grow:0;transition:background .15s,border-color .15s;position:relative;
+}
+.ref-ms-opt.selected .ref-ms-box{background:var(--aqua);border-color:var(--aqua);}
+.ref-ms-opt.selected .ref-ms-box::after{
+  content:"";position:absolute;left:5px;top:2px;width:4px;height:8px;
+  border:2px solid #fff;border-top:none;border-left:none;transform:rotate(45deg);
+}
+.ref-ms-opt-text{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ref-ms-opt>.ref-ms-opt-text:first-child{grid-column:1/-1}
+.ref-ms-no-results{padding:10px;font-size:13px;color:#94A3B8;text-align:center;}
 </style>
 
 <div class="refer-overlay" id="refer-overlay" onclick="handleReferOverlay(event)">
   <div class="refer-modal" id="refer-modal">
+
+    <!-- HEADER navy -->
     <div class="refer-header">
-      <button class="refer-close" onclick="closeReferModal()" aria-label="Cerrar">✕</button>
-      <div class="refer-kicker">Referir médico</div>
-      <h2>¿Tu doctor no está en Pulzzo?</h2>
-      <p>Compártenos sus datos y lo contactamos para explicarle cómo puede trabajar con Pulzzo.</p>
+      <div class="refer-header-top">
+        <div>
+          <div class="refer-kicker">Referir médico</div>
+          <h2>¿Tu doctor no está en Pulzzo?</h2>
+          <p class="refer-subtitle">Compártenos sus datos y lo contactamos para explicarle cómo puede trabajar con Pulzzo.</p>
+        </div>
+        <button class="refer-close" onclick="closeReferModal()" aria-label="Cerrar">✕</button>
+      </div>
+      <!-- Toggle tipo -->
+      <div class="refer-tipo-toggle" id="refer-tipo-toggle">
+        <button type="button" class="refer-tipo-btn active" id="btn-tipo-doctor" onclick="setReferTipo('doctor')">👤 Doctor</button>
+        <button type="button" class="refer-tipo-btn" id="btn-tipo-clinica" onclick="setReferTipo('clinica')">🏥 Clínica u hospital</button>
+      </div>
     </div>
 
+    <!-- BODY blanco -->
     <div class="refer-body" id="refer-form-body">
       <form id="refer-form" onsubmit="submitRefer(event)">
 
         <div class="refer-section-label">Datos del doctor o clínica</div>
 
+        <!-- Nombre con prefijo inline -->
         <div class="refer-field">
-          <label for="ref-nombre">Nombre del doctor o clínica <span style="color:#EF4444">*</span></label>
-          <input id="ref-nombre" type="text" placeholder="Ej. Dr. Carlos Mendoza / Clínica Salud+" required>
+          <label id="ref-nombre-label">Nombre del doctor <span style="color:#EF4444">*</span></label>
+          <div class="refer-name-wrap" id="refer-name-wrap">
+            <select class="refer-prefix-sel" id="ref-prefijo" aria-label="Prefijo">
+              <option value="Dr.">Dr.</option>
+              <option value="Dra.">Dra.</option>
+            </select>
+            <input class="refer-name-input" id="ref-nombre" type="text" placeholder="Ana López" required>
+          </div>
+        </div>
+
+        <div class="refer-field" id="ref-esp-field">
+          <label id="ref-esp-label">Especialidad <span style="color:#EF4444">*</span></label>
+          <!-- Unified custom dropdown — single mode (doctor) or multi mode (clinica) -->
+          <div class="ref-ms" id="ref-esp-ms">
+            <button type="button" class="ref-ms-toggle" id="ref-esp-ms-toggle" aria-haspopup="listbox" aria-expanded="false">
+              <span class="ref-ms-summary ph" id="ref-esp-ms-summary">Selecciona especialidad</span>
+              <span class="ref-ms-caret"></span>
+            </button>
+            <div class="ref-ms-menu" id="ref-esp-ms-menu" style="display:none">
+              <input type="text" class="ref-ms-search" id="ref-esp-ms-search" placeholder="Buscar especialidad..." autocomplete="off">
+              <div class="ref-ms-toolbar">
+                <span id="ref-esp-ms-toolbar-label">Especialidad</span>
+                <div style="display:flex;gap:6px;"><button type="button" class="ref-ms-clear" id="ref-esp-ms-sel-all" style="display:none">Sel. todos</button><button type="button" class="ref-ms-clear" id="ref-esp-ms-clear" style="display:none">Limpiar</button></div>
+              </div>
+              <div class="ref-ms-options" id="ref-esp-ms-options"></div>
+            </div>
+          </div>
+          <!-- hidden native for form compat -->
+          <select id="ref-esp" style="display:none" required></select>
+          <p id="ref-esp-helper" style="margin-top:6px;font-size:11.5px;color:#64748B;line-height:1.4;">Selecciona la especialidad principal del doctor.</p>
         </div>
 
         <div class="refer-field">
-          <label for="ref-esp">Especialidad <span style="color:#EF4444">*</span></label>
-          <select id="ref-esp" required>
-            <option value="">Selecciona especialidad</option>
-            <option>Cirugía plástica y reconstructiva</option>
-            <option>Medicina estética</option>
-            <option>Bariatría</option>
-            <option>Cirugía general</option>
-            <option>Ortopedia y traumatología</option>
-            <option>Oftalmología</option>
-            <option>Ginecología y obstetricia</option>
-            <option>Otorrinolaringología</option>
-            <option>Dental y maxilofacial</option>
-            <option>Dermatología</option>
-            <option>Urología</option>
-            <option>Gastroenterología</option>
-            <option>Cardiología</option>
-            <option>Angiología y vascular</option>
-            <option>Neurocirugía</option>
-            <option>Oncología</option>
-            <option>Reproducción asistida</option>
-            <option>Pediatría y cirugía pediátrica</option>
-            <option>Post-operatorio y rehabilitación</option>
-            <option>Otra especialidad</option>
-          </select>
-        </div>
-
-        <div class="refer-field">
-          <label for="ref-contacto">Teléfono o correo del doctor <span style="color:#EF4444">*</span></label>
+          <label for="ref-contacto" id="ref-contacto-label">Teléfono o correo del doctor <span style="color:#EF4444">*</span></label>
           <input id="ref-contacto" type="text" placeholder="55 1234 5678 o doctor@correo.com" required>
         </div>
 
         <div class="refer-field">
-          <label for="ref-ciudad">Estado o ciudad donde opera <span style="color:#EF4444">*</span></label>
-          <input id="ref-ciudad" type="text" placeholder="Ej. Ciudad de México, Guadalajara, Monterrey" required>
+          <label for="ref-estado" id="ref-estado-label">Estado donde opera <span style="color:#EF4444">*</span></label>
+          <select id="ref-estado" required>
+            <option value="">Selecciona estado</option>
+            <option>Aguascalientes</option><option>Baja California</option><option>Baja California Sur</option>
+            <option>Campeche</option><option>Chiapas</option><option>Chihuahua</option>
+            <option>Ciudad de México</option><option>Coahuila</option><option>Colima</option>
+            <option>Durango</option><option>Estado de México</option><option>Guanajuato</option>
+            <option>Guerrero</option><option>Hidalgo</option><option>Jalisco</option>
+            <option>Michoacán</option><option>Morelos</option><option>Nayarit</option>
+            <option>Nuevo León</option><option>Oaxaca</option><option>Puebla</option>
+            <option>Querétaro</option><option>Quintana Roo</option><option>San Luis Potosí</option>
+            <option>Sinaloa</option><option>Sonora</option><option>Tabasco</option>
+            <option>Tamaulipas</option><option>Tlaxcala</option><option>Veracruz</option>
+            <option>Yucatán</option><option>Zacatecas</option>
+          </select>
         </div>
 
         <div class="refer-field">
@@ -4899,7 +5138,7 @@ document.addEventListener('keydown', function(e){ if(e.key === 'Escape') toggleD
             <span class="refer-optional">(opcional)</span>
             <span class="refer-tooltip">
               <span class="refer-tooltip-icon">ⓘ</span>
-              <span class="refer-tooltip-text">Abre el perfil de Instagram, Facebook o sitio web del doctor en tu navegador, copia el link de la barra de direcciones y pégalo aquí.</span>
+              <span class="refer-tooltip-text">Abre el perfil de Instagram, Facebook o el sitio web del doctor en tu navegador, copia el link de la barra de direcciones y pégalo aquí.</span>
             </span>
           </label>
           <input id="ref-redes" type="text" placeholder="Ej. https://instagram.com/drnombreapellido">
@@ -4913,7 +5152,7 @@ document.addEventListener('keydown', function(e){ if(e.key === 'Escape') toggleD
           <textarea id="ref-comentario" placeholder="Ej. Es mi cirujano de columna, opera en Hospital Ángeles Guadalajara y tiene excelentes resultados."></textarea>
         </div>
 
-        <div class="refer-section-label">Tus datos para darte seguimiento</div>
+        <div class="refer-section-label">Tus datos para seguimiento</div>
 
         <div class="refer-form-row">
           <div class="refer-field" style="margin-bottom:0">
@@ -4933,6 +5172,7 @@ document.addEventListener('keydown', function(e){ if(e.key === 'Escape') toggleD
       </form>
     </div>
 
+    <!-- Success -->
     <div class="refer-success" id="refer-success">
       <div class="refer-success-icon">✓</div>
       <h3>¡Referido recibido!</h3>
@@ -4943,6 +5183,175 @@ document.addEventListener('keydown', function(e){ if(e.key === 'Escape') toggleD
 </div>
 
 <script>
+var referTipo='doctor';
+var refEspMulti=[];
+var refEspSingle='';
+var refEspList=['Cirugía plástica y reconstructiva','Medicina estética','Bariatría','Cirugía general','Ortopedia y traumatología','Oftalmología','Ginecología y obstetricia','Otorrinolaringología','Dental y maxilofacial','Dermatología','Urología','Gastroenterología','Cardiología','Angiología y vascular','Cirugía torácica','Neurocirugía','Oncología','Reproducción asistida','Post-operatorio y rehabilitación','Pediatría y cirugía pediátrica','Endocrinología y metabolismo','Medicina del dolor','Psiquiatría','Nutriología clínica','Reumatología','Nefrología','Neumología','Geriatría y cuidados paliativos','Check-ups y medicina preventiva','Otra especialidad'];
+
+function refNorm(s){return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');}
+
+function refBuildEspMs(query){
+  var opts=document.getElementById('ref-esp-ms-options');
+  if(!opts)return;
+  opts.innerHTML='';
+  var q=refNorm(query||'');
+  var count=0;
+  var isMulti=(referTipo==='clinica');
+  refEspList.forEach(function(label){
+    if(q && !refNorm(label).includes(q)) return;
+    var div=document.createElement('div');
+    var sel=isMulti?refEspMulti.includes(label):(refEspSingle===label);
+    div.className='ref-ms-opt'+(sel?' selected':'');
+    div.setAttribute('data-val',label);
+    if(isMulti){
+      var box=document.createElement('span');box.className='ref-ms-box';
+      div.appendChild(box);
+    }
+    var txt=document.createElement('span');txt.className='ref-ms-opt-text';txt.textContent=label;
+    div.appendChild(txt);
+    div.addEventListener('click',function(){
+      if(isMulti){
+        var idx=refEspMulti.indexOf(label);
+        if(idx===-1)refEspMulti.push(label);else refEspMulti.splice(idx,1);
+        refBuildEspMs(document.getElementById('ref-esp-ms-search').value);
+        refUpdateEspSummary();
+      } else {
+        refEspSingle=label;
+        document.getElementById('ref-esp-ms-summary').textContent=label;
+        document.getElementById('ref-esp-ms-summary').classList.remove('ph');
+        // update hidden native select
+        var nat=document.getElementById('ref-esp');
+        nat.innerHTML='<option value="'+label+'" selected>'+label+'</option>';
+        refCloseEspMs();
+      }
+    });
+    opts.appendChild(div);count++;
+  });
+  if(!count){var no=document.createElement('div');no.className='ref-ms-no-results';no.textContent='Sin resultados';opts.appendChild(no);}
+}
+
+function refUpdateEspSummary(){
+  var s=document.getElementById('ref-esp-ms-summary');
+  if(!refEspMulti.length){s.textContent='Selecciona especialidades';s.classList.add('ph');}
+  else{s.classList.remove('ph');s.textContent=refEspMulti.length===1?refEspMulti[0]:refEspMulti[0]+' y '+(refEspMulti.length-1)+' más';}
+  // sync hidden native
+  var nat=document.getElementById('ref-esp');
+  nat.innerHTML='';
+  refEspMulti.forEach(function(v){nat.innerHTML+='<option value="'+v+'" selected>'+v+'</option>';});
+}
+
+function refCloseEspMs(){
+  var dd=document.getElementById('ref-esp-ms');
+  var menu=document.getElementById('ref-esp-ms-menu');
+  if(dd)dd.classList.remove('open');
+  if(menu)menu.style.display='none';
+  var t=document.getElementById('ref-esp-ms-toggle');
+  if(t)t.setAttribute('aria-expanded','false');
+}
+
+// Wire up toggle
+(function(){
+  function init(){
+    var toggle=document.getElementById('ref-esp-ms-toggle');
+    var menu=document.getElementById('ref-esp-ms-menu');
+    var search=document.getElementById('ref-esp-ms-search');
+    var clear=document.getElementById('ref-esp-ms-clear');
+    if(!toggle||toggle._wired)return;
+    toggle._wired=true;
+    toggle.addEventListener('click',function(e){
+      e.stopPropagation();
+      var dd=document.getElementById('ref-esp-ms');
+      var open=dd.classList.toggle('open');
+      menu.style.display=open?'block':'none';
+      toggle.setAttribute('aria-expanded',String(open));
+      if(open){refBuildEspMs(search.value);setTimeout(function(){search.focus();},40);}
+    });
+    search.addEventListener('input',function(){refBuildEspMs(this.value);});
+    search.addEventListener('keydown',function(e){if(e.key==='Escape')refCloseEspMs();});
+    clear.addEventListener('click',function(){refEspMulti=[];refBuildEspMs('');refUpdateEspSummary();});
+  var selAll=document.getElementById('ref-esp-ms-sel-all');
+  if(selAll){
+    selAll.addEventListener('click',function(){
+      var allSel=refEspList.every(function(l){return refEspMulti.includes(l);});
+      if(allSel){refEspMulti=[];}
+      else{refEspMulti=refEspList.slice();}
+      refBuildEspMs(document.getElementById('ref-esp-ms-search').value);
+      refUpdateEspSummary();
+      selAll.textContent=refEspMulti.length===refEspList.length?'Quitar todos':'Sel. todos';
+    });
+  }
+  }
+  document.addEventListener('click',function(e){
+    var ms=document.getElementById('ref-esp-ms');
+    if(ms&&!ms.contains(e.target))refCloseEspMs();
+  });
+  setTimeout(init,200);
+})();
+
+function setReferTipo(tipo){
+  referTipo=tipo;
+  document.getElementById('btn-tipo-doctor').classList.toggle('active',tipo==='doctor');
+  document.getElementById('btn-tipo-clinica').classList.toggle('active',tipo==='clinica');
+
+  // Reset especialidad
+  refEspMulti=[]; refEspSingle='';
+  var nat=document.getElementById('ref-esp');
+  nat.innerHTML='';
+  var summary=document.getElementById('ref-esp-ms-summary');
+  var toolbar=document.getElementById('ref-esp-ms-toolbar-label');
+  var clearBtn=document.getElementById('ref-esp-ms-clear');
+  var espLabel=document.getElementById('ref-esp-label');
+  refCloseEspMs();
+
+  if(tipo==='clinica'){
+    if(summary){summary.textContent='Selecciona especialidades';summary.classList.add('ph');}
+    if(toolbar)toolbar.textContent='Especialidades';
+    if(clearBtn)clearBtn.style.display='';
+    var selAllBtn=document.getElementById('ref-esp-ms-sel-all');
+    if(selAllBtn)selAllBtn.style.display='';
+    if(espLabel)espLabel.innerHTML='Especialidades que ofrecen <span style="color:#EF4444">*</span>';
+    var espHelper=document.getElementById('ref-esp-helper');
+    if(espHelper)espHelper.textContent='Puedes agregar más de una especialidad.';
+    nat.required=false;
+  } else {
+    if(summary){summary.textContent='Selecciona especialidad';summary.classList.add('ph');}
+    if(toolbar)toolbar.textContent='Especialidad';
+    if(clearBtn)clearBtn.style.display='none';
+    var selAllBtn2=document.getElementById('ref-esp-ms-sel-all');
+    if(selAllBtn2)selAllBtn2.style.display='none';
+    if(espLabel)espLabel.innerHTML='Especialidad <span style="color:#EF4444">*</span>';
+    var espHelper=document.getElementById('ref-esp-helper');
+    if(espHelper)espHelper.textContent='Selecciona la especialidad principal del doctor.';
+    nat.required=true;
+  }
+  nat.removeAttribute('required');
+
+  // Nombre / prefijo
+  var prefijo=document.getElementById('ref-prefijo');
+  var nameWrap=document.getElementById('refer-name-wrap');
+  var label=document.getElementById('ref-nombre-label');
+  var cLabel=document.getElementById('ref-contacto-label');
+  var cInput=document.getElementById('ref-contacto');
+  var eLabel=document.getElementById('ref-estado-label');
+  if(tipo==='clinica'){
+    if(prefijo){prefijo.style.display='none';prefijo.disabled=true;}
+    if(nameWrap)nameWrap.style.borderRadius='14px';
+    document.getElementById('ref-nombre').placeholder='Nombre de la clínica u hospital';
+    if(label)label.innerHTML='Nombre de la clínica u hospital <span style="color:#EF4444">*</span>';
+    if(cLabel)cLabel.innerHTML='Teléfono o correo de la clínica <span style="color:#EF4444">*</span>';
+    if(cInput)cInput.placeholder='55 1234 5678 o contacto@clinica.com';
+    if(eLabel)eLabel.innerHTML='Estado donde se encuentra la clínica u hospital <span style="color:#EF4444">*</span>';
+  } else {
+    if(prefijo){prefijo.style.display='';prefijo.disabled=false;}
+    if(nameWrap)nameWrap.style.borderRadius='';
+    document.getElementById('ref-nombre').placeholder='Ana López';
+    if(label)label.innerHTML='Nombre del doctor <span style="color:#EF4444">*</span>';
+    if(cLabel)cLabel.innerHTML='Teléfono o correo del doctor <span style="color:#EF4444">*</span>';
+    if(cInput)cInput.placeholder='55 1234 5678 o doctor@correo.com';
+    if(eLabel)eLabel.innerHTML='Estado donde opera <span style="color:#EF4444">*</span>';
+  }
+}
+
 function openReferModal(){
   document.getElementById('refer-overlay').classList.add('active');
   document.body.style.overflow='hidden';
@@ -4950,36 +5359,40 @@ function openReferModal(){
 function closeReferModal(){
   document.getElementById('refer-overlay').classList.remove('active');
   document.body.style.overflow='';
-  // Reset after close
   setTimeout(function(){
     document.getElementById('refer-form-body').style.display='block';
-    document.getElementById('refer-success').style.display='none';
+    var s=document.getElementById('refer-success');
+    s.style.display='none';s.style.flexDirection='';
     document.getElementById('refer-form').reset();
     document.getElementById('refer-submit-btn').disabled=false;
     document.getElementById('refer-submit-btn').textContent='Enviar referido';
-  }, 300);
+    setReferTipo('doctor');
+    refEspMulti=[];refEspSingle='';
+    var nat=document.getElementById('ref-esp');if(nat)nat.innerHTML='';
+    var srch=document.getElementById('ref-esp-ms-search');if(srch)srch.value='';
+    var sum=document.getElementById('ref-esp-ms-summary');if(sum){sum.textContent='Selecciona especialidad';sum.classList.add('ph');}
+  },300);
 }
 function handleReferOverlay(e){
-  if(e.target===document.getElementById('refer-overlay')) closeReferModal();
+  if(e.target===document.getElementById('refer-overlay'))closeReferModal();
 }
 function submitRefer(e){
   e.preventDefault();
   var btn=document.getElementById('refer-submit-btn');
   btn.disabled=true;
-  btn.innerHTML='<span style="opacity:.7">Enviando...</span>';
-  // Simulate send (replace with real API call when ready)
+  btn.textContent='Enviando...';
   setTimeout(function(){
     document.getElementById('refer-form-body').style.display='none';
-    var success=document.getElementById('refer-success');
-    success.style.display='flex';
-    // Auto-close after 4 seconds
-    setTimeout(closeReferModal, 4000);
-  }, 1200);
+    var s=document.getElementById('refer-success');
+    s.style.display='flex';
+    setTimeout(closeReferModal,4000);
+  },1200);
 }
 document.addEventListener('keydown',function(e){
-  if(e.key==='Escape') closeReferModal();
+  if(e.key==='Escape')closeReferModal();
 });
 </script>
+
 
 </body>
 </html>
