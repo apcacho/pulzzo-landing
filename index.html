@@ -4044,7 +4044,7 @@ html, body {
             <div style="display:flex;justify-content:space-between;align-items:center;padding:13px 16px;background:rgba(255,255,255,.05);border-radius:8px;border:1px solid rgba(255,255,255,.08);"><span style="font-size:14px;color:rgba(255,255,255,.85);">Protección de saldo deudor</span><span style="color:#16A34A;font-weight:700;">✓</span></div>
             <div style="display:flex;justify-content:space-between;align-items:center;padding:13px 16px;background:rgba(255,255,255,.05);border-radius:8px;border:1px solid rgba(255,255,255,.08);"><span style="font-size:14px;color:rgba(255,255,255,.85);">Costos ocultos o cargos sorpresa</span><span style="color:#DC2626;font-weight:600;font-size:14px;">✗ Ninguno</span></div>
           </div>
-          <button type="button" class="btn btn-primary btn-full">Solicitar financiamiento</button>
+          <a href="registro-paciente.html" class="btn btn-primary btn-full" style="text-decoration:none;display:flex;align-items:center;justify-content:center;">Solicitar financiamiento</a>
         </div>
       </div>
     </div>
@@ -4075,7 +4075,7 @@ html, body {
           <div><div class="prov-benefit-title">Confirmación clara para el paciente</div><div class="prov-benefit-desc">Pulzzo confirma al paciente las condiciones del financiamiento y del pago al doctor o clínica.</div></div>
         </div>
       </div>
-      <button type="button" class="btn btn-primary provider-cta-desktop doctor-cta-solid">Registrar consultorio o clínica</button>
+      <a href="registro-doctor.html" class="btn btn-primary provider-cta-desktop doctor-cta-solid" style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center;">Registrar consultorio o clínica</a>
     </div>
     <div class="prov-visual reveal" style="transition-delay:.2s">
       <div style="margin-bottom:14px;border-radius:24px;overflow:hidden;box-shadow:0 8px 32px rgba(7,20,47,.14);">
@@ -4185,7 +4185,7 @@ html, body {
         <div style="font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--cyan);text-transform:uppercase;">Doctor no registrado</div>
         <h3 style="font-size:17px;font-weight:700;color:var(--white);">¿Tu doctor o clínica no está en Pulzzo?</h3>
         <p style="font-size:13px;color:rgba(255,255,255,.6);line-height:1.5;">Compártenos sus datos y lo contactamos para explicarle cómo puede trabajar con Pulzzo.</p>
-        <a href="mailto:hola@pulzzo.mx?subject=Referir%20doctor%20a%20Pulzzo" class="btn btn-primary btn-sm btn-full">Referir doctor o clínica</a>
+        <button type="button" class="btn btn-primary btn-sm btn-full" onclick="openReferModal()">Referir doctor o clínica</button>
       </div>
     </div>
   </div>
@@ -4255,8 +4255,8 @@ html, body {
   <h2 class="cta-title reveal">Da el primer paso hacia tu procedimiento</h2>
   <p class="cta-subtitle reveal" style="transition-delay:.1s">Conoce tus opciones en minutos antes de decidir.</p>
   <div class="cta-btns reveal" style="transition-delay:.2s">
-    <button type="button" class="btn btn-primary btn-lg">Inicia tu solicitud</button>
-    <button type="button" class="btn btn-lg doctor-cta-ghost">Soy doctor o clínica</button>
+    <a href="registro-paciente.html" class="btn btn-primary btn-lg" style="text-decoration:none;">Inicia tu solicitud</a>
+    <a href="registro-doctor.html" class="btn btn-lg doctor-cta-ghost" style="text-decoration:none;">Soy doctor o clínica</a>
   </div>
 </section>
 
@@ -4792,5 +4792,194 @@ document.addEventListener('keydown', function(e){ if(e.key === 'Escape') toggleD
   }
 
 </script>
+
+<!-- ══════════════════════════════════════════
+     MODAL: REFERIR DOCTOR O CLÍNICA
+══════════════════════════════════════════ -->
+<style>
+.refer-overlay{display:none;position:fixed;inset:0;z-index:9000;background:rgba(3,10,24,.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:16px;}
+.refer-overlay.active{display:flex}
+.refer-modal{background:#fff;border-radius:24px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 32px 80px rgba(3,10,24,.32);position:relative;}
+.refer-header{padding:28px 32px 20px;border-bottom:1px solid #F1F5F9;position:sticky;top:0;background:#fff;z-index:1;border-radius:24px 24px 0 0;}
+.refer-close{position:absolute;top:20px;right:24px;width:32px;height:32px;border-radius:50%;background:#F1F5F9;border:none;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:#64748B;transition:background .15s;}
+.refer-close:hover{background:#E2E8F0}
+.refer-kicker{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--cyan);margin-bottom:8px;}
+.refer-modal h2{font-family:var(--font-display);font-size:22px;font-weight:800;color:var(--navy);margin-bottom:4px;}
+.refer-modal p{font-size:14px;color:#64748B;line-height:1.5;}
+.refer-body{padding:24px 32px 32px;}
+.refer-section-label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#94A3B8;margin:20px 0 12px;display:flex;align-items:center;gap:8px;}
+.refer-section-label::after{content:"";flex:1;height:1px;background:#F1F5F9;}
+.refer-field{margin-bottom:14px;}
+.refer-field label{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--navy);margin-bottom:6px;}
+.refer-optional{font-size:11px;font-weight:500;color:#94A3B8;margin-left:2px;}
+.refer-tooltip{position:relative;display:inline-flex;cursor:help;}
+.refer-tooltip-icon{width:16px;height:16px;border-radius:50%;background:#E8F4FF;color:#60A5FA;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.refer-tooltip-text{display:none;position:absolute;left:50%;bottom:calc(100% + 6px);transform:translateX(-50%);background:#1E293B;color:#fff;font-size:12px;font-weight:500;padding:8px 12px;border-radius:10px;white-space:nowrap;max-width:260px;white-space:normal;line-height:1.45;z-index:10;width:240px;text-align:left;pointer-events:none;}
+.refer-tooltip-text::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:#1E293B;}
+.refer-tooltip:hover .refer-tooltip-text{display:block;}
+.refer-field input,.refer-field select,.refer-field textarea{width:100%;border:1px solid #E2E8F0;border-radius:12px;padding:11px 14px;font-size:14px;color:var(--navy);font-family:var(--font-body);outline:none;transition:border-color .2s,box-shadow .2s;background:#fff;}
+.refer-field input::placeholder,.refer-field textarea::placeholder{color:#94A3B8}
+.refer-field input:focus,.refer-field select:focus,.refer-field textarea:focus{border-color:#20C7D4;box-shadow:0 0 0 3px rgba(32,199,212,.12);}
+.refer-field select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%2364748B' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;}
+.refer-field textarea{resize:vertical;min-height:72px;}
+.refer-form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.refer-submit{width:100%;min-height:52px;border:none;border-radius:14px;background:#20C7D4;color:var(--navy);font-size:15px;font-weight:800;font-family:var(--font-body);cursor:pointer;margin-top:20px;transition:background .2s,transform .15s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.refer-submit:hover{background:#55DCE2;transform:translateY(-1px);}
+.refer-submit:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+.refer-success{display:none;text-align:center;padding:40px 32px;flex-direction:column;align-items:center;gap:12px;}
+.refer-success-icon{width:56px;height:56px;border-radius:50%;background:#ECFDF5;display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto;}
+.refer-success h3{font-family:var(--font-display);font-size:20px;font-weight:800;color:var(--navy);}
+.refer-success p{font-size:14px;color:#64748B;line-height:1.55;max-width:380px;}
+@media(max-width:600px){
+  .refer-modal{border-radius:20px;}
+  .refer-header,.refer-body{padding-left:20px;padding-right:20px;}
+  .refer-form-row{grid-template-columns:1fr;}
+}
+</style>
+
+<div class="refer-overlay" id="refer-overlay" onclick="handleReferOverlay(event)">
+  <div class="refer-modal" id="refer-modal">
+    <div class="refer-header">
+      <button class="refer-close" onclick="closeReferModal()" aria-label="Cerrar">✕</button>
+      <div class="refer-kicker">Referir médico</div>
+      <h2>¿Tu doctor no está en Pulzzo?</h2>
+      <p>Compártenos sus datos y lo contactamos para explicarle cómo puede trabajar con Pulzzo.</p>
+    </div>
+
+    <div class="refer-body" id="refer-form-body">
+      <form id="refer-form" onsubmit="submitRefer(event)">
+
+        <div class="refer-section-label">Datos del doctor o clínica</div>
+
+        <div class="refer-field">
+          <label for="ref-nombre">Nombre del doctor o clínica <span style="color:#EF4444">*</span></label>
+          <input id="ref-nombre" type="text" placeholder="Ej. Dr. Carlos Mendoza / Clínica Salud+" required>
+        </div>
+
+        <div class="refer-field">
+          <label for="ref-esp">Especialidad <span style="color:#EF4444">*</span></label>
+          <select id="ref-esp" required>
+            <option value="">Selecciona especialidad</option>
+            <option>Cirugía plástica y reconstructiva</option>
+            <option>Medicina estética</option>
+            <option>Bariatría</option>
+            <option>Cirugía general</option>
+            <option>Ortopedia y traumatología</option>
+            <option>Oftalmología</option>
+            <option>Ginecología y obstetricia</option>
+            <option>Otorrinolaringología</option>
+            <option>Dental y maxilofacial</option>
+            <option>Dermatología</option>
+            <option>Urología</option>
+            <option>Gastroenterología</option>
+            <option>Cardiología</option>
+            <option>Angiología y vascular</option>
+            <option>Neurocirugía</option>
+            <option>Oncología</option>
+            <option>Reproducción asistida</option>
+            <option>Pediatría y cirugía pediátrica</option>
+            <option>Post-operatorio y rehabilitación</option>
+            <option>Otra especialidad</option>
+          </select>
+        </div>
+
+        <div class="refer-field">
+          <label for="ref-contacto">Teléfono o correo del doctor <span style="color:#EF4444">*</span></label>
+          <input id="ref-contacto" type="text" placeholder="55 1234 5678 o doctor@correo.com" required>
+        </div>
+
+        <div class="refer-field">
+          <label for="ref-ciudad">Estado o ciudad donde opera <span style="color:#EF4444">*</span></label>
+          <input id="ref-ciudad" type="text" placeholder="Ej. Ciudad de México, Guadalajara, Monterrey" required>
+        </div>
+
+        <div class="refer-field">
+          <label for="ref-redes">
+            Redes sociales o sitio web
+            <span class="refer-optional">(opcional)</span>
+            <span class="refer-tooltip">
+              <span class="refer-tooltip-icon">ⓘ</span>
+              <span class="refer-tooltip-text">Abre el perfil de Instagram, Facebook o sitio web del doctor en tu navegador, copia el link de la barra de direcciones y pégalo aquí.</span>
+            </span>
+          </label>
+          <input id="ref-redes" type="text" placeholder="Ej. https://instagram.com/drnombreapellido">
+        </div>
+
+        <div class="refer-field">
+          <label for="ref-comentario">
+            ¿Por qué lo recomiendas?
+            <span class="refer-optional">(opcional)</span>
+          </label>
+          <textarea id="ref-comentario" placeholder="Ej. Es mi cirujano de columna, opera en Hospital Ángeles Guadalajara y tiene excelentes resultados."></textarea>
+        </div>
+
+        <div class="refer-section-label">Tus datos para darte seguimiento</div>
+
+        <div class="refer-form-row">
+          <div class="refer-field" style="margin-bottom:0">
+            <label for="ref-tu-nombre">Tu nombre <span style="color:#EF4444">*</span></label>
+            <input id="ref-tu-nombre" type="text" placeholder="Tu nombre" required>
+          </div>
+          <div class="refer-field" style="margin-bottom:0">
+            <label for="ref-tu-correo">Tu correo <span style="color:#EF4444">*</span></label>
+            <input id="ref-tu-correo" type="email" placeholder="tu@correo.com" required>
+          </div>
+        </div>
+
+        <button class="refer-submit" type="submit" id="refer-submit-btn">
+          Enviar referido
+        </button>
+
+      </form>
+    </div>
+
+    <div class="refer-success" id="refer-success">
+      <div class="refer-success-icon">✓</div>
+      <h3>¡Referido recibido!</h3>
+      <p>Contactaremos a tu doctor en los próximos días y te avisaremos a tu correo cuando lo hagamos.</p>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function openReferModal(){
+  document.getElementById('refer-overlay').classList.add('active');
+  document.body.style.overflow='hidden';
+}
+function closeReferModal(){
+  document.getElementById('refer-overlay').classList.remove('active');
+  document.body.style.overflow='';
+  // Reset after close
+  setTimeout(function(){
+    document.getElementById('refer-form-body').style.display='block';
+    document.getElementById('refer-success').style.display='none';
+    document.getElementById('refer-form').reset();
+    document.getElementById('refer-submit-btn').disabled=false;
+    document.getElementById('refer-submit-btn').textContent='Enviar referido';
+  }, 300);
+}
+function handleReferOverlay(e){
+  if(e.target===document.getElementById('refer-overlay')) closeReferModal();
+}
+function submitRefer(e){
+  e.preventDefault();
+  var btn=document.getElementById('refer-submit-btn');
+  btn.disabled=true;
+  btn.innerHTML='<span style="opacity:.7">Enviando...</span>';
+  // Simulate send (replace with real API call when ready)
+  setTimeout(function(){
+    document.getElementById('refer-form-body').style.display='none';
+    var success=document.getElementById('refer-success');
+    success.style.display='flex';
+    // Auto-close after 4 seconds
+    setTimeout(closeReferModal, 4000);
+  }, 1200);
+}
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape') closeReferModal();
+});
+</script>
+
 </body>
 </html>
