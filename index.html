@@ -3420,7 +3420,7 @@ html, body {
 ============================================= -->
 <nav class="navbar" id="navbar">
   <div class="navbar-inner">
-    <a href="#" class="navbar-logo">
+    <a href="index.html" class="navbar-logo">
       <picture>
       <source srcset="assets/images/logo-pulzzo.webp" type="image/webp">
       <img src="assets/images/logo-pulzzo.png" alt="Pulzzo" class="brand-symbol" style="height:44px;width:44px;object-fit:contain;border-radius:0;background:transparent;">
@@ -3471,7 +3471,7 @@ html, body {
           </svg>
         </button>
         <div class="login-menu" style="min-width:220px;">
-          <a href="#simulador" class="login-option">
+          <a href="registro-paciente.html" class="login-option">
             <div class="login-option-icon patient">👤</div>
             <div>
               <span class="login-option-label">Soy Paciente</span>
@@ -3479,7 +3479,7 @@ html, body {
             </div>
           </a>
           <div class="login-divider"></div>
-          <a href="#" onclick="return false;" class="login-option">
+          <a href="registro-doctor.html" class="login-option">
             <div class="login-option-icon doctor">🩺</div>
             <div>
               <span class="login-option-label">Soy Doctor / Clínica</span>
@@ -3489,7 +3489,7 @@ html, body {
         </div>
       </div>
       <!-- Solicitar crédito -->
-      <button type="button" class="btn btn-primary btn-sm">Solicitar financiamiento</button>
+      <a href="registro-paciente.html" class="btn btn-primary btn-sm">Solicitar financiamiento</a>
     </div>
     <div class="hamburger" id="hamburger" onclick="toggleDrawer()">
       <span></span><span></span><span></span>
@@ -3530,14 +3530,14 @@ html, body {
 
   <div class="drawer-section">
     <p class="drawer-section-title">Regístrate</p>
-    <a href="#simulador" onclick="toggleDrawer()" class="drawer-option-card">
+    <a href="registro-paciente.html" onclick="toggleDrawer()" class="drawer-option-card">
       <span class="drawer-option-icon patient">👤</span>
       <span class="drawer-option-copy">
         <strong>Soy Paciente</strong>
         <small>Solicita tu financiamiento</small>
       </span>
     </a>
-    <a href="#" onclick="toggleDrawer();return false;" class="drawer-option-card">
+    <a href="registro-doctor.html" onclick="toggleDrawer()" class="drawer-option-card">
       <span class="drawer-option-icon doctor">🩺</span>
       <span class="drawer-option-copy">
         <strong>Soy Doctor / Clínica</strong>
@@ -3598,12 +3598,8 @@ html, body {
 
       <!-- CTAs -->
       <div class="hero-ctas hero-ctas-main animate delay-4">
-        <button type="button" class="btn btn-primary btn-lg">
-          Solicitar financiamiento
-        </button>
-        <button type="button" class="btn btn-coral btn-lg">
-          Soy Doctor o Clínica
-        </button>
+        <a href="registro-paciente.html" class="btn btn-primary btn-lg">Solicitar financiamiento</a>
+        <a href="registro-doctor.html" class="btn btn-coral btn-lg">Soy Doctor o Clínica</a>
       </div>
 
       <!-- Stats -->
@@ -3871,9 +3867,7 @@ html, body {
           </div>
         </div>
         <div class="sc2-cta-row" style="margin-top:18px;padding-top:18px;border-top:1px solid rgba(255,255,255,.08);">
-          <button type="button" class="btn btn-primary sc2-cta-button" style="display:flex;align-items:center;justify-content:center;white-space:nowrap;padding:14px 24px;width:100%;min-width:0;max-width:100%;margin:0;box-shadow:none;border-radius:14px;">
-            Solicitar este financiamiento
-          </button>
+          <a href="registro-paciente.html" class="btn btn-primary sc2-cta-button" style="display:flex;align-items:center;justify-content:center;white-space:nowrap;padding:14px 24px;width:100%;min-width:0;max-width:100%;margin:0;box-shadow:none;border-radius:14px;text-decoration:none;">Solicitar este financiamiento</a>
         </div>
       </div>
 
@@ -4161,9 +4155,7 @@ html, body {
       <h3 style="font-family:var(--font-display);font-size:22px;font-weight:700;color:var(--white);margin-bottom:8px;">Estamos integrando doctores y clínicas en México</h3>
       <p style="font-size:15px;color:rgba(255,255,255,.65);max-width:560px;line-height:1.6;">¿Quieres ofrecer opciones de pago a tus pacientes? Registra tu clínica o consultorio y forma parte de nuestra red inicial.</p>
     </div>
-    <button type="button" class="btn btn-primary doctor-cta-solid" style="white-space:nowrap;flex-shrink:0;padding:16px 32px;">
-      Registrar consultorio o clínica
-    </button>
+    <a href="registro-doctor.html" class="btn btn-primary doctor-cta-solid" style="white-space:nowrap;flex-shrink:0;padding:16px 32px;text-decoration:none;">Registrar consultorio o clínica</a>
   </div>
 </div>
 
@@ -4295,7 +4287,7 @@ html, body {
       <div class="form-group"><label>Monto aproximado</label>
         <select><option>$10,000 – $30,000 MXN</option><option>$30,000 – $60,000 MXN</option><option>$60,000 – $100,000 MXN</option><option>$100,000 – $200,000 MXN</option><option>Más de $200,000 MXN</option></select>
       </div>
-      <div class="pulzzo-note">🔒 Tus datos están protegidos. Al continuar aceptas nuestro <a href="#" style="color:var(--cyan);">Aviso de Privacidad</a>.</div>
+      <div class="pulzzo-note">🔒 Tus datos están protegidos. Al continuar aceptas nuestro <a href="aviso-privacidad.html" style="color:var(--cyan);">Aviso de Privacidad</a>.</div>
       <div class="pulzzo-warning">⚠️ Pulzzo financia únicamente procedimientos programados. No atendemos urgencias. Tu doctor debe aprobar el procedimiento antes de proceder.</div>
       <button onclick="submitLead()" class="btn btn-primary btn-full pulzzo-modal-action">Quiero que me contacten</button>
       <p class="pulzzo-modal-footnote">El proceso completo de documentos se hace con tu asesor</p>
