@@ -3842,7 +3842,7 @@ img{max-width:100%;display:block}
   overflow:hidden;
   isolation:isolate;
   display:flex;
-  align-items:center;
+  align-items:flex-start;
   justify-content:center;
 }
 .auth-bg{
@@ -3870,7 +3870,7 @@ img{max-width:100%;display:block}
   display:grid;
   grid-template-columns:minmax(0,1fr) 460px;
   gap:54px;
-  align-items:center;
+  align-items:start;
 }
 .auth-copy{color:var(--white);max-width:520px}
 .auth-pill{
@@ -4478,6 +4478,8 @@ img{max-width:100%;display:block}
     padding: 11px 12px;
   }
 }
+
+.patient-page .auth-switch a.doctor-link{color:var(--coral)!important;font-weight:800!important}
 </style>
 </head>
 <body class="patient-page">
@@ -4590,7 +4592,7 @@ img{max-width:100%;display:block}
 
       <div class="auth-switch">
         <div>¿Ya tienes cuenta? <a href="login-paciente.html">Inicia sesión</a></div>
-        <div><strong>¿Eres doctor o clínica?</strong> <a href="registro-doctor.html" style="color:var(--coral);font-weight:800;">Regístrate aquí</a></div>
+        <div><strong>¿Eres doctor o clínica?</strong> <a href="registro-doctor.html" class="doctor-link">Regístrate aquí</a></div>
       </div>
 
       <div class="auth-note">Tu información está protegida. No compartimos tus datos sin tu autorización.</div>
