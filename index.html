@@ -3411,6 +3411,57 @@ html, body {
     .pulzzo-grid-2 { grid-template-columns:1fr; }
   }
 
+
+/* ════════════════════════════════════════════
+   BUSCADOR DIRECTORIO — dropdowns buscables
+════════════════════════════════════════════ */
+.idx-dd{position:relative}
+.idx-toggle{
+  width:100%;height:44px;
+  border:1px solid var(--border);border-radius:8px;
+  background:var(--white);color:var(--navy);
+  padding:0 32px 0 12px;
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  cursor:pointer;outline:none;
+  font-size:14px;font-family:var(--font-body);
+  transition:border-color .2s,box-shadow .2s;
+}
+.idx-toggle:hover:not(:disabled){border-color:#93C5FD}
+.idx-toggle:focus,.idx-dd.open .idx-toggle{border-color:#20C7D4;box-shadow:0 0 0 3px rgba(32,199,212,.12)}
+.idx-toggle:disabled{background:#F8FAFC;color:#94A3B8;cursor:not-allowed;opacity:.6}
+.idx-summary{flex:1;min-width:0;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14px}
+.idx-summary.ph{color:#94A3B8}
+.idx-caret{
+  position:absolute;right:10px;top:50%;transform:translateY(-50%) rotate(45deg) translateY(-2px);
+  width:8px;height:8px;flex:0 0 8px;
+  border-right:1.5px solid #94A3B8;border-bottom:1.5px solid #94A3B8;
+  transition:transform .2s ease;pointer-events:none;
+}
+.idx-dd.open .idx-caret{transform:translateY(-50%) rotate(225deg) translateY(-1px);border-color:#20C7D4}
+.idx-menu{
+  position:absolute;top:calc(100% + 6px);left:0;right:0;min-width:260px;
+  background:var(--white);border:1px solid #E2E8F0;border-radius:12px;
+  box-shadow:0 16px 36px rgba(3,10,24,.12);padding:8px;z-index:200;
+}
+.idx-search{
+  width:100%;height:34px;
+  border:1px solid #E8EEF6;border-radius:7px;
+  background:#F8FAFC url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 14 14'%3E%3Ccircle cx='5.5' cy='5.5' r='3.5' stroke='%2394A3B8' stroke-width='1.5' fill='none'/%3E%3Cpath d='m8.5 8.5 2.5 2.5' stroke='%2394A3B8' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat 9px center;
+  padding:0 10px 0 28px;font-size:13px;color:var(--navy);
+  outline:none;margin-bottom:6px;box-sizing:border-box;
+  font-family:var(--font-body);transition:border-color .2s;
+}
+.idx-search:focus{border-color:#20C7D4;background-color:#fff}
+.idx-search::placeholder{color:#94A3B8}
+.idx-options{max-height:220px;overflow-y:auto}
+.idx-opt{
+  padding:8px 10px;border-radius:7px;
+  font-size:13.5px;color:var(--navy);font-family:var(--font-body);
+  cursor:pointer;transition:background .12s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.idx-opt:hover{background:#F0FDFE}
+.idx-opt.selected{background:#E0FAF9;font-weight:600;color:#0D7A82}
+.idx-no-results{padding:10px;font-size:13px;color:#94A3B8;text-align:center}
 </style>
 </head>
 <body>
@@ -4063,40 +4114,34 @@ html, body {
     <div class="search-filters reveal" style="background:var(--offwhite);border:1px solid var(--gray-light);border-radius:16px;padding:24px 28px;margin-bottom:32px;">
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:14px;align-items:end;flex-wrap:wrap;">
 
-        <!-- Dropdown 1: Categoría -->
+        <!-- Dropdown 1: Especialidad buscable -->
         <div>
           <label style="font-size:13px;font-weight:500;color:var(--gray-dark);display:block;margin-bottom:6px;">Especialidad</label>
-          <select id="filter-categoria" onchange="updateProcedimientos(this.value)" style="width:100%;padding:11px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--white);color:var(--navy);font-family:var(--font-body);">
-            <option value="">Todas las especialidades</option>
-            <option value="plastica">Cirugía plástica y reconstructiva</option>
-            <option value="bariatria">Bariatría</option>
-            <option value="general">Cirugía general</option>
-            <option value="ortopedia">Ortopedia y traumatología</option>
-            <option value="oftalmologia">Oftalmología</option>
-            <option value="ginecologia">Ginecología</option>
-            <option value="orl">Otorrinolaringología</option>
-            <option value="dental">Dental y maxilofacial</option>
-            <option value="dermatologia">Dermatología</option>
-            <option value="estetica">Medicina estética</option>
-            <option value="urologia">Urología</option>
-            <option value="gastro">Gastroenterología</option>
-            <option value="cardiologia">Cardiología</option>
-            <option value="angiologia">Angiología y vascular</option>
-            <option value="toracica">Cirugía torácica</option>
-            <option value="neuro">Neurocirugía</option>
-            <option value="oncologia">Oncología</option>
-            <option value="reproduccion">Reproducción asistida</option>
-            <option value="postop">Post-operatorio y rehabilitación</option>
-            <option value="otro">Otro</option>
-          </select>
+          <div class="idx-dd" id="idx-esp-dd">
+            <button type="button" class="idx-toggle" id="idx-esp-toggle" aria-haspopup="listbox" aria-expanded="false">
+              <span class="idx-summary ph" id="idx-esp-summary">Todas las especialidades</span>
+              <span class="idx-caret"></span>
+            </button>
+            <div class="idx-menu" id="idx-esp-menu" style="display:none;">
+              <input type="text" class="idx-search" id="idx-esp-search" placeholder="Buscar especialidad..." autocomplete="off">
+              <div class="idx-options" id="idx-esp-options"></div>
+            </div>
+          </div>
         </div>
 
-        <!-- Dropdown 2: Procedimiento -->
+        <!-- Dropdown 2: Procedimiento buscable -->
         <div>
           <label style="font-size:13px;font-weight:500;color:var(--gray-dark);display:block;margin-bottom:6px;">Procedimiento</label>
-          <select id="filter-procedimiento" disabled style="width:100%;padding:11px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--white);color:var(--navy);font-family:var(--font-body);opacity:.5;">
-            <option value="">Elige especialidad primero</option>
-          </select>
+          <div class="idx-dd" id="idx-proc-dd">
+            <button type="button" class="idx-toggle" id="idx-proc-toggle" disabled aria-haspopup="listbox" aria-expanded="false">
+              <span class="idx-summary ph" id="idx-proc-summary">Elige especialidad primero</span>
+              <span class="idx-caret"></span>
+            </button>
+            <div class="idx-menu" id="idx-proc-menu" style="display:none;">
+              <input type="text" class="idx-search" id="idx-proc-search" placeholder="Buscar procedimiento..." autocomplete="off">
+              <div class="idx-options" id="idx-proc-options"></div>
+            </div>
+          </div>
         </div>
 
         <!-- Estado -->
@@ -4514,59 +4559,175 @@ document.addEventListener('keydown', function(e){ if(e.key === 'Escape') toggleD
 
 
 
-  // ---- DIRECTORIO: Dropdown dinámico ----
-  var procedimientosMap = {
-    plastica: ["Rinoplastia","Rinoseptoplastia estética","Septoplastia estética-funcional","Mamoplastia de aumento","Mamoplastia de reducción","Mastopexia","Reconstrucción mamaria","Ginecomastia","Liposucción","Lipoescultura","Lipotransferencia","Abdominoplastia","Miniabdominoplastia","Blefaroplastia","Lifting facial","Lifting de cuello","Otoplastia","Mentoplastia","Bichectomía","Cirugía de párpados estética","Cirugía reconstructiva","Reconstrucción postraumática","Corrección de cicatrices","Corrección de quemaduras","Injertos de piel","Retiro o cambio de implantes","Cirugía de contorno corporal","Body lift","Braquioplastia","Cruroplastia","Otro procedimiento plástico o reconstructivo"],
-    bariatria: ["Manga gástrica","Bypass gástrico","Mini bypass gástrico","Balón gástrico","Banda gástrica","Cirugía metabólica","Revisión de cirugía bariátrica","Conversión de procedimiento bariátrico","Retiro de banda gástrica","Endomanga / manga endoscópica","Evaluación prequirúrgica bariátrica","Paquete bariátrico integral","Otro procedimiento bariátrico"],
-    general: ["Hernia inguinal","Hernia umbilical","Hernia hiatal","Hernia ventral","Hernia incisional","Colecistectomía / vesícula","Apendicectomía / apéndice","Laparoscopía","Cirugía de tiroides","Cirugía de paratiroides","Hemorroides","Fisura anal","Fístula anal","Colon / recto","Cirugía de colon","Cirugía de vesícula laparoscópica","Procedimientos abdominales","Biopsia quirúrgica","Retiro de lipomas","Retiro de quistes","Otro procedimiento de cirugía general"],
-    ortopedia: ["Cirugía de columna","Cirugía cervical","Cirugía lumbar","Hernia de disco","Cirugía de rodilla","Artroscopia de rodilla","Meniscos","Ligamento cruzado anterior","Prótesis de rodilla","Cirugía de cadera","Prótesis de cadera","Cirugía de hombro","Artroscopia de hombro","Manguito rotador","Luxación de hombro","Cirugía de mano","Cirugía de muñeca","Túnel del carpo","Cirugía de pie","Cirugía de tobillo","Juanetes","Fascitis plantar","Fracturas","Lesiones deportivas","Ligamentos","Tendones","Prótesis articulares","Infiltraciones ortopédicas","Medicina deportiva","Otro procedimiento ortopédico"],
-    oftalmologia: ["Cirugía LASIK","Cirugía PRK","Cirugía de cataratas","Lentes intraoculares","Cirugía de glaucoma","Retina y vítreo","Vitrectomía","Estrabismo","Cirugía de párpados","Pterigión","Crosslinking corneal","Queratocono","Cirugía refractiva","Trasplante de córnea","Cirugía lagrimal","Chalazión","Otro procedimiento oftalmológico"],
-    ginecologia: ["Histerectomía","Miomectomía","Miomas","Quistes ováricos","Endometriosis","Laparoscopía ginecológica","Histeroscopía","Piso pélvico","Incontinencia urinaria","Prolapso","Cirugía ginecológica oncológica","Colposcopía quirúrgica","Conización cervical","Ablación endometrial","Retiro de pólipos","Ligadura de trompas","Cirugía de ovario","Cirugía de útero","Otro procedimiento ginecológico"],
-    orl: ["Septumplastia","Rinoseptoplastia funcional","Amigdalectomía","Adenoidectomía","Cirugía de sinusitis","Cirugía endoscópica nasal","Cornetes","Cirugía de oído","Timpanoplastia","Mastoidectomía","Implante coclear","Tubos de ventilación","Cirugía de laringe","Cirugía de cuerdas vocales","Cirugía de tiroides asociada a ORL","Cirugía de parótida","Ronquido / apnea del sueño","Otro procedimiento ORL"],
-    dental: ["Ortodoncia","Alineadores","Implantes dentales","Terceros molares","Extracciones quirúrgicas","Cirugía maxilofacial","Cirugía mandibular","Cirugía ortognática","Fracturas faciales","Implantes maxilofaciales","Injerto óseo","Elevación de seno maxilar","Cirugía periodontal","Cirugía preprotésica","Carillas","Coronas","Prótesis dental","Endodoncia","Periodoncia","Blanqueamiento","Rehabilitación oral","Diseño de sonrisa","Odontología estética","Otro procedimiento dental o maxilofacial"],
-    dermatologia: ["Retiro de lesiones","Retiro de lunares","Retiro de quistes","Retiro de lipomas","Verrugas","Cicatrices","Cirugía de piel","Biopsia de piel","Cirugía dermatológica","Láser dermatológico","Tratamiento de acné","Rosácea","Manchas / melasma","Tratamiento de alopecia","Crioterapia dermatológica","Peelings dermatológicos","Otro procedimiento dermatológico"],
-    estetica: ["Toxina botulínica","Rellenos dérmicos","Ácido hialurónico","Bioestimuladores","Láser","Radiofrecuencia","Criolipólisis","Tratamientos corporales","Tratamientos faciales","Depilación láser","Peelings","PRP","Mesoterapia","Hilos tensores","Remodelación corporal no quirúrgica","Reducción de grasa localizada","Tratamiento de celulitis","Rejuvenecimiento facial","Otro tratamiento estético"],
-    urologia: ["Cirugía de próstata","Resección transuretral de próstata","Vasectomía","Reversión de vasectomía","Litiasis renal","Cálculos renales","Cirugía de riñón","Cirugía de vejiga","Cistoscopía","Circuncisión","Varicocele","Hidrocele","Andrología","Disfunción eréctil","Prótesis peneana","Incontinencia urinaria masculina","Otro procedimiento urológico"],
-    gastro: ["Endoscopía","Colonoscopía","Coloproctología","Hernias digestivas","Cirugía de colon","Procedimientos digestivos","Polipectomía","Biopsia endoscópica","CPRE","Reflujo gastroesofágico","Manga endoscópica","Balón intragástrico","Hemorroides","Fisura anal","Fístula anal","Otro procedimiento gastrointestinal"],
-    cardiologia: ["Procedimiento cardíaco programado","Cateterismo programado","Angioplastia programada","Marcapasos","Holter / estudios diagnósticos avanzados","Ecocardiograma avanzado","Cirugía valvular","Estudios electrofisiológicos","Ablación cardíaca","Revisión de dispositivo cardíaco","Otro procedimiento cardiovascular"],
-    angiologia: ["Varices","Escleroterapia","Safenectomía","Láser para várices","Radiofrecuencia venosa","Procedimientos venosos","Procedimientos arteriales","Accesos vasculares","Pie diabético","Úlceras venosas","Angioplastia periférica programada","Otro procedimiento vascular"],
-    toracica: ["Cirugía de pulmón","Cirugía de pleura","Cirugía de mediastino","Cirugía de tórax","Toracoscopía","Biopsia pulmonar","Nódulo pulmonar","Derrame pleural","Neumotórax","Otro procedimiento torácico"],
-    neuro: ["Cirugía de columna neuroquirúrgica","Hernia de disco neuroquirúrgica","Cirugía de cráneo","Tumores cerebrales","Nervios periféricos","Túnel del carpo neuroquirúrgico","Hidrocefalia","Derivación ventriculoperitoneal","Malformaciones","Dolor trigeminal","Otro procedimiento neuroquirúrgico"],
-    oncologia: ["Cirugía oncológica","Tumores","Biopsias quirúrgicas","Cirugía de mama oncológica","Cirugía gastrointestinal oncológica","Cirugía ginecológica oncológica","Cirugía urológica oncológica","Cirugía de piel oncológica","Estudios diagnósticos oncológicos programados","Tratamientos complementarios programados","Otro procedimiento oncológico programado"],
-    reproduccion: ["Fertilización in vitro","Inseminación artificial","Preservación de óvulos","Preservación de esperma","Diagnóstico de infertilidad","Estimulación ovárica","Transferencia embrionaria","Congelación de embriones","Estudios de fertilidad","Tratamientos hormonales asociados","Otro tratamiento de fertilidad"],
-    postop: ["Rehabilitación postquirúrgica","Paquete postoperatorio","Cuidados postoperatorios","Enfermería domiciliaria","Curaciones","Cuidado de heridas","Retiro de puntos","Drenajes","Seguimiento postoperatorio","Medicamentos postoperatorios","Materiales de curación","Fajas / prendas postquirúrgicas","Terapia respiratoria","Terapia ocupacional","Terapia del lenguaje","Fisioterapia general","Fisioterapia ortopédica","Fisioterapia neurológica","Fisioterapia deportiva","Fisioterapia postquirúrgica","Rehabilitación de rodilla","Rehabilitación de cadera","Rehabilitación de columna","Rehabilitación de hombro","Rehabilitación de mano","Rehabilitación de pie y tobillo","Medicina del dolor","Bloqueos","Infiltraciones","Dolor crónico","Dolor postquirúrgico","Manejo del dolor","Nutrición postbariátrica","Nutrición clínica","Plan alimenticio postoperatorio","Seguimiento nutricional","Psicología prequirúrgica","Psicología postquirúrgica","Acompañamiento emocional","Evaluación psicológica para cirugía bariátrica","Otro servicio postoperatorio o de rehabilitación"],
-    otro: ["Otro procedimiento médico programado"]
+  // ---- DIRECTORIO: Dropdowns buscables ----
+  function idxNorm(s){return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');}
+
+  var idxEspLabels={
+    plastica:'Cirugía plástica y reconstructiva',estetica:'Medicina estética',
+    bariatria:'Bariatría',general:'Cirugía general',ortopedia:'Ortopedia y traumatología',
+    oftalmologia:'Oftalmología',ginecologia:'Ginecología y obstetricia',orl:'Otorrinolaringología',
+    dental:'Dental y maxilofacial',dermatologia:'Dermatología',urologia:'Urología',
+    gastro:'Gastroenterología',cardiologia:'Cardiología',angiologia:'Angiología y vascular',
+    toracica:'Cirugía torácica',neuro:'Neurocirugía',oncologia:'Oncología',
+    reproduccion:'Reproducción asistida',postop:'Post-operatorio y rehabilitación',
+    pediatria:'Pediatría y cirugía pediátrica',endocrino:'Endocrinología y metabolismo',
+    dolor:'Medicina del dolor',psiquiatria:'Psiquiatría',nutriologia:'Nutriología clínica',
+    reumatologia:'Reumatología',nefrologia:'Nefrología',neumologia:'Neumología',
+    geriatria:'Geriatría y cuidados paliativos',checkup:'Check-ups y medicina preventiva',otro:'Otro'
   };
 
-  function updateProcedimientos(cat) {
-    var sel = document.getElementById('filter-procedimiento');
-    var descInput = document.getElementById('filter-descripcion');
-    sel.innerHTML = '';
-    if (!cat) {
-      sel.disabled = true;
-      sel.style.opacity = '.5';
-      sel.innerHTML = '<option value="">Elige especialidad primero</option>';
-      return;
+  var idxProcMap={
+    plastica:["Abdominoplastia","Abdominoplastia post-pérdida de peso masiva","Aumento de glúteos con implantes","Aumento de glúteos con lipotransferencia (BBL)","Aveli (procedimiento para celulitis)","Bichectomía","Blefaroplastia","Body lift","Body lift completo post-bariátrico","BodyTite (radiofrecuencia invasiva mínima facial)","BodyTite corporal (FaceTite corporal)","Braquioplastia","Carboxiterapia","Cellfina (tratamiento quirúrgico de celulitis)","Cirugía de contorno corporal","Cirugía de párpados estética","Cirugía reconstructiva postraumática","Clear + Brilliant (láser suave mantenimiento)","Colgajos reconstructivos","Corrección de cicatrices","Corrección de quemaduras","Criolipólisis (CoolSculpting y similares)","Cruroplastia","Depilación láser cuerpo completo (paquete)","Depilación láser zona parcial","Diseño de sonrisa con rellenos periorales","Emsculpt / Emsculpt Neo (contracción muscular electromagnética)","Exosomas inyectables para rejuvenecimiento","FaceTite (radiofrecuencia invasiva mínima facial)","Fox eyes con hilos","HIFU corporal","HIFU facial / Ultherapy","Hilos tensores corporales","Hilos tensores faciales","Injertos de piel","Labioplastia","Láser rejuvenecimiento facial","Lifting de cejas","Lifting de cuello","Lifting de labios (lip lift quirúrgico)","Lifting facial","Liposucción","Liposucción de papada","Lipoescultura","Lipotransferencia","Luz pulsada intensa (IPL)","Mamoplastia de aumento","Mamoplastia de reducción","Mastopexia","Mentoplastia","Mesoterapia corporal","Mesoterapia facial","Microagujamiento (microneedling)","Miniabdominoplastia","Mommy makeover","Ninfoplastia","Otoplastia","Ozonioterapia estética","Paquete rejuvenecimiento facial completo","Paquete remodelación corporal completa","Peelings químicos medianos (TCA)","Peelings químicos profundos","Perfiloplastia (nariz + mentón)","Plasma rico en plaquetas (PRP) corporal","Plasma rico en plaquetas (PRP) facial","Profhilo","PRP capilar","Ptosis palpebral (párpado caído) quirúrgica","Radiesse y Sculptra","Radiofrecuencia corporal","Radiofrecuencia facial","Radiofrecuencia microneedling (Morpheus8 y similares)","Reconstrucción de oreja (microtia)","Reconstrucción mamaria","Reducción de grasa localizada no quirúrgica","Rejuvenecimiento vaginal no quirúrgico","Rellenos de ácido hialurónico labios","Rellenos de ácido hialurónico mentón y mandíbula","Rellenos de ácido hialurónico nariz","Rellenos de ácido hialurónico ojeras","Rellenos de ácido hialurónico pómulos","Renuvion / J-Plasma (reafirmación de piel post-lipo)","Retiro o cambio de implantes mamarios","Retiro o corrección de biopolímeros","Rinoplastia","Rinoseptoplastia estética","SculpSure / láser corporal","Septoplastia estética-funcional","Sofwave (ultrasonido para lifting)","Thermage (radiofrecuencia monopolar)","Tixel (termomecánico facial)","Toxina botulínica (Botox) hiperhidrosis","Toxina botulínica (Botox) zona facial","Tratamiento de celulitis (ondas de choque)","Tratamiento de ojeras (paquete completo)","Vaginoplastia y rejuvenecimiento vaginal","Otro procedimiento plástico o estético"],
+    estetica:["Bioestimuladores de colágeno (paquete)","BodyTite corporal","Bichectomía (clínica estética)","Carboxiterapia","Criolipólisis","Depilación láser","Diseño de sonrisa con rellenos","Emsculpt / Emsculpt Neo","Exosomas para rejuvenecimiento","Fox eyes con hilos","HIFU / Ultherapy","Hilos tensores faciales","Hilos tensores corporales","Láser rejuvenecimiento","Luz pulsada intensa (IPL)","Mesoterapia facial","Microagujamiento (microneedling)","Morpheus8 / radiofrecuencia microneedling","Ozonioterapia estética","Paquete rejuvenecimiento facial","Peelings químicos","Plasma rico en plaquetas (PRP) facial","Profhilo","Radiofrecuencia facial y corporal","Rellenos de ácido hialurónico","Renuvion / J-Plasma","Sculptra / Radiesse","Sofwave","Thermage","Toxina botulínica (Botox)","Toxina botulínica hiperhidrosis","Tratamiento de celulitis","Tratamiento de ojeras","Otro tratamiento estético"],
+    bariatria:["Balón gástrico intragástrico","Banda gástrica ajustable","Bypass gástrico en Y de Roux","Cirugía metabólica para diabetes tipo 2","Conversión de banda a bypass","Conversión de banda a manga","Conversión de manga a bypass","Cruce duodenal","Endomanga / manga endoscópica","Evaluación prequirúrgica bariátrica","Evaluación y seguimiento post-tratamiento GLP-1","Liraglutida (Saxenda) programa médico supervisado","Manga gástrica","Mini bypass gástrico (OAGB)","Paquete bariátrico completo","Plicatura gástrica","Programa de pérdida de peso con agonistas GLP-1","Retiro de banda gástrica","SADI-S","Semaglutida (Ozempic / Wegovy) programa médico supervisado","Sleeve gástrico de revisión","Tirzepatida (Mounjaro) programa médico supervisado","Otro procedimiento bariátrico"],
+    general:["Apendicectomía","Biopsia quirúrgica","Cirugía de colon","Cirugía de paratiroides","Cirugía de recto","Cirugía de tiroides (tiroidectomía)","Colecistectomía laparoscópica","Colostomía / ileostomía","Esplenectomía","Fístula anal","Fisura anal","Hemorroides (hemorroidectomía)","Hernia de Spiegel","Hernia hiatal","Hernia incisional","Hernia inguinal","Hernia umbilical","Hernia ventral","Laparoscopía diagnóstica","PPH (hemorroidopexia)","Resección de colon","Retiro de ganglios","Retiro de lipomas","Retiro de quistes","Absceso perianal","Otro procedimiento de cirugía general"],
+    ortopedia:["Artroscopia de hombro","Artroscopia de rodilla","Artroscopia de tobillo","Cifosis / escoliosis","Cirugía de codo","Cirugía de columna cervical","Cirugía de columna lumbar","Cirugía de columna torácica","Dedo en gatillo","Displasia de cadera","Dupuytren","Epicondilitis quirúrgica","Estenosis espinal","Fascitis plantar quirúrgica","Fracturas complejas","Fusión vertebral","Hernia de disco cervical","Hernia de disco lumbar","Infiltraciones ortopédicas con PRP","Instrumentación espinal","Juanetes (hallux valgus)","Lesiones deportivas complejas","Ligamento cruzado anterior (LCA)","Ligamento cruzado posterior (LCP)","Ligamentos y tendones","Luxación de hombro recurrente","Manguito rotador","Meniscectomía / reparación de menisco","Osteotomías correctivas","Prótesis parcial de cadera","Prótesis parcial de rodilla","Prótesis total de cadera","Prótesis total de rodilla","Revisión de prótesis de cadera","Revisión de prótesis de rodilla","Túnel del carpo","Otro procedimiento ortopédico"],
+    oftalmologia:["Anillos intracorneales (INTACS)","Blefaroplastia oftálmica","Chalazión","Cirugía LASIK","Cirugía PRK / LASEK","Cirugía de cataratas con lente premium","Cirugía de cataratas estándar","Cirugía de glaucoma","Cirugía refractiva con lente ICL","Crosslinking corneal","Dacriocistorrinostomía","Desprendimiento de retina","Estrabismo","Fotocoagulación con láser","Inyección intravítrea","Lente intraocular premium / trifocal","Pterigión","Ptosis palpebral oftálmica","SMILE (extracción lenticular)","Trabeculectomía","Trasplante de córnea","Vitrectomía","Otro procedimiento oftalmológico"],
+    ginecologia:["Ablación endometrial","Amniocentesis / cordocentesis","Biopsia ginecológica","Cesárea programada","Cirugía oncológica ginecológica","Conización cervical","Endometriosis (cirugía)","Histerectomía abdominal","Histerectomía laparoscópica","Histerectomía vaginal","Histeroscopía quirúrgica","Incontinencia urinaria de esfuerzo","Laparoscopía ginecológica","Ligadura de trompas","Malla suburetral","Miomectomía","Monitoreo de embarazo de alto riesgo","Ooforectomía","Parto humanizado privado","Piso pélvico","Prolapso de órganos pélvicos","Quistes ováricos","Resección de pólipos","Reversión de ligadura de trompas","Otro procedimiento ginecológico u obstétrico"],
+    orl:["Adenoidectomía","Amigdalectomía","Amigdalectomía + adenoidectomía","Cirugía de cuello","Cirugía de parótida","FESS (cirugía endoscópica de senos paranasales)","Implante coclear","Implante BAHA","Laringoscopía directa","Mastoidectomía","Microcirugía de cuerdas vocales","Miringoplastia","Rinoseptoplastia funcional-estética","Ronquido / SAOS","Septumplastia funcional","Timpanoplastia","Tubos de ventilación","Turbinoplastia (cornetes)","UPPP (úvulopalatofaringoplastia)","Otro procedimiento ORL"],
+    dental:["Alineadores invisibles (Invisalign y similares)","All-on-4","All-on-6","Apicectomía","ATM (articulación temporomandibular)","Biopsia oral","Blanqueamiento dental profesional","Carillas de composite","Carillas de porcelana","Cirugía mandibular","Cirugía maxilofacial","Cirugía ortognática","Cirugía periodontal","Cirugía preprotésica","Coronas y puentes","Diseño de sonrisa con carillas","Elevación de seno maxilar","Endodoncia (canal)","Extracción de terceros molares","Frenectomía","Implante dental unitario","Implantes cigomáticos","Implantes con carga inmediata","Implantes múltiples","Injerto óseo","Ortodoncia estética (brackets cerámicos)","Ortodoncia fija (brackets metálicos)","Overdenture sobre implantes","Prótesis híbrida sobre implantes","Prótesis total / parcial","Rehabilitación oral completa","Retiro de quiste odontogénico","Sedación consciente para odontología","Otro procedimiento dental o maxilofacial"],
+    dermatologia:["Biopsia de piel","Cirugía de Mohs","Clear + Brilliant","Corrección de cicatrices","Corrección de cicatrices de acné","Crioterapia quirúrgica","Dermoabrasión","Electrocoagulación","Exosomas capilares (dermatología)","Fotodinámica (PDT)","Halo láser híbrido","Injertos de piel dermatológicos","Láser fraccionado CO2","Láser Nd:YAG","Láser vascular","Peelings profundos (TCA, fenol)","Picosure / Picoway (láser picosegundo)","Remoción de tatuajes con láser","Retiro de lipomas cutáneos","Retiro de lunares","Retiro de queratosis actínicas","Retiro de quistes epidérmicos","Retiro de verrugas","Tratamiento de alopecia areata","Tratamiento de hiperpigmentación / melasma","Tratamiento de psoriasis avanzada","Tratamiento de vitiligo","Otro procedimiento dermatológico"],
+    urologia:["Cistoscopía","Circuncisión","Frenuloplastia","Hidrocele","Incontinencia urinaria masculina","Litiasis renal ureteroscopía","Litiasis renal nefrolitotomía percutánea","Litotricia extracorpórea","Nefrectomía laparoscópica","Orquidopexia","Prótesis peneana inflable","Prótesis peneana malleable","Prostatectomía radical","Resección transuretral de próstata","Reversión de vasectomía","Sling masculino","Tratamiento de disfunción eréctil","Varicocele","Vasectomía","Otro procedimiento urológico"],
+    gastro:["Balón intragástrico","Cápsula endoscópica","Cirugía de colon laparoscópica","Cirugía de hígado","Cirugía de páncreas","Cirugía de reflujo (Nissen / Toupet)","Colonoscopía diagnóstica","Colostomía / cierre de colostomía","CPRE","Disección submucosa (ESD)","Endoscopía digestiva alta","Enteroscopía","Esfinterotomía endoscópica","Fístula anal compleja","Funduplicatura","Gastrostomía / yeyunostomía","Hemorroidectomía","Manga endoscópica","Mucosectomía (EMR)","PPH (hemorroidopexia)","Polipectomía endoscópica","Resección anterior baja","Stent biliar","Otro procedimiento gastrointestinal"],
+    cardiologia:["Ablación de arritmias","Ablación de fibrilación auricular","Angioplastia coronaria + stent","Cardioversión eléctrica","Cateterismo cardíaco diagnóstico","Cierre de CIA / CIV","Cierre de foramen oval (FOP)","DAI (desfibrilador automático implantable)","Implante de marcapasos definitivo","MitraClip","Monitor de eventos implantable","Rehabilitación cardíaca supervisada","Resincronizador cardíaco (CRT)","TAVI / TAVR","Otro procedimiento cardiovascular"],
+    angiologia:["Ablación con radiofrecuencia venosa","Ablación endovenosa con láser","Accesos vasculares (fístula arteriovenosa)","Angioplastia periférica + stent","Bypass arterial periférico","Cirugía de aneurisma de aorta","Endarterectomía carotídea","EVAR (endoprótesis aórtica)","Flebectomía ambulatoria","Microescleroterapia (arañas vasculares)","Pie diabético desbridamiento","Safenectomía clásica","Stent carotídeo","Úlceras venosas tratamiento quirúrgico","Varices escleroterapia con espuma","Otro procedimiento vascular"],
+    toracica:["Drenaje de derrame pleural","Esofagectomía","Lobectomía pulmonar","Miotomía de Heller (acalasia)","Neumotórax (bullectomía / pleurodesis)","Pleurodesis","Resección de nódulo pulmonar","Resección de tumor mediastinal","Segmentectomía pulmonar","Timectomía","Traqueostomía quirúrgica","VATS (videotoracoscopía)","Otro procedimiento torácico"],
+    neuro:["Cirugía de epilepsia","Cirugía de hipófisis (transesfenoidal)","Clipaje / embolización de aneurisma","Craneotomía","Descompresión de nervios periféricos","Estimulación cerebral profunda (DBS)","Hidrocefalia derivación ventriculoperitoneal","Instrumentación vertebral","Laminectomía / laminoplastia","Microdiscectomía cervical","Microdiscectomía lumbar","Neuromodulación espinal","Neuralgia del trigémino","Radiocirugía (Gamma Knife / CyberKnife)","Tumor cerebral","Otro procedimiento neuroquirúrgico"],
+    oncologia:["Biopsia quirúrgica diagnóstica","Cistectomía radical","Cirugía de conservación de mama","Disección de cuello oncológica","Gastrectomía oncológica","Ganglio centinela","Histerectomía radical","Mastectomía oncológica","Melanoma resección amplia","Mohs avanzado","Nefrectomía oncológica","Port / catéter venoso central","Prostatectomía radical oncológica","Reconstrucción mamaria oncológica","Resección de cáncer colorrectal","Tiroidectomía por cáncer","Otro procedimiento oncológico"],
+    reproduccion:["Adherencias intrauterinas (histeroscopía)","Biopsia testicular (TESE / microTESE)","Cirugía de endometriosis para fertilidad","Congelación de embriones","Donación de embriones","FIV con diagnóstico genético preimplantacional","FIV con ICSI","Fertilización in vitro (FIV)","Inseminación artificial con donante","Inseminación artificial con semen de pareja","Legrado uterino","Metroplastia (septo uterino)","Ovodonación (receptora)","Preservación de esperma","Preservación de óvulos (vitrificación)","Preservación oncológica de fertilidad","Transferencia embrionaria","Varicocelectomía para fertilidad","Otro tratamiento de reproducción asistida"],
+    postop:["Bloqueos nerviosos terapéuticos","Cuidados postoperatorios domiciliarios","Curaciones especializadas","Fajas y prendas postquirúrgicas","Fisioterapia de columna","Fisioterapia neurológica","Fisioterapia ortopédica","Fisioterapia postquirúrgica","Fisioterapia respiratoria","Manejo de heridas complejas","Medicina del dolor postquirúrgico","Neurorehabilitación","Nutrición postbariátrica","Nutrición postquirúrgica","Psicología oncológica","Psicología postquirúrgica","Rehabilitación cardíaca","Rehabilitación de cadera","Rehabilitación de hombro","Rehabilitación de mano","Rehabilitación de pie y tobillo","Rehabilitación de rodilla","Terapia del lenguaje y deglución","Terapia ocupacional","Otro servicio postoperatorio o de rehabilitación"],
+    pediatria:["Adenoidectomía pediátrica","Amigdalectomía pediátrica","Apéndice pediátrico","Circuncisión pediátrica","Cirugía de estrabismo infantil","Corrección de pie equinovaro","Craneosinostosis","Displasia del desarrollo de cadera","Escoliosis pediátrica","Estenosis pilórica","Fractura pediátrica compleja","Hernia inguinal pediátrica","Hernia umbilical pediátrica","Implante coclear pediátrico","Labio y paladar hendido","Orquidopexia","Tubos de ventilación pediátricos","Otro procedimiento pediátrico"],
+    endocrino:["Adrenalectomía","Cirugía de cáncer de tiroides","Evaluación endocrina prequirúrgica","Hemitiroidectomía","Manejo de diabetes tipo 2","Paratiroidectomía","Programa de pérdida de peso médico","Resección de nódulo tiroideo","Resección de tumor neuroendocrino","Terapia con yodo radioactivo","Tiroidectomía total","Otro procedimiento endocrinológico"],
+    dolor:["Bloqueo de rama medial","Bloqueo del ganglio de Gasser","Bloqueo del nervio occipital","Bloqueo del plexo celíaco","Bloqueo nervioso diagnóstico y terapéutico","Infusión intratecal (bomba de morfina)","Infiltración epidural de esteroides","Infiltración facetaria","Ketamina intravenosa para dolor","Manejo de dolor neuropático crónico","Manejo de dolor oncológico","Neuromodulación espinal (SCS)","PRP para dolor articular","Proloterapia","Punción de puntos gatillo","Rizotomía por radiofrecuencia","Otro tratamiento del dolor"],
+    psiquiatria:["Estimulación magnética transcraneal (TMS / rTMS)","Esketamina intranasal (Spravato)","Evaluación psiquiátrica integral","Hospital de día psiquiátrico","Internamiento hospitalario","Internamiento para desintoxicación","Ketamina para depresión resistente","Programa de rehabilitación de adicciones","Terapia electroconvulsiva (TEC / ECT)","Otro procedimiento psiquiátrico"],
+    nutriologia:["Análisis de composición corporal (DEXA)","Evaluación nutricional clínica","Nutrición deportiva clínica","Nutrición enteral domiciliaria","Nutrición oncológica","Nutrición para diabetes","Nutrición parenteral domiciliaria","Nutrición pediátrica especializada","Nutrición postbariátrica","Plan nutricional personalizado","Programa de control de obesidad","Semaglutida (Ozempic / Wegovy) programa nutriológico","Tirzepatida (Mounjaro) programa nutriológico","Tratamiento de trastornos alimentarios","Otro servicio de nutriología"],
+    reumatologia:["Artrocentesis (drenaje articular)","Densitometría ósea (DEXA)","Evaluación reumatológica integral","Infiltración articular con ácido hialurónico","Infiltración articular con corticoide","Infusión de medicamento biológico","Manejo de artritis psoriásica","Manejo de espondilitis anquilosante","Manejo de lupus eritematoso sistémico","PRP para articulaciones","Terapia biológica (anti-TNF / anti-IL)","Tratamiento de osteoporosis severa","Otro procedimiento reumatológico"],
+    nefrologia:["Acceso vascular para hemodiálisis","Biopsia renal","Colocación de catéter de hemodiálisis","Evaluación nefrológica integral","Instalación de diálisis peritoneal","Manejo de enfermedad renal crónica","Nutrición para enfermedad renal","Otro procedimiento nefrológico"],
+    neumologia:["Biopsia bronquial","Broncoscopía diagnóstica","Broncoscopía terapéutica","Criobiopsia pulmonar","Espirometría avanzada","Estudio de sueño (polisomnografía)","Evaluación y titulación de CPAP / BiPAP","Manejo de asma severa","Manejo de EPOC avanzado","Toracocentesis","Otro procedimiento neumológico"],
+    geriatria:["Evaluación geriátrica integral","Evaluación prequirúrgica geriátrica","Manejo de demencia avanzada","Manejo de fragilidad y sarcopenia","Programa de cuidados paliativos domiciliarios","Programa de rehabilitación geriátrica","Residencia médica temporal post-cirugía","Otro servicio geriátrico o paliativo"],
+    checkup:["Check-up básico","Check-up cardiovascular completo","Check-up de la mujer","Check-up del hombre","Check-up ejecutivo completo","Check-up metabólico","Check-up oncológico","Check-up pediátrico integral","Colonoscopía de tamizaje","Densitometría ósea preventiva","Mastografía / mamografía digital","Tomografía de tamizaje","Ultrasonido abdominal preventivo","Otro estudio o programa preventivo"],
+    otro:["Otro procedimiento médico programado"]
+  };
+
+  // Estado actual del buscador
+  var idxEspValue='', idxProcValue='';
+
+  // ── Especialidad dropdown ──
+  var idxEspDd=document.getElementById('idx-esp-dd');
+  var idxEspToggle=document.getElementById('idx-esp-toggle');
+  var idxEspMenu=document.getElementById('idx-esp-menu');
+  var idxEspSummary=document.getElementById('idx-esp-summary');
+  var idxEspOptions=document.getElementById('idx-esp-options');
+  var idxEspSearch=document.getElementById('idx-esp-search');
+
+  function idxBuildEsp(query){
+    idxEspOptions.innerHTML='';
+    var q=idxNorm(query||'');
+    var items=[{value:'',label:'Todas las especialidades'}].concat(
+      Object.entries(idxEspLabels).map(function(e){return{value:e[0],label:e[1]};})
+    );
+    items.forEach(function(item){
+      if(q && !idxNorm(item.label).includes(q)) return;
+      var div=document.createElement('div');
+      div.className='idx-opt'+(idxEspValue===item.value?' selected':'');
+      div.textContent=item.label;
+      div.addEventListener('click',function(){
+        idxEspValue=item.value;
+        idxEspSummary.textContent=item.label;
+        idxEspSummary.classList.toggle('ph',!item.value);
+        idxCloseEsp();
+        idxEspSearch.value='';
+        idxUpdateProc(item.value);
+      });
+      idxEspOptions.appendChild(div);
+    });
+    if(!idxEspOptions.children.length){
+      var no=document.createElement('div');no.className='idx-no-results';no.textContent='Sin resultados';
+      idxEspOptions.appendChild(no);
     }
-    sel.disabled = false;
-    sel.style.opacity = '1';
-    var opts = procedimientosMap[cat] || [];
-    var first = new Option('Selecciona un procedimiento','');
-    sel.appendChild(first);
-    opts.forEach(function(o){ sel.appendChild(new Option(o,o)); });
-    sel.onchange = function(){
-      var needDesc = (this.value.toLowerCase().includes('otro') || cat === 'otro');
-      if(descInput) descInput.required = needDesc;
-    };
-    if (cat === 'otro' && descInput) descInput.required = true;
   }
+  function idxCloseEsp(){
+    idxEspDd.classList.remove('open');
+    idxEspMenu.style.display='none';
+    idxEspToggle.setAttribute('aria-expanded','false');
+  }
+  idxEspToggle.addEventListener('click',function(){
+    var open=idxEspDd.classList.toggle('open');
+    idxEspMenu.style.display=open?'block':'none';
+    idxEspToggle.setAttribute('aria-expanded',String(open));
+    if(open){idxBuildEsp('');setTimeout(function(){idxEspSearch.focus();},40);}
+  });
+  idxEspSearch.addEventListener('input',function(){idxBuildEsp(this.value);});
+  idxEspSearch.addEventListener('keydown',function(e){if(e.key==='Escape')idxCloseEsp();});
+  idxBuildEsp('');
+
+  // ── Procedimiento dropdown ──
+  var idxProcDd=document.getElementById('idx-proc-dd');
+  var idxProcToggle=document.getElementById('idx-proc-toggle');
+  var idxProcMenu=document.getElementById('idx-proc-menu');
+  var idxProcSummary=document.getElementById('idx-proc-summary');
+  var idxProcOptions=document.getElementById('idx-proc-options');
+  var idxProcSearch=document.getElementById('idx-proc-search');
+
+  function idxUpdateProc(cat){
+    idxProcValue='';
+    idxProcSummary.textContent=cat?'Selecciona un procedimiento':'Elige especialidad primero';
+    idxProcSummary.classList.add('ph');
+    idxProcToggle.disabled=!cat;
+    idxCloseProc();
+    idxProcSearch.value='';
+    idxBuildProc(cat,'');
+  }
+  function idxBuildProc(cat,query){
+    idxProcOptions.innerHTML='';
+    if(!cat) return;
+    var q=idxNorm(query||'');
+    var items=idxProcMap[cat]||[];
+    items.forEach(function(item){
+      if(q && !idxNorm(item).includes(q)) return;
+      var div=document.createElement('div');
+      div.className='idx-opt'+(idxProcValue===item?' selected':'');
+      div.textContent=item;
+      div.addEventListener('click',function(){
+        idxProcValue=item;
+        idxProcSummary.textContent=item;
+        idxProcSummary.classList.remove('ph');
+        idxCloseProc();
+        idxProcSearch.value='';
+      });
+      idxProcOptions.appendChild(div);
+    });
+    if(!idxProcOptions.children.length){
+      var no=document.createElement('div');no.className='idx-no-results';no.textContent='Sin resultados';
+      idxProcOptions.appendChild(no);
+    }
+  }
+  function idxCloseProc(){
+    idxProcDd.classList.remove('open');
+    idxProcMenu.style.display='none';
+    idxProcToggle.setAttribute('aria-expanded','false');
+  }
+  idxProcToggle.addEventListener('click',function(){
+    if(idxProcToggle.disabled) return;
+    var open=idxProcDd.classList.toggle('open');
+    idxProcMenu.style.display=open?'block':'none';
+    idxProcToggle.setAttribute('aria-expanded',String(open));
+    if(open){idxBuildProc(idxEspValue,idxProcSearch.value);setTimeout(function(){idxProcSearch.focus();},40);}
+  });
+  idxProcSearch.addEventListener('input',function(){idxBuildProc(idxEspValue,this.value);});
+  idxProcSearch.addEventListener('keydown',function(e){if(e.key==='Escape')idxCloseProc();});
+
+  document.addEventListener('click',function(e){
+    if(!idxEspDd.contains(e.target)) idxCloseEsp();
+    if(!idxProcDd.contains(e.target)) idxCloseProc();
+  });
 
   function buscarDoctores() {
-    var cat = document.getElementById('filter-categoria').value;
-    var proc = document.getElementById('filter-procedimiento').value;
+    var cat = idxEspValue;
+    var proc = idxProcValue;
     var estado = document.getElementById('filter-estado').value;
-    var municipio = document.getElementById('filter-municipio').value;
-    var desc = document.getElementById('filter-descripcion').value;
+    var municipio = document.getElementById('filter-municipio') ? document.getElementById('filter-municipio').value : '';
+    var desc = document.getElementById('filter-descripcion') ? document.getElementById('filter-descripcion').value : '';
     var filtros = [cat, proc, estado, municipio, desc].filter(Boolean);
     showToast(filtros.length ? 'Búsqueda guardada. Pronto conectaremos el directorio con resultados reales.' : 'Elige al menos un filtro para buscar doctores.');
   }
