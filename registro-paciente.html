@@ -4415,6 +4415,12 @@ img{max-width:100%;display:block}
   grid-template-columns: 1fr 1fr;
   gap: 16px;
 }
+.form-row.name-row {
+  grid-template-columns: 1fr 1fr;
+}
+.form-row.name-row .field:first-child {
+  grid-column: 1 / -1;
+}
 .field input, .field select {
   min-width: 0;
   box-sizing: border-box;
@@ -4470,7 +4476,8 @@ img{max-width:100%;display:block}
   cursor: pointer;
 }
 @media (max-width: 640px) {
-  .form-row {
+  .form-row,
+  .form-row.name-row {
     grid-template-columns: 1fr;
   }
   .field input[type="date"] {
@@ -4523,14 +4530,18 @@ img{max-width:100%;display:block}
       </div>
 
       <form class="form-grid" action="#" method="post">
-        <div class="form-row">
+        <div class="form-row name-row">
           <div class="field">
             <label for="nombre">Nombre(s)</label>
             <input id="nombre" name="nombre" type="text" autocomplete="given-name" placeholder="Tu nombre">
           </div>
           <div class="field">
-            <label for="apellidos">Apellidos</label>
-            <input id="apellidos" name="apellidos" type="text" autocomplete="family-name" placeholder="Tus apellidos">
+            <label for="apellido_paterno">Apellido paterno</label>
+            <input id="apellido_paterno" name="apellido_paterno" type="text" autocomplete="family-name" placeholder="Apellido paterno">
+          </div>
+          <div class="field">
+            <label for="apellido_materno">Apellido materno</label>
+            <input id="apellido_materno" name="apellido_materno" type="text" autocomplete="family-name" placeholder="Apellido materno">
           </div>
         </div>
 
@@ -4542,30 +4553,6 @@ img{max-width:100%;display:block}
           <div class="field">
             <label for="celular">Celular</label>
             <input id="celular" name="celular" type="tel" autocomplete="tel" placeholder="55 1234 5678">
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="field">
-            <label for="nacimiento">Fecha de nacimiento</label>
-            <input id="nacimiento" name="nacimiento" type="date" autocomplete="bday">
-          </div>
-          <div class="field">
-            <label for="estado">Estado de residencia</label>
-            <select id="estado" name="estado" autocomplete="address-level1">
-              <option value="" disabled selected>Selecciona tu estado</option>
-              <option>Aguascalientes</option><option>Baja California</option><option>Baja California Sur</option>
-              <option>Campeche</option><option>Chiapas</option><option>Chihuahua</option>
-              <option>Ciudad de México</option><option>Coahuila</option><option>Colima</option>
-              <option>Durango</option><option>Estado de México</option><option>Guanajuato</option>
-              <option>Guerrero</option><option>Hidalgo</option><option>Jalisco</option>
-              <option>Michoacán</option><option>Morelos</option><option>Nayarit</option>
-              <option>Nuevo León</option><option>Oaxaca</option><option>Puebla</option>
-              <option>Querétaro</option><option>Quintana Roo</option><option>San Luis Potosí</option>
-              <option>Sinaloa</option><option>Sonora</option><option>Tabasco</option>
-              <option>Tamaulipas</option><option>Tlaxcala</option><option>Veracruz</option>
-              <option>Yucatán</option><option>Zacatecas</option>
-            </select>
           </div>
         </div>
 
