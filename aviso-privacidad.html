@@ -1014,14 +1014,14 @@
      MOBILE RESPONSIVE FIXES v121
   ============================================= */
 
-  /* 1. Hero mobile — reduce padding-top */
+  /* 1. Hero mobile reduce padding-top */
   @media (max-width: 767px) {
     .hero-inner > div:first-child {
       padding-top: 90px !important;
     }
   }
 
-  /* 2. Bloque "Financiamiento médico..." — fix 5-col inline grid */
+  /* 2. Bloque "Financiamiento médico..." fix 5-col inline grid */
   @media (max-width: 767px) {
     #bloque-cards {
       grid-template-columns: 1fr 1fr !important;
@@ -1036,7 +1036,7 @@
     }
   }
 
-  /* 3. HIW tabs — allow wrap on small screens */
+  /* 3. HIW tabs allow wrap on small screens */
   @media (max-width: 480px) {
     .hiw-tabs {
       flex-wrap: wrap !important;
@@ -1050,14 +1050,14 @@
     }
   }
 
-  /* 4. Pulzzo acompaña — reduce card lateral padding */
+  /* 4. Pulzzo acompaña reduce card lateral padding */
   @media (max-width: 767px) {
     #protege-card-lateral {
       padding: 22px !important;
     }
   }
 
-  /* 5. Doctores — doctor image height + flow padding */
+  /* 5. Doctores doctor image height + flow padding */
   @media (max-width: 767px) {
     #doctor-hero-img {
       height: 220px !important;
@@ -1067,7 +1067,7 @@
     }
   }
 
-  /* 6. Directorio — inputs full width */
+  /* 6. Directorio inputs full width */
   @media (max-width: 767px) {
     #filter-categoria,
     #filter-procedimiento,
@@ -1082,7 +1082,7 @@
     }
   }
 
-  /* 7. FAQ tabs — allow wrap + smaller font */
+  /* 7. FAQ tabs allow wrap + smaller font */
   @media (max-width: 480px) {
     .faq-tabs {
       flex-wrap: wrap !important;
@@ -1094,7 +1094,7 @@
     }
   }
 
-  /* 8. Footer legal — better legibility on mobile */
+  /* 8. Footer legal better legibility on mobile */
   @media (max-width: 767px) {
     .footer-bottom p {
       opacity: 0.75 !important;
@@ -1103,7 +1103,7 @@
 
 
   /* =============================================
-     MOBILE HOTFIX v128 — viewport + simulator
+     MOBILE HOTFIX v128 viewport + simulator
      Added after GitHub mobile QA. Desktop untouched.
   ============================================= */
   @media (max-width: 767px) {
@@ -1194,7 +1194,7 @@
 
 
   /* =============================================
-     HERO IMAGE MOBILE FIX v128.2 — keep hero photo visible on mobile
+     HERO IMAGE MOBILE FIX v128.2 keep hero photo visible on mobile
      Desktop untouched. Starts from v128 hotfix.
   ============================================= */
   @media (max-width: 767px) {
@@ -1420,7 +1420,7 @@
 
 
   /* =============================================
-     MOBILE POLISH v128.4 — hero chips, Pulzzo acompaña, provider flow, confianza
+     MOBILE POLISH v128.4 hero chips, Pulzzo acompaña, provider flow, confianza
      Only mobile. Desktop, copy, routes, JS and assets untouched.
   ============================================= */
   @media (max-width: 767px) {
@@ -1600,7 +1600,7 @@
 
 
   /* =============================================
-     MOBILE DRAWER FINAL POLISH v1295 — mobile only
+     MOBILE DRAWER FINAL POLISH v1295 mobile only
      Fixes blank button + organizes login/register cards
   ============================================= */
   @media (max-width: 767px) {
@@ -1768,7 +1768,7 @@
 
 
   /* =============================================
-     MOBILE ONLY v1297 — provider CTA position + drawer nav anchors
+     MOBILE ONLY v1297 provider CTA position + drawer nav anchors
      Desktop untouched.
   ============================================= */
   .provider-cta-mobile { display: none !important; }
@@ -3412,14 +3412,14 @@ html, body {
 
 
 /* =============================================
-   LEGAL PAGE LAYOUT — clean, scoped, no navbar overrides
+   LEGAL PAGE LAYOUT clean, scoped, no navbar overrides
 ============================================= */
 body{background:linear-gradient(180deg,#fff 0%,#F8FAFC 100%);} 
 ul{padding-left:1.2rem;}
 .legal-hero{background:var(--navy);color:#fff;position:relative;overflow:hidden;padding-top:64px;}
 .legal-hero::before{content:'';position:absolute;right:-180px;top:-220px;width:520px;height:520px;border-radius:50%;background:radial-gradient(circle,rgba(32,199,212,.38) 0%,transparent 68%);filter:blur(28px)}
 .legal-hero::after{content:'';position:absolute;left:-220px;bottom:-260px;width:620px;height:620px;border-radius:50%;background:radial-gradient(circle,rgba(189,247,244,.20) 0%,transparent 70%);filter:blur(30px)}
-.legal-hero-inner{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:88px 60px 72px}.eyebrow{display:inline-flex;align-items:center;gap:8px;background:rgba(32,199,212,.12);border:1px solid rgba(32,199,212,.28);color:var(--aqua-l);border-radius:999px;padding:7px 13px;font-size:12px;font-weight:800;letter-spacing:1.1px;text-transform:uppercase;margin-bottom:22px}.legal-hero h1{font-family:var(--font-display);font-size:clamp(36px,5vw,58px);line-height:1.05;letter-spacing:-.7px;margin-bottom:18px;max-width:880px}.legal-hero p{max-width:780px;color:rgba(255,255,255,.72);font-size:17px}.hero-actions{display:flex;gap:14px;flex-wrap:wrap;margin-top:30px}.updated{display:inline-block;margin-top:20px;color:rgba(255,255,255,.58);font-size:13px}.legal-hero .btn-outline{background:transparent;border:1px solid rgba(255,255,255,.24);color:#fff}.legal-hero .btn-outline:hover{border-color:var(--aqua);color:var(--aqua);background:rgba(255,255,255,.04);transform:none}.legal-wrap{max-width:1180px;margin:0 auto;padding:52px 60px 80px;display:grid;grid-template-columns:290px minmax(0,1fr);gap:34px}.toc{position:sticky;top:88px;align-self:start;background:#fff;border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;box-shadow:var(--shadow-sm);max-height:calc(100vh - 112px);overflow:auto}.toc h3{font-family:var(--font-display);font-size:15px;margin-bottom:12px}.toc a{display:block;font-size:13px;color:var(--muted);padding:8px 0;border-bottom:1px solid #F1F5F9}.toc a:hover{color:var(--aqua)}.legal-content{min-width:0}.legal-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius-lg);padding:34px;margin-bottom:20px;box-shadow:0 10px 30px rgba(7,20,47,.05)}.legal-card h2{font-family:var(--font-display);font-size:28px;line-height:1.2;letter-spacing:-.3px;margin-bottom:16px;color:var(--navy)}.legal-card h3{font-family:var(--font-display);font-size:20px;margin:22px 0 10px}.legal-card p{color:#334155;margin:12px 0}.legal-card li{margin:7px 0;color:#334155}.summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.summary-box{background:var(--offwhite);border:1px solid var(--border);border-radius:14px;padding:16px}.summary-box strong{display:block;font-family:var(--font-display);font-size:14px;color:var(--navy);margin-bottom:6px}.summary-box span{font-size:13px;color:var(--muted)}.table-wrap{overflow:auto;border:1px solid var(--border);border-radius:16px;margin:16px 0;background:#fff}table{width:100%;border-collapse:collapse;min-width:620px}th,td{padding:13px 14px;text-align:left;border-bottom:1px solid var(--border);vertical-align:top;font-size:14px}th{background:#F8FAFC;color:var(--navy);font-weight:800}td{color:#334155}.notice{border-radius:16px;padding:18px 20px;background:var(--aqua-bg);border:1px solid rgba(32,199,212,.24);color:#0B1E3D;margin:18px 0}.notice.coral{background:var(--aqua-bg);border-color:rgba(32,199,212,.24)}.footer-logo-lockup{display:flex;align-items:center;gap:9px;margin-bottom:12px}.footer-logo-lockup img{width:34px;height:34px;border-radius:9px}.backtop{position:fixed;right:20px;bottom:20px;width:44px;height:44px;border-radius:12px;background:var(--aqua);color:var(--midnight);display:flex;align-items:center;justify-content:center;font-weight:900;box-shadow:0 14px 30px rgba(32,199,212,.25);z-index:90}
+.legal-hero-inner{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:88px 60px 72px}.eyebrow{display:inline-flex;align-items:center;gap:8px;background:rgba(32,199,212,.12);border:1px solid rgba(32,199,212,.28);color:var(--aqua-l);border-radius:999px;padding:7px 13px;font-size:12px;font-weight:800;letter-spacing:1.1px;text-transform:uppercase;margin-bottom:22px}.legal-hero h1{font-family:var(--font-display);font-size:clamp(36px,5vw,58px);line-height:1.05;letter-spacing:-.7px;margin-bottom:18px;max-width:880px}.legal-hero p{max-width:780px;color:rgba(255,255,255,.72);font-size:17px}.hero-actions{display:flex;gap:14px;flex-wrap:wrap;margin-top:30px}.updated{display:inline-block;margin-top:20px;color:rgba(255,255,255,.58);font-size:13px}.legal-hero .btn-outline{background:transparent;border:1px solid rgba(255,255,255,.24);color:#fff}.legal-hero .btn-outline:hover{border-color:var(--aqua);color:var(--aqua);background:rgba(255,255,255,.04);transform:none}.legal-wrap{max-width:1180px;margin:0 auto;padding:52px 60px 80px;display:grid;grid-template-columns:290px minmax(0,1fr);gap:34px}.toc{position:sticky;top:88px;align-self:start;background:#fff;border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;box-shadow:var(--shadow-sm);max-height:calc(100vh - 112px);overflow:auto}.toc h3{font-family:var(--font-display);font-size:15px;margin-bottom:12px}.toc a{display:block;font-size:13px;color:var(--muted);padding:8px 0;border-bottom:1px solid #F1F5F9}.toc a:hover{color:var(--aqua)}.legal-content{min-width:0}.legal-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius-lg);padding:34px;margin-bottom:20px;box-shadow:0 10px 30px rgba(7,20,47,.05)}.legal-card h2{font-family:var(--font-display);font-size:28px;line-height:1.2;letter-spacing:-.3px;margin-bottom:16px;color:var(--navy)}.legal-card h3{font-family:var(--font-display);font-size:20px;margin:22px 0 10px}.legal-card p{color:#334155;margin:12px 0}.legal-card li{margin:7px 0;color:#334155}.summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.summary-box{background:var(--offwhite);border:1px solid var(--border);border-radius:14px;padding:16px}.summary-box strong{display:block;font-family:var(--font-display);font-size:14px;color:var(--navy);margin-bottom:6px}.summary-box span{font-size:13px;color:var(--muted)}.table-wrap{overflow:auto;border:1px solid var(--border);border-radius:16px;margin:16px 0;background:#fff}table{width:100%;border-collapse:collapse;min-width:620px}th,td{padding:13px 14px;text-align:left;border-bottom:1px solid var(--border);vertical-align:top;font-size:14px}th{background:#F8FAFC;color:var(--navy);font-weight:800}td{color:#334155}.notice{border-radius:16px;padding:18px 20px;background:transparent;border:none;color:#334155;margin:18px 0}.notice.coral{background:transparent;border:none}.footer-logo-lockup{display:flex;align-items:center;gap:9px;margin-bottom:12px}.footer-logo-lockup img{width:34px;height:34px;border-radius:9px}.backtop{position:fixed;right:20px;bottom:20px;width:44px;height:44px;border-radius:12px;background:var(--aqua);color:var(--midnight);display:flex;align-items:center;justify-content:center;font-weight:900;box-shadow:0 14px 30px rgba(32,199,212,.25);z-index:90}
 @media (max-width:1023px){.legal-hero-inner{padding:64px 24px}.legal-wrap{grid-template-columns:1fr;padding:32px 24px 60px}.toc{position:relative;top:auto;max-height:none}.legal-card{padding:24px}.summary-grid{grid-template-columns:1fr}.hero-actions{flex-direction:column}.hero-actions a{width:100%}.footer-top{grid-template-columns:1fr 1fr;gap:30px}}
 @media (max-width:640px){.footer-top{grid-template-columns:1fr}.legal-card h2{font-size:24px}}
 
