@@ -4487,5 +4487,73 @@ document.getElementById('email').addEventListener('input', function() {
     this.value = digits;
   }
 });
+
+// Login demo: no cambia el diseño. Solo prepara la redirección inteligente.
+// En producción, estos valores deberán venir del backend después de autenticar al paciente.
+(function() {
+  var form = document.querySelector('.auth-card form');
+  var emailInput = document.getElementById('email');
+  var passwordInput = document.getElementById('password');
+
+  var redirectByStatus = {
+    registration_incomplete: 'registro-paciente.html',
+    verification_pending: 'verificacion-cuenta.html',
+    application_incomplete: 'solicitud-paciente.html',
+    profile_active: 'solicitud-paciente.html#portal',
+    offer_available: 'solicitud-paciente.html#oferta-contrato',
+    correction_required: 'solicitud-paciente.html#notificaciones',
+    client_rejected: 'solicitud-paciente.html#portal',
+    pulzzo_rejected_reapply: 'solicitud-paciente.html#portal',
+    pulzzo_rejected_blocked: 'solicitud-paciente.html#portal'
+  };
+
+  function getDemoPatientStatus() {
+    return localStorage.getItem('pulzzoPatientStatus') ||
+           localStorage.getItem('applicationStatus') ||
+           'profile_active';
+  }
+
+  function getDemoLastView(status) {
+    var lastView = localStorage.getItem('pulzzoPatientLastView') ||
+                   localStorage.getItem('lastPatientView') || '';
+
+    if (status === 'application_incomplete' && lastView) {
+      return 'solicitud-paciente.html#' + lastView;
+    }
+
+    return redirectByStatus[status] || 'solicitud-paciente.html#portal';
+  }
+
+  function saveDemoLoginSession(identifier) {
+    localStorage.setItem('pulzzoPatientLoggedIn', 'true');
+    localStorage.setItem('pulzzoPatientIdentifier', identifier || 'demo');
+    localStorage.setItem('pulzzoLastLoginAt', new Date().toISOString());
+  }
+
+  if (!form) return;
+
+  form.addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    var identifier = (emailInput && emailInput.value || '').trim();
+    var password = (passwordInput && passwordInput.value || '').trim();
+
+    if (!identifier) {
+      if (emailInput) emailInput.focus();
+      return;
+    }
+
+    if (!password) {
+      if (passwordInput) passwordInput.focus();
+      return;
+    }
+
+    saveDemoLoginSession(identifier);
+
+    var status = getDemoPatientStatus();
+    var nextUrl = getDemoLastView(status);
+    window.location.href = nextUrl;
+  });
+})();
 </script>
 </body>
