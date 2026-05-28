@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="theme-color" content="#07142F"><title>Verifica tu cuenta médica | Pulzzo</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><style>
+:root{
+  --midnight:#030A18;--navy:#07142F;--navy2:#0B1E3D;--surface:#101B35;
+  --aqua:#20C7D4;--aqua-l:#55DCE2;--mint:#BDF7F4;--aqua-bg:#EFFFFF;
+  --coral:#FF8A5B;--green:#16A34A;--amber:#F59E0B;--red:#DC2626;--blue:#3B82F6;
+  --white:#FFFFFF;--offwhite:#F8FAFC;--border:#E2E8F0;--muted:#64748B;--slate:#1E293B;
+  --font-display:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,sans-serif;
+  --font-body:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+  --shadow-xl:0 20px 48px rgba(7,20,47,.18);--shadow-md:0 8px 24px rgba(7,20,47,.12);
+}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:var(--font-body);background:var(--navy);color:var(--navy);line-height:1.5;-webkit-font-smoothing:antialiased}a{text-decoration:none;color:inherit}button,input,select{font-family:inherit}.navbar{position:fixed;top:0;left:0;right:0;height:64px;background:var(--midnight);z-index:20;display:flex;align-items:center;padding:0 60px;border-bottom:1px solid rgba(255,255,255,.06)}.navbar-inner{width:100%;display:flex;align-items:center;justify-content:space-between}.brand{display:flex;align-items:center;gap:12px;color:#fff;font-family:var(--font-display);font-size:25px;font-weight:700;letter-spacing:-.055em}.brand img{width:36px;height:36px;object-fit:contain}.nav-actions{display:flex;gap:10px}.nav-actions .btn{min-height:42px;padding:0 18px;font-size:14px;border-radius:11px}.btn{border:0;border-radius:12px;min-height:52px;padding:0 22px;font-weight:800;font-size:15px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:all .2s ease}.btn-primary{background:var(--aqua);color:var(--midnight)}.btn-primary:hover{background:var(--aqua-l);transform:translateY(-1px)}.btn-ghost{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);color:#fff}.btn-ghost:hover{border-color:rgba(255,255,255,.35)}.btn:disabled{opacity:.42;cursor:not-allowed;transform:none;background:#BDEFF3;color:#78909C}.shell{min-height:100vh;padding:104px 60px 48px;position:relative;overflow:hidden}.shell::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 15% 20%,rgba(32,199,212,.16),transparent 30%),radial-gradient(circle at 85% 20%,rgba(85,220,226,.10),transparent 32%);pointer-events:none}.wrap{max-width:1280px;margin:0 auto;position:relative;z-index:1}.grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}.copy{color:#fff;max-width:560px}.pill{display:inline-flex;border:1px solid rgba(32,199,212,.34);background:rgba(32,199,212,.10);color:var(--aqua-l);border-radius:999px;padding:8px 16px;text-transform:uppercase;letter-spacing:.16em;font-size:12px;font-weight:800;margin-bottom:30px}.copy h1{font-family:var(--font-display);font-size:58px;line-height:1.12;letter-spacing:-.055em;margin-bottom:22px}.copy h1 span{color:var(--aqua)}.copy p{font-size:18px;line-height:1.7;color:rgba(255,255,255,.78);margin-bottom:28px}.points{display:grid;gap:14px;margin-top:30px}.point{display:flex;gap:12px;align-items:center;color:rgba(255,255,255,.76)}.check{width:26px;height:26px;border-radius:8px;background:rgba(32,199,212,.12);border:1px solid rgba(32,199,212,.3);display:flex;align-items:center;justify-content:center;color:var(--aqua);font-weight:800;flex:0 0 auto}.card{background:#fff;border-radius:28px;padding:44px;box-shadow:var(--shadow-xl);border:1px solid rgba(226,232,240,.9)}.card.small{max-width:560px;margin:0 auto}.kicker{text-transform:uppercase;color:var(--coral);font-size:12px;font-weight:800;letter-spacing:.22em;margin-bottom:14px}.card h1,.card h2{font-family:var(--font-display);font-size:34px;line-height:1.18;letter-spacing:-.04em;margin-bottom:12px}.card p{color:var(--muted);font-size:15px;line-height:1.65}.field{margin-top:18px}.field label{display:block;font-weight:700;font-size:13px;margin-bottom:8px;color:var(--navy)}.field input,.field select,.field textarea{width:100%;min-height:54px;border:1px solid #D7E1EE;border-radius:14px;background:#fff;padding:0 16px;color:var(--navy);font-size:15px;outline:none;transition:all .2s ease}.field textarea{min-height:92px;padding:14px 16px;resize:vertical}.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--aqua);box-shadow:0 0 0 4px rgba(32,199,212,.12)}.form-grid{display:grid;gap:16px;margin-top:22px}.row{display:grid;grid-template-columns:1fr 1fr;gap:16px}.row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}.text-link{color:var(--aqua);font-weight:800}.text-link.is-disabled{color:#94A3B8;cursor:not-allowed;pointer-events:none}.note{border:1px solid rgba(32,199,212,.22);background:var(--aqua-bg);border-radius:16px;padding:14px 16px;color:#0B1E3D;font-size:13px;line-height:1.55;margin-top:18px}.muted{color:var(--muted)}.divider{height:1px;background:var(--border);margin:26px 0}.toast{display:none;border-radius:16px;padding:14px 16px;margin-top:18px;font-size:13px;font-weight:700}.toast.ok{display:block;background:#DCFCE7;color:#166534}.toast.err{display:block;background:#FEE2E2;color:#991B1B}.otp{font-size:28px;letter-spacing:.28em;font-weight:700;text-align:center;text-transform:uppercase}.progress{height:6px;background:#E8EEF6;border-radius:999px;overflow:hidden}.progress span{display:block;height:100%;background:var(--aqua);width:0;transition:width .3s}.mobile-only{display:none}
+@media(max-width:1023px){.navbar{padding:0 24px}.shell{padding:92px 24px 36px}.grid{grid-template-columns:1fr;gap:28px;max-width:680px}.copy{text-align:center;margin:0 auto}.copy h1{font-size:42px}.points{display:none}.card{padding:32px}}
+@media(max-width:640px){.navbar{height:64px;padding:0 16px}.brand span{font-size:25px}.brand img{width:34px;height:34px}.nav-actions .btn{min-height:40px;padding:0 14px;font-size:13px}.shell{padding:88px 16px 28px}.copy h1{font-size:34px}.copy p{font-size:15px}.card{border-radius:22px;padding:24px 20px}.card h1,.card h2{font-size:27px}.row,.row-3{grid-template-columns:1fr}.mobile-only{display:block}.desktop-only{display:none}.otp{font-size:24px}}
+
+
+/* Mobile responsive */
+@media(max-width:640px){
+  html,body{min-height:100svh;overflow-x:hidden;background:#fff}
+  .navbar{height:64px;padding:0 14px;overflow:hidden}
+  .navbar-inner{display:flex;align-items:center;width:100%;gap:8px}
+  .brand{display:flex;align-items:center;min-width:0;max-width:60%;gap:8px;overflow:visible;font-size:24px;line-height:1;letter-spacing:-.055em}
+  .brand picture{display:block;flex:0 0 auto;line-height:0}
+  .brand img{display:block;width:30px;height:30px;min-width:30px;min-height:30px;object-fit:contain}
+  .nav-actions{margin-left:auto;display:flex;gap:6px;flex-shrink:0}
+  .nav-actions .btn-ghost{display:none}
+  .nav-actions .btn{width:auto;min-width:auto;max-width:92px;min-height:38px;padding:0 12px;border-radius:12px;font-size:0;white-space:nowrap}
+  .nav-actions .btn::after{content:"Volver";font-size:13px;line-height:1}
+  .shell{min-height:100svh;padding:64px 0 0;background:#fff;overflow-x:hidden}
+  .shell::before{display:none}
+  .wrap{width:100%;max-width:100%;margin:0;padding:0}
+  .grid{display:block;width:100%;max-width:100%}
+  .copy{display:none}
+  .card,.card.small{width:100%;max-width:100%;margin:0;border-radius:0;box-shadow:none;border-left:0;border-right:0;padding:28px 18px 36px;background:#fff}
+  .kicker{font-size:11px;letter-spacing:.18em;margin-bottom:12px}
+  .card h1,.card h2{font-size:30px;line-height:1.08;margin:0 0 12px;letter-spacing:-.04em}
+  .card p{font-size:15px;line-height:1.45;margin-bottom:18px;overflow-wrap:anywhere}
+  .form-grid{gap:14px;margin-top:18px}
+  .row,.row-3{grid-template-columns:1fr}
+  .field{margin-top:0}
+  .field input.otp{width:100%;min-height:58px;border-radius:16px;font-size:24px;letter-spacing:.22em}
+  #verify-btn{width:100%;min-height:52px;border-radius:14px}
+  .divider{margin:20px 0}
+  .mobile-only{display:block}.desktop-only{display:none}
+}
+
+</style></head>
+<body>
+<nav class="navbar"><div class="navbar-inner"><a class="brand" href="index.html"><picture><source srcset="assets/images/logo-pulzzo.webp" type="image/webp"><img src="assets/images/logo-pulzzo.png" alt="Pulzzo"></picture><span>pulzzo</span></a><div class="nav-actions"><a href="registro-paciente.html" class="btn btn-ghost">Regresar</a><a href="index.html" class="btn btn-primary">Volver al inicio</a></div></div></nav>
+<main class="shell"><div class="wrap grid"><section class="copy"><div class="pill" style="border-color:rgba(255,138,91,.44);background:rgba(255,138,91,.10);color:#FF8A5B">Verificación de cuenta</div><h1>Confirma tu correo y <span>activa tu cuenta médica.</span></h1><p>Validamos tu cuenta antes de guardar información profesional, fiscal y bancaria de tu perfil médico.</p><div class="points"><div class="point"><span class="check">✓</span><span>Código de 6 dígitos</span></div><div class="point"><span class="check">✓</span><span>Enviado por correo o celular</span></div><div class="point"><span class="check">✓</span><span>Después continuarás al onboarding médico</span></div></div></section>
+<section class="card small" aria-labelledby="verify-title"><div class="kicker">Cuenta médica</div><h1 id="verify-title">Verifica tu cuenta médica</h1><p id="verify-copy">Te enviamos un código de 6 dígitos a tu correo y celular registrados.</p><form id="verify-form" class="form-grid"><div class="field"><label for="code">Código de verificación</label><input id="code" class="otp" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="000000"></div><button id="verify-btn" class="btn btn-primary" type="submit" disabled>Verificar cuenta</button></form><div id="message" class="toast"></div><div class="divider"></div><p style="text-align:center;font-size:13px">¿No recibiste el código? <button id="resend" class="text-link" style="background:none;border:0;cursor:pointer">Reenviar código</button></p></section></div></main>
+<script>
+const patient = JSON.parse(localStorage.getItem('pulzzo_patient') || '{}');
+const copy = document.getElementById('verify-copy');
+if (patient.correo || patient.celular) { copy.textContent = 'Te enviamos un código de 6 dígitos a ' + (patient.correo || 'tu correo') + ' y ' + (patient.celular || 'tu WhatsApp') + '.'; }
+const code = document.getElementById('code');
+const btn = document.getElementById('verify-btn');
+const msg = document.getElementById('message');
+code.addEventListener('input', () => { code.value = code.value.replace(/\D/g,'').slice(0,6); btn.disabled = code.value.length !== 6; });
+document.getElementById('verify-form').addEventListener('submit', e => { e.preventDefault(); if(code.value.length !== 6) return; localStorage.setItem('pulzzo_verified','true'); localStorage.setItem('pulzzo_verification_backend_payload', JSON.stringify({verified:true, verifiedAt:new Date().toISOString(), channel:'demo_code', userAgent:navigator.userAgent, version:'v82_flujo_conectado'})); msg.className='toast ok'; msg.textContent='Cuenta verificada. Te llevamos a tu solicitud.'; setTimeout(()=>{ window.location.href='onboarding-doctor.html'; },700); });
+const resend = document.getElementById('resend');
+let resendTimer = 60;
+let resendInterval = null;
+function formatResendTime(seconds){
+  const mm = String(Math.floor(seconds / 60)).padStart(2,'0');
+  const ss = String(seconds % 60).padStart(2,'0');
+  return mm + ':' + ss;
+}
+function setResendDisabled(disabled){
+  resend.disabled = disabled;
+  resend.setAttribute('aria-disabled', disabled ? 'true' : 'false');
+  resend.classList.toggle('is-disabled', disabled);
+}
+function updateResendCountdown(){
+  resend.textContent = 'Reenviar código en ' + formatResendTime(resendTimer);
+  if(resendTimer <= 0){
+    clearInterval(resendInterval);
+    resendInterval = null;
+    resend.textContent = 'Reenviar código';
+    setResendDisabled(false);
+    return;
+  }
+  resendTimer -= 1;
+}
+function startResendCountdown(){
+  resendTimer = 60;
+  setResendDisabled(true);
+  if(resendInterval) clearInterval(resendInterval);
+  updateResendCountdown();
+  resendInterval = setInterval(updateResendCountdown, 1000);
+}
+resend.addEventListener('click', () => {
+  if(resend.disabled) return;
+  msg.className='toast ok';
+  msg.textContent='Enviamos un nuevo código de verificación.';
+  startResendCountdown();
+});
+startResendCountdown();
+
+
+// v109 mobile-only verification copy. Desktop remains unchanged.
+(function(){
+  const mq=window.matchMedia('(max-width: 640px)');
+  function apply(){
+    const copy=document.getElementById('verify-copy');
+    if(!copy) return;
+    if(!copy.dataset.fullText) copy.dataset.fullText=copy.textContent;
+    const patient=JSON.parse(localStorage.getItem('pulzzo_patient')||'{}');
+    if(mq.matches){
+      const email=patient.correo||'tu correo';
+      const cell=patient.celular||'tu celular';
+      copy.textContent='Enviamos un código a '+email+' y '+cell+'.';
+    }else{
+      copy.textContent=copy.dataset.fullText;
+    }
+  }
+  mq.addEventListener?mq.addEventListener('change',apply):mq.addListener(apply);
+  document.addEventListener('DOMContentLoaded',apply);
+  window.addEventListener('load',apply);
+})();
+</script></body></html>
