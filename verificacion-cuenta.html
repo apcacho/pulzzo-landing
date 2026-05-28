@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="theme-color" content="#07142F">
+<link rel="icon" type="image/png" href="assets/favicon/favicon-v1337.png">
+<link rel="apple-touch-icon" href="assets/favicon/apple-touch-icon-v1337.png"><title>Verifica tu cuenta | Pulzzo</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><style>
+:root{
+  --midnight:#030A18;--navy:#07142F;--navy2:#0B1E3D;--surface:#101B35;
+  --aqua:#20C7D4;--aqua-l:#55DCE2;--mint:#BDF7F4;--aqua-bg:#EFFFFF;
+  --coral:#FF8A5B;--green:#16A34A;--amber:#F59E0B;--red:#DC2626;--blue:#3B82F6;
+  --white:#FFFFFF;--offwhite:#F8FAFC;--border:#E2E8F0;--muted:#64748B;--slate:#1E293B;
+  --font-display:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,sans-serif;
+  --font-body:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+  --shadow-xl:0 20px 48px rgba(7,20,47,.18);--shadow-md:0 8px 24px rgba(7,20,47,.12);
+}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:var(--font-body);background:var(--navy);color:var(--navy);line-height:1.5;-webkit-font-smoothing:antialiased}a{text-decoration:none;color:inherit}button,input,select{font-family:inherit}.navbar{position:fixed;top:0;left:0;right:0;height:64px;background:var(--midnight);z-index:20;display:flex;align-items:center;padding:0 60px;border-bottom:1px solid rgba(255,255,255,.06)}.navbar-inner{width:100%;display:flex;align-items:center;justify-content:space-between}.brand{display:flex;align-items:center;gap:12px;color:#fff;font-family:var(--font-display);font-size:25px;font-weight:700;letter-spacing:-.055em}.brand img{width:36px;height:36px;object-fit:contain}.nav-actions{display:flex;gap:10px}.btn{border:0;border-radius:12px;min-height:52px;padding:0 22px;font-weight:600;font-size:15px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:all .2s ease}.btn-primary{background:var(--aqua);color:var(--midnight)}.btn-primary:hover{background:var(--aqua-l);transform:translateY(-1px)}.btn-ghost{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);color:#fff}.btn-ghost:hover{border-color:rgba(255,255,255,.35)}.btn:disabled{opacity:.42;cursor:not-allowed;transform:none;background:#BDEFF3;color:#78909C}.shell{min-height:100vh;padding:104px 60px 48px;position:relative;overflow:hidden}.shell::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 15% 20%,rgba(32,199,212,.16),transparent 30%),radial-gradient(circle at 85% 20%,rgba(85,220,226,.10),transparent 32%);pointer-events:none}.wrap{max-width:1280px;margin:0 auto;position:relative;z-index:1}.grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}.copy{color:#fff;max-width:560px}.pill{display:inline-flex;border:1px solid rgba(32,199,212,.34);background:rgba(32,199,212,.10);color:var(--aqua-l);border-radius:999px;padding:8px 16px;text-transform:uppercase;letter-spacing:.16em;font-size:12px;font-weight:800;margin-bottom:30px}.copy h1{font-family:var(--font-display);font-size:58px;line-height:1.12;letter-spacing:-.055em;margin-bottom:22px}.copy h1 span{color:var(--aqua)}.copy p{font-size:18px;line-height:1.7;color:rgba(255,255,255,.78);margin-bottom:28px}.points{display:grid;gap:14px;margin-top:30px}.point{display:flex;gap:12px;align-items:center;color:rgba(255,255,255,.76)}.check{width:26px;height:26px;border-radius:8px;background:rgba(32,199,212,.12);border:1px solid rgba(32,199,212,.3);display:flex;align-items:center;justify-content:center;color:var(--aqua);font-weight:900;flex:0 0 auto}.card{background:#fff;border-radius:28px;padding:44px;box-shadow:var(--shadow-xl);border:1px solid rgba(226,232,240,.9)}.card.small{max-width:560px;margin:0 auto}.kicker{text-transform:uppercase;color:var(--aqua);font-size:12px;font-weight:900;letter-spacing:.22em;margin-bottom:14px}.card h1,.card h2{font-family:var(--font-display);font-size:34px;line-height:1.18;letter-spacing:-.04em;margin-bottom:12px}.card p{color:var(--muted);font-size:15px;line-height:1.65}.field{margin-top:18px}.field label{display:block;font-weight:800;font-size:13px;margin-bottom:8px;color:var(--navy)}.field input,.field select,.field textarea{width:100%;min-height:54px;border:1px solid #D7E1EE;border-radius:14px;background:#fff;padding:0 16px;color:var(--navy);font-size:15px;outline:none;transition:all .2s ease}.field textarea{min-height:92px;padding:14px 16px;resize:vertical}.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--aqua);box-shadow:0 0 0 4px rgba(32,199,212,.12)}.form-grid{display:grid;gap:16px;margin-top:22px}.row{display:grid;grid-template-columns:1fr 1fr;gap:16px}.row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}.text-link{color:var(--aqua);font-weight:800}.resend-row{text-align:center;font-size:13px;color:var(--muted)}.resend-link{background:none;border:0;cursor:pointer;color:var(--aqua);font-weight:800;font-size:13px}.resend-link:disabled{opacity:.55;cursor:not-allowed;pointer-events:none}.resend-countdown{font-weight:800;color:var(--muted)}.note{border:1px solid rgba(32,199,212,.22);background:var(--aqua-bg);border-radius:16px;padding:14px 16px;color:#0B1E3D;font-size:13px;line-height:1.55;margin-top:18px}.muted{color:var(--muted)}.divider{height:1px;background:var(--border);margin:26px 0}.toast{display:none;border-radius:16px;padding:14px 16px;margin-top:18px;font-size:13px;font-weight:700}.toast.ok{display:block;background:#DCFCE7;color:#166534}.toast.err{display:block;background:#FEE2E2;color:#991B1B}.otp{font-size:28px;letter-spacing:.28em;font-weight:800;text-align:center;text-transform:uppercase}.progress{height:6px;background:#E8EEF6;border-radius:999px;overflow:hidden}.progress span{display:block;height:100%;background:var(--aqua);width:0;transition:width .3s}.mobile-only{display:none}
+@media(max-width:1023px){.navbar{padding:0 24px}.shell{padding:92px 24px 36px}.grid{grid-template-columns:1fr;gap:28px;max-width:680px}.copy{text-align:center;margin:0 auto}.copy h1{font-size:42px}.points{display:none}.card{padding:32px}}
+@media(max-width:640px){.navbar{height:64px;padding:0 16px}.brand span{font-size:25px}.brand img{width:34px;height:34px}.nav-actions .btn{min-height:40px;padding:0 14px;font-size:13px}.shell{padding:88px 16px 28px}.copy h1{font-size:34px}.copy p{font-size:15px}.card{border-radius:22px;padding:24px 20px}.card h1,.card h2{font-size:27px}.row,.row-3{grid-template-columns:1fr}.mobile-only{display:block}.desktop-only{display:none}.otp{font-size:24px}}
+
+
+/* v104 MOBILE ONLY POLISH - verification */
+@media (max-width:640px){
+  html,body{overflow-x:hidden;}
+  .navbar{height:60px;padding:0 14px;}
+  .brand{font-size:22px;gap:8px;min-width:0;}
+  .brand img{width:30px;height:30px;}
+  .nav-actions{gap:6px;}
+  .nav-actions .btn{min-height:38px;padding:0 12px;font-size:12px;border-radius:10px;}
+  .shell{padding:76px 12px 22px!important;}
+  .grid{gap:18px!important;}
+  .copy{display:none!important;}
+  .card{border-radius:22px!important;padding:24px 18px!important;box-shadow:0 14px 34px rgba(7,20,47,.18)!important;}
+  .card h1{font-size:30px!important;line-height:1.1!important;}
+  .card p{font-size:14px!important;line-height:1.45!important;}
+  .form-grid{gap:14px!important;margin-top:18px!important;}
+  .field input.otp{min-height:58px!important;font-size:24px!important;letter-spacing:.24em!important;border-radius:14px!important;}
+  .btn{min-height:50px!important;border-radius:12px!important;width:100%;}
+  .divider{margin:20px 0!important;}
+}
+
+
+
+/* v106 MOBILE ONLY FINAL POLISH - verificación */
+@media (max-width:640px){
+  html,body{overflow-x:hidden;}
+  .navbar{height:58px!important;padding:0 14px!important;}
+  .brand{font-size:0!important;gap:0!important;min-width:0!important;}
+  .brand picture,.brand img{display:none!important;}
+  .brand span{display:inline!important;font-size:26px!important;letter-spacing:-.06em!important;line-height:1!important;color:#fff!important;}
+  .nav-actions{gap:6px!important;margin-left:auto!important;}
+  .nav-actions .btn{min-height:36px!important;padding:0 10px!important;border-radius:11px!important;font-size:12px!important;width:auto!important;}
+  .shell{padding:78px 14px 22px!important;min-height:100svh!important;}
+  .wrap{width:100%!important;max-width:none!important;margin:0!important;}
+  .grid{display:block!important;width:100%!important;max-width:none!important;}
+  .copy{display:none!important;}
+  .card.small,.card{width:100%!important;max-width:none!important;margin:0!important;border-radius:24px!important;padding:26px 20px!important;box-shadow:0 18px 44px rgba(3,10,24,.30)!important;}
+  .kicker{font-size:11px!important;letter-spacing:.2em!important;margin-bottom:12px!important;}
+  .card h1{font-size:32px!important;line-height:1.08!important;margin-bottom:10px!important;}
+  .card p{font-size:14px!important;line-height:1.45!important;overflow-wrap:anywhere!important;}
+  .form-grid{gap:14px!important;margin-top:20px!important;}
+  .field label{font-size:13px!important;margin-bottom:8px!important;}
+  .field input.otp{min-height:58px!important;border-radius:16px!important;font-size:24px!important;letter-spacing:.24em!important;}
+  #verify-btn{width:100%!important;min-height:52px!important;border-radius:14px!important;}
+  .divider{margin:20px 0!important;}
+  #resend{font-size:13px!important;}
+}
+
+
+
+/* v107 MOBILE ONLY UX REFINEMENT - verificación */
+@media (max-width:640px){
+  html,body{min-height:100svh!important;overflow-x:hidden!important;background:#07142F!important;}
+  .navbar{height:58px!important;padding:0 12px!important;}
+  .navbar-inner{gap:8px!important;}
+  .brand{font-size:0!important;min-width:auto!important;flex:0 0 auto!important;}
+  .brand picture,.brand img{display:none!important;}
+  .brand span{display:inline!important;font-size:24px!important;line-height:1!important;color:#fff!important;letter-spacing:-.055em!important;}
+  .nav-actions{margin-left:auto!important;gap:6px!important;}
+  .nav-actions .btn{min-height:34px!important;padding:0 10px!important;border-radius:10px!important;font-size:12px!important;width:auto!important;}
+  .nav-actions .btn-ghost{display:none!important;}
+  .shell{padding:70px 10px 0!important;min-height:100svh!important;background:#07142F!important;}
+  .wrap,.grid{width:100%!important;max-width:none!important;margin:0!important;display:block!important;}
+  .copy{display:none!important;}
+  .card.small,.card{width:100%!important;max-width:none!important;margin:0!important;min-height:calc(100svh - 70px)!important;border-radius:26px 26px 0 0!important;padding:26px 20px 24px!important;box-shadow:0 -10px 38px rgba(3,10,24,.30)!important;}
+  .kicker{font-size:11px!important;letter-spacing:.2em!important;margin-bottom:14px!important;}
+  .card h1{font-size:31px!important;line-height:1.08!important;margin-bottom:12px!important;letter-spacing:-.045em!important;}
+  .card p{font-size:14px!important;line-height:1.45!important;overflow-wrap:anywhere!important;max-width:96%!important;}
+  .form-grid{gap:14px!important;margin-top:22px!important;}
+  .field label{font-size:13px!important;line-height:1.25!important;margin-bottom:8px!important;}
+  .field input.otp{width:100%!important;min-height:60px!important;border-radius:16px!important;font-size:25px!important;letter-spacing:.22em!important;}
+  #verify-btn{width:100%!important;min-height:54px!important;border-radius:15px!important;margin-top:4px!important;}
+  .divider{margin:22px 0!important;}
+  #resend{font-size:13px!important;}
+}
+
+
+/* =====================================================
+   v109 MOBILE AUDIT FINAL - Verificación only (desktop intacto)
+   ===================================================== */
+@media (max-width: 640px){
+  html,body{overflow-x:hidden!important;}
+  .navbar{height:60px!important;padding:0 14px!important;}
+  .brand{font-size:24px!important;letter-spacing:-.055em!important;gap:8px!important;}
+  .brand img{display:none!important;}
+  .nav-actions{gap:8px!important;}
+  .nav-actions .btn{min-height:40px!important;padding:0 12px!important;font-size:12px!important;border-radius:12px!important;}
+  .nav-actions .btn-ghost{max-width:96px!important;overflow:hidden!important;text-overflow:ellipsis!important;}
+  .shell{padding:76px 14px 28px!important;min-height:100svh!important;background:linear-gradient(180deg,#07142F 0%,#07142F 112px,#07142F 100%)!important;}
+  .wrap{width:100%!important;max-width:100%!important;margin:0!important;}
+  .grid{display:block!important;width:100%!important;max-width:100%!important;}
+  .copy{display:none!important;}
+  .card.small{width:100%!important;max-width:100%!important;margin:18px 0 0!important;border-radius:24px!important;padding:28px 20px!important;box-shadow:0 20px 46px rgba(3,10,24,.28)!important;}
+  .kicker{font-size:10px!important;letter-spacing:.20em!important;margin-bottom:12px!important;}
+  .card h1{font-size:34px!important;line-height:1.08!important;letter-spacing:-.055em!important;margin-bottom:12px!important;}
+  .card p{font-size:14px!important;line-height:1.45!important;margin-bottom:18px!important;overflow-wrap:anywhere!important;}
+  .form-grid{gap:14px!important;margin-top:18px!important;}
+  .field{margin-top:0!important;}
+  .field label{font-size:13px!important;margin-bottom:7px!important;}
+  .otp{min-height:58px!important;border-radius:16px!important;font-size:28px!important;letter-spacing:.26em!important;padding-left:.26em!important;}
+  #verify-btn{width:100%!important;min-height:54px!important;border-radius:15px!important;margin-top:4px!important;}
+  .divider{margin:24px 0 18px!important;}
+  #message{font-size:13px!important;border-radius:14px!important;padding:12px 14px!important;}
+}
+
+
+
+/* v113 MOBILE ONLY - restore Pulzzo logo asset in navbar */
+@media (max-width:640px){
+  .brand,.navbar-logo{display:flex!important;align-items:center!important;gap:8px!important;min-width:0!important;}
+  .brand picture,.navbar-logo picture{display:flex!important;align-items:center!important;flex:0 0 auto!important;}
+  .brand img,.navbar-logo img,.navbar-logo .brand-symbol{display:block!important;width:30px!important;height:30px!important;object-fit:contain!important;border-radius:0!important;background:transparent!important;}
+  .brand span,.navbar-logo .brand-word{display:inline!important;color:#FFFFFF!important;font-size:24px!important;letter-spacing:-0.055em!important;line-height:1!important;font-family:var(--font-display)!important;font-weight:700!important;text-transform:lowercase!important;}
+}
+
+</style></head>
+<body>
+<nav class="navbar"><div class="navbar-inner"><a class="brand" href="index.html"><picture><source srcset="assets/images/logo-pulzzo.webp" type="image/webp"><img src="assets/images/logo-pulzzo.png" alt="Pulzzo"></picture><span>pulzzo</span></a><div class="nav-actions"><a href="registro-paciente.html" class="btn btn-ghost">Regresar</a><a href="index.html" class="btn btn-primary">Volver al inicio</a></div></div></nav>
+<main class="shell"><div class="wrap grid"><section class="copy"><div class="pill">Verificación de cuenta</div><h1>Confirma tu correo y <span>continúa tu solicitud.</span></h1><p>Validamos tu cuenta antes de guardar información sensible de tu solicitud médica y financiera.</p><div class="points"><div class="point"><span class="check">✓</span><span>Código de 6 dígitos</span></div><div class="point"><span class="check">✓</span><span>Enviado por correo y WhatsApp</span></div><div class="point"><span class="check">✓</span><span>Después entrarás al módulo de procedimiento</span></div></div></section>
+<section class="card small" aria-labelledby="verify-title"><div class="kicker">Cuenta paciente</div><h1 id="verify-title">Verifica tu cuenta</h1><p id="verify-copy">Te enviamos un código de 6 dígitos a tu correo y WhatsApp.</p><form id="verify-form" class="form-grid"><div class="field"><label for="code">Código de verificación</label><input id="code" class="otp" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="000000"></div><button id="verify-btn" class="btn btn-primary" type="submit" disabled>Verificar cuenta</button></form><div id="message" class="toast"></div><div class="divider"></div><p class="resend-row">¿No recibiste el código? <button id="resend" class="resend-link" type="button" disabled>Reenviar código</button> <span id="resend-countdown" class="resend-countdown">en 01:00</span></p></section></div></main>
+<script>
+const patient = JSON.parse(localStorage.getItem('pulzzo_patient') || '{}');
+const copy = document.getElementById('verify-copy');
+if (patient.correo || patient.celular) { copy.textContent = 'Te enviamos un código de 6 dígitos a ' + (patient.correo || 'tu correo') + ' y ' + (patient.celular || 'tu WhatsApp') + '.'; }
+const code = document.getElementById('code');
+const btn = document.getElementById('verify-btn');
+const msg = document.getElementById('message');
+code.addEventListener('input', () => { code.value = code.value.replace(/\D/g,'').slice(0,6); btn.disabled = code.value.length !== 6; });
+document.getElementById('verify-form').addEventListener('submit', e => { e.preventDefault(); if(code.value.length !== 6) return; localStorage.setItem('pulzzo_verified','true'); localStorage.setItem('pulzzo_verification_backend_payload', JSON.stringify({verified:true, verifiedAt:new Date().toISOString(), channel:'demo_code', userAgent:navigator.userAgent, version:'v82_flujo_conectado'})); msg.className='toast ok'; msg.textContent='Cuenta verificada. Te llevamos a tu solicitud.'; setTimeout(()=>{ window.location.href='solicitud-paciente.html'; },700); });
+const resend = document.getElementById('resend');
+const resendCountdown = document.getElementById('resend-countdown');
+let resendSeconds = 60;
+let resendTimer = null;
+
+function formatResendTime(seconds){
+  const safeSeconds = Math.max(0, seconds);
+  const minutes = String(Math.floor(safeSeconds / 60)).padStart(2,'0');
+  const rest = String(safeSeconds % 60).padStart(2,'0');
+  return minutes + ':' + rest;
+}
+
+function renderResendState(){
+  const isWaiting = resendSeconds > 0;
+  resend.disabled = isWaiting;
+  resendCountdown.textContent = isWaiting ? 'en ' + formatResendTime(resendSeconds) : '';
+}
+
+function startResendCountdown(){
+  clearInterval(resendTimer);
+  resendSeconds = 60;
+  renderResendState();
+  resendTimer = setInterval(() => {
+    resendSeconds -= 1;
+    renderResendState();
+    if(resendSeconds <= 0){
+      clearInterval(resendTimer);
+      resendTimer = null;
+    }
+  }, 1000);
+}
+
+resend.addEventListener('click', () => {
+  if(resend.disabled) return;
+  msg.className='toast ok';
+  msg.textContent='Código reenviado.';
+  startResendCountdown();
+});
+
+startResendCountdown();
+
+
+// v109 mobile-only verification copy. Desktop remains unchanged.
+(function(){
+  const mq=window.matchMedia('(max-width: 640px)');
+  function apply(){
+    const copy=document.getElementById('verify-copy');
+    if(!copy) return;
+    if(!copy.dataset.fullText) copy.dataset.fullText=copy.textContent;
+    const patient=JSON.parse(localStorage.getItem('pulzzo_patient')||'{}');
+    if(mq.matches){
+      const email=patient.correo||'tu correo';
+      const cell=patient.celular||'tu celular';
+      copy.textContent='Enviamos un código a '+email+' y '+cell+'.';
+    }else{
+      copy.textContent=copy.dataset.fullText;
+    }
+  }
+  mq.addEventListener?mq.addEventListener('change',apply):mq.addListener(apply);
+  document.addEventListener('DOMContentLoaded',apply);
+  window.addEventListener('load',apply);
+})();
+</script></body></html>
