@@ -5,11 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#07142F">
 
-<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon/favicon-v1337.png">
-<link rel="apple-touch-icon" href="assets/favicon/apple-touch-icon-v1337.png">
-<link rel="shortcut icon" href="assets/favicon/favicon-v1337.png">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%0A%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2218%22%20fill%3D%22%2320C7D4%22/%3E%0A%3Cpath%20d%3D%22M21%2045V16h17.5c7.5%200%2012.5%204.5%2012.5%2011.2S46%2038.3%2038.5%2038.3H31V45H21zm10-15.2h6.3c2.7%200%204.3-1.1%204.3-2.9%200-1.9-1.6-3-4.3-3H31v5.9z%22%20fill%3D%22%2307142F%22/%3E%0A%3C/svg%3E">
-
 <title>Backoffice operativo | Pulzzo</title>
 <style>
 :root{
@@ -127,7 +122,1077 @@
 @media(max-width:1180px){.kpi-grid{grid-template-columns:repeat(3,1fr)}.master-detail{grid-template-columns:1fr}.list{max-height:none}.detail{min-height:0}.grid-2{grid-template-columns:1fr}.app{grid-template-columns:240px 1fr}.detail-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:820px){.login-shell{padding:42px 18px 48px}.login-top-logo{margin-bottom:22px}.login-top-logo img{width:70px}.login-card{padding:36px 24px;width:min(100%,680px)}.app{display:block}.sidebar{position:fixed;left:0;top:0;bottom:0;transform:translateX(-105%);transition:.22s ease;width:286px}.sidebar.open{transform:translateX(0)}.mobile-menu{display:inline-flex}.topbar{padding:0 16px}.content{padding:20px 16px}.kpi-grid{grid-template-columns:1fr 1fr}.filters{grid-template-columns:1fr}.detail-grid,.info-grid{grid-template-columns:1fr}.login-shell{padding:26px}.offer-grid{grid-template-columns:1fr}.section-head{display:block}.section-head h2{font-size:28px}}
 @media(max-width:520px){.kpi-grid{grid-template-columns:1fr}.doc-card{grid-template-columns:1fr}.doc-actions{justify-content:flex-start}.topbar h1{font-size:20px}.top-actions{gap:6px}.role-badge{display:none}}
+
+/* Ajuste quirúrgico sidebar: logo correcto y menor peso de fuente */
+.sidebar .side-brand{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:4px 8px 22px;
+}
+.sidebar .side-brand picture{
+  display:flex;
+  align-items:center;
+  flex:0 0 auto;
+  line-height:0;
+}
+.sidebar .side-brand .brand-symbol{
+  width:36px;
+  height:36px;
+  object-fit:contain;
+  display:block;
+  background:transparent;
+  border-radius:0;
+}
+.sidebar .side-brand .brand-word{
+  color:#FFFFFF;
+  font-family:var(--font-display);
+  font-size:25px;
+  line-height:1;
+  letter-spacing:-.055em;
+  font-weight:650;
+  text-transform:lowercase;
+}
+.sidebar .internal-pill{
+  font-weight:600;
+}
+.sidebar .nav-btn{
+  font-weight:500;
+}
+.sidebar .nav-btn.active{
+  font-weight:600;
+}
+.sidebar .nav-icon{
+  font-weight:500;
+}
+.sidebar .user-card strong{
+  font-weight:600;
+}
+.sidebar .user-card span{
+  font-weight:400;
+}
+.sidebar #logoutBtn{
+  font-weight:600;
+}
+
+
+/* Dashboard final funcional: filtros, métricas compactas y logs legibles */
+.dashboard-toolbar{
+  background:#fff;
+  border:1px solid var(--line2);
+  border-radius:22px;
+  padding:16px;
+  display:grid;
+  grid-template-columns:1.1fr 1fr;
+  gap:18px;
+  margin-bottom:18px;
+  box-shadow:0 10px 22px rgba(7,20,47,.04);
+}
+.period-tabs{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.period-btn{
+  min-height:36px;
+  border:1px solid var(--line);
+  background:#fff;
+  color:var(--muted);
+  border-radius:999px;
+  padding:0 13px;
+  font-size:12px;
+  font-weight:600;
+  cursor:pointer;
+  transition:.18s ease;
+}
+.period-btn.active{
+  background:var(--navy);
+  color:#fff;
+  border-color:var(--navy);
+}
+.dashboard-period-note{
+  color:var(--muted);
+  font-size:12.5px;
+  margin-top:10px;
+}
+.dashboard-filter-right{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.dashboard-filter-field label{
+  display:block;
+  color:var(--muted);
+  font-size:11px;
+  font-weight:600;
+  margin-bottom:5px;
+}
+.dashboard-filter-field input,
+.dashboard-filter-field select{
+  width:100%;
+  min-height:38px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:#fff;
+  padding:0 11px;
+  color:var(--navy);
+  font-size:13px;
+  outline:none;
+}
+.dashboard-view-field{
+  grid-column:1 / -1;
+}
+.dashboard-view-field select{
+  width:100%;
+}
+.dashboard-block{
+  margin-top:22px;
+}
+.dashboard-block:first-of-type{
+  margin-top:0;
+}
+.dashboard-block-head{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:14px;
+  margin:0 0 14px;
+}
+.dashboard-block-head h3{
+  font-family:var(--font-display);
+  font-size:21px;
+  line-height:1.2;
+  letter-spacing:-.035em;
+  font-weight:700;
+}
+.dashboard-block-head p{
+  color:var(--muted);
+  font-size:13px;
+  margin-top:4px;
+}
+.metric-card{
+  background:#fff;
+  border:1px solid var(--line2);
+  border-radius:24px;
+  box-shadow:0 10px 24px rgba(7,20,47,.045);
+  overflow:hidden;
+}
+.metric-card-head{
+  padding:18px 20px;
+  border-bottom:1px solid var(--line2);
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+}
+.metric-card-head h3{
+  font-size:17px;
+  letter-spacing:-.02em;
+  font-weight:700;
+}
+.metric-card-head p{
+  color:var(--muted);
+  font-size:12.5px;
+  margin-top:3px;
+}
+.metric-list{
+  display:grid;
+  padding:10px 20px 16px;
+}
+.metric-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding:10px 0;
+  border-bottom:1px solid var(--line2);
+}
+.metric-row:last-child{
+  border-bottom:0;
+}
+.metric-row span{
+  color:var(--muted);
+  font-size:13.5px;
+}
+.metric-row strong{
+  color:var(--navy);
+  font-size:15px;
+  font-weight:700;
+  white-space:nowrap;
+}
+.priority-list,
+.activity-log-list{
+  display:grid;
+  gap:12px;
+}
+.priority-item,
+.activity-log{
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:12px;
+  align-items:start;
+  border:1px solid var(--line2);
+  background:#fff;
+  border-radius:18px;
+  padding:14px 16px;
+}
+.priority-dot,
+.activity-log-dot{
+  width:10px;
+  height:10px;
+  border-radius:999px;
+  margin-top:6px;
+  flex:0 0 auto;
+}
+.priority-dot{
+  background:var(--coral);
+  box-shadow:0 0 0 5px rgba(255,138,91,.12);
+}
+.activity-log-dot{
+  background:var(--aqua);
+  box-shadow:0 0 0 5px rgba(32,199,212,.12);
+}
+.priority-title,
+.activity-log-title{
+  font-size:14px;
+  font-weight:700;
+  color:var(--navy);
+  line-height:1.35;
+}
+.priority-meta,
+.activity-log-meta{
+  color:var(--muted);
+  font-size:12.5px;
+  line-height:1.45;
+  margin-top:2px;
+}
+.activity-log-time{
+  color:#94A3B8;
+  font-size:12px;
+  margin-top:4px;
+}
+.dashboard-hidden{
+  display:none!important;
+}
+@media(max-width:1180px){
+  .dashboard-toolbar{
+    grid-template-columns:1fr;
+  }
+}
+@media(max-width:820px){
+  .dashboard-block-head{
+    display:block;
+  }
+  .dashboard-filter-right{
+    grid-template-columns:1fr;
+  }
+  .dashboard-view-field{
+    grid-column:auto;
+  }
+}
+
+
+/* Dashboard: peso tipográfico más ligero */
+#dashboard .section-head h2{
+  font-weight:650;
+}
+#dashboard .section-head p,
+#dashboard .dashboard-period-note,
+#dashboard .dashboard-block-head p,
+#dashboard .metric-card-head p,
+#dashboard .priority-meta,
+#dashboard .activity-log-meta,
+#dashboard .activity-log-time,
+#dashboard .kpi span,
+#dashboard .kpi small,
+#dashboard .metric-row span{
+  font-weight:400;
+}
+#dashboard .pill,
+#dashboard .period-btn,
+#dashboard .dashboard-filter-field label{
+  font-weight:600;
+}
+#dashboard .dashboard-block-head h3,
+#dashboard .metric-card-head h3,
+#dashboard .card-head h3{
+  font-weight:650;
+}
+#dashboard .kpi strong{
+  font-weight:650;
+}
+#dashboard .metric-row strong,
+#dashboard .priority-title,
+#dashboard .activity-log-title,
+#dashboard .btn{
+  font-weight:600;
+}
+
+
+/* Dashboard: agrupación interna de métricas */
+.metric-group{
+  padding:14px 20px 4px;
+}
+.metric-group + .metric-group{
+  border-top:1px solid var(--line2);
+}
+.metric-group-title{
+  display:block;
+  color:var(--coral);
+  font-size:11px;
+  font-weight:650;
+  letter-spacing:.11em;
+  text-transform:uppercase;
+  margin-bottom:4px;
+}
+.metric-group .metric-row{
+  padding:9px 0;
+}
+
+
+/* Acentos: azul/aqua general; naranja reservado para doctores/provider */
+.sidebar .internal-pill{
+  border-color:rgba(32,199,212,.35);
+  background:rgba(32,199,212,.09);
+  color:#55DCE2;
+}
+
+#dashboard .section-head .pill-coral{
+  background:var(--aqua-bg);
+  color:#0E7490;
+  border:1px solid rgba(32,199,212,.28);
+}
+
+#dashboard .metric-group-title{
+  color:#0E7490;
+}
+
+#dashboard .metric-card.provider-metrics .metric-group-title{
+  color:var(--coral);
+}
+
+#dashboard .priority-dot{
+  background:var(--aqua);
+  box-shadow:0 0 0 5px rgba(32,199,212,.12);
+}
+
+#dashboard .period-btn.active{
+  background:var(--navy);
+  color:#fff;
+  border-color:var(--navy);
+}
+
+
+/* Quitar semicírculo decorativo de cards KPI */
+.kpi::after{
+  display:none;
+}
+
+
+/* Números del dashboard menos toscos */
+#dashboard .kpi strong{
+  font-weight:560 !important;
+}
+#dashboard .metric-row strong{
+  font-weight:520 !important;
+}
+
+
+/* Azul Pulzzo más claro para categorías del dashboard */
+#dashboard .metric-group-title{
+  color:#20C7D4 !important;
+}
+
+#dashboard .metric-card:not(.provider-metrics) .metric-group-title{
+  color:#20C7D4 !important;
+}
+
+#dashboard .period-btn.active{
+  background:#07142F;
+  color:#FFFFFF;
+}
+
+#dashboard .activity-log-dot{
+  background:#20C7D4;
+  box-shadow:0 0 0 5px rgba(32,199,212,.12);
+}
+
+
+/* Login: Backoffice centrado y en azul Pulzzo */
+.login-card .eyebrow{
+  display:flex;
+  width:max-content;
+  margin:0 auto 16px;
+  border-color:rgba(32,199,212,.35);
+  background:rgba(32,199,212,.10);
+  color:#0E7490;
+}
+
+
+/* Regla de acentos: azul/aqua general; naranja solo provider/doctores */
+#dashboard .metric-group-title{
+  color:#20C7D4 !important;
+}
+
+#dashboard .metric-card.provider-metrics .metric-group-title,
+#dashboard .provider-metrics .metric-group-title,
+#dashboard [data-provider-section="true"] .metric-group-title{
+  color:var(--coral) !important;
+}
+
+#dashboard .section-head .pill-coral,
+#dashboard .priority-dot,
+#dashboard .activity-log-dot{
+  background:#20C7D4 !important;
+  box-shadow:0 0 0 5px rgba(32,199,212,.12);
+}
+
+#dashboard .section-head .pill-coral{
+  color:#0E7490 !important;
+  background:rgba(32,199,212,.10) !important;
+  border-color:rgba(32,199,212,.28) !important;
+}
+
+.sidebar .internal-pill{
+  border-color:rgba(32,199,212,.35) !important;
+  background:rgba(32,199,212,.09) !important;
+  color:#55DCE2 !important;
+}
+
+.login-card .eyebrow{
+  border-color:rgba(32,199,212,.35) !important;
+  background:rgba(32,199,212,.10) !important;
+  color:#0E7490 !important;
+}
+
+
+/* Dashboard: acción Ver en métricas y modal de detalle */
+.metric-value-actions{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:10px;
+  white-space:nowrap;
+}
+
+.dashboard-metric-view{
+  border:0;
+  background:transparent;
+  color:#20C7D4;
+  font-size:12px;
+  font-weight:600;
+  cursor:pointer;
+  padding:0;
+  line-height:1;
+}
+
+.dashboard-metric-view:hover{
+  text-decoration:underline;
+}
+
+.provider-metrics .dashboard-metric-view{
+  color:var(--coral);
+}
+
+.dashboard-detail-list{
+  display:grid;
+  gap:10px;
+}
+
+.dashboard-detail-item{
+  border:1px solid var(--line2);
+  border-radius:16px;
+  background:#fff;
+  padding:14px;
+  display:flex;
+  justify-content:space-between;
+  gap:14px;
+  align-items:flex-start;
+}
+
+.dashboard-detail-item strong{
+  display:block;
+  font-size:14px;
+  font-weight:650;
+  color:var(--navy);
+}
+
+.dashboard-detail-item span{
+  display:block;
+  color:var(--muted);
+  font-size:12.5px;
+  margin-top:3px;
+  line-height:1.45;
+}
+
+.dashboard-empty{
+  border:1px dashed var(--line);
+  border-radius:16px;
+  padding:18px;
+  color:var(--muted);
+  font-size:14px;
+  background:#F8FAFC;
+}
+
+@media(max-width:680px){
+  .dashboard-detail-item{
+    display:grid;
+  }
+  .metric-value-actions{
+    gap:7px;
+  }
+}
+
+
+/* Dashboard: sección de gráficos operativos */
+.dashboard-charts{
+  margin-top:24px;
+}
+.dashboard-charts-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:18px;
+}
+.chart-card{
+  background:#fff;
+  border:1px solid var(--line2);
+  border-radius:24px;
+  box-shadow:0 10px 24px rgba(7,20,47,.045);
+  overflow:hidden;
+}
+.chart-card-wide{
+  grid-column:1 / -1;
+}
+.chart-card-head{
+  padding:18px 20px;
+  border-bottom:1px solid var(--line2);
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:14px;
+}
+.chart-card-head h3{
+  font-size:17px;
+  letter-spacing:-.02em;
+  font-weight:650;
+}
+.chart-card-head p{
+  color:var(--muted);
+  font-size:12.5px;
+  margin-top:3px;
+}
+.chart-body{
+  padding:18px 20px 20px;
+}
+.chart-legend{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  color:var(--muted);
+  font-size:12px;
+  margin-bottom:14px;
+}
+.chart-legend span{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+}
+.chart-legend i{
+  width:9px;
+  height:9px;
+  border-radius:999px;
+  display:block;
+  background:#20C7D4;
+}
+.chart-bars{
+  display:grid;
+  gap:12px;
+}
+.chart-bar-row{
+  display:grid;
+  grid-template-columns:150px 1fr auto;
+  align-items:center;
+  gap:12px;
+}
+.chart-bar-label{
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.25;
+}
+.chart-bar-track{
+  height:12px;
+  border-radius:999px;
+  background:#EEF7F8;
+  overflow:hidden;
+}
+.chart-bar-fill{
+  height:100%;
+  border-radius:999px;
+  background:#20C7D4;
+  min-width:4px;
+}
+.chart-bar-value{
+  color:var(--navy);
+  font-size:13px;
+  font-weight:560;
+  min-width:44px;
+  text-align:right;
+}
+.funnel-row{
+  display:grid;
+  grid-template-columns:150px 1fr 86px;
+  align-items:center;
+  gap:12px;
+}
+.funnel-percent{
+  color:var(--muted);
+  font-size:12px;
+  text-align:right;
+}
+.chart-provider-controls{
+  display:grid;
+  grid-template-columns:1.2fr .8fr 1fr;
+  gap:10px;
+  margin-bottom:16px;
+}
+.chart-provider-controls label{
+  display:block;
+  color:var(--muted);
+  font-size:11px;
+  font-weight:600;
+  margin-bottom:5px;
+}
+.chart-provider-controls input,
+.chart-provider-controls select{
+  width:100%;
+  min-height:38px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:#fff;
+  padding:0 11px;
+  color:var(--navy);
+  font-size:13px;
+  outline:none;
+}
+.provider-chart .chart-bar-track{
+  background:rgba(255,138,91,.10);
+}
+.provider-chart .chart-bar-fill{
+  background:var(--coral);
+}
+.provider-chart .chart-card-head h3,
+.provider-chart .chart-bar-value{
+  color:var(--navy);
+}
+.provider-chart .chart-legend i{
+  background:var(--coral);
+}
+.provider-chart .dashboard-metric-view{
+  color:var(--coral);
+  white-space:nowrap;
+}
+.chart-provider-row{
+  grid-template-columns:210px 1fr auto auto;
+}
+.chart-empty{
+  border:1px dashed var(--line);
+  border-radius:16px;
+  padding:18px;
+  color:var(--muted);
+  font-size:14px;
+  background:#F8FAFC;
+}
+@media(max-width:1100px){
+  .dashboard-charts-grid{
+    grid-template-columns:1fr;
+  }
+  .chart-card-wide{
+    grid-column:auto;
+  }
+}
+@media(max-width:760px){
+  .chart-bar-row,
+  .funnel-row,
+  .chart-provider-row{
+    grid-template-columns:1fr;
+    gap:7px;
+  }
+  .chart-bar-value,
+  .funnel-percent{
+    text-align:left;
+  }
+  .chart-provider-controls{
+    grid-template-columns:1fr;
+  }
+}
+
+
+/* Corrección dashboard: financiero 3x2 y gráfico médico estable */
+#dashboard .financial-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:16px;
+}
+
+#dashboard .provider-chart .chart-body{
+  min-height:280px;
+}
+
+#dashboard .provider-chart .chart-bars{
+  min-height:120px;
+}
+
+#dashboard .provider-chart{
+  min-height:360px;
+}
+
+@media(max-width:980px){
+  #dashboard .financial-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+
+@media(max-width:640px){
+  #dashboard .financial-grid{
+    grid-template-columns:1fr;
+  }
+}
+
+
+/* Gráfico doctor/clínica: render parcial y altura estable */
+#dashboard .provider-chart .chart-body{
+  min-height:280px;
+}
+
+#dashboard .provider-chart .chart-bars{
+  min-height:140px;
+}
+
+#providerDistributionChartBody{
+  min-height:160px;
+}
+
+
+/* Nota discreta del gráfico de red médica */
+.provider-chart-note{
+  color:var(--muted);
+  font-size:12px;
+  margin:0 0 12px;
+  line-height:1.35;
+}
+
+
+/* Dashboard: conversión, SLA y prioridad accionable */
+.dashboard-insights-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:18px;
+  margin-top:24px;
+}
+.insight-card{
+  background:#fff;
+  border:1px solid var(--line2);
+  border-radius:24px;
+  box-shadow:0 10px 24px rgba(7,20,47,.045);
+  overflow:hidden;
+}
+.insight-card-head{
+  padding:18px 20px;
+  border-bottom:1px solid var(--line2);
+}
+.insight-card-head h3{
+  font-size:17px;
+  letter-spacing:-.02em;
+  font-weight:650;
+}
+.insight-card-head p{
+  color:var(--muted);
+  font-size:12.5px;
+  margin-top:3px;
+}
+.insight-list{
+  padding:14px 20px 18px;
+  display:grid;
+  gap:10px;
+}
+.insight-row{
+  display:grid;
+  grid-template-columns:1fr auto;
+  align-items:center;
+  gap:14px;
+  padding:10px 0;
+  border-bottom:1px solid var(--line2);
+}
+.insight-row:last-child{border-bottom:0;}
+.insight-row span{
+  color:var(--muted);
+  font-size:13.5px;
+}
+.insight-row strong{
+  color:var(--navy);
+  font-size:18px;
+  font-weight:620;
+}
+.priority-item{
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  align-items:center;
+  gap:12px;
+}
+.priority-owner{
+  display:block;
+  color:var(--muted);
+  font-size:12px;
+  margin-top:3px;
+}
+.priority-action{
+  border:0;
+  background:transparent;
+  color:#20C7D4;
+  font-size:12px;
+  font-weight:650;
+  cursor:pointer;
+  padding:0;
+  white-space:nowrap;
+}
+.priority-action.provider-action{color:var(--coral);}
+.priority-action:hover{text-decoration:underline;}
+.activity-list{
+  display:grid;
+  gap:10px;
+}
+.activity-card{
+  border:1px solid var(--line2);
+  border-radius:16px;
+  padding:12px 14px;
+  background:#fff;
+  display:grid;
+  gap:3px;
+}
+.activity-card strong{
+  color:var(--navy);
+  font-size:13.5px;
+  font-weight:650;
+}
+.activity-card span{
+  color:var(--muted);
+  font-size:12.5px;
+  line-height:1.35;
+}
+@media(max-width:980px){
+  .dashboard-insights-grid{grid-template-columns:1fr;}
+}
+
+
+/* Dashboard: mini-cards visuales para conversión y SLA */
+.insight-metric-grid{
+  padding:18px 20px 20px;
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
+}
+
+.insight-metric-card{
+  border:1px solid var(--line2);
+  border-radius:18px;
+  background:linear-gradient(180deg,#fff 0%,#FBFEFF 100%);
+  padding:16px;
+  min-height:118px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  gap:10px;
+}
+
+.insight-metric-value{
+  color:var(--navy);
+  font-size:31px;
+  line-height:1;
+  font-weight:620;
+  letter-spacing:-.04em;
+}
+
+.insight-metric-label{
+  color:var(--muted);
+  font-size:12.5px;
+  line-height:1.35;
+}
+
+.insight-metric-action{
+  align-self:flex-start;
+  border:0;
+  background:rgba(32,199,212,.10);
+  color:#0B7F8B;
+  border-radius:999px;
+  padding:7px 10px;
+  font-size:11.5px;
+  font-weight:650;
+  cursor:pointer;
+}
+
+.insight-metric-action:hover{
+  background:rgba(32,199,212,.16);
+}
+
+.sla-modal-list{
+  display:grid;
+  gap:10px;
+}
+
+.sla-modal-item{
+  border:1px solid var(--line2);
+  border-radius:16px;
+  padding:13px 14px;
+  background:#fff;
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:12px;
+  align-items:center;
+}
+
+.sla-modal-item strong{
+  color:var(--navy);
+  font-size:14px;
+  font-weight:650;
+}
+
+.sla-modal-meta{
+  display:block;
+  color:var(--muted);
+  font-size:12.5px;
+  margin-top:4px;
+  line-height:1.35;
+}
+
+@media(max-width:980px){
+  .insight-metric-grid{
+    grid-template-columns:1fr;
+  }
+  .sla-modal-item{
+    grid-template-columns:1fr;
+  }
+}
+
+
+/* Dashboard: Conversión y SLA compactos */
+.insight-compact-list{
+  padding:16px 20px 18px;
+  display:grid;
+  gap:14px;
+}
+
+.insight-compact-row{
+  display:grid;
+  gap:7px;
+  padding-bottom:12px;
+  border-bottom:1px solid var(--line2);
+}
+
+.insight-compact-row:last-child{
+  border-bottom:0;
+  padding-bottom:0;
+}
+
+.insight-compact-head{
+  display:grid;
+  grid-template-columns:1fr auto;
+  align-items:center;
+  gap:12px;
+}
+
+.insight-compact-label{
+  color:var(--muted);
+  font-size:13.5px;
+  line-height:1.35;
+}
+
+.insight-compact-value{
+  color:var(--navy);
+  font-size:20px;
+  line-height:1;
+  font-weight:620;
+  letter-spacing:-.025em;
+  white-space:nowrap;
+}
+
+.insight-progress-track{
+  height:7px;
+  border-radius:999px;
+  background:#EEF7F8;
+  overflow:hidden;
+}
+
+.insight-progress-fill{
+  height:100%;
+  border-radius:999px;
+  background:#20C7D4;
+  min-width:3px;
+}
+
+.insight-sla-row{
+  display:grid;
+  grid-template-columns:1fr auto auto;
+  align-items:center;
+  gap:10px;
+  padding:13px 0;
+  border-bottom:1px solid var(--line2);
+}
+
+.insight-sla-row:last-child{
+  border-bottom:0;
+}
+
+.insight-inline-action{
+  border:0;
+  background:transparent;
+  color:#0B94A3;
+  font-size:12px;
+  font-weight:650;
+  cursor:pointer;
+  padding:0;
+  white-space:nowrap;
+}
+
+.insight-inline-action:hover{
+  text-decoration:underline;
+}
+
+@media(max-width:720px){
+  .insight-sla-row{
+    grid-template-columns:1fr auto;
+  }
+  .insight-inline-action{
+    grid-column:1 / -1;
+    justify-self:start;
+  }
+}
+
+
+/* Dashboard: usar aqua Pulzzo en Conversión y SLA */
+.insight-progress-fill{
+  background:var(--aqua);
+}
+
+.insight-inline-action{
+  color:var(--aqua);
+}
+
+.insight-progress-track{
+  background:rgba(32,199,212,.10);
+}
+
+
+/* Prioridad operativa: acento naranja para doctores, clínicas y hospitales */
+.priority-dot.provider-dot{
+  background:var(--coral);
+  box-shadow:0 0 0 8px rgba(255,138,91,.12);
+}
+
 </style>
+
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+CiAgPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTYiIGZpbGw9IiMyMEM3RDQiLz4KICA8cGF0aCBkPSJNMjAgNDdWMTdoMTcuMmM3LjYgMCAxMi44IDQuNiAxMi44IDExLjZTNDQuOCA0MC4zIDM3LjIgNDAuM0gyOVY0N2gtOXptOS0xNC41aDcuNGMyLjkgMCA0LjctMS41IDQuNy0zLjkgMC0yLjUtMS44LTQtNC43LTRIMjl2Ny45eiIgZmlsbD0iIzA2MTQyRiIvPgo8L3N2Zz4=">
+  <link rel="shortcut icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+CiAgPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTYiIGZpbGw9IiMyMEM3RDQiLz4KICA8cGF0aCBkPSJNMjAgNDdWMTdoMTcuMmM3LjYgMCAxMi44IDQuNiAxMi44IDExLjZTNDQuOCA0MC4zIDM3LjIgNDAuM0gyOVY0N2gtOXptOS0xNC41aDcuNGMyLjkgMCA0LjctMS41IDQuNy0zLjkgMC0yLjUtMS44LTQtNC43LTRIMjl2Ny45eiIgZmlsbD0iIzA2MTQyRiIvPgo8L3N2Zz4=">
+
 </head>
 <body>
 
@@ -152,7 +1217,13 @@
 
 <div id="appView" class="app hidden">
   <aside id="sidebar" class="sidebar">
-    <div class="side-brand"><span class="brand-mark">P</span><span>pulzzo</span></div>
+    <div class="side-brand" aria-label="Pulzzo">
+      <picture>
+        <source srcset="assets/images/logo-pulzzo.webp" type="image/webp">
+        <img src="assets/images/logo-pulzzo.png" alt="Pulzzo" class="brand-symbol">
+      </picture>
+      <span class="brand-word">pulzzo</span>
+    </div>
     <span class="internal-pill">Backoffice operativo</span>
     <nav class="nav" id="nav"></nav>
     <div class="side-footer">
@@ -211,6 +1282,9 @@ const permissions={
  readonly:[]
 };
 let session=null, currentView='dashboard', selectedPatientId='APP-PUL-1001', selectedProviderId='MED-001', patientTab='resumen', providerTab='resumen';
+let dashboardFilters={period:'month',from:'2026-06-01',to:'2026-07-01',visibleTo:'2026-06-30',view:'general'};
+let providerChartFilters={search:'',type:'all',metric:'interested'};
+
 const baseState=()=>({
  patients:[
   {id:'APP-PUL-1001',patient:{fullName:'Ana Sofía Martínez',email:'ana.sofia.demo@pulzzo.mx',phone:'55 0000 1001',curp:'MASA930101MDFRNN01',rfc:'MASA930101AB1',address:'Amsterdam 120, Hipódromo, CDMX',housingStatus:'Renta',incomeMonthly:56000,incomeType:'Nómina'},application:{applicationId:'APP-PUL-1001',applicationStatus:'en_evaluacion',stage:'Evaluación',requestedAmount:85000,procedureCost:85000,procedure:'Rinoplastia',specialties:['Cirugía plástica'],procedures:['Rinoplastia'],when:'En 30 días',doctorSource:'Ya tengo doctor',doctorName:'Dra. Laura Méndez',doctorWhatsApp:'55 1000 2000',doctorState:'CDMX',procedureProviderAssignments:{'Rinoplastia':'Dra. Laura Méndez'},procedureProviderContacts:{'Rinoplastia':'55 1000 2000'},procedureCosts:{'Rinoplastia':85000},forWhom:'Titular',geoDone:true,geolocation:{lat:19.412,lng:-99.174,status:'permission_granted',capturedAt:'2026-05-29 11:20'},identityDone:true,incomeDone:true,documentsDone:false,creditAuthConfirmed:true,creditAuthDate:'2026-05-29',creditAuthValidUntil:'2029-05-29',creditAuthReusable:false,bureauAuthorizationStatus:'authorized',requiresBureauNip:false,referencesSaved:false,offerReady:false,offerAccepted:false,offerRejected:false,contractReady:false,contractSigned:false,preferredPaymentDay:null,paymentFrequency:null,initialPaymentRequired:true,initialInstallments:3,initialPaymentPaid:false,doctorPaymentPaid:false,amortizationReady:false,denied:false,pulzzoRejected:false,deniedNoReapply:false,reapplyAllowed:false,reapplyBlocked:false,previousApplications:[]},documents:docs('patient',['INE frente','INE reverso','Video-selfie','Comprobante domicilio','Recibos nómina'],['approved','approved','approved','pending','pending']),offer:null,timeline:events(['Solicitud creada','Geolocalización validada','Buró autorizado','INE frente aprobada','INE reverso aprobada']),notes:[]},
@@ -246,8 +1320,764 @@ function initApp(){renderNav();$('#sideUser').textContent=session.name;$('#sideR
 function renderNav(){const nav=$('#nav');nav.innerHTML=navItems.filter(n=>n.roles.includes(session.role)).map(n=>`<button class="nav-btn ${n.id===currentView?'active':''}" data-id="${n.id}"><span class="nav-icon">${n.icon}</span>${n.label}</button>`).join('');nav.onclick=e=>{const b=e.target.closest('.nav-btn');if(b)setView(b.dataset.id)}}
 function render(){if(!session)return; if(currentView==='dashboard')renderDashboard(); if(currentView==='patients')renderPatients(); if(currentView==='providers')renderProviders(); if(currentView==='documents')renderDocuments(); if(currentView==='corrections')renderCorrections(); if(currentView==='offers')renderOffers(); if(currentView==='history')renderHistory(); if(currentView==='settings')renderSettings();}
 function kpis(){const p=db.patients, providers=db.providers, allDocs=[...p.flatMap(x=>x.documents),...providers.flatMap(x=>x.files)];return {new:p.filter(x=>['en_evaluacion','correccion_pendiente'].includes(x.application.applicationStatus)).length,evaluation:p.filter(x=>x.application.applicationStatus.includes('evaluacion')).length,corrections:allDocs.filter(d=>d.status==='correction_required').length,rejectedDocs:allDocs.filter(d=>d.status==='rejected').length,offersSent:p.filter(x=>x.application.offerReady&&!x.application.offerAccepted).length,offersAccepted:p.filter(x=>x.application.offerAccepted).length,providersPending:providers.filter(x=>x.status!=='aprobado').length,total:p.reduce((a,x)=>a+Number(x.application.requestedAmount||0),0)}}
-function renderDashboard(){const k=kpis();$('#dashboard').innerHTML=`<div class="section-head"><div><h2>Dashboard ejecutivo</h2><p>KPIs simulados conectados a las bandejas. Cualquier acción dentro del demo actualiza estos indicadores.</p></div><span class="pill pill-coral">Ambiente interno demo</span></div><div class="kpi-grid">${[
-['Solicitudes nuevas',k.new,'En operación'],['En evaluación',k.evaluation,''],['Correcciones pendientes',k.corrections,'Paciente + Provider'],['Documentos rechazados',k.rejectedDocs,'Requieren acción'],['Ofertas enviadas',k.offersSent,'Pendientes de cliente'],['Ofertas aceptadas',k.offersAccepted,'Contrato / pago'],['Doctores pendientes',k.providersPending,''],['Monto solicitado',fmtMoney(k.total),'Total mock'],['Tiempo prom. revisión','18h','Simulado'],['Alertas operativas',k.corrections+k.rejectedDocs,'Prioridad']].map(x=>`<div class="kpi"><small>${x[0]}</small><strong>${x[1]}</strong><span>${x[2]}</span></div>`).join('')}</div><div class="grid-2"><div class="card"><div class="card-head"><h3>Alertas operativas</h3><button class="btn btn-sm btn-secondary" onclick="setView('corrections')">Ver correcciones</button></div><div class="card-body"><div class="alert-list">${alerts().join('')}</div></div></div><div class="card"><div class="card-head"><h3>Actividad reciente</h3><button class="btn btn-sm btn-secondary" onclick="setView('history')">Ver historial</button></div><div class="card-body"><div class="timeline">${db.audit.slice(0,6).map(eventHtml).join('')}</div></div></div></div>`}
+
+function dashboardDate(value){
+  if(!value)return null;
+  if(value instanceof Date&&!isNaN(value))return value;
+  const s=String(value).trim();
+  if(!s)return null;
+  if(/^\d{4}-\d{2}-\d{2}/.test(s))return new Date(s.slice(0,10)+'T12:00:00');
+  if(/^\d{4}-\d{2}-\d{2}\s/.test(s))return new Date(s.slice(0,10)+'T12:00:00');
+  const m=s.match(/(\d{1,2})\s+([a-záéíóúñ]+)\s+(\d{4})/i);
+  if(m){
+    const months={ene:0,enero:0,feb:1,febrero:1,mar:2,marzo:2,abr:3,abril:3,may:4,mayo:4,jun:5,junio:5,jul:6,julio:6,ago:7,agosto:7,sep:8,sept:8,septiembre:8,oct:9,octubre:9,nov:10,noviembre:10,dic:11,diciembre:11};
+    const key=m[2].toLowerCase().replace('.','');
+    const mon=months[key]??months[key.slice(0,3)];
+    if(mon!==undefined)return new Date(Number(m[3]),mon,Number(m[1]),12,0,0);
+  }
+  const d=new Date(s);
+  return isNaN(d)?null:d;
+}
+function dashboardDemoDateForIndex(index){
+  const dates=['2026-06-01','2026-06-02','2026-06-03','2026-06-04','2026-06-05','2026-06-06','2026-06-07','2026-06-08'];
+  return new Date((dates[index%dates.length])+'T12:00:00');
+}
+function dashboardEntityDate(entity,index=0){
+  const candidates=[
+    entity?.application?.creditAuthDate,
+    entity?.application?.offerRejectedAt,
+    entity?.submittedAt,
+    entity?.reviewedAt,
+    entity?.correctionRequestedAt,
+    entity?.timeline?.[0]?.at,
+    entity?.at
+  ];
+  for(const c of candidates){
+    const d=dashboardDate(c);
+    if(d)return d;
+  }
+  return dashboardDemoDateForIndex(index);
+}
+function dashboardAddDays(date,days){
+  const d=new Date(date);
+  d.setDate(d.getDate()+days);
+  return d;
+}
+function dashboardIso(date){
+  return new Date(date).toISOString().slice(0,10);
+}
+function dashboardLastVisibleDay(exclusiveTo){
+  return dashboardIso(dashboardAddDays(new Date(exclusiveTo+'T00:00:00'),-1));
+}
+function dashboardDemoDateForIndex(index){
+  const dates=['2026-06-01','2026-06-02','2026-06-03','2026-06-04','2026-06-05','2026-06-06','2026-06-07'];
+  return new Date((dates[index%dates.length])+'T12:00:00');
+}
+function dashboardRange(){
+  return {
+    from:new Date((dashboardFilters.from||'2026-06-01')+'T00:00:00'),
+    to:new Date((dashboardFilters.to||'2026-07-01')+'T00:00:00')
+  };
+}
+function isWithinDashboardRange(dateValue){
+  const d=dashboardDate(dateValue)||dateValue;
+  if(!(d instanceof Date)||isNaN(d))return true;
+  const r=dashboardRange();
+  return d>=r.from&&d<r.to;
+}
+function setDashboardPeriod(period){
+  let from='2026-06-01';
+  let to='2026-06-02';
+  let visibleTo='2026-06-01';
+
+  if(period==='today'){
+    from='2026-06-01';
+    to='2026-06-02';
+    visibleTo='2026-06-01';
+  }else if(period==='week'){
+    from='2026-06-01';
+    to='2026-06-08';
+    visibleTo='2026-06-07';
+  }else if(period==='month'){
+    from='2026-06-01';
+    to='2026-07-01';
+    visibleTo='2026-06-30';
+  }else if(period==='year'){
+    from='2026-01-01';
+    to='2027-01-01';
+    visibleTo='2026-12-31';
+  }else{
+    dashboardFilters.period='custom';
+    dashboardFilters.visibleTo=dashboardLastVisibleDay(dashboardFilters.to||'2026-06-02');
+    renderDashboard();
+    return;
+  }
+
+  dashboardFilters.period=period;
+  dashboardFilters.from=from;
+  dashboardFilters.to=to;
+  dashboardFilters.visibleTo=visibleTo;
+  renderDashboard();
+}
+function updateDashboardDate(which,value){
+  dashboardFilters[which]=value;
+  dashboardFilters.period='custom';
+  dashboardFilters.visibleTo=which==='to'?dashboardLastVisibleDay(value):dashboardLastVisibleDay(dashboardFilters.to||'2026-06-02');
+  renderDashboard();
+}
+function updateDashboardView(value){
+  dashboardFilters.view=value||'general';
+  renderDashboard();
+}
+function dashboardEntityDate(entity,index=0){
+  const candidates=[
+    entity?.application?.createdAt,
+    entity?.application?.submittedAt,
+    entity?.application?.updatedAt,
+    entity?.application?.creditAuthDate,
+    entity?.application?.offerRejectedAt,
+    entity?.submittedAt,
+    entity?.reviewedAt,
+    entity?.correctionRequestedAt,
+    entity?.timeline?.[0]?.at,
+    entity?.at
+  ];
+  for(const c of candidates){
+    const d=dashboardDate(c);
+    if(d)return d;
+  }
+  return dashboardDemoDateForIndex(index);
+}
+function dashboardFilteredPatients(){
+  const patients=(db.patients||[]);
+  const filtered=patients.filter((p,i)=>isWithinDashboardRange(dashboardEntityDate(p,i)));
+  return filtered.length?filtered:patients;
+}
+function dashboardFilteredProviders(){
+  const providers=(db.providers||[]);
+  const filtered=providers.filter((p,i)=>isWithinDashboardRange(dashboardEntityDate(p,i+20)));
+  return filtered.length?filtered:providers;
+}
+function dashboardFilteredAudit(){
+  const audit=(db.audit||[]);
+  const filtered=audit.filter((a,i)=>isWithinDashboardRange(dashboardDate(a.at)||dashboardDemoDateForIndex(i)));
+  return filtered.length?filtered:audit;
+}
+
+
+function currentPatientStage(patient){
+  const app=patient?.application||{};
+  const offer=patient?.offer||{};
+  const status=String(app.applicationStatus||'');
+  if(app.denied||app.deniedNoReapply||app.reapplyBlocked||status.includes('rejected'))return 'rejected';
+  if(app.contractSigned)return 'contract_signed';
+  if(app.contractReady&&!app.contractSigned)return 'contract_pending_signature';
+  if(app.offerAccepted||offer.status==='aceptada')return 'offer_accepted';
+  if(app.offerRejected||offer.status==='rechazada')return 'offer_rejected_by_client';
+  if(offer.status==='enviada'||status==='oferta_enviada')return 'offer_sent';
+  if(status==='correccion_pendiente')return 'correction_pending';
+  if(['en_evaluacion','aprobada_para_oferta','manual_review'].includes(status))return 'in_review';
+  return 'created';
+}
+function patientIsAdvancedStage(patient){
+  return ['offer_accepted','contract_pending_signature','contract_signed'].includes(currentPatientStage(patient));
+}
+
+function dashboardFinancials(rows){
+  rows=rows||[];
+  const amount=p=>Number(p.offer?.approvedAmount||p.application?.requestedAmount||0);
+  const requested=rows.reduce((a,p)=>a+Number(p.application?.requestedAmount||0),0);
+  const approved=rows.filter(p=>['offer_accepted','contract_pending_signature','contract_signed'].includes(currentPatientStage(p))).reduce((a,p)=>a+amount(p),0);
+  const inProcess=rows.filter(p=>['created','in_review','correction_pending','offer_sent'].includes(currentPatientStage(p))).reduce((a,p)=>a+Number(p.application?.requestedAmount||0),0);
+  const rejected=rows.filter(p=>['rejected','offer_rejected_by_client'].includes(currentPatientStage(p))).reduce((a,p)=>a+Number(p.application?.requestedAmount||0),0);
+  const accepted=rows.filter(p=>['offer_accepted','contract_pending_signature','contract_signed'].includes(currentPatientStage(p))).reduce((a,p)=>a+amount(p),0);
+  const doctorPaymentPendingAmount=rows.filter(p=>patientIsAdvancedStage(p)&&!p.application?.doctorPaymentPaid).reduce((a,p)=>a+amount(p),0);
+  return {requested,approved,inProcess,rejected,accepted,doctorPaymentPendingAmount};
+}
+function dashboardPatientMetrics(patients){
+  const p=patients||[];
+  const stage=x=>currentPatientStage(x);
+  return [
+    ['En evaluación',p.filter(x=>stage(x)==='in_review').length,'stage_in_review'],
+    ['Corrección pendiente',p.filter(x=>stage(x)==='correction_pending').length,'stage_correction_pending'],
+    ['Oferta enviada',p.filter(x=>stage(x)==='offer_sent').length,'stage_offer_sent'],
+    ['Oferta aceptada',p.filter(x=>stage(x)==='offer_accepted').length,'stage_offer_accepted'],
+    ['Oferta rechazada por cliente',p.filter(x=>stage(x)==='offer_rejected_by_client').length,'stage_offer_rejected_by_client'],
+    ['Contrato pendiente de firma',p.filter(x=>stage(x)==='contract_pending_signature').length,'stage_contract_pending_signature'],
+    ['Contrato firmado',p.filter(x=>stage(x)==='contract_signed').length,'stage_contract_signed'],
+    ['Rechazada por Pulzzo',p.filter(x=>stage(x)==='rejected').length,'stage_rejected'],
+    ['Buró vigente reutilizado',p.filter(x=>x.application?.creditAuthReusable).length,'flag_bureau_reused'],
+    ['Buró vencido / requiere NIP',p.filter(x=>x.application?.requiresBureauNip).length,'flag_bureau_requires_nip'],
+    ['Sin pago inicial',p.filter(x=>patientIsAdvancedStage(x)&&x.application?.initialPaymentRequired!==true).length,'flag_no_initial_payment'],
+    ['Pago inicial pendiente',p.filter(x=>x.application?.initialPaymentRequired&&!x.application?.initialPaymentPaid&&patientIsAdvancedStage(x)).length,'flag_initial_payment_pending'],
+    ['Pago inicial completado',p.filter(x=>x.application?.initialPaymentRequired&&x.application?.initialPaymentPaid&&patientIsAdvancedStage(x)).length,'flag_initial_payment_completed'],
+    ['Pago a doctor pendiente',p.filter(x=>patientIsAdvancedStage(x)&&!x.application?.doctorPaymentPaid).length,'flag_doctor_payment_pending']
+  ];
+}
+function dashboardPatientMetricGroups(patients){
+  const rows=dashboardPatientMetrics(patients);
+  const pick=(names)=>rows.filter(r=>names.includes(r[0]));
+  return [
+    {title:'Estado actual',rows:pick(['En evaluación','Corrección pendiente','Oferta enviada','Oferta aceptada','Oferta rechazada por cliente','Contrato pendiente de firma','Contrato firmado','Rechazada por Pulzzo'])},
+    {title:'Banderas operativas',rows:pick(['Buró vigente reutilizado','Buró vencido / requiere NIP','Sin pago inicial','Pago inicial pendiente','Pago inicial completado','Pago a doctor pendiente'])}
+  ].filter(g=>g.rows.length);
+}
+function dashboardProviderMetricGroups(providers,patients){
+  const rows=dashboardProviderMetrics(providers,patients);
+  const pick=(names)=>rows.filter(r=>names.includes(r[0]));
+  return [
+    {title:'Perfiles',rows:pick(['Perfiles en revisión','Perfiles aprobados','Doctores/clínicas activos','Perfiles rechazados','Corrección requerida'])},
+    {title:'Operación médica',rows:pick(['Pacientes interesados','Pacientes por operar','Procedimientos con doctor asignado','Procedimientos pagados','Pago a doctor pendiente'])}
+  ].filter(g=>g.rows.length);
+}
+function dashboardPatientMetricGroupsFallback(){return []}
+function dashboardProviderMetricGroupsFallback(){return []}
+
+function dashboardProviderMetrics(providers,patients){
+  providers=providers||[];patients=patients||[];
+  const files=providers.flatMap(x=>x.files||[]);
+  const linkedInterested=patients.filter(p=>p.application?.doctorName&&p.application?.applicationStatus!=='oferta_aceptada').length;
+  const linkedToOperate=patients.filter(p=>p.application?.offerAccepted||p.offer?.status==='aceptada').length;
+  return [
+    ['Perfiles en revisión',providers.filter(x=>x.status==='perfil_en_revision').length,'provider_review'],
+    ['Perfiles aprobados',providers.filter(x=>x.status==='aprobado').length,'provider_approved'],
+    ['Doctores/clínicas activos',providers.filter(x=>x.status==='aprobado').length,'provider_active'],
+    ['Perfiles rechazados',providers.filter(x=>x.status==='rechazado').length,'provider_rejected'],
+    ['Corrección requerida',providers.filter(x=>x.status==='correccion_requerida'||(x.files||[]).some(d=>d.status==='correction_required')).length,'provider_correction'],
+    ['Fiscal/banco pendiente',providers.filter(x=>String(x.status||'').includes('fiscal')).length,'provider_fiscal_pending'],
+    ['Docs profesionales pendientes',files.filter(d=>d.status==='pending'||d.status==='correction_required').length,'provider_docs_pending'],
+    ['Docs profesionales aprobados',files.filter(d=>d.status==='approved').length,'provider_docs_approved'],
+    ['Docs profesionales rechazados',files.filter(d=>d.status==='rejected').length,'provider_docs_rejected'],
+    ['CSF pendiente / corrección',files.filter(d=>String(d.type||'').toLowerCase().includes('csf')&&['pending','correction_required','rejected'].includes(d.status)).length,'provider_csf_pending'],
+    ['CLABE pendiente / corrección',providers.filter(x=>!x.fiscal?.clabe||String(x.status||'').includes('fiscal')).length,'provider_clabe_pending'],
+    ['COFEPRIS pendiente',files.filter(d=>String(d.type||'').toLowerCase().includes('cofepris')&&d.status!=='approved').length,'provider_cofepris_pending'],
+    ['Poderes RL pendientes',files.filter(d=>String(d.type||'').toLowerCase().includes('poder')&&d.status!=='approved').length,'provider_powers_pending'],
+    ['Responsable sanitario pendiente',providers.filter(x=>x.profile?.accountType==='Clínica u hospital'&&!x.clinicDocs?.responsibleName).length,'provider_sanitary_pending'],
+    ['Pacientes interesados',linkedInterested,'provider_interested_patients'],
+    ['Pacientes por operar',linkedToOperate,'provider_to_operate'],
+    ['Procedimientos con doctor asignado',patients.filter(p=>p.application?.doctorName&&p.application?.doctorName!=='Pendiente').reduce((sum,p)=>sum+((p.application?.procedures||[]).length||1),0),'provider_assigned_procedures'],
+    ['Procedimientos pagados',patients.filter(p=>p.application?.doctorPaymentPaid).reduce((sum,p)=>sum+((p.application?.procedures||[]).length||1),0),'provider_paid_procedures'],
+    ['Pago a doctor pendiente',patients.filter(p=>(p.application?.offerAccepted||p.offer?.status==='aceptada')&&!p.application?.doctorPaymentPaid).length,'provider_doctor_payment_pending']
+  ];
+}
+function dashboardUrgentItems(patients,providers){
+  const items=[];
+  (patients||[]).forEach(p=>{
+    const name=p.patient?.fullName||p.id;
+    if((p.documents||[]).some(d=>d.status==='rejected'))items.push({kind:'patient',id:p.id,title:name,meta:'Documento rechazado o ilegible'});
+    if(currentPatientStage(p)==='correction_pending')items.push({kind:'patient',id:p.id,title:name,meta:'Corrección pendiente'});
+    if(p.application?.requiresBureauNip)items.push({kind:'patient',id:p.id,title:name,meta:'Buró vencido / requiere NIP'});
+    if(patientIsAdvancedStage(p)&&!p.application?.doctorPaymentPaid)items.push({kind:'patient',id:p.id,title:name,meta:'Pago a doctor pendiente'});
+    if(currentPatientStage(p)==='contract_pending_signature')items.push({kind:'patient',id:p.id,title:name,meta:'Contrato pendiente de firma'});
+    if(p.application?.reapplyBlocked)items.push({kind:'patient',id:p.id,title:name,meta:'Nueva solicitud bloqueada'});
+  });
+  (providers||[]).forEach(pr=>{
+    const name=providerDisplayName(pr);
+    if(String(pr.status||'').includes('fiscal'))items.push({kind:'provider',id:pr.id,title:name,meta:'Fiscal/banco pendiente'});
+    if(pr.status==='correccion_requerida')items.push({kind:'provider',id:pr.id,title:name,meta:'Corrección requerida'});
+    if((pr.files||[]).some(d=>d.status==='correction_required'))items.push({kind:'provider',id:pr.id,title:name,meta:'CSF clínica · Corrección requerida'});
+  });
+  return items.slice(0,8);
+}
+function dashboardActivityLogs(audit){
+  const view=dashboardFilters.view;
+  return (audit||[]).filter(e=>{
+    const entity=String(e.entity||'').toLowerCase();
+    if(view==='patients')return entity.includes('app')||entity.includes('pulzzo demo')||entity.includes('paciente');
+    if(view==='providers')return entity.includes('med')||entity.includes('clínica')||entity.includes('doctor')||entity.includes('pulzzo demo');
+    if(view==='operation')return true;
+    return true;
+  }).slice(0,7);
+}
+
+function dashboardPatientSummary(p){
+  return {
+    id:p.id,
+    kind:'patient',
+    title:p.patient?.fullName||p.id,
+    meta:`${p.id} · ${p.application?.procedure||'Sin procedimiento'} · ${fmtMoney(p.application?.requestedAmount||0)} · ${labelStatus(p.application?.applicationStatus||'')}`
+  };
+}
+function dashboardProviderSummary(p){
+  return {
+    id:p.id,
+    kind:'provider',
+    title:[p.profile?.prefix,p.profile?.name].filter(Boolean).join(' ')||p.id,
+    meta:`${p.profile?.accountType||'Provider'} · ${p.profile?.city||''} · ${labelStatus(p.status||'')}`
+  };
+}
+function dashboardMetricRecords(metricKey){
+  const patients=dashboardFilteredPatients?dashboardFilteredPatients():db.patients||[];
+  const providers=dashboardFilteredProviders?dashboardFilteredProviders():db.providers||[];
+  const patientFilter={
+    stage_in_review:p=>currentPatientStage(p)==='in_review',
+    stage_correction_pending:p=>currentPatientStage(p)==='correction_pending',
+    stage_offer_sent:p=>currentPatientStage(p)==='offer_sent',
+    stage_offer_accepted:p=>currentPatientStage(p)==='offer_accepted',
+    stage_offer_rejected_by_client:p=>currentPatientStage(p)==='offer_rejected_by_client',
+    stage_contract_pending_signature:p=>currentPatientStage(p)==='contract_pending_signature',
+    stage_contract_signed:p=>currentPatientStage(p)==='contract_signed',
+    stage_rejected:p=>currentPatientStage(p)==='rejected',
+    flag_bureau_reused:p=>p.application?.creditAuthReusable,
+    flag_bureau_requires_nip:p=>p.application?.requiresBureauNip,
+    flag_no_initial_payment:p=>patientIsAdvancedStage(p)&&p.application?.initialPaymentRequired!==true,
+    flag_initial_payment_pending:p=>p.application?.initialPaymentRequired&&!p.application?.initialPaymentPaid&&patientIsAdvancedStage(p),
+    flag_initial_payment_completed:p=>p.application?.initialPaymentRequired&&p.application?.initialPaymentPaid&&patientIsAdvancedStage(p),
+    flag_doctor_payment_pending:p=>patientIsAdvancedStage(p)&&!p.application?.doctorPaymentPaid,
+};
+  const providerFilter={
+    provider_review:p=>p.status==='perfil_en_revision',
+    provider_approved:p=>p.status==='aprobado',
+    provider_active:p=>p.status==='aprobado',
+    provider_rejected:p=>p.status==='rechazado',
+    provider_correction:p=>p.status==='correccion_requerida'||(p.files||[]).some(d=>d.status==='correction_required'),
+    provider_fiscal_pending:p=>String(p.status||'').includes('fiscal'),
+    provider_docs_pending:p=>(p.files||[]).some(d=>d.status==='pending'||d.status==='correction_required'),
+    provider_docs_approved:p=>(p.files||[]).some(d=>d.status==='approved'),
+    provider_docs_rejected:p=>(p.files||[]).some(d=>d.status==='rejected'),
+    provider_csf_pending:p=>(p.files||[]).some(d=>String(d.type||'').toLowerCase().includes('csf')&&['pending','correction_required','rejected'].includes(d.status)),
+    provider_clabe_pending:p=>!p.fiscal?.clabe||String(p.status||'').includes('fiscal'),
+    provider_cofepris_pending:p=>(p.files||[]).some(d=>String(d.type||'').toLowerCase().includes('cofepris')&&d.status!=='approved'),
+    provider_powers_pending:p=>(p.files||[]).some(d=>String(d.type||'').toLowerCase().includes('poder')&&d.status!=='approved'),
+    provider_sanitary_pending:p=>p.profile?.accountType==='Clínica u hospital'&&!p.clinicDocs?.responsibleName
+  };
+  if(patientFilter[metricKey])return patients.filter(patientFilter[metricKey]).map(dashboardPatientSummary);
+  if(providerFilter[metricKey])return providers.filter(providerFilter[metricKey]).map(dashboardProviderSummary);
+  return [];
+}
+function openDashboardMetricDetail(metricKey,metricLabel,source){
+  const records=dashboardMetricRecords(metricKey);
+  const period=`${dashboardFilters?.from||''} a ${dashboardFilters?.visibleTo||dashboardFilters?.to||''}`;
+  const body=records.length?records.map(r=>`
+    <div class="dashboard-detail-item">
+      <div>
+        <strong>${r.title}</strong>
+        <span>${r.meta}</span>
+      </div>
+      <button class="btn btn-sm btn-secondary" onclick="openDashboardRecord('${r.kind}','${r.id}')">Abrir detalle</button>
+    </div>`).join(''):`<div class="dashboard-empty">No hay registros para esta métrica en el periodo seleccionado.</div>`;
+  modal(`<div class="modal-head"><div><h3>${metricLabel}</h3><p>Periodo: ${period} · ${records.length} registro${records.length===1?'':'s'}</p></div><button class="x" onclick="closeModal()">×</button></div><div class="modal-body"><div class="dashboard-detail-list">${body}</div></div><div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal()">Cerrar</button></div>`);
+}
+function openDashboardRecord(kind,id){
+  closeModal();
+  if(kind==='patient'){
+    selectedPatientId=id;
+    patientTab='resumen';
+    setView('patients');
+    return;
+  }
+  if(kind==='provider'){
+    selectedProviderId=id;
+    providerTab='resumen';
+    setView('providers');
+  }
+}
+
+
+function dashboardChartMax(rows){
+  return Math.max(1,...rows.map(x=>Number(x.value||0)));
+}
+function dashboardTrendData(patients){
+  patients=patients||[];
+  return [
+    {label:'Creadas',value:patients.length},
+    {label:'Aprobadas',value:patients.filter(p=>['offer_accepted','contract_pending_signature','contract_signed'].includes(currentPatientStage(p))).length},
+    {label:'Rechazadas',value:patients.filter(p=>['rejected','offer_rejected_by_client'].includes(currentPatientStage(p))).length}
+  ];
+}
+function dashboardFunnelData(patients){
+  patients=patients||[];
+  const total=patients.length||0;
+  return [
+    {label:'Solicitud creada',value:total},
+    {label:'En evaluación',value:patients.filter(p=>currentPatientStage(p)==='in_review').length},
+    {label:'Con corrección pendiente',value:patients.filter(p=>currentPatientStage(p)==='correction_pending').length},
+    {label:'Oferta enviada',value:patients.filter(p=>currentPatientStage(p)==='offer_sent').length},
+    {label:'Oferta aceptada',value:patients.filter(p=>currentPatientStage(p)==='offer_accepted').length},
+    {label:'Contrato firmado',value:patients.filter(p=>currentPatientStage(p)==='contract_signed').length},
+    {label:'Lista para operar',value:patients.filter(p=>currentPatientStage(p)==='contract_signed'&&(p.application?.initialPaymentRequired!==true||p.application?.initialPaymentPaid)).length}
+  ].map(x=>({...x,percent:total?Math.round((x.value/total)*100):0}));
+}
+function providerDisplayName(provider){
+  return [provider.profile?.prefix,provider.profile?.name].filter(Boolean).join(' ')||provider.id;
+}
+function providerMatchesPatient(provider,patient){
+  const doctor=String(patient.application?.doctorName||'').toLowerCase();
+  const name=String(provider.profile?.name||'').toLowerCase();
+  const full=providerDisplayName(provider).toLowerCase();
+  if(!doctor)return false;
+  return doctor.includes(name)||full.includes(doctor)||doctor.includes(full)||name.includes(doctor);
+}
+function providerDistributionData(providers,patients){
+  providers=providers||[];
+  patients=patients||[];
+  const search=String(providerChartFilters.search||'').toLowerCase().trim();
+  const type=providerChartFilters.type||'all';
+  const metric=providerChartFilters.metric||'interested';
+
+  let rows=providers.filter(p=>{
+    const name=providerDisplayName(p).toLowerCase();
+    const account=String(p.profile?.accountType||'').toLowerCase();
+    const okSearch=!search||name.includes(search);
+    const okType=type==='all'||(type==='doctor'&&account.includes('doctor'))||(type==='clinic'&&(account.includes('clínica')||account.includes('clinica')||account.includes('hospital')));
+    return okSearch&&okType;
+  }).map((provider,index)=>{
+    const linked=patients.filter(patient=>providerMatchesPatient(provider,patient));
+    let value=0;
+
+    if(metric==='interested')value=linked.filter(p=>!(p.application?.offerAccepted||p.offer?.status==='aceptada')).length;
+    if(metric==='to_operate')value=linked.filter(p=>p.application?.offerAccepted||p.offer?.status==='aceptada').length;
+    if(metric==='assigned_procedures')value=linked.reduce((sum,p)=>sum+((p.application?.procedures||[]).length||1),0);
+    if(metric==='paid_procedures')value=linked.filter(p=>p.application?.doctorPaymentPaid).reduce((sum,p)=>sum+((p.application?.procedures||[]).length||1),0);
+    if(metric==='doctor_payment_pending')value=linked.filter(p=>(p.application?.offerAccepted||p.offer?.status==='aceptada')&&!p.application?.doctorPaymentPaid).length;
+
+    if(!linked.length){
+      const fallback=[3,2,1,1,0,0,0,0,0,0,0,0][index]||0;
+      if(metric==='interested')value=fallback;
+      if(metric==='to_operate')value=Math.max(0,fallback-1);
+      if(metric==='assigned_procedures')value=fallback+1;
+      if(metric==='paid_procedures')value=Math.max(0,fallback-2);
+      if(metric==='doctor_payment_pending')value=Math.max(0,fallback-1);
+    }
+
+    return {provider,value,name:providerDisplayName(provider),type:provider.profile?.accountType||'Médico / clínica'};
+  }).sort((a,b)=>b.value-a.value);
+
+  if(!search)rows=rows.slice(0,10);
+  return rows;
+}
+
+function renderSimpleBars(rows,accent='aqua'){
+  const max=dashboardChartMax(rows);
+  return `<div class="chart-bars">${rows.map(r=>`<div class="chart-bar-row">
+    <div class="chart-bar-label">${r.label}</div>
+    <div class="chart-bar-track"><div class="chart-bar-fill" style="width:${Math.max(4,Math.round((Number(r.value||0)/max)*100))}%"></div></div>
+    <div class="chart-bar-value">${r.value}</div>
+  </div>`).join('')}</div>`;
+}
+function renderFunnel(rows){
+  const max=dashboardChartMax(rows);
+  return `<div class="chart-bars">${rows.map(r=>`<div class="funnel-row">
+    <div class="chart-bar-label">${r.label}</div>
+    <div class="chart-bar-track"><div class="chart-bar-fill" style="width:${Math.max(4,Math.round((Number(r.value||0)/max)*100))}%"></div></div>
+    <div class="funnel-percent">${r.value} · ${r.percent}%</div>
+  </div>`).join('')}</div>`;
+}
+function updateProviderChartFilter(key,value){
+  providerChartFilters[key]=value;
+  renderProviderChartOnly();
+}
+function openProviderFromChart(providerId){
+  selectedProviderId=providerId;
+  providerTab='resumen';
+  setView('providers');
+}
+function renderProviderDistributionChartContent(providers,patients){
+  const rows=providerDistributionData(providers,patients);
+  const search=String(providerChartFilters.search||'').trim();
+  const note=search?`Mostrando resultados para “${search}”.`:'Mostrando Top 10 por métrica seleccionada.';
+  const max=Math.max(1,...rows.map(r=>r.value));
+  const body=rows.length?`<div class="chart-bars">${rows.map(r=>`<div class="chart-bar-row chart-provider-row">
+    <div class="chart-bar-label"><strong>${r.name}</strong><span style="display:block;color:var(--muted);font-size:11px;margin-top:2px">${r.type}</span></div>
+    <div class="chart-bar-track"><div class="chart-bar-fill" style="width:${Math.max(4,Math.round((r.value/max)*100))}%"></div></div>
+    <div class="chart-bar-value">${r.value}</div>
+    <button class="dashboard-metric-view" onclick="openProviderFromChart('${r.provider.id}')">Ver detalle</button>
+  </div>`).join('')}</div>`:`<div class="chart-empty">No hay médicos o clínicas para este filtro.</div>`;
+  return `<div class="chart-legend"><span><i></i>Red médica</span></div><p class="provider-chart-note">${note}</p>${body}`;
+}
+
+function renderProviderChartOnly(){
+  const container=document.getElementById('providerDistributionChartBody');
+  if(!container)return;
+  const patients=dashboardFilteredPatients();
+  const providers=dashboardFilteredProviders();
+  container.innerHTML=renderProviderDistributionChartContent(providers,patients);
+}
+function renderProviderDistributionChart(providers,patients){
+  const metrics=[
+    ['interested','Pacientes interesados'],
+    ['to_operate','Pacientes por operar'],
+    ['assigned_procedures','Procedimientos con doctor asignado'],
+    ['paid_procedures','Procedimientos pagados'],
+    ['doctor_payment_pending','Pago a doctor pendiente']
+  ];
+  return `<section class="chart-card chart-card-wide provider-chart">
+    <div class="chart-card-head"><div><h3>Distribución por doctor / clínica</h3><p>Médicos y clínicas por nombre, tipo y métrica seleccionada.</p></div></div>
+    <div class="chart-body">
+      <div class="chart-provider-controls">
+        <div><label>Buscar doctor o clínica</label><input value="${providerChartFilters.search||''}" oninput="updateProviderChartFilter('search',this.value)" placeholder="Buscar doctor o clínica"></div>
+        <div><label>Tipo</label><select onchange="updateProviderChartFilter('type',this.value)">
+          <option value="all" ${providerChartFilters.type==='all'?'selected':''}>Todos</option>
+          <option value="doctor" ${providerChartFilters.type==='doctor'?'selected':''}>Doctor independiente</option>
+          <option value="clinic" ${providerChartFilters.type==='clinic'?'selected':''}>Clínica / hospital</option>
+        </select></div>
+        <div><label>Métrica</label><select onchange="updateProviderChartFilter('metric',this.value)">
+          ${metrics.map(m=>`<option value="${m[0]}" ${providerChartFilters.metric===m[0]?'selected':''}>${m[1]}</option>`).join('')}
+        </select></div>
+      </div>
+      <div id="providerDistributionChartBody">${renderProviderDistributionChartContent(providers,patients)}</div>
+    </div>
+  </section>`;
+}
+
+function renderDashboardCharts(patients,providers){
+  const view=dashboardFilters.view||'general';
+  if(view==='operation')return '';
+  const showPatient=view==='general'||view==='patients';
+  const showProvider=view==='general'||view==='providers';
+  const trend=dashboardTrendData(patients);
+  const funnel=dashboardFunnelData(patients);
+  return `<section class="dashboard-charts">
+    <div class="dashboard-block-head">
+      <div><h3>Tendencias operativas</h3><p>Visualización simulada del comportamiento operativo en el periodo seleccionado.</p></div>
+    </div>
+    <div class="dashboard-charts-grid">
+      ${showPatient?`<section class="chart-card">
+        <div class="chart-card-head"><div><h3>Evolución de solicitudes</h3><p>Creadas, aprobadas y rechazadas.</p></div></div>
+        <div class="chart-body"><div class="chart-legend"><span><i></i>Pacientes</span></div>${renderSimpleBars(trend)}</div>
+      </section>
+      <section class="chart-card">
+        <div class="chart-card-head"><div><h3>Funnel paciente</h3><p>Conversión desde solicitud hasta operación.</p></div></div>
+        <div class="chart-body">${renderFunnel(funnel)}</div>
+      </section>`:''}
+      ${showProvider?renderProviderDistributionChart(providers,patients):''}
+    </div>
+  </section>`;
+}
+
+
+function dashboardPct(num,den){
+  if(!den)return '0%';
+  return Math.round((num/den)*100)+'%';
+}
+function dashboardConversionRows(patients){
+  patients=patients||[];
+  const sent=patients.filter(p=>['offer_sent','offer_accepted','contract_pending_signature','contract_signed'].includes(currentPatientStage(p))).length;
+  const accepted=patients.filter(p=>['offer_accepted','contract_pending_signature','contract_signed'].includes(currentPatientStage(p))).length;
+  const contractPending=patients.filter(p=>currentPatientStage(p)==='contract_pending_signature').length;
+  const contractSigned=patients.filter(p=>currentPatientStage(p)==='contract_signed').length;
+  return [
+    ['Oferta enviada → aceptada',dashboardPct(accepted,sent)],
+    ['Aceptada → contrato pendiente',dashboardPct(contractPending,accepted)],
+    ['Contrato pendiente → firmado',dashboardPct(contractSigned,contractPending)]
+  ];
+}
+function dashboardSlaRows(patients){
+  patients=patients||[];
+  const unresolvedCorrections=patients.filter(p=>currentPatientStage(p)==='correction_pending').length;
+  const withoutReview=patients.filter(p=>['in_review','correction_pending'].includes(currentPatientStage(p))).length;
+  return [
+    ['Tiempo prom. en evaluación','18h'],
+    ['Casos > 24h sin revisión',withoutReview],
+    ['Correcciones sin resolver',unresolvedCorrections]
+  ];
+}
+
+function dashboardSlaHours(patient,index){
+  const hours=[31,28,26,24,22];
+  return hours[index%hours.length];
+}
+function dashboardStageLabel(stage){
+  return {
+    in_review:'En evaluación',
+    correction_pending:'Corrección pendiente',
+    offer_sent:'Oferta enviada',
+    offer_accepted:'Oferta aceptada',
+    contract_pending_signature:'Contrato pendiente de firma',
+    contract_signed:'Contrato firmado',
+    rejected:'Rechazada por Pulzzo',
+    offer_rejected_by_client:'Oferta rechazada por cliente',
+    created:'Solicitud creada'
+  }[stage]||stage;
+}
+function dashboardSlaRecords(type){
+  const patients=dashboardFilteredPatients();
+  let rows=[];
+  if(type==='overdue_review'){
+    rows=patients.filter(p=>['in_review','correction_pending'].includes(currentPatientStage(p)));
+  }else if(type==='unresolved_corrections'){
+    rows=patients.filter(p=>currentPatientStage(p)==='correction_pending');
+  }
+  return rows.map((p,index)=>({
+    id:p.id,
+    title:p.patient?.fullName||p.id,
+    stage:dashboardStageLabel(currentPatientStage(p)),
+    owner:'Operaciones',
+    hours:dashboardSlaHours(p,index),
+    suffix:currentPatientStage(p)==='correction_pending'?'sin resolver':'sin revisión'
+  }));
+}
+function openDashboardSlaModal(type){
+  const title=type==='unresolved_corrections'?'Correcciones sin resolver':'Casos > 24h sin revisión';
+  const empty=type==='unresolved_corrections'?'No hay correcciones pendientes en el periodo seleccionado.':'No hay casos fuera de SLA en el periodo seleccionado.';
+  const records=dashboardSlaRecords(type);
+  const body=records.length?`<div class="sla-modal-list">${records.map(r=>`<div class="sla-modal-item">
+    <div><strong>${r.title}</strong><span class="sla-modal-meta">${r.stage} · Responsable: ${r.owner} · ${r.hours}h ${r.suffix}</span></div>
+    <button class="btn btn-sm btn-secondary" onclick="openDashboardRecord('patient','${r.id}')">Ver paciente</button>
+  </div>`).join('')}</div>`:`<div class="dashboard-empty">${empty}</div>`;
+  modal(`<div class="modal-head"><div><h3>${title}</h3><p>Periodo: ${dashboardFilters.from} a ${dashboardFilters.visibleTo||dashboardFilters.to}</p></div><button class="x" onclick="closeModal()">×</button></div><div class="modal-body">${body}</div><div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal()">Cerrar</button></div>`);
+}
+
+function renderDashboardInsights(patients){
+  const conversion=dashboardConversionRows(patients);
+  const sla=dashboardSlaRows(patients);
+  const pctNumber=(value)=>Number(String(value).replace('%',''))||0;
+  const actionFor=(label)=>{
+    if(label==='Casos > 24h sin revisión')return `<button class="insight-inline-action" onclick="openDashboardSlaModal('overdue_review')">Ver</button>`;
+    if(label==='Correcciones sin resolver')return `<button class="insight-inline-action" onclick="openDashboardSlaModal('unresolved_corrections')">Ver</button>`;
+    return '';
+  };
+  return `<section class="dashboard-insights-grid">
+    <div class="insight-card">
+      <div class="insight-card-head"><h3>Conversión operativa</h3><p>Lectura rápida de avance entre etapas críticas.</p></div>
+      <div class="insight-compact-list">
+        ${conversion.map(r=>`<div class="insight-compact-row">
+          <div class="insight-compact-head">
+            <span class="insight-compact-label">${r[0]}</span>
+            <strong class="insight-compact-value">${r[1]}</strong>
+          </div>
+          <div class="insight-progress-track"><div class="insight-progress-fill" style="width:${Math.max(3,pctNumber(r[1]))}%"></div></div>
+        </div>`).join('')}
+      </div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-card-head"><h3>SLA operativo</h3><p>Seguimiento simulado de atención y revisión.</p></div>
+      <div class="insight-compact-list">
+        ${sla.map(r=>`<div class="insight-sla-row">
+          <span class="insight-compact-label">${r[0]}</span>
+          <strong class="insight-compact-value">${r[1]}</strong>
+          ${actionFor(r[0])}
+        </div>`).join('')}
+      </div>
+    </div>
+  </section>`;
+}
+function dashboardOwnerForAlert(item){
+  const txt=String(item.meta||item.text||item.title||'').toLowerCase();
+  if(item.kind==='provider'||item.group==='providers'||txt.includes('doctor')||txt.includes('clínica')||txt.includes('clinica')||txt.includes('fiscal')||txt.includes('csf')||txt.includes('clabe')||txt.includes('pago a doctor'))return 'Provider Ops';
+  if(txt.includes('buró')||txt.includes('buro')||txt.includes('rechaz')||txt.includes('bloque'))return 'Riesgo';
+  if(txt.includes('oferta')||txt.includes('contrato')||txt.includes('pago inicial'))return 'Riesgo / Crédito';
+  return 'Operaciones';
+}
+function dashboardOpenPriority(kind,id){
+  if(kind==='provider'){
+    selectedProviderId=id||selectedProviderId;
+    providerTab='resumen';
+    setView('providers');
+    return;
+  }
+  selectedPatientId=id||selectedPatientId;
+  patientTab='resumen';
+  setView('patients');
+}
+function dashboardRecentActivity(patients,providers){
+  patients=patients||[];
+  providers=providers||[];
+  const events=[];
+  const correction=patients.find(p=>currentPatientStage(p)==='correction_pending')||patients.find(p=>(p.documents||[]).some(d=>d.status==='correction_required'||d.status==='rejected'));
+  if(correction)events.push({title:'Corrección solicitada',meta:`${correction.patient?.fullName||correction.id} · Documento / datos pendientes · Operaciones`});
+  const rejected=patients.find(p=>currentPatientStage(p)==='rejected');
+  if(rejected)events.push({title:'Solicitud rechazada',meta:`${rejected.patient?.fullName||rejected.id} · Riesgo`});
+  const sent=patients.find(p=>currentPatientStage(p)==='offer_sent');
+  if(sent)events.push({title:'Oferta enviada',meta:`${sent.patient?.fullName||sent.id} · Riesgo / Crédito`});
+  const accepted=patients.find(p=>['offer_accepted','contract_pending_signature','contract_signed'].includes(currentPatientStage(p)));
+  if(accepted)events.push({title:'Oferta aceptada',meta:`${accepted.patient?.fullName||accepted.id} · Riesgo / Crédito`});
+  const approvedProvider=providers.find(p=>p.status==='aprobado')||providers[0];
+  if(approvedProvider)events.push({title:'Perfil médico aprobado',meta:`${providerDisplayName(approvedProvider)} · Provider Ops`});
+  return events.slice(0,5);
+}
+
+function renderDashboard(){
+  const patients=dashboardFilteredPatients();
+  const providers=dashboardFilteredProviders();
+  const audit=dashboardFilteredAudit();
+  const fin=dashboardFinancials(patients);
+  const view=dashboardFilters.view;
+  const metricRows=(rows,source='patients')=>rows.map(r=>`<div class="metric-row"><span>${r[0]}</span><span class="metric-value-actions"><strong>${r[1]}</strong><button class="dashboard-metric-view" type="button" onclick="openDashboardMetricDetail('${r[2]||''}','${r[0].replace(/'/g,'&#39;')}', '${source}')">Ver</button></span></div>`).join('');
+  const metricGroups=(groups,source)=>groups.map(g=>`<div class="metric-group"><span class="metric-group-title">${g.title}</span>${metricRows(g.rows,source)}</div>`).join('');
+  const financialCards=[
+    ['Monto solicitado',fmtMoney(fin.requested),'Total del periodo'],
+    ['Monto aprobado',fmtMoney(fin.approved),'Ofertas creadas'],
+    ['Monto en proceso',fmtMoney(fin.inProcess),'Pipeline activo'],
+    ['Monto rechazado',fmtMoney(fin.rejected),'No viable / bloqueado'],
+    ['Monto aceptado',fmtMoney(fin.accepted),'Cliente aceptó'],
+    ['Monto pendiente pago doctor',fmtMoney(fin.doctorPaymentPendingAmount||0),'Por operar']
+  ];
+  const urgent=dashboardUrgentItems(patients,providers);
+  const logs=`<div class="activity-list">${dashboardRecentActivity(patients,providers).map(a=>`<div class="activity-card"><strong>${a.title}</strong><span>${a.meta}</span></div>`).join('')}</div>`;
+  const periodLabels={today:'Hoy',week:'Semana',month:'Mes',year:'Año',custom:'Personalizado'};
+
+  $('#dashboard').innerHTML=`
+    <div class="section-head">
+      <div>
+        <h2>Dashboard ejecutivo</h2>
+        <p>Vista operativa para seguimiento financiero, pacientes, providers y prioridades internas.</p>
+      </div>
+    </div>
+
+    <div class="dashboard-toolbar">
+      <div>
+        <div class="period-tabs">
+          ${[
+            ['today','Hoy'],['week','Semana'],['month','Mes'],['year','Año'],['custom','Personalizado']
+          ].map(x=>`<button class="period-btn ${dashboardFilters.period===x[0]?'active':''}" type="button" onclick="setDashboardPeriod('${x[0]}')">${x[1]}</button>`).join('')}
+        </div>
+        <div class="dashboard-period-note">Periodo seleccionado: ${periodLabels[dashboardFilters.period]||'Personalizado'} · ${dashboardFilters.from} a ${dashboardFilters.visibleTo||dashboardLastVisibleDay(dashboardFilters.to)}</div>
+      </div>
+      <div class="dashboard-filter-right">
+        <div class="dashboard-filter-field"><label>Desde</label><input type="date" value="${dashboardFilters.from}" onchange="updateDashboardDate('from',this.value)"></div>
+        <div class="dashboard-filter-field"><label>Hasta</label><input type="date" value="${dashboardFilters.to}" onchange="updateDashboardDate('to',this.value)"></div>
+        <div class="dashboard-filter-field dashboard-view-field"><label>Vista</label><select onchange="updateDashboardView(this.value)">
+          <option value="general" ${view==='general'?'selected':''}>General</option>
+          <option value="patients" ${view==='patients'?'selected':''}>Pacientes</option>
+          <option value="providers" ${view==='providers'?'selected':''}>Doctores y clínicas</option>
+          <option value="operation" ${view==='operation'?'selected':''}>Operación</option>
+        </select></div>
+      </div>
+    </div>
+
+    <section class="dashboard-block ${view==='providers'||view==='operation'?'dashboard-hidden':''}">
+      <div class="dashboard-block-head">
+        <div><h3>Resumen financiero</h3><p>Montos simulados por periodo seleccionado.</p></div>
+      </div>
+      <div class="financial-grid">${financialCards.map(x=>`<div class="kpi"><small>${x[0]}</small><strong>${x[1]}</strong><span>${x[2]}</span></div>`).join('')}</div>
+    </section>
+
+    ${renderDashboardCharts(patients,providers)}
+
+    ${renderDashboardInsights(patients)}
+
+    <div class="grid-2 dashboard-block ${view==='operation'?'dashboard-hidden':''}">
+      <section class="metric-card ${view==='providers'?'dashboard-hidden':''}">
+        <div class="metric-card-head"><div><h3>Pacientes</h3><p>Estados, ofertas, Buró y documentos.</p></div></div>
+        <div class="metric-list">${metricGroups(dashboardPatientMetricGroups ? dashboardPatientMetricGroups(patients) : dashboardPatientMetricGroupsFallback(),'patients')}</div>
+      </section>
+      <section class="metric-card provider-metrics ${view==='patients'?'dashboard-hidden':''}">
+        <div class="metric-card-head"><div><h3>Doctores y clínicas</h3><p>Perfiles, fiscal/banco, documentos y operación médica.</p></div></div>
+        <div class="metric-list">${metricGroups(dashboardProviderMetricGroups ? dashboardProviderMetricGroups(providers,patients) : dashboardProviderMetricGroupsFallback(),'providers')}</div>
+      </section>
+    </div>
+
+    <div class="grid-2 dashboard-block">
+      <section class="card">
+        <div class="card-head">
+          <h3>Prioridad operativa</h3>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-sm btn-secondary" onclick="setView('corrections')">Ver correcciones</button>
+            <button class="btn btn-sm btn-secondary" onclick="setView('documents')">Ver documentos</button>
+          </div>
+        </div>
+        <div class="card-body"><div class="priority-list">${urgent.map(i=>`<div class="priority-item"><span class="priority-dot ${i.kind==='provider'?'provider-dot':''}"></span><div><div class="priority-title">${i.title}</div><div class="priority-meta">${i.meta}</div><span class="priority-owner">Responsable: ${dashboardOwnerForAlert(i)}</span></div><button class="priority-action ${i.kind==='provider'?'provider-action':''}" onclick="dashboardOpenPriority('${i.kind}','${i.id}')">Ver</button></div>`).join('')||'<div class="muted">Sin prioridades para este filtro.</div>'}</div></div>
+      </section>
+      <section class="card">
+        <div class="card-head">
+          <h3>Actividad reciente</h3>
+          <button class="btn btn-sm btn-secondary" onclick="setView('history')">Ver historial</button>
+        </div>
+        <div class="card-body"><div class="activity-log-list">${logs}</div></div>
+      </section>
+    </div>`;
+}
 function alerts(){let arr=[];db.patients.forEach(p=>{p.documents.filter(d=>['rejected','correction_required'].includes(d.status)).forEach(d=>arr.push(`<div class="alert"><span class="alert-dot"></span><div><strong>${p.patient.fullName}: ${d.type}</strong><p>${labelStatus(d.status)} · ${d.rejectionReason||'Requiere revisión'}</p></div></div>`))});db.providers.forEach(p=>{p.files.filter(d=>['pending','correction_required'].includes(d.status)).slice(0,2).forEach(d=>arr.push(`<div class="alert"><span class="alert-dot"></span><div><strong>${p.profile.prefix} ${p.profile.name}: ${d.type}</strong><p>${labelStatus(d.status)} · </p></div></div>`))});return arr.slice(0,8)}
 function renderPatients(){const el=$('#patients');el.innerHTML=`<div class="master-detail"><div class="tray"><div class="tray-head"><div><strong>Bandeja de solicitudes</strong><p class="muted">Filtro por nombre, estatus, etapa, oferta y nueva solicitud.</p></div><div class="filters"><input id="pfName" placeholder="Buscar paciente"><select id="pfStatus"><option value="">Todos los estatus</option><option value="oferta">Oferta</option><option value="rechaz">Rechazo</option><option value="correccion">Corrección</option><option value="evaluacion">Evaluación</option></select><select id="pfReapply"><option value="">Reaplicar</option><option value="allowed">Permitida</option><option value="blocked">Bloqueada</option></select></div></div><div class="list" id="patientList"></div></div><div class="detail" id="patientDetail"></div></div>`;['pfName','pfStatus','pfReapply'].forEach(id=>$('#'+id).oninput=renderPatientList);renderPatientList();renderPatientDetail()}
 function renderPatientList(){const q=($('#pfName')?.value||'').toLowerCase(), st=$('#pfStatus')?.value||'', re=$('#pfReapply')?.value||'';const list=$('#patientList');if(!list)return;let rows=db.patients.filter(p=>(!q||p.patient.fullName.toLowerCase().includes(q)||p.id.toLowerCase().includes(q))&&(!st||p.application.applicationStatus.includes(st)||p.application.stage.toLowerCase().includes(st))&&(!re||(re==='allowed'?p.application.reapplyAllowed:p.application.reapplyBlocked)));list.innerHTML=rows.map(p=>`<div class="row-item ${p.id===selectedPatientId?'active':''}" data-id="${p.id}"><div class="row-top"><div><div class="row-title">${p.patient.fullName}</div><div class="row-sub mono">${p.id} · ${fmtMoney(p.application.requestedAmount)}</div></div>${statusPill(p.application.applicationStatus)}</div><div class="row-sub">${p.application.procedure} · ${p.application.doctorName}</div><div class="row-meta"><span class="pill pill-aqua">Buró: ${p.application.requiresBureauNip?'NIP requerido':'vigente'}</span><span class="pill pill-gray">Docs: ${p.documents.filter(d=>d.status==='approved').length}/${p.documents.length}</span><span class="pill ${p.application.reapplyBlocked?'pill-red':p.application.reapplyAllowed?'pill-green':'pill-gray'}">Nueva: ${p.application.reapplyBlocked?'bloqueada':p.application.reapplyAllowed?'permitida':'no aplica'}</span></div></div>`).join('')||`<div class="empty-detail">Sin resultados</div>`;list.onclick=e=>{const r=e.target.closest('.row-item');if(r){selectedPatientId=r.dataset.id;patientTab='resumen';renderPatientList();renderPatientDetail()}}}
