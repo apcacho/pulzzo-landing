@@ -1611,6 +1611,52 @@ body.portal-profile-mode .app-head{display:none!important;}
 .app-shell .name-review-item small{
   font-weight:500!important;
 }
+
+/* Ajuste quirúrgico perfil: Dirección y pagos iniciales */
+.profile-address-card{
+  border:1px solid #E2E8F0;
+  background:#fff;
+  border-radius:22px;
+  padding:24px;
+  margin-top:18px;
+}
+.profile-address-card h3{
+  font-size:20px;
+  font-weight:700;
+  color:var(--navy);
+  margin-bottom:8px;
+}
+.profile-address-card p{
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.5;
+  margin-bottom:18px;
+}
+.profile-address-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:14px;
+}
+.initial-payment-card .initial-grid{
+  grid-template-columns:repeat(4,minmax(0,1fr));
+}
+.modal-summary-grid{
+  grid-template-columns:repeat(4,minmax(0,1fr));
+}
+@media(max-width:1100px){
+  .initial-payment-card .initial-grid,
+  .modal-summary-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+@media(max-width:760px){
+  .profile-address-grid,
+  .initial-payment-card .initial-grid,
+  .modal-summary-grid{
+    grid-template-columns:1fr;
+  }
+}
+
 </style></head>
 <body>
 <nav class="navbar"><div class="navbar-inner"><a class="brand" href="index.html"><picture><source srcset="assets/images/logo-pulzzo.webp" type="image/webp"><img src="assets/images/logo-pulzzo.png" alt="Pulzzo"></picture><span>pulzzo</span></a><div class="nav-actions"><a href="index.html" class="btn btn-primary" id="back-home">Volver al inicio</a></div></div></nav>
@@ -4056,12 +4102,73 @@ function replacePortalFile(groupKey,index,file){
 
 function getPostApprovalOffer(){
   const p=state.procedure||{};
-  const amount=Number(state.offer?.approvedAmount||p.amount||80000)||0;
-  const term=Number(state.offer?.termMonths||p.termMonths||24);
-  const rawMonthly = state.offer?.monthlyPayment || estimatedMonthly(amount) || '$5,067';
+  const offerState=state.offer||{};
+  const amount=Number(offerState.approvedAmount||p.amount||80000)||0;
+  const term=Number(offerState.termMonths||p.termMonths||24);
+  const rawMonthly = offerState.monthlyPayment || estimatedMonthly(amount) || '$5,067';
   const cleanMonthly = String(rawMonthly).replace(/\s*\.?\s*(a\s*\d+\s*meses)?/gi,'').trim();
-  const validUntil=state.offer?.validUntil || new Date(Date.now()+7*24*60*60*1000).toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric'});
+  const validUntil=offerState.validUntil || new Date(Date.now()+7*24*60*60*1000).toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric'});
   const doctor=p.doctorSource==='propio' ? [p.doctorPrefix,p.doctorName].filter(Boolean).join(' ') : (p.doctorName||'Clínica Pulzzo Reforma');
+  const initialInstallments=Number(
+    offerState.initialPaymentInstallments||
+    offerState.initialPaymentMonths||
+    offerState.downPaymentInstallments||
+    offerState.downPaymentMonths||
+    offerState.requiredInitialPaymentInstallments||
+    state.initialPaymentInstallments||
+    state.initialPaymentMonths||
+    state.downPaymentInstallments||
+    state.downPaymentMonths||
+    state.requiredInitialPaymentInstallments||
+    state.initialInstallments||
+    3
+  )||0;
+  const numericMonthly=Number(String(cleanMonthly).replace(/[^0-9.]/g,''))||0;
+  const explicitInitialTotal=firstNonEmpty(
+    offerState.initialPaymentTotal,
+    offerState.initialPaymentAmountTotal,
+    offerState.downPaymentTotal,
+    offerState.requiredInitialPaymentAmount,
+    offerState.initialPaymentRequiredAmount,
+    offerState.initialPaymentAmount,
+    state.initialPaymentTotal,
+    state.initialPaymentAmountTotal,
+    state.downPaymentTotal,
+    state.requiredInitialPaymentAmount,
+    state.initialPaymentRequiredAmount,
+    state.initialPaymentAmount,
+    ''
+  );
+  const initialPaymentTotal=Number(String(explicitInitialTotal).replace(/[^0-9.]/g,'')) || (initialInstallments*numericMonthly);
+  const explicitEach=firstNonEmpty(
+    offerState.initialPaymentInstallmentAmount,
+    offerState.initialPaymentMonthlyAmount,
+    offerState.downPaymentInstallmentAmount,
+    offerState.eachInitialPaymentAmount,
+    offerState.perInitialPaymentAmount,
+    offerState.initialPaymentPerMonth,
+    offerState.initialPaymentEach,
+    state.initialPaymentInstallmentAmount,
+    state.initialPaymentMonthlyAmount,
+    state.downPaymentInstallmentAmount,
+    state.eachInitialPaymentAmount,
+    state.perInitialPaymentAmount,
+    state.initialPaymentPerMonth,
+    state.initialPaymentEach,
+    ''
+  );
+  const initialPaymentEach=Number(String(explicitEach).replace(/[^0-9.]/g,'')) || (initialInstallments?initialPaymentTotal/initialInstallments:0);
+  const initialPaymentStatus=firstNonEmpty(
+    offerState.initialPaymentStatus,
+    offerState.downPaymentStatus,
+    offerState.initialPaymentRequiredStatus,
+    offerState.paymentInitialStatus,
+    state.initialPaymentStatus,
+    state.downPaymentStatus,
+    state.initialPaymentRequiredStatus,
+    state.paymentInitialStatus,
+    state.initialPaymentPaid?'Cubierto':'Pendiente'
+  );
   return {
     approvedAmount:amount,
     termMonths:term,
@@ -4069,11 +4176,14 @@ function getPostApprovalOffer(){
     validUntil,
     doctor,
     procedure:p.procedure || (Array.isArray(p.procedures)&&p.procedures.length?p.procedures.join(', '):'Procedimiento médico'),
-    commission:state.offer?.commission||'Según oferta final',
-    totalCost:state.offer?.totalCost||'Se mostrará en la oferta final',
-    insurance:state.offer?.insurance||'Según condiciones aplicables',
+    commission:offerState.commission||'Según oferta final',
+    totalCost:offerState.totalCost||'Se mostrará en la oferta final',
+    insurance:offerState.insurance||'Según condiciones aplicables',
     initialPaymentRequired: state.initialPaymentRequired ?? true,
-    initialInstallments: Number(state.initialInstallments||3)
+    initialInstallments,
+    initialPaymentTotal,
+    initialPaymentEach,
+    initialPaymentStatus
   };
 }
 function postStageStatus(key){
@@ -4222,8 +4332,9 @@ function renderPostApprovalFlowDesktop(){
   const paymentFields = selectedFrequency==='Quincenal'
     ? `<div><label>Fechas de pago quincenal</label><select data-biweekly-payment-pair><option value="">Selecciona</option>${biweeklyPairOptions(state.preferredPaymentDay)}</select></div>`
     : `<div><label>Día de pago mensual</label><select data-payment-day><option value="">Selecciona</option>${paymentDayOptions}</select></div>`;
-  const numericMonthly=Number(String(offer.monthlyPayment).replace(/[^0-9.]/g,''))||0;
-  const initialPaymentAmount=Number(offer.initialInstallments||0)*numericMonthly;
+  const initialPaymentAmount=Number(offer.initialPaymentTotal||0);
+  const initialPaymentEach=Number(offer.initialPaymentEach||0);
+  const initialPaymentStatusLabel=offer.initialPaymentStatus||(state.initialPaymentPaid?'Cubierto':'Pendiente');
   return `<div class="post-approval-grid">
     <div class="post-card ${offerClass}" data-offer-card>
       <div class="post-card-head">
@@ -4239,7 +4350,7 @@ function renderPostApprovalFlowDesktop(){
         <div class="post-mini"><small>Tasa de interés anual</small><strong>${escapeHtml(offer.annualInterestRate||'30.72%')}</strong></div>
       </div>
       ${renderOfferProcedureDetail()}
-      ${offer.initialPaymentRequired?`<div class="initial-payment-card"><div class="initial-title">Pagos iniciales requeridos</div><div class="initial-copy">Esta oferta requiere cubrir un pago inicial equivalente a <b>${escapeHtml(String(offer.initialInstallments))} pagos</b>. Puedes cubrirlos conforme a tu calendario de pagos elegido o liquidarlos antes en una sola exhibición si quieres avanzar más rápido. El pago completo al doctor, clínica u hospital se liberará cuando esos pagos iniciales queden cubiertos. El número de pagos puede variar según las condiciones aprobadas.</div><div class="initial-grid"><div class="initial-mini"><small>Mensualidades</small><strong>${escapeHtml(String(offer.initialInstallments))}</strong></div><div class="initial-mini"><small>Monto</small><strong>${money(initialPaymentAmount)}</strong></div><div class="initial-mini"><small>Estatus</small><strong>${state.initialPaymentPaid?'Cubierto':'Pendiente'}</strong></div></div></div>`:''}
+      ${offer.initialPaymentRequired?`<div class="initial-payment-card"><div class="initial-title">Pagos iniciales requeridos</div><div class="initial-copy">Esta oferta requiere cubrir un pago inicial equivalente a <b>${escapeHtml(String(offer.initialInstallments))} pagos</b>. Puedes cubrirlos conforme a tu calendario de pagos elegido o liquidarlos antes en una sola exhibición si quieres avanzar más rápido. El pago completo al doctor, clínica u hospital se liberará cuando esos pagos iniciales queden cubiertos. El número de pagos puede variar según las condiciones aprobadas.</div><div class="initial-grid"><div class="initial-mini"><small>Mensualidades</small><strong>${escapeHtml(String(offer.initialInstallments))}</strong></div><div class="initial-mini"><small>Monto total</small><strong>${money(initialPaymentAmount)}</strong></div><div class="initial-mini"><small>Monto de cada pago</small><strong>${money(initialPaymentEach)}</strong></div><div class="initial-mini"><small>Estatus</small><strong>${escapeHtml(initialPaymentStatusLabel)}</strong></div></div></div>`:''}
       ${offerAvailable && !state.offerRejected?`<div class="payment-config" data-payment-config><div class="payment-config-copy"><b>Configura tus pagos</b><small>${showBiweekly?'Primero define cómo prefieres pagar y luego elige qué día o días.':'Primero define qué día quieres hacer tu pago.'}</small></div><div class="payment-config-fields">${showBiweekly?`<div><label>Frecuencia de pago</label><select data-payment-frequency>${frequencyOptions}</select></div>`:''}${paymentFields}</div><div class="payment-error" data-payment-error></div></div>`:''}
       <div class="post-actions post-actions-positive-right">
         <button class="doc-action" type="button" data-stage-action="view-offer" ${!offerAvailable?'disabled':''}>Ver oferta</button>
@@ -4256,7 +4367,7 @@ function renderPostApprovalFlowDesktop(){
       ${(state.preferredPaymentDay||state.firstPaymentDay)?`<div class="post-note">${getPaymentScheduleLabel()}. La fecha final puede ajustarse según la formalización del crédito.</div>`:''}
       <div class="post-actions"><button class="doc-action" type="button" data-stage-action="view-contract" ${!contractAvailable?'disabled':''}>Ver documento</button></div>
     </div>
-    ${offer.initialPaymentRequired?`<div class="post-card ${initialClass}"><div class="post-card-head"><div><b>Pagos iniciales requeridos</b><small>${state.initialPaymentPaid?'Tu pago inicial ya fue cubierto.':'Se habilita después de firmar tus documentos. Podrás cubrir estos pagos conforme a tu calendario o liquidarlos antes si quieres avanzar más rápido.'}</small></div><span class="chip ${initialStatus.cls}">${initialStatus.label}</span></div><div class="post-summary-grid"><div class="post-mini"><small>Mensualidades</small><strong>${escapeHtml(String(offer.initialInstallments))}</strong></div><div class="post-mini"><small>Monto</small><strong>${money(initialPaymentAmount)}</strong></div><div class="post-mini"><small>Estatus</small><strong>${state.initialPaymentPaid?'Cubierto':'Pendiente'}</strong></div><div class="post-mini"><small>Pago al doctor, clínica u hospital</small><strong>${state.initialPaymentPaid?'Continúa':'Al cubrir los pagos'}</strong></div></div><div class="post-actions"><button class="doc-action" type="button" data-stage-action="view-initial-payment" ${!state.contractSigned?'disabled':''}>Ver instrucciones</button></div></div>`:''}
+    ${offer.initialPaymentRequired?`<div class="post-card ${initialClass}"><div class="post-card-head"><div><b>Pagos iniciales requeridos</b><small>${state.initialPaymentPaid?'Tu pago inicial ya fue cubierto.':'Se habilita después de firmar tus documentos. Podrás cubrir estos pagos conforme a tu calendario o liquidarlos antes si quieres avanzar más rápido.'}</small></div><span class="chip ${initialStatus.cls}">${initialStatus.label}</span></div><div class="post-summary-grid"><div class="post-mini"><small>Mensualidades</small><strong>${escapeHtml(String(offer.initialInstallments))}</strong></div><div class="post-mini"><small>Monto total</small><strong>${money(initialPaymentAmount)}</strong></div><div class="post-mini"><small>Monto de cada pago</small><strong>${money(initialPaymentEach)}</strong></div><div class="post-mini"><small>Estatus</small><strong>${escapeHtml(initialPaymentStatusLabel)}</strong></div></div><div class="post-actions"><button class="doc-action" type="button" data-stage-action="view-initial-payment" ${!state.contractSigned?'disabled':''}>Ver instrucciones</button></div></div>`:''}
     <div class="post-card ${paymentClass}">
       <div class="post-card-head">
         <div><b>Pago al doctor, clínica u hospital</b><small>${state.doctorPaymentPaid?'El comprobante de pago está disponible.':(paymentAvailable?'Estamos preparando el pago al doctor, clínica u hospital.':'Se habilita cuando se cumplan las condiciones de activación del crédito.')}</small></div>
@@ -4300,8 +4411,9 @@ function renderPostApprovalFlowMobile(){
   const paymentFields = selectedFrequency==='Quincenal'
     ? `<div><label>Fechas de pago quincenal</label><select data-biweekly-payment-pair><option value="">Selecciona</option>${biweeklyPairOptions(state.preferredPaymentDay)}</select></div>`
     : `<div><label>Día de pago mensual</label><select data-payment-day><option value="">Selecciona</option>${paymentDayOptions}</select></div>`;
-  const numericMonthly=Number(String(offer.monthlyPayment).replace(/[^0-9.]/g,''))||0;
-  const initialPaymentAmount=Number(offer.initialInstallments||0)*numericMonthly;
+  const initialPaymentAmount=Number(offer.initialPaymentTotal||0);
+  const initialPaymentEach=Number(offer.initialPaymentEach||0);
+  const initialPaymentStatusLabel=offer.initialPaymentStatus||(state.initialPaymentPaid?'Cubierto':'Pendiente');
   const procedureCount = getOfferProcedureItems().length || 1;
   const mainDoctor = getOfferProcedureItems().map(item=>item.provider).filter(Boolean)[0] || offer.doctor || 'doctor, clínica u hospital';
   const initialMobileCopy='Para activar la oferta, debes cubrir 3 pagos iniciales. Puedes pagarlos conforme a tu calendario o liquidarlos antes para avanzar más rápido. El pago al proveedor se libera cuando estos pagos estén cubiertos.';
@@ -4328,7 +4440,7 @@ function renderPostApprovalFlowMobile(){
         <button type="button" class="mobile-offer-accordion-head" aria-expanded="false"><span><b>Procedimientos incluidos · ${procedureCount}</b><small>${procedureCount} procedimientos con ${escapeHtml(mainDoctor)}.</small></span><span class="mobile-accordion-arrow">⌄</span></button>
         <div class="mobile-offer-accordion-body">${renderOfferProcedureDetail()}</div>
       </div>
-      ${offer.initialPaymentRequired?`<div class="mobile-offer-accordion is-collapsed" data-mobile-offer-accordion><button type="button" class="mobile-offer-accordion-head" aria-expanded="false"><span><b>Pagos iniciales requeridos</b><small>${escapeHtml(String(offer.initialInstallments))} pagos iniciales · ${money(initialPaymentAmount)} · ${state.initialPaymentPaid?'Cubierto':'Pendiente'}</small></span><span class="mobile-accordion-arrow">⌄</span></button><div class="mobile-offer-accordion-body"><div class="initial-payment-card"><div class="initial-title">Pagos iniciales requeridos</div><div class="initial-copy"><span class="desktop-initial-copy">Esta oferta requiere cubrir un pago inicial equivalente a <b>${escapeHtml(String(offer.initialInstallments))} pagos</b>. Puedes cubrirlos conforme a tu calendario de pagos elegido o liquidarlos antes en una sola exhibición si quieres avanzar más rápido. El pago completo al doctor, clínica u hospital se liberará cuando esos pagos iniciales queden cubiertos. El número de pagos puede variar según las condiciones aprobadas.</span><span class="mobile-initial-copy">${initialMobileCopy}</span></div><div class="initial-grid"><div class="initial-mini"><small>Mensualidades</small><strong>${escapeHtml(String(offer.initialInstallments))}</strong></div><div class="initial-mini"><small>Monto</small><strong>${money(initialPaymentAmount)}</strong></div><div class="initial-mini"><small>Estatus</small><strong>${state.initialPaymentPaid?'Cubierto':'Pendiente'}</strong></div></div></div></div></div>`:''}
+      ${offer.initialPaymentRequired?`<div class="mobile-offer-accordion is-collapsed" data-mobile-offer-accordion><button type="button" class="mobile-offer-accordion-head" aria-expanded="false"><span><b>Pagos iniciales requeridos</b><small>${escapeHtml(String(offer.initialInstallments))} pagos iniciales · ${money(initialPaymentAmount)} total · ${money(initialPaymentEach)} cada pago · ${escapeHtml(initialPaymentStatusLabel)}</small></span><span class="mobile-accordion-arrow">⌄</span></button><div class="mobile-offer-accordion-body"><div class="initial-payment-card"><div class="initial-title">Pagos iniciales requeridos</div><div class="initial-copy"><span class="desktop-initial-copy">Esta oferta requiere cubrir un pago inicial equivalente a <b>${escapeHtml(String(offer.initialInstallments))} pagos</b>. Puedes cubrirlos conforme a tu calendario de pagos elegido o liquidarlos antes en una sola exhibición si quieres avanzar más rápido. El pago completo al doctor, clínica u hospital se liberará cuando esos pagos iniciales queden cubiertos. El número de pagos puede variar según las condiciones aprobadas.</span><span class="mobile-initial-copy">${initialMobileCopy}</span></div><div class="initial-grid"><div class="initial-mini"><small>Mensualidades</small><strong>${escapeHtml(String(offer.initialInstallments))}</strong></div><div class="initial-mini"><small>Monto total</small><strong>${money(initialPaymentAmount)}</strong></div><div class="initial-mini"><small>Monto de cada pago</small><strong>${money(initialPaymentEach)}</strong></div><div class="initial-mini"><small>Estatus</small><strong>${escapeHtml(initialPaymentStatusLabel)}</strong></div></div></div></div></div>`:''}
       ${offerAvailable && !state.offerRejected?`<div class="mobile-offer-accordion is-collapsed" data-mobile-offer-accordion><button type="button" class="mobile-offer-accordion-head" aria-expanded="false"><span><b>Configura tus pagos</b><small>Elige frecuencia y día de pago.</small></span><span class="mobile-accordion-arrow">⌄</span></button><div class="mobile-offer-accordion-body"><div class="payment-config" data-payment-config><div class="payment-config-copy"><b>Configura tus pagos</b><small>${showBiweekly?'Primero define cómo prefieres pagar y luego elige qué día o días.':'Primero define qué día quieres hacer tu pago.'}</small></div><div class="payment-config-fields">${showBiweekly?`<div><label>Frecuencia de pago</label><select data-payment-frequency>${frequencyOptions}</select></div>`:''}${paymentFields}</div></div><div class="post-actions post-actions-positive-right offer-mobile-actions"><button class="doc-action primary" type="button" data-stage-action="accept-offer" ${!offerAvailable||state.offerAccepted||state.offerRejected?'disabled':''}>Aceptar oferta</button><button class="doc-action" type="button" data-stage-action="view-offer" ${!offerAvailable?'disabled':''}>Ver oferta</button><button class="doc-action danger" type="button" data-stage-action="reject-offer" ${!offerAvailable||state.offerAccepted||state.offerRejected?'disabled':''}>Rechazar oferta</button></div></div></div>`:''}
       ${!offerAvailable || state.offerRejected?`<div class="post-actions post-actions-positive-right"><button class="doc-action" type="button" data-stage-action="view-offer" ${!offerAvailable?'disabled':''}>Ver oferta</button><button class="doc-action danger" type="button" data-stage-action="reject-offer" ${!offerAvailable||state.offerAccepted||state.offerRejected?'disabled':''}>Rechazar oferta</button><button class="doc-action primary" type="button" data-stage-action="accept-offer" ${!offerAvailable||state.offerAccepted||state.offerRejected?'disabled':''}>Aceptar oferta</button></div>`:''}
     </div>
@@ -4343,7 +4455,7 @@ function renderPostApprovalFlowMobile(){
         <div class="post-actions"><button class="doc-action" type="button" data-stage-action="view-contract" ${!contractAvailable?'disabled':''}>Ver documento</button></div>
       </div>
     </div>
-    ${offer.initialPaymentRequired?`<div class="post-card ${initialClass} mobile-stage-accordion is-collapsed" data-mobile-stage-accordion><div class="post-card-head mobile-stage-accordion-head"><div><b>Pagos iniciales requeridos</b><small>${state.initialPaymentPaid?'Tu pago inicial ya fue cubierto.':`${escapeHtml(String(offer.initialInstallments))} pagos iniciales · ${money(initialPaymentAmount)} · Pendiente`}</small></div><span class="chip ${initialStatus.cls}">${initialStatus.label}</span></div><div class="mobile-stage-accordion-body"><div class="post-summary-grid"><div class="post-mini"><small>Mensualidades</small><strong>${escapeHtml(String(offer.initialInstallments))}</strong></div><div class="post-mini"><small>Monto</small><strong>${money(initialPaymentAmount)}</strong></div><div class="post-mini"><small>Estatus</small><strong>${state.initialPaymentPaid?'Cubierto':'Pendiente'}</strong></div><div class="post-mini"><small>Pago al doctor, clínica u hospital</small><strong>${state.initialPaymentPaid?'Continúa':'Al cubrir los pagos'}</strong></div></div><div class="post-actions"><button class="doc-action" type="button" data-stage-action="view-initial-payment" ${!state.contractSigned?'disabled':''}>Ver instrucciones</button></div></div></div>`:''}
+    ${offer.initialPaymentRequired?`<div class="post-card ${initialClass} mobile-stage-accordion is-collapsed" data-mobile-stage-accordion><div class="post-card-head mobile-stage-accordion-head"><div><b>Pagos iniciales requeridos</b><small>${state.initialPaymentPaid?'Tu pago inicial ya fue cubierto.':`${escapeHtml(String(offer.initialInstallments))} pagos iniciales · ${money(initialPaymentAmount)} total · ${money(initialPaymentEach)} cada pago · ${escapeHtml(initialPaymentStatusLabel)}`}</small></div><span class="chip ${initialStatus.cls}">${initialStatus.label}</span></div><div class="mobile-stage-accordion-body"><div class="post-summary-grid"><div class="post-mini"><small>Mensualidades</small><strong>${escapeHtml(String(offer.initialInstallments))}</strong></div><div class="post-mini"><small>Monto total</small><strong>${money(initialPaymentAmount)}</strong></div><div class="post-mini"><small>Monto de cada pago</small><strong>${money(initialPaymentEach)}</strong></div><div class="post-mini"><small>Estatus</small><strong>${escapeHtml(initialPaymentStatusLabel)}</strong></div></div><div class="post-actions"><button class="doc-action" type="button" data-stage-action="view-initial-payment" ${!state.contractSigned?'disabled':''}>Ver instrucciones</button></div></div></div>`:''}
     <div class="post-card ${paymentClass} mobile-stage-accordion is-collapsed" data-mobile-stage-accordion>
       <div class="post-card-head mobile-stage-accordion-head">
         <div><b>Pago al doctor, clínica u hospital</b><small>${state.doctorPaymentPaid?'El comprobante de pago está disponible.':(paymentAvailable?'Estamos preparando el pago al doctor, clínica u hospital.':'Pendiente · Se habilita cuando se cumplan las condiciones de activación.')}</small></div>
@@ -4476,8 +4588,9 @@ function getPostApprovalPayload(){return {offer:state.offer||getPostApprovalOffe
 function openPortalFlowModal(title,html,actionsHtml){const modal=document.getElementById('documentModal'),body=document.getElementById('documentModalBody'),h=document.getElementById('documentModalTitle'),actions=document.getElementById('documentModalActions'); if(!modal||!body) return; h.textContent=title||'Detalle'; body.innerHTML=`<div class="modal-content-card">${html}</div>`; if(actions){actions.innerHTML=actionsHtml||'<button class="btn btn-primary" type="button" onclick="closeDocumentModal()">Cerrar</button>';} modal.classList.add('active'); modal.setAttribute('aria-hidden','false');}
 function showOfferModal(){
   const o=getPostApprovalOffer();
-  const numericMonthly=Number(String(o.monthlyPayment).replace(/[^0-9.]/g,''))||0;
-  const initialAmount=Number(o.initialInstallments||0)*numericMonthly;
+  const initialAmount=Number(o.initialPaymentTotal||0);
+  const initialPaymentEach=Number(o.initialPaymentEach||0);
+  const initialPaymentStatusLabel=o.initialPaymentStatus||(state.initialPaymentPaid?'Cubierto':'Pendiente');
   openPortalFlowModal('Oferta final',`<div class="modal-summary-grid"><div class="post-mini"><small>Monto aprobado</small><strong>${money(o.approvedAmount)}</strong></div><div class="post-mini"><small>Pago mensual</small><strong>${escapeHtml(o.monthlyPayment)}</strong></div><div class="post-mini"><small>Plazo</small><strong>${o.termMonths} meses</strong></div><div class="post-mini"><small>Vigencia</small><strong>${escapeHtml(o.validUntil)}</strong></div><div class="post-mini"><small>Comisión por apertura</small><strong>${escapeHtml(o.openingFee||'3.00%')}</strong></div><div class="post-mini"><small>Tasa de interés anual</small><strong>${escapeHtml(o.annualInterestRate||'30.72%')}</strong></div>${o.initialPaymentRequired?`<div class="post-mini"><small>Pago inicial</small><strong>${money(initialAmount)}</strong></div><div class="post-mini"><small>Equivale a</small><strong>${escapeHtml(String(o.initialInstallments))} mensualidades</strong></div>`:''}</div>${renderOfferProcedureDetail()}<div class="post-note">Revisa cuidadosamente monto, plazo, pago, vigencia y condiciones antes de aceptar la oferta.</div>`);}
 function showContractModal(){
   const signDisabled=state.contractSigned?'disabled':'';
@@ -4518,7 +4631,7 @@ function showInitialPaymentModal(){
   const o=getPostApprovalOffer();
   const numericMonthly=Number(String(o.monthlyPayment).replace(/[^0-9.]/g,''))||0;
   const initialAmount=Number(o.initialInstallments||0)*numericMonthly;
-  openPortalFlowModal('Pagos iniciales requeridos',`<div class="post-note"><b>Condición de activación del crédito.</b><br>Para liberar el pago completo al doctor, clínica u hospital, primero deberás cubrir el pago inicial indicado. Puedes cubrirlo conforme a tu calendario de pagos elegido o liquidarlo antes en una sola exhibición si quieres avanzar más rápido. El pago al doctor, clínica u hospital se liberará cuando esos pagos iniciales queden cubiertos.</div><div class="modal-summary-grid"><div class="post-mini"><small>Mensualidades</small><strong>${escapeHtml(String(o.initialInstallments))}</strong></div><div class="post-mini"><small>Monto</small><strong>${money(initialAmount)}</strong></div><div class="post-mini"><small>Estatus</small><strong>${state.initialPaymentPaid?'Cubierto':'Pendiente'}</strong></div></div>`);}
+  openPortalFlowModal('Pagos iniciales requeridos',`<div class="post-note"><b>Condición de activación del crédito.</b><br>Para liberar el pago completo al doctor, clínica u hospital, primero deberás cubrir el pago inicial indicado. Puedes cubrirlo conforme a tu calendario de pagos elegido o liquidarlo antes en una sola exhibición si quieres avanzar más rápido. El pago al doctor, clínica u hospital se liberará cuando esos pagos iniciales queden cubiertos.</div><div class="modal-summary-grid"><div class="post-mini"><small>Mensualidades</small><strong>${escapeHtml(String(o.initialInstallments))}</strong></div><div class="post-mini"><small>Monto total</small><strong>${money(initialAmount)}</strong></div><div class="post-mini"><small>Monto de cada pago</small><strong>${money(initialPaymentEach)}</strong></div><div class="post-mini"><small>Estatus</small><strong>${escapeHtml(initialPaymentStatusLabel)}</strong></div></div>`);}
 function showPaymentModal(){
   openPortalFlowModal('Comprobante de pago al doctor, clínica u hospital',`<div class="post-note"><b>Pago al doctor, clínica u hospital.</b><br>Cuando el comprobante esté disponible, podrás consultarlo aquí.</div>${renderDoctorPaymentItems()}`);
 }
@@ -4621,19 +4734,44 @@ function renderPortalSatPasswordMetric(){
 }
 
 
+function portalHousingPaymentDisplay(housingStatus, paymentValue){
+  const housing=String(housingStatus||'').toLowerCase();
+  const applies=housing.includes('renta')||housing.includes('rent')||housing.includes('hipoteca')||housing.includes('mortgage');
+  if(!applies)return 'No aplica';
+  const raw=firstNonEmpty(paymentValue,'');
+  if(!raw)return 'No especificado';
+  const numeric=Number(String(raw).replace(/[^0-9.]/g,''));
+  return numeric?money(numeric):String(raw);
+}
+
 function buildPortalAddressParts(){
   const ident=state.identity||{};
   const a=ident.address||{};
-  const street=firstNonEmpty(a.street, ident.addressStreet, state.addressStreet, '');
-  const exterior=firstNonEmpty(a.exterior, ident.addressExterior, state.addressExterior, '');
-  const interior=firstNonEmpty(a.interior, ident.addressInterior, state.addressInterior, '');
-  const colony=firstNonEmpty(a.colony, ident.addressColony, state.addressColony, '');
-  const city=firstNonEmpty(a.city, ident.addressCity, state.addressCity, '');
-  const stateName=firstNonEmpty(a.state, ident.addressState, state.addressState, '');
-  const zip=firstNonEmpty(a.zip, ident.addressZip, state.addressZip, '');
+  const street=firstNonEmpty(a.street, a.calle, ident.addressStreet, state.addressStreet, state.calle, '');
+  const exterior=firstNonEmpty(a.exterior, a.exteriorNumber, a.numeroExterior, ident.addressExterior, state.addressExterior, state.exteriorNumber, state.numeroExterior, '');
+  const interior=firstNonEmpty(a.interior, a.interiorNumber, a.numeroInterior, ident.addressInterior, state.addressInterior, state.interiorNumber, state.numeroInterior, '');
+  const colony=firstNonEmpty(a.colony, a.neighborhood, a.colonia, ident.addressColony, state.addressColony, state.colony, state.colonia, '');
+  const municipality=firstNonEmpty(a.municipality, a.alcaldia, a.municipio, ident.addressMunicipality, state.addressMunicipality, state.municipality, state.alcaldia, state.municipio, '');
+  const city=firstNonEmpty(a.city, ident.addressCity, state.addressCity, state.city, '');
+  const stateName=firstNonEmpty(a.state, a.estado, ident.addressState, state.addressState, state.state, state.estado, '');
+  const zip=firstNonEmpty(a.zip, a.zipCode, a.postalCode, a.codigoPostal, ident.addressZip, state.addressZip, state.zip, state.zipCode, state.postalCode, state.codigoPostal, '');
+  const housingStatus=firstNonEmpty(ident.housingStatus, state.housingStatus, state.housing, state.livingSituation, '');
+  const housingPayment=firstNonEmpty(ident.housingPayment, state.housingPayment, state.rentPayment, state.mortgagePayment, state.monthlyHousingPayment, state.montoRenta, state.montoHipoteca, '');
   const line1=[street, exterior?`No. ${exterior}`:'', interior?`Int. ${interior}`:''].filter(Boolean).join(' ');
-  const line2=[colony, city, stateName, zip?`CP ${zip}`:''].filter(Boolean).join(', ');
-  return {line1:line1||'Dirección no capturada', line2:line2||'Completa tu dirección para verla aquí'};
+  const line2=[colony, municipality||city, stateName, zip?`CP ${zip}`:''].filter(Boolean).join(', ');
+  return {
+    street:street||'No especificado',
+    exterior:exterior||'No especificado',
+    interior:interior||'No especificado',
+    colony:colony||'No especificado',
+    municipality:(municipality||city)||'No especificado',
+    stateName:stateName||'No especificado',
+    zip:zip||'No especificado',
+    housingStatus:housingStatus||'No especificado',
+    housingPayment:portalHousingPaymentDisplay(housingStatus,housingPayment),
+    line1:line1||'Dirección no capturada',
+    line2:line2||'Completa tu dirección para verla aquí'
+  };
 }
 
 function portalTabLabel(tab){
@@ -4842,7 +4980,7 @@ function renderPortal(){
   ];
   const personalEl=document.getElementById('portalPersonal');
   if(personalEl){
-    personalEl.innerHTML=renderBorrowerPatientProfile(fullName)+`<div class="profile-details-clean">${personal.map(([k,v])=>`<div class="profile-detail-clean"><small>${escapeHtml(k)}</small><strong>${escapeHtml(v)}</strong></div>`).join('')}<div class="profile-detail-clean address-card"><small>Dirección</small><strong>${escapeHtml(addressParts.line1)}</strong><span>${escapeHtml(addressParts.line2)}</span></div></div>`;
+    personalEl.innerHTML=renderBorrowerPatientProfile(fullName)+`<div class="profile-details-clean">${personal.map(([k,v])=>`<div class="profile-detail-clean"><small>${escapeHtml(k)}</small><strong>${escapeHtml(v)}</strong></div>`).join('')}</div><div class="profile-address-card"><h3>Dirección</h3><p>Domicilio capturado para validación y contacto operativo.</p><div class="profile-address-grid"><div class="profile-detail-clean"><small>Calle</small><strong>${escapeHtml(addressParts.street)}</strong></div><div class="profile-detail-clean"><small>Número exterior</small><strong>${escapeHtml(addressParts.exterior)}</strong></div><div class="profile-detail-clean"><small>Número interior</small><strong>${escapeHtml(addressParts.interior)}</strong></div><div class="profile-detail-clean"><small>Colonia</small><strong>${escapeHtml(addressParts.colony)}</strong></div><div class="profile-detail-clean"><small>Alcaldía o municipio</small><strong>${escapeHtml(addressParts.municipality)}</strong></div><div class="profile-detail-clean"><small>Estado</small><strong>${escapeHtml(addressParts.stateName)}</strong></div><div class="profile-detail-clean"><small>Código postal</small><strong>${escapeHtml(addressParts.zip)}</strong></div><div class="profile-detail-clean"><small>Situación de vivienda</small><strong>${escapeHtml(addressParts.housingStatus)}</strong></div><div class="profile-detail-clean"><small>¿Cuánto pagas al mes?</small><strong>${escapeHtml(addressParts.housingPayment)}</strong></div></div></div>`;
   }
   const history=document.getElementById('portalHistory'); if(history){
     const canReapply=canStartNewApplication();
