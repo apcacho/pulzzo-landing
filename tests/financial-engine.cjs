@@ -176,4 +176,62 @@ check('Provider normalization is read-only and unresolved amounts visibly block 
  const rows=read(r,'dispersionProviderPayments(p,dispersionTerms(p),true)');assert.equal(rows[0].status,'Sin importe por dispersar');assert.equal(rows[1].status,'Requiere revisión');assert.equal(r.run('JSON.stringify(p)'),r.run('before'));
  r.run('dispersionReadyForRelease=()=>true');assert.equal(r.run('dispersionMarkProviderDispersed(1)'),false);assert.equal(r.run('JSON.stringify(p)'),r.run('before'));
 });
+// Policy-v1 fixtures explicitly use MXN 12,345.67, nominal annual 24%, ACT/360,
+// IVA 16% on rounded interest, monthly day 15, 12 periods, and quote date Oct 8.
+// They do not assert an inherited example's quota without its original rate fixture.
+function delayedFixture(frequency='monthly'){
+ auditNow='2026-10-13T18:00:00Z';const r=runtime();
+ r.run(`var p={id:'DELAY-V1',application:{contractSigned:true,signedAt:'2026-10-08'},contract:{signedAt:'2026-10-08'},offer:{accepted:true,procedureAmount:12345.67,totalFinancedAmount:12345.67,approvedAmount:12345.67,openingFeeRate:0,openingFeeAmount:0,openingFeeTaxVersion:1,openingFeeMode:'upfront',termMonths:12,ordinaryAnnualRate:.24,annualInterestRate:24,interestCalculationBase:'outstanding_balance',paymentFrequency:'${frequency}',paymentDayOption:'${frequency==='monthly'?'15':'15_last_day'}',monthlyPayment:1000,initialRequiredPeriods:0},payments:[],paymentSchedule:[]};db.patients.push(p);selectedPatientId=p.id;var t=dispersionTerms(p);var ds=dispersionGeneratePaymentDates('2026-10-08',t,t.numberOfPeriods);var fixed=calculateFixedPeriodPayment({principal:12345.67,totalPeriods:t.numberOfPeriods,dueDates:ds,startDate:'2026-10-08',terms:t});p.offer.monthlyPayment=roundToCents(fixed*${frequency==='monthly'?1:2});p.offer.disbursementSchedulePolicyVersion=1;p.offer.contractedSchedule=dispersionCreateContractedSchedule(p,'2026-10-08');dispersionEnsureSchedule(p);persist();`);
+ return r;
+}
+for(const frequency of ['monthly','biweekly'])check(`Delayed activation preserves accepted quota and dates ${frequency}`,()=>{
+ const r=delayedFixture(frequency),before=read(r,'p.paymentSchedule'),q=read(r,'p.offer.contractedSchedule');
+ const result=read(r,"dispersionPrepareActivation(p,'2026-10-12')");assert.equal(result.error,undefined);assert.equal(result.rows.length,q.numberOfPeriods);
+ let balance=12345.67,previous='2026-10-12';
+ result.rows.forEach((row,i)=>{const days=(Date.parse(q.dueDates[i])-Date.parse(previous))/86400000;const interest=cents(balance*.24*days/360),iva=cents(interest*.16),capital=i===q.numberOfPeriods-1?balance:cents(q.regularPayment-interest-iva);assert.equal(row.interest,interest);assert.equal(row.interestIva,iva);assert.equal(row.capital,capital);assert.equal(row.dueDate,before[i].dueDate);if(i<q.numberOfPeriods-1)assert.equal(row.payment,q.regularPayment);balance=cents(balance-capital);previous=row.dueDate;});
+ assert.equal(balance,0);assert.ok(result.rows.at(-1).payment<q.regularPayment);assert.equal(cents(result.rows.reduce((sum,row)=>sum+row.capital,0)),12345.67);
+ assert.equal(result.rows[0].interest,cents(12345.67*.24*3/360));assert.equal(r.run('p.paymentSchedule[0].interest'),before[0].interest);
+ r.run("var activation=dispersionPrepareActivation(p,'2026-10-12');p.application.dispersionDate='2026-10-12';p.application.disbursedAt='2026-10-12';p.paymentSchedule=activation.rows;dispersionEnsureSchedule(p);persist();var snapshot=JSON.stringify(p.paymentSchedule);dispersionEnsureSchedule(p)");assert.equal(r.run('JSON.stringify(p.paymentSchedule)'),r.run('snapshot'));
+ const reload=runtime([...r.storage]);assert.deepEqual(read(reload,"dispersionBuildSchedule(db.patients.find(x=>x.id==='DELAY-V1'))"),read(r,'p.paymentSchedule'));
+ assert.match(r.run('dispersionContractedScheduleNoticeHtml(p,p.paymentSchedule)'),/Última cuota de ajuste/);
+});
+check('Invalid activation dates and changed contract terms require review without mutation',()=>{
+ const r=delayedFixture();for(const date of ['2026-02-31','2026-10-07','2026-10-15','2026-10-14','bad']){const before=r.run('JSON.stringify(p)');assert.ok(r.run(`dispersionPrepareActivation(p,'${date}').error`));assert.equal(r.run('JSON.stringify(p)'),before);}
+ for(const field of ['monthlyPayment','termMonths','ordinaryAnnualRate','procedureAmount']){r.run(`var old=p.offer.${field};p.offer.${field}=old+1;var snapshot=JSON.stringify(p)`);assert.match(r.run("dispersionPrepareActivation(p,'2026-10-12').error"),/condiciones/);assert.equal(r.run('JSON.stringify(p)'),r.run('snapshot'));r.run(`p.offer.${field}=old`);}
+ r.run("p.offer.contractedSchedule.dueDates[1]='2026-02-31'");assert.match(r.run("dispersionPrepareActivation(p,'2026-10-12').error"),/fechas inválidas/);
+});
+check('Upfront fee receipt alone permits activation; capital or interest receipts require review',()=>{
+ const r=delayedFixture();r.run("p.payments=[{paymentType:'commission_upfront',amount:348,receiptId:'OPENING'}]");assert.equal(r.run("!!dispersionPrepareActivation(p,'2026-10-12').error"),false);
+ r.run("p.payments.push({paymentType:'ordinary',amount:10,receiptId:'INTEREST'})");assert.match(r.run("dispersionPrepareActivation(p,'2026-10-12').error"),/Revisión contable/);
+ r.run("p.payments=[];p.paymentSchedule[0].interestPaid=10;p.paymentSchedule[0].paidAmount=10");assert.match(r.run("dispersionPrepareActivation(p,'2026-10-12').error"),/Revisión contable/);
+});
+check('Manual quote keeps its exact quota and rejects insufficient or excessive early-payoff quota',()=>{
+ const r=delayedFixture();r.run('p.offer.monthlyPayment+=1;p.offer.contractedSchedule=dispersionCreateContractedSchedule(p,"2026-10-08")');const q=r.run('p.offer.monthlyPayment');const result=read(r,"dispersionValidateContractedQuote(p,'2026-10-08')");assert.equal(result.error,undefined);assert.ok(result.rows.slice(0,-1).every(row=>row.payment===q));
+ for(const amount of [1,20000]){r.run(`p.offer.monthlyPayment=${amount};p.offer.contractedSchedule=dispersionCreateContractedSchedule(p,'2026-10-08')`);assert.match(r.run("dispersionValidateContractedQuote(p,'2026-10-08').error"),/cuota aceptada/);}
+});
+check('Historical accepted and disbursed schedules are never silently re-enrolled or repriced',()=>{
+ const r=setup('outstanding_balance');r.run("var acceptedLegacyOffer=JSON.stringify(p.offer);var financial=p.paymentSchedule.map(r=>[r.dueDate,r.capital,r.interest,r.interestIva,r.payment]);p.application.dispersionDate='2026-06-20';dispersionEnsureSchedule(p)");assert.deepEqual(read(r,'p.paymentSchedule.map(r=>[r.dueDate,r.capital,r.interest,r.interestIva,r.payment])'),read(r,'financial'));assert.equal(r.run('JSON.stringify(p.offer)'),r.run('acceptedLegacyOffer'));assert.equal(r.run('p.offer.disbursementSchedulePolicyVersion'),undefined);
+ r.run("delete p.application.dispersionDate;delete p.application.disbursedAt;delete p.application.dispersedAt");assert.match(r.run("dispersionPrepareActivation(p,'2026-10-07').error"),/histórico requiere revisión/);
+});
+check('Actual release handler applies policy only after validation and refuses repeat release',()=>{
+ const r=delayedFixture();r.el('dispersionDateInput').value='2026-10-12';r.run("dispersionReadyForRelease=()=>true;p.offer.paymentCalendarSignature='accepted-calendar';var acceptedOffer=JSON.stringify(p.offer)");r.run('dispersionMarkDispersed()');assert.equal(r.run('JSON.stringify(p.offer)'),r.run('acceptedOffer'));assert.equal(r.run('p.application.dispersionDate'),'2026-10-12');assert.equal(r.run('p.paymentSchedule[0].interest'),24.69);const before=r.run('JSON.stringify(p)');assert.equal(r.run('dispersionMarkDispersed()'),false);assert.equal(r.run('JSON.stringify(p)'),before);
+});
+check('Signing later than quote does not move the quoted calendar or reprice its projection',()=>{
+ const r=delayedFixture();const before=read(r,'p.paymentSchedule');r.run("p.paymentSchedule=[];p.contract.signedAt='2026-10-10';p.application.signedAt='2026-10-10';dispersionEnsureSchedule(p)");const after=read(r,'p.paymentSchedule');for(let i=0;i<before.length;i++)for(const field of ['dueDate','capital','interest','interestIva','payment'])assert.equal(after[i][field],before[i][field],field);
+});
+check('Policy-v1 retained rows normalize active extensions exactly like legacy snapshots',()=>{
+ const r=delayedFixture();r.run("var row=p.paymentSchedule[0];Object.assign(row,{extensionStatus:'active',status:'Prórroga activa',deferredCapital:500,currentDueDate:'2026-11-15',interest:99,interestIva:15.84,capitalPaid:10,moratory:20,moratoryIva:3.2});var expected=dispersionNormalizeExtensionActiveRow({...row},row);var actual=dispersionBuildSchedule(p)[0]");
+ for(const field of ['capital','interest','interestIva','totalPayment','pendingAmount','capitalPaid','moratory','moratoryIva','status','currentDueDate'])assert.equal(r.run('actual.'+field),r.run('expected.'+field),field);
+});
+check('Release storage failure and stale writes leave schedule, movements and audit unchanged',()=>{
+ for(const mode of ['failed','stale']){const r=delayedFixture();r.el('dispersionDateInput').value='2026-10-12';r.run('dispersionReadyForRelease=()=>true');const before=r.run('JSON.stringify(db)');if(mode==='failed')r.failWrites(true);else r.storage.set(r.run('DEMO_STORAGE_KEY'),'newer external state');assert.equal(r.run('dispersionMarkDispersed()'),false);assert.equal(r.run('JSON.stringify(db)'),before);}
+});
+check('Provider release preserves common actual date and reviews differing partial-draw dates',()=>{
+ const r=delayedFixture();r.run("p.application.providerDispersions=[{id:'p1',provider:'A',concept:'P1',amount:6000},{id:'p2',provider:'B',concept:'P2',amount:6345.67}];persist();dispersionReadyForRelease=()=>true");r.el('providerDispersionDate-0').value='2026-10-12';r.el('providerDispersionDate-1').value='2026-10-13';assert.equal(r.run('dispersionMarkProviderDispersed(0)'),true);assert.equal(r.run('p.application.dispersionDate'),undefined);const before=r.run('JSON.stringify(p)');assert.equal(r.run('dispersionMarkProviderDispersed(1)'),false);assert.equal(r.run('JSON.stringify(p)'),before);assert.match(r.el('toast').textContent,/fechas diferentes/);assert.match(r.run("dispersionPrepareActivation(p,'2026-10-13').error"),/fechas diferentes/);r.el('providerDispersionDate-1').value='2026-10-12';assert.equal(r.run('dispersionMarkProviderDispersed(1)'),true);assert.equal(r.run('p.application.dispersionDate'),'2026-10-12');assert.equal(r.run('p.paymentSchedule[0].interest'),24.69);
+});
+check('Activation catches isolated concept evidence even when legacy paid summary is missing',()=>{
+ const r=delayedFixture();r.run('p.paymentSchedule[0].capitalPaid=1');assert.match(r.run("dispersionPrepareActivation(p,'2026-10-12').error"),/Revisión contable/);
+});
+auditNow='2026-10-07T12:00:00Z';
+
 console.log(JSON.stringify({checksPassed:checks,failures},null,2));process.exitCode=failures.length?1:0;

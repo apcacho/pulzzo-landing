@@ -16,7 +16,7 @@ const pages={
  'registro-doctor.html':'e9d399c64c0d64b1fdfb51178ab5ac6531f1b00b6ccde46cad3ec5f55ee6e2f7',
  'verificacion-cuenta.html':'ce2f4184c76a5a208fd0bdf68bdc18012774804fa13fd7835c54f87061c65843',
  'verificacion-doctor.html':'b84dc7bb90b744d4dcede23b3cae47e7e778028fb5efb1f59cc542135f96b047',
- 'solicitud-paciente.html':'6c11c626f0150cde099e2b61b060caba35c9af824f839dcf262a9239671804a1'
+ 'solicitud-paciente.html':'d22dd1566ab38bd12549fce9b3bd6a9d9b518026a48f83e3b9bfe1ade3113644'
 };
 const classRole='ui-(?:action-(?:primary|secondary|commitment|danger|warning)|selection(?:-current)?|choice)';
 const stripRoles=text=>text.replace(new RegExp(' class="'+classRole+'"','g'),'').replace(new RegExp(' '+classRole+'\\b','g'),'');
@@ -28,7 +28,7 @@ for(const [file,originalScriptHash] of Object.entries(pages)){
  assert.equal(html.split(link).length-1,1,file+': one late semantic stylesheet');
  assert.ok(html.indexOf(link)>html.lastIndexOf('</style>'),file+': semantic colors follow legacy layout styles');
  const scripts=[...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)].map(match=>match[1]).join('\n');
- assert.equal(sha(stripRoles(scripts)),originalScriptHash,file+': reviewed 2026-10-08 behavior snapshot with explicit CSS roles');
+ assert.equal(sha(stripRoles(scripts)),originalScriptHash,file+': reviewed 2026-10-09 behavior snapshot with explicit CSS roles');
  const controls=[...html.matchAll(/<(?:button|a)\b[^>]*>/g)].map(match=>match[0]);
  for(const tag of controls.filter(tag=>(tag.match(/class="([^"]*)"/)?.[1]||'').split(/\s+/).some(token=>['auth-btn','btn'].includes(token)))){
   assert.match(tag,/ui-action-(?:primary|secondary)/,file+': auth/application controls have explicit action roles');

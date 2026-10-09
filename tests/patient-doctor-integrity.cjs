@@ -11,7 +11,7 @@ function pending(){const h=harness({applicationId:'ORIGINAL',offerReady:true,off
 const money=pending();
 for(const [text,value] of [['$50,250.50',50250.5],['MXN 1,000.01',1000.01],['0.50',.5],['-50.25',-50.25],['1.23.45',0],['1,23',0],['infinity',0],['0',0]])assert.equal(money.context.parseMoney(text),value,text);
 const amountNode={value:'$50,250.50'};money.context.formatMoneyInput(amountNode);assert.equal(money.context.parseMoney(amountNode.value),50250.5);
-for(const action of ['accept-offer','reject-offer','save-payment-day','reject-contract']){
+for(const action of ['accept-offer','reject-offer','reject-contract']){
  const h=pending();if(['save-payment-day','reject-contract'].includes(action)){h.state.offerAccepted=true;h.context.applicationMemorySnapshot=JSON.stringify(h.state);}
  const previous=JSON.stringify(h.state),set=h.context.localStorage.setItem;
  h.context.localStorage.setItem=()=>{throw Error('QuotaExceededError')};

@@ -141,5 +141,39 @@
     }
     return rows;
   }
-  return {costFactorsFlat,money,parseAmount,quote,readStorage,scrubSecrets,scrubKnownStorage,normalizeDocuments,offerExpiryStatus,offerAvailable,resumeView,clearPostApproval,paymentSchedule,newPatientAccountId,migratePatientAccount};
+  // Fixed correction paths; never include terms, contract, ledger, or account IDs.
+  const patientCorrectionFields=Object.freeze(Object.fromEntries([
+    'incomeType','incomeMonthly','comfortablePayment','ciecChoice',
+    'identity.name','identity.curp','identity.rfc','identity.rfcBase','identity.homoclave','identity.housingStatus','identity.housingPayment',
+    ...['first','second','paternal','maternal'].map(k=>'identity.nameParts.'+k),
+    ...['street','exterior','interior','zip','colony','city','state'].map(k=>'identity.address.'+k),
+    ...[0,1].flatMap(i=>['name','phone','relationship','relationshipType','relationshipOther'].map(k=>'references.'+i+'.'+k)),
+    ...['bank','payroll','csf','annualReturns','monthlyReturn','complianceOpinion'].map(k=>'documentFiles.'+k),
+    ...['ineFront','ineBack','proofAddress','selfieVideo'].map(k=>'identityFiles.'+k)
+  ].map(k=>[k,k])));
+  const copy=value=>value===undefined?undefined:JSON.parse(JSON.stringify(value));
+  function patientDocumentMetadata(value){if(!value||typeof value!=='object')return null;return Object.fromEntries(['name','type','size','lastModified','updatedAt','reviewStatus','canRepeat'].filter(k=>value[k]!==undefined).map(k=>[k,copy(value[k])]));}
+  function patientSnapshot(state){return Object.fromEntries(Object.keys(patientCorrectionFields).map(path=>{let value=state;for(const key of path.split('.'))value=value?.[key];return [path,path.startsWith('documentFiles.')?(Array.isArray(value)?value:[]).map(patientDocumentMetadata).filter(Boolean):path.startsWith('identityFiles.')?patientDocumentMetadata(value):String(value??'')];}));}
+  function patientSubmitted(state){return !!(state.applicationSubmitted||state.applicationSubmittedAt||state.submittedAt||state.demoBridgeCaseId||state.offerAccepted||state.contractSigned);}
+  const patientLockedKeys=['patient','patientRecipient','forWhom','procedure','specialties','procedures','otherSpecialty','otherProcedure','procedureCosts','procedureProviderAssignments','procedureProviderContacts','providerAssignmentMode','doctorSource','doctorId','doctorName','doctorPrefix','doctorState','doctorWhatsApp','doctorDirectoryState','when','requestedAmount','procedureCost','selectedTerm','selectedMonthly','selectedFactor','identity','identityFiles','identityDetectedName','incomeType','incomeMonthly','comfortablePayment','ciecChoice','documentFiles','documentProfile','references','referencesSaved','geolocation'];
+  function assertPatientDataUnchanged(before,after,approvedCorrection=false){
+    if(!patientSubmitted(before))return;
+    if(before.offerAccepted&&after.offerAccepted!==true||before.contractSigned&&after.contractSigned!==true)throw Error('La aceptación y el contrato existentes deben conservarse.');
+    if(before.offerAccepted||before.contractSigned){for(const key of ['offer','demoBridgeOfferFingerprint','paymentFrequency','preferredPaymentDay','paymentDayOption','paymentDays','firstPaymentDay','secondPaymentDay'])if(JSON.stringify(before[key])!==JSON.stringify(after[key]))throw Error('Las condiciones financieras aceptadas no pueden cambiar durante una corrección.');}
+    const expected=copy(before);
+    if(approvedCorrection){
+      const r=before.demoPatientCorrection;
+      if(!r||!['submitted','requested'].includes(r.status)||after.demoPatientCorrection?.status!=='approved')throw Error('No hay corrección aprobada para aplicar.');
+      for(const path of Object.keys(after.demoPatientCorrection.approvedChanges||{})){
+        if(!(path in patientCorrectionFields)||!r.allowedFields?.includes(path))throw Error('Campo de corrección no autorizado.');
+        let target=expected;const parts=path.split('.');for(const key of parts.slice(0,-1))target=target[key]||(target[key]={});
+        let value=after;for(const key of parts)value=value?.[key];target[parts.at(-1)]=copy(value);
+      }
+      if(expected.incomeType!==before.incomeType||expected.ciecChoice!==before.ciecChoice)expected.documentProfile=expected.incomeType;
+      if(Object.keys(after.demoPatientCorrection.approvedChanges||{}).some(k=>k.startsWith('references.'))&&Array.isArray(after.references)&&after.references.length>=2&&after.references.every(r=>String(r.name||r.fullName||'').trim()&&String(r.phone||'').replace(/\D/g,'').length===10&&String(r.relationship||r.relationshipType||'').trim()))expected.referencesSaved=true;
+    }
+    for(const key of patientLockedKeys)if(JSON.stringify(expected[key])!==JSON.stringify(after[key]))throw Error('Los datos enviados están bloqueados. Solo puedes corregir los campos observados por backoffice.');
+    if(before.applicationId!==after.applicationId||before.applicationSubmitted&&!after.applicationSubmitted)throw Error('La solicitud enviada no puede reiniciarse desde una corrección.');
+  }
+  return {patientCorrectionFields,patientSnapshot,patientSubmitted,assertPatientDataUnchanged,costFactorsFlat,money,parseAmount,quote,readStorage,scrubSecrets,scrubKnownStorage,normalizeDocuments,offerExpiryStatus,offerAvailable,resumeView,clearPostApproval,paymentSchedule,newPatientAccountId,migratePatientAccount};
 });

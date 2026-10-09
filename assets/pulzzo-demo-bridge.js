@@ -16,7 +16,24 @@
   const hasEvidence=value=>value&&typeof value==='object'?Object.values(value).some(hasEvidence):typeof value==='string'?!!value.trim():typeof value==='number'?Number.isFinite(value):value===true;
   const completeReferences=refs=>Array.isArray(refs)&&refs.length>=2&&refs.every(ref=>ref&&String(ref.fullName||ref.name||'').trim()&&/^\d{10}$/.test(String(ref.phone||'').replace(/\D/g,''))&&String(ref.relationship||'').trim());
   function canonical(value){if(Array.isArray(value))return value.map(canonical);if(value&&typeof value==='object')return Object.fromEntries(Object.keys(value).sort().map(k=>[k,canonical(value[k])]));return value;}
-  function fingerprint(offer){const terms=copy(object(offer));delete terms.status;return JSON.stringify(canonical(terms));}
+  // Patient transport is a positive whitelist. Internal price, payout, risk and margin
+  // fields never cross this boundary, including nested procedure metadata.
+  const publicOfferKeys=['status','sent','approvedAmount','procedureAmount','patientProcedureAmount','procedurePatientAmount','totalFinancedAmount','termMonths','monthlyPayment','validUntil','openingFee','openingFeeRate','openingFeeMode','openingFeeAmount','openingFeeBaseAmount','openingFeeIvaAmount','openingFeeTaxVersion','openingFeeTaxReviewPending','upfrontOpeningFeeDue','annualInterestRate','ordinaryAnnualRate','interestCalculationBase','configurationVersionId','paymentFrequency','paymentDayOption','paymentCalendarType','paymentCalendarSignature','paymentAmountPerPeriod','initialPaymentRequired','initialPaymentsRequired','initialInstallments','initialRequiredPeriods','initialPaymentMonths','initialPaymentAmount','initialPaymentTotal','initialPaymentEach','initialPaymentStatus','initialPaymentText','clientIntroText','doctor','procedure','openingFeeDisclosure','disbursementSchedulePolicyVersion'];
+  function scalarPick(value,keys){return Object.fromEntries(keys.filter(k=>Object.hasOwn(object(value),k)&&(["string","boolean"].includes(typeof value[k])||typeof value[k]==='number'&&Number.isFinite(value[k])||value[k]===null)).map(k=>[k,value[k]]));}
+  function publicOffer(value){
+    const o=copy(object(value)),out=scalarPick(o,publicOfferKeys);
+    if(Array.isArray(o.paymentDays))out.paymentDays=o.paymentDays.filter(x=>x==='last_day'||Number.isInteger(x)&&x>=1&&x<=31);
+    if(o.biweeklyPaymentAmounts)out.biweeklyPaymentAmounts=scalarPick(o.biweeklyPaymentAmounts,['firstAmount','secondAmount','monthlyPayment']);
+    if(Array.isArray(o.financedProcedures))out.financedProcedures=o.financedProcedures.map(row=>scalarPick(row,['id','procedureId','providerId','selected','procedureName','specialty','patientAmount','approvedAmount','approvedCost','providerType','providerName','providerPhone']));
+    if(o.contractedSchedule){out.contractedSchedule=scalarPick(o.contractedSchedule,['version','startDate','principal','ordinaryAnnualRate','interestCalculationBase','paymentFrequency','paymentDayOption','numberOfPeriods','initialCount','regularPayment','projectedFinalPayment']);if(Array.isArray(o.contractedSchedule.dueDates))out.contractedSchedule.dueDates=o.contractedSchedule.dueDates.filter(x=>typeof x==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(x));}
+    return out;
+  }
+  function legacyFingerprint(offer){const terms=copy(object(offer));delete terms.status;return JSON.stringify(canonical(terms));}
+  function digestText(text){const bytes=unescape(encodeURIComponent(String(text))),words=[],bitLength=bytes.length*8;for(let i=0;i<bytes.length;i++)words[i>>2]=(words[i>>2]||0)|bytes.charCodeAt(i)<<(24-(i%4)*8);words[bytes.length>>2]=(words[bytes.length>>2]||0)|0x80<<(24-(bytes.length%4)*8);const length=((bytes.length+8>>6)+1)*16;while(words.length<length)words.push(0);words[length-2]=Math.floor(bitLength/4294967296);words[length-1]=bitLength|0;const H=[0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19],K=[0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2],r=(x,n)=>(x>>>n)|(x<<(32-n));for(let offset=0;offset<words.length;offset+=16){const w=words.slice(offset,offset+16);for(let i=16;i<64;i++){const a=w[i-15],b=w[i-2];w[i]=((r(a,7)^r(a,18)^(a>>>3))+w[i-16]+(r(b,17)^r(b,19)^(b>>>10))+w[i-7])|0;}let [a,b,c,d,e,f,g,h]=H;for(let i=0;i<64;i++){const t1=(h+(r(e,6)^r(e,11)^r(e,25))+((e&f)^(~e&g))+K[i]+w[i])|0,t2=((r(a,2)^r(a,13)^r(a,22))+((a&b)^(a&c)^(b&c)))|0;h=g;g=f;f=e;e=(d+t1)|0;d=c;c=b;b=a;a=(t1+t2)|0;}[a,b,c,d,e,f,g,h].forEach((v,i)=>H[i]=(H[i]+v)|0);}return H.map(v=>(v>>>0).toString(16).padStart(8,'0')).join('');}
+  function fingerprint(offer){return 'v2:'+digestText(legacyFingerprint(publicOffer(offer)));}
+  function matchesFingerprint(value,offer){return value===fingerprint(offer)||typeof value==='string'&&value[0]==='{'&&value===legacyFingerprint(offer);}
+
+  function publicOutcome(state){const out=pick(state,outcomeKeys);if(Array.isArray(out.offerDecisionHistory))out.offerDecisionHistory=out.offerDecisionHistory.map(row=>({...scalarPick(row,['decision','decidedAt','replacedAt']),offer:publicOffer(row.offer),offerFingerprint:fingerprint(row.offer)}));return out;}
   function makeHandoff(state,patient){
     if(!state.applicationSubmitted||!state.applicationId)throw Error('Completa y envía primero la solicitud de ejemplo.');
     if(state.patientAccountId&&patient.patientAccountId&&state.patientAccountId!==patient.patientAccountId)throw Error('La cuenta cambió. No se exportó el expediente.');
@@ -38,7 +55,15 @@
     const providers=Array.isArray(p.procedureProviders?.procedures)?p.procedureProviders.procedures:[];
     application.procedureProviderAssignments=Object.fromEntries(providers.map(row=>[cleanText(row.procedure),cleanText(row.provider||'Proveedor de ejemplo por definir')]));
     application.procedureProviderContacts=Object.fromEntries(providers.map(row=>[cleanText(row.procedure),cleanText(row.whatsapp||'')]));
-    return {version:1,demo:true,id,patientAccountId,sourceApplicationId:state.applicationId,offerFingerprint:state.demoBridgeOfferFingerprint||null,patient:{fullName:cleanText(patient.fullName||[patient.nombre,patient.apellidoPaterno,patient.apellidoMaterno].filter(Boolean).join(' ')||'Paciente de ejemplo'),email:cleanText(patient.correo||patient.email||'paciente@example.test'),phone:cleanText(patient.celular||patient.phone||''),incomeMonthly:number(state.incomeMonthly),incomeType:cleanText(state.incomeType||'')},application,outcome:pick(state,outcomeKeys),references,documentMetadata,documentKeys:[...new Set(documentMetadata.map(file=>file.type))],createdAt:new Date().toISOString()};
+    return {version:1,demo:true,id,patientAccountId,sourceApplicationId:state.applicationId,offerFingerprint:state.demoBridgeOfferFingerprint?fingerprint(state.offer):null,patient:{fullName:cleanText(patient.fullName||[patient.nombre,patient.apellidoPaterno,patient.apellidoMaterno].filter(Boolean).join(' ')||'Paciente de ejemplo'),email:cleanText(patient.correo||patient.email||'paciente@example.test'),phone:cleanText(patient.celular||patient.phone||''),incomeMonthly:number(state.incomeMonthly),incomeType:cleanText(state.incomeType||'')},application,outcome:publicOutcome(state),references,documentMetadata,documentKeys:[...new Set(documentMetadata.map(file=>file.type))],createdAt:new Date().toISOString()};
+  }
+  function calendarFrequency(value){const v=String(value||'').toLowerCase();return ['biweekly','quincenal','quincenales'].includes(v)?'biweekly':['monthly','mensual','mensuales'].includes(v)?'monthly':v;}
+  function calendarDays(value){if(Array.isArray(value))return value.map(String).sort().join('|');const v=String(value||'').toLowerCase().trim();if(!v)return '';if(/last_day|último|ultimo|fin de mes/.test(v))return (v.match(/\d+/g)||[]).concat('last_day').sort().join('|');return (v.match(/\d+/g)||[]).sort().join('|');}
+  function requireQuotedCalendar(offer,outcome){
+    if(!(outcome.offerAccepted||outcome.contractSigned))return;
+    const quotedFrequency=calendarFrequency(offer.paymentFrequency),selectedFrequency=calendarFrequency(outcome.paymentFrequency);
+    const quotedDays=calendarDays(offer.paymentDays||offer.paymentDayOption||offer.preferredPaymentDay),selectedDays=calendarDays(outcome.paymentDays||outcome.paymentDayOption||outcome.preferredPaymentDay);
+    if(quotedFrequency&&selectedFrequency&&quotedFrequency!==selectedFrequency||quotedDays&&selectedDays&&quotedDays!==selectedDays)throw Error('El calendario seleccionado no coincide con la oferta. Solicita una oferta actualizada antes de aceptar o firmar.');
   }
   function importHandoff(db,handoff){
     if(!handoff||handoff.version!==1||handoff.demo!==true||!handoff.id||!handoff.sourceApplicationId)throw Error('No hay un traspaso demo válido.');
@@ -46,9 +71,10 @@
     if(existing){
       if(existing.patientAccountId&&existing.patientAccountId!==handoff.patientAccountId)throw Error('El expediente pertenece a otra cuenta.');
       if(existing.demoBridge?.sourceApplicationId!==handoff.sourceApplicationId)throw Error('El identificador ya pertenece a otro expediente. No se sobrescribió.');
-      if(!handoff.offerFingerprint||handoff.offerFingerprint!==fingerprint(existing.offer))throw Error('El caso ya existe o su oferta cambió. No se sobrescribieron datos.');
+      if(!handoff.offerFingerprint||!matchesFingerprint(handoff.offerFingerprint,existing.offer))throw Error('El caso ya existe o su oferta cambió. No se sobrescribieron datos.');
       // Only explicitly returned patient decisions may travel back. Never overwrite an offer.
       const outcome=pick(object(handoff.outcome),outcomeKeys);
+      requireQuotedCalendar(existing.offer,outcome);
       if(existing.application.contractSigned && !outcome.contractSigned)throw Error('No se puede revertir una firma de ejemplo ya registrada.');
       if(existing.application.offerAccepted && !outcome.offerAccepted)throw Error('No se puede revertir una oferta ya aceptada.');
       Object.assign(existing.application,outcome);
@@ -67,15 +93,16 @@
   function makeReply(record){
     if(!record?.demoBridge)throw Error('Selecciona el caso importado del paciente demo.');
     if(!record.offer||!record.application.offerReady||!['enviada','sent','offer_sent','oferta_enviada','aceptada','accepted'].includes(String(record.offer.status||'').toLowerCase()))throw Error('Prepara y envía la oferta en el backoffice antes de traspasarla.');
-    const offer=copy(record.offer);
+    const offer=publicOffer(record.offer);
     if(number(offer.approvedAmount)<=0||number(offer.termMonths)<=0||number(offer.monthlyPayment)<=0)throw Error('La oferta necesita monto, plazo y pago válidos.');
     return {version:1,demo:true,id:record.id,patientAccountId:record.patientAccountId||null,sourceApplicationId:record.demoBridge.sourceApplicationId,offer,offerFingerprint:fingerprint(record.offer),application:pick(record.application,['applicationStatus','initialPaymentRequired','initialInstallments','initialPaymentPaid','doctorPaymentPaid','amortizationReady']),createdAt:new Date().toISOString()};
   }
   function applyReply(state,reply){
     if(!reply||reply.version!==1||reply.demo!==true||reply.id!==state.demoBridgeCaseId||reply.sourceApplicationId!==state.applicationId)throw Error('La respuesta no pertenece a esta solicitud. No se importó.');
     if(state.patientAccountId&&reply.patientAccountId!==state.patientAccountId)throw Error('La respuesta pertenece a otra cuenta.');
-    if((state.offerAccepted||state.contractSigned||state.signatureStatus==='signed') && state.demoBridgeOfferFingerprint!==reply.offerFingerprint)throw Error('La oferta ya fue aceptada o firmada; no se sustituirán sus condiciones.');
-    if(reply.offerFingerprint!==fingerprint(reply.offer))throw Error('La oferta del traspaso cambió. Vuelve a exportarla desde backoffice.');
+    const locked=!!(state.offerAccepted||state.contractSigned||state.signatureStatus==='signed');
+    if(locked && (fingerprint(state.offer)!==reply.offerFingerprint||!matchesFingerprint(state.demoBridgeOfferFingerprint,state.offer)))throw Error('La oferta ya fue aceptada o firmada; no se sustituirán sus condiciones.');
+    if(reply.offerFingerprint!==fingerprint(reply.offer)||JSON.stringify(canonical(reply.offer))!==JSON.stringify(canonical(publicOffer(reply.offer))))throw Error('La oferta del traspaso cambió. Vuelve a exportarla desde backoffice.');
     const previousFingerprint=state.demoBridgeOfferFingerprint;
     if(state.offerRejected && previousFingerprint && previousFingerprint!==reply.offerFingerprint){
       state.offerDecisionHistory=Array.isArray(state.offerDecisionHistory)?state.offerDecisionHistory:[];
@@ -83,8 +110,8 @@
       state.offerRejected=false;delete state.offerRejectedAt;
       if(state.rejectionSource==='client_rejected_offer'){delete state.rejectionSource;delete state.reapplyAllowed;}
     }
-    state.offer=copy(reply.offer);state.offerReady=true;
-    state.demoBridgeOfferFingerprint=reply.offerFingerprint;
+    if(!locked){state.offer=publicOffer(reply.offer);state.demoBridgeOfferFingerprint=reply.offerFingerprint;}
+    state.offerReady=true;
     const received=pick(object(reply.application),['applicationStatus','initialPaymentRequired','initialInstallments','initialPaymentPaid','doctorPaymentPaid','amortizationReady']);
     if(state.contractSigned)received.applicationStatus='contrato_firmado';
     else if(state.offerAccepted)received.applicationStatus='oferta_aceptada';
@@ -168,5 +195,5 @@
     const link=window.document.createElement('a');link.href=patient?'backoffice.html':'solicitud-paciente.html#portal';link.textContent=patient?'Abrir backoffice demo':'Abrir portal del paciente demo';link.style.margin='8px';panel.appendChild(link);
     panel.appendChild(status);window.document.body.appendChild(panel);
   }
-  return {makeHandoff,importHandoff,makeReply,applyReply,fingerprint,localDocumentVersion,saveMutation,mount};
+  return {makeHandoff,importHandoff,makeReply,applyReply,fingerprint,publicOffer,matchesFingerprint,localDocumentVersion,saveMutation,mount};
 });

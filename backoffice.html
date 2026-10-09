@@ -3965,6 +3965,8 @@
 <link rel="stylesheet" href="assets/css/auth-headings.css">
 <link rel="stylesheet" href="assets/css/backoffice-sidebar.css">
 <link rel="stylesheet" href="assets/css/backoffice-portfolio-polish.css">
+<link rel="stylesheet" href="assets/css/crm-office.css">
+<link rel="stylesheet" href="assets/css/backoffice-crm.css">
 </head>
 <body class="backoffice-typography">
 
@@ -3980,6 +3982,7 @@
   <section class="login-card">
     <span class="eyebrow">Backoffice</span>
     <h2>Iniciar sesión</h2>
+    <p id="crmLoginHint" class="crm-entry-note" hidden>El CRM se abre dentro de Backoffice con la sesión Admin demo. Allí puedes simular las vistas de KAM y administración; no es autenticación real.</p>
     <div class="field"><label>Correo interno Pulzzo</label><input id="loginEmail" value="admin@pulzzo.mx" autocomplete="off"></div>
     <div class="field"><label>Contraseña demo</label><input id="loginPass" type="password" value="pulzzo-demo"></div>
     <button class="btn btn-primary btn-full" id="loginBtn">Iniciar sesión</button>
@@ -4010,10 +4013,11 @@
     <header class="topbar">
       <button class="btn btn-soft mobile-menu" id="mobileMenu" aria-label="Abrir menú" aria-controls="sidebar" aria-expanded="false">☰</button>
       <div><h1 id="pageTitle">Dashboard Pulzzo</h1><p id="pageSub">Resumen ejecutivo operativo de Pulzzo.</p></div>
-      <div class="top-actions"><span class="role-badge" id="roleBadge">Admin</span><button class="btn btn-secondary btn-sm" id="resetBtn">Reset demo</button></div>
+      <div class="top-actions"><a class="btn btn-secondary btn-sm" href="crm.html">Correo CRM (configuración separada)</a><span class="role-badge" id="roleBadge">Admin</span><button class="btn btn-secondary btn-sm" id="resetBtn">Reset demo</button></div>
     </header>
     <div class="content">
       <section id="dashboard" class="view active"></section>
+      <section id="crm" class="view" aria-label="CRM"></section>
       <section id="patients" class="view"></section>
       <section id="patientProfiles" class="view"></section>
       <section id="providerRequests" class="view"></section>
@@ -7464,7 +7468,8 @@ function calculateOfferMonthlyPayment(force=false){
   const paymentDayOption=normalizePaymentDayOption(payCfg.paymentDayOption,paymentFrequency);
   const paymentDays=paymentDaysFromOption(paymentDayOption,paymentFrequency);
   const totalPeriods=paymentFrequency==='biweekly'?months*2:months;
-  const startDate=dispersionDateOnly(new Date());
+  const startDate=dispersionBusinessDateMX();
+  monthlyEl.dataset.quoteStartDate=startDate;
   const terms={
     approvedAmount:amount,
     totalFinancedAmount:amount,
@@ -7672,6 +7677,11 @@ function saveOfferDraftFromDom(skipValidation=true){
   p.application.initialRequiredPeriods=p.offer.initialRequiredPeriods||p.offer.initialPaymentMonths||0;
   p.application.ordinaryAnnualRate=p.offer.ordinaryAnnualRate||normalizePercentRate(p.offer.annualInterestRate,0.60,'percent');
   p.application.annualInterestRate=p.offer.annualInterestRate;
+  if(p.offer.interestCalculationBase==='outstanding_balance'){
+    p.offer.disbursementSchedulePolicyVersion=1;
+    const quoteStartDate=document.getElementById('offerMonthlyPayment')?.dataset.quoteStartDate||dispersionBusinessDateMX();
+    p.offer.contractedSchedule=dispersionCreateContractedSchedule(p,quoteStartDate);
+  }else{delete p.offer.disbursementSchedulePolicyVersion;delete p.offer.contractedSchedule;}
   return p;
 }
 function addOfferProcedure(){
@@ -7729,6 +7739,11 @@ function savePatientOffer(sendToClient=false){
     showOfferError('Usa montos y tasas no negativos, y números enteros para plazo y pagos iniciales.');return;
   }
   if(!requireCurrentOffer(p)){showOfferError('La vigencia debe incluir hoy en Ciudad de México o una fecha posterior.');return false;}
+  if(p.offer.disbursementSchedulePolicyVersion===1){
+    const quote=dispersionValidateContractedQuote(p,p.offer.contractedSchedule.startDate);
+    if(quote.error){showOfferError(quote.error);return false;}
+    p.offer.contractedSchedule.projectedFinalPayment=quote.rows.at(-1).payment;
+  }
   const breakdown=normalizeFinancialBreakdown(p);
   if(selected.length===1)p.offer.providerDispersions[0].amount=breakdown.amountToDisperse;
   const providerTotal=p.offer.providerDispersions.reduce((sum,row)=>sum+row.amount,0);
@@ -9399,7 +9414,7 @@ function dispersionMarkProviderDispersed(index){
   const p=contractSelectedPatient(); if(!p)return;
   if(!dispersionReadyForRelease(p)){toast('Completa contrato, pagos iniciales y comisión upfront antes de dispersar.');return false;}
   const a=p.application||(p.application={});
-  const rows=dispersionEnsureProviderDispersions(p);
+  const rows=JSON.parse(JSON.stringify(Array.isArray(a.providerDispersions)&&a.providerDispersions.length?a.providerDispersions:dispersionGeneratedProviderPayments(p,dispersionTerms(p))));
   const row=rows[index];
   if(!row)return;
   if(dispersionProviderIsDispersed(row)){toast('Este pago al proveedor ya fue dispersado.');return false;}
@@ -9410,7 +9425,11 @@ function dispersionMarkProviderDispersed(index){
   if(Math.abs(total-terms.amountToDisperse)>0.01){toast('Revisa la asignación: las dispersiones no coinciden con el total autorizado.');return false;}
   const date=document.getElementById(`providerDispersionDate-${index}`)?.value;
   if(!/^\d{4}-\d{2}-\d{2}$/.test(String(date||''))||dispersionDateOnly(date)!==date||date>dispersionBusinessDateMX()){toast('Captura una fecha real de dispersión válida, sin fechas futuras.');return false;}
+  const activation=dispersionPrepareActivation(p,date);
+  if(activation.error){toast(activation.error);return false;}
+  const dbBefore=JSON.stringify(db),before=JSON.parse(JSON.stringify(p));
   const file=document.getElementById(`providerReceiptInput-${index}`)?.files?.[0];
+  a.providerDispersions=rows;
   row.dispersionDate=date;
   row.dispersedAt=date;
   row.status='Dispersada';
@@ -9423,28 +9442,99 @@ function dispersionMarkProviderDispersed(index){
     a.dispersionStatus='dispersed';
     a.disbursementStatus='Dispersada';
     a.dispersionReceiptName=rows.map(r=>r.receiptName).filter(Boolean).join(', ');
+    if(activation.rows)p.paymentSchedule=activation.rows;
     dispersionEnsureSchedule(p);
   }
-  addEntityEvent(p,'Dispersión a proveedor registrada',`${row.provider} · ${row.concept} · ${fmtMoney(row.amount)} · ${formatMaybeDate(date)}`);
-  persist(); patientTab='dispersion'; renderPatientDetail(); toast('Dispersión a proveedor guardada');
+  dispersionReceiptEvent(p,'Dispersión a proveedor registrada',`${row.provider} · ${row.concept} · ${fmtMoney(row.amount)} · ${formatMaybeDate(date)}`);
+  if(!dispersionCommitActivation(p,before,dbBefore))return false; patientTab='dispersion'; renderPatientDetail(); toast('Dispersión a proveedor guardada');return true;
 }
 
+// Version 1 applies only to newly quoted offers. Historical contracts are never enrolled by reading.
+function dispersionCommitActivation(p,before,dbBefore){
+  try{
+    if(localStorage.getItem(DEMO_STORAGE_KEY)!==dispersionLedgerStorageVersion)throw new Error('Concurrent state change');
+    persist();return true;
+  }catch(error){
+    dispersionRollbackReceipt({patient:p,before,dbBefore});
+    toast('No se guardó la dispersión. Revisa almacenamiento o recarga si otra pestaña cambió los datos.');return false;
+  }
+}
+function dispersionCreateContractedSchedule(p,startDate){
+  const t=dispersionTerms(p);
+  return {version:1,startDate,principal:t.totalFinancedAmount,ordinaryAnnualRate:t.ordinaryAnnualRate,
+    interestCalculationBase:t.interestCalculationBase,paymentFrequency:t.paymentFrequency,paymentDayOption:t.paymentDayOption,
+    numberOfPeriods:t.numberOfPeriods,initialCount:t.initialCount,regularPayment:t.paymentAmountPerPeriod,
+    dueDates:dispersionGeneratePaymentDates(startDate,t,t.numberOfPeriods)};
+}
+function dispersionContractedScheduleIssue(p,actualDate){
+  const t=dispersionTerms(p),q=p.offer?.contractedSchedule;
+  if(p.offer?.disbursementSchedulePolicyVersion!==1||!q||q.version!==1)return 'El contrato histórico requiere revisión antes de ajustar el devengo por dispersión; no se modificaron sus condiciones.';
+  const validDate=d=>typeof d==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(d)&&dispersionDateOnly(d)===d;
+  if(!validDate(q.startDate)||!Array.isArray(q.dueDates)||q.dueDates.length!==q.numberOfPeriods||q.dueDates.some((d,i)=>!validDate(d)||d<=(i?q.dueDates[i-1]:q.startDate)))return 'Revisión requerida: el calendario contractual contiene fechas inválidas.';
+  if(actualDate&&(!validDate(actualDate)||actualDate<q.startDate||actualDate>=q.dueDates[0]))return 'Revisión requerida: la dispersión debe estar entre la fecha de cotización y el primer vencimiento contractual.';
+  if(!(q.principal>0)||!Number.isFinite(q.principal)||!Number.isFinite(q.ordinaryAnnualRate)||q.ordinaryAnnualRate<0)return 'Revisión requerida: el capital o la tasa contractual no son válidos.';
+  if(!(q.regularPayment>0)||!Number.isFinite(q.regularPayment))return 'Revisión requerida: la cuota aceptada no es válida.';
+  if(q.principal!==t.totalFinancedAmount||q.ordinaryAnnualRate!==t.ordinaryAnnualRate||q.interestCalculationBase!==t.interestCalculationBase||q.paymentFrequency!==t.paymentFrequency||q.paymentDayOption!==t.paymentDayOption||q.numberOfPeriods!==t.numberOfPeriods||q.initialCount!==t.initialCount||q.regularPayment!==t.paymentAmountPerPeriod)return 'Revisión requerida: las condiciones actuales no coinciden con la cotización contractual.';
+  return '';
+}
+function dispersionPrepareActivation(p,date){
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(String(date||''))||dispersionDateOnly(date)!==date||date>dispersionBusinessDateMX())return {error:'Captura una fecha real de dispersión válida, sin fechas futuras.'};
+  const t=dispersionTerms(p);
+  if(t.dispersionDate)return {error:'La dispersión ya está registrada. Cualquier corrección requiere revisión; no se reescribe el contrato.'};
+  if(t.interestCalculationBase!=='outstanding_balance')return {rows:null};
+  const error=dispersionContractedScheduleIssue(p,date);if(error)return {error};
+  if((p.application?.providerDispersions||[]).some(r=>dispersionProviderIsDispersed(r)&&String(r.dispersionDate||r.dispersedAt||'').slice(0,10)!==date))return {error:'Revisión requerida: las dispersiones parciales en fechas diferentes necesitan un devengo por tramos autorizado.'};
+  // A separately collected opening fee is not principal or interest and needs no reallocation.
+  const movements=(p.payments||[]).filter(m=>m.paymentType!=='commission_upfront'&&m.paymentType!=='reversal');
+  if(movements.length||(p.paymentSchedule||[]).some(r=>dispersionHasRealPaymentActivity(r)||dispersionConceptDefs().some(d=>Number(r[d.paid])>0)))return {error:'Revisión contable requerida: existen pagos de capital o interés que necesitan conciliación antes de cambiar el devengo.'};
+  return dispersionValidateContractedQuote(p,date);
+}
+function dispersionValidateContractedQuote(p,date){
+  const error=dispersionContractedScheduleIssue(p,date);if(error)return {error};
+  const candidate=JSON.parse(JSON.stringify(p));candidate.application={...candidate.application,dispersionDate:date,disbursedAt:date};candidate.contract={...candidate.contract,signedAt:p.offer.contractedSchedule.startDate};candidate.paymentSchedule=[];
+  const rows=dispersionBuildSchedule(candidate),q=p.offer.contractedSchedule;
+  if(rows.length!==q.numberOfPeriods||rows.some((r,i)=>r.capital<=0||(i<rows.length-1&&Math.abs(r.payment-q.regularPayment)>0.005))||rows.at(-1).payment>q.regularPayment+0.011)return {error:'Revisión requerida: la cuota aceptada no amortiza el crédito en el calendario contratado. No se modificó cuota ni plazo.'};
+  return {rows};
+}
+
+function dispersionContractedScheduleNoticeHtml(p,rows){
+  if(p.offer?.disbursementSchedulePolicyVersion!==1)return '';
+  const issue=dispersionContractedScheduleIssue(p,dispersionTerms(p).dispersionDate);
+  if(issue)return `<div class="payment-prepay-note">${escapeHtml(issue)}</div>`;
+  const last=rows.at(-1),q=p.offer.contractedSchedule;
+  return `<div class="payment-prepay-note">Cuota regular contratada: ${fmtMoney(q.regularPayment)}. Se conservan ${q.numberOfPeriods} vencimientos. Última cuota de ajuste: ${fmtMoney(last?.payment||0)}. El interés sobre saldo insoluto inicia en la fecha real de dispersión; antes de dispersar, los importes son una proyección.</div>`;
+}
+function dispersionRetainContractedRows(existing){
+  return existing.map(old=>{
+    const row={...old};
+    if(dispersionIsClosedPaymentStatus(row.status))return {...row,dpd:0};
+    if(dispersionIsExtensionActiveRow(row))dispersionNormalizeExtensionActiveRow(row,old);
+    row.dpd=row.pendingAmount>0?dispersionDaysPastDue(row.currentDueDate||row.dueDate):0;
+    if(row.dpd>0&&row.pendingAmount>0&&row.status!=='Ajustada por prepago')row.status='Vencido';
+    else if(row.pendingAmount>0&&String(row.currentDueDate||row.dueDate)<=dispersionBusinessDateMX()&&['Programado','Parcial anticipado'].includes(row.status))row.status=row.paidAmount>0?'Parcial':'Pendiente';
+    return row;
+  });
+}
 function dispersionBuildSchedule(p){
   const terms=dispersionTerms(p);
   const signed=dispersionContractSigned(p);
   const existing=Array.isArray(p.paymentSchedule)?p.paymentSchedule:[];
+  const contracted=p.offer?.disbursementSchedulePolicyVersion===1?p.offer.contractedSchedule:null;
+  if(contracted&&dispersionContractedScheduleIssue(p,terms.dispersionDate))return dispersionRetainContractedRows(existing);
+  if(contracted&&existing.length)return dispersionRetainContractedRows(existing);
   const byId=new Map(existing.map(r=>[r.id,r]));
   const oldSignature=pickFirst(existing.find(r=>r.paymentCalendarSignature)?.paymentCalendarSignature,p.paymentCalendarSignature,p.application?.previousPaymentCalendarSignature,p.offer?.previousPaymentCalendarSignature,'');
   const calendarChanged=!!(oldSignature&&oldSignature!==terms.paymentCalendarSignature);
+  if(calendarChanged&&existing.length&&financialOfferLocked(p))return dispersionRetainContractedRows(existing);
   const shouldPreserveOldRow=(old)=>!!old&&(!calendarChanged||dispersionHasRealPaymentActivity(old));
   const rows=[];
   if(!signed)return rows;
   const approved=roundToCents(terms.totalFinancedAmount||terms.approvedAmount||0);
   const totalPeriods=Math.max(1,Math.round(terms.numberOfPeriods||terms.termMonths||1));
   const initialCount=Math.min(Math.max(0,Math.round(terms.initialCount||0)),totalPeriods);
-  const scheduleBase=terms.dispersionDate||terms.signedAt||dispersionDateOnly(new Date());
-  const dueDates=dispersionGeneratePaymentDates(scheduleBase,terms,totalPeriods);
-  let fixedPeriodPayment=calculateFixedPeriodPayment({principal:approved,totalPeriods,dueDates,startDate:scheduleBase,terms,interestCalculationBase:terms.interestCalculationBase});
+  const scheduleBase=terms.dispersionDate||contracted?.startDate||terms.signedAt||dispersionDateOnly(new Date());
+  const dueDates=contracted?contracted.dueDates:dispersionGeneratePaymentDates(scheduleBase,terms,totalPeriods);
+  let fixedPeriodPayment=contracted?contracted.regularPayment:calculateFixedPeriodPayment({principal:approved,totalPeriods,dueDates,startDate:scheduleBase,terms,interestCalculationBase:terms.interestCalculationBase});
   let fixedTerms={...terms,fixedPeriodPayment,paymentAmountPerPeriod:fixedPeriodPayment};
   let balance=approved;
   let previousDate=scheduleBase||dueDates[0]||dispersionDateOnly(new Date());
@@ -9557,6 +9647,7 @@ function dispersionBuildSchedule(p){
         balanceEnd:balanceStart
       },fixedTerms,period===totalPeriods);
     }
+    if(contracted){row.disbursementSchedulePolicyVersion=1;row.accrualStartDate=previousDate;row.finalInstallmentAdjustment=period===totalPeriods?roundToCents(row.payment-contracted.regularPayment):0;}
     row.procedureAmount=terms.procedureAmount||0;
     row.openingFeeAmount=terms.openingFeeAmount||0;
     row.openingFeeMode=terms.openingFeeMode||'upfront';
@@ -9667,6 +9758,7 @@ function dispersionBuildSchedule(p){
     else status='Programado';
     return {...row,dpd,status,paymentDate:old.paymentDate||'',reference:old.reference||'',method:old.method||'',paymentType:old.paymentType||'',capitalPrepayReduction:row.capitalPrepayReduction||old.capitalPrepayReduction||0,originalCapital:row.originalCapital||old.originalCapital||0,prepaymentDate:row.prepaymentDate||old.prepaymentDate||'',prepaymentReference:row.prepaymentReference||old.prepaymentReference||'',prepaymentMethod:row.prepaymentMethod||old.prepaymentMethod||'',prepaymentFullyReduced:!!(old.prepaymentFullyReduced)};
   });
+  if(contracted)return builtRows; // Validated contractual dates and quote origin must not be inferred from signature date.
   return dispersionNormalizeSequentialDueDates(hasFinancialSnapshot?builtRows:dispersionNormalizePrepayFutureBalances(builtRows,fixedTerms),fixedTerms);
 }
 
@@ -9853,7 +9945,7 @@ function dispersionEnsureSchedule(p){
   const terms=dispersionTerms(p);
   p.paymentCalendarSignature=terms.paymentCalendarSignature;
   if(p.application)p.application.paymentCalendarSignature=terms.paymentCalendarSignature;
-  if(p.offer)p.offer.paymentCalendarSignature=terms.paymentCalendarSignature;
+  if(p.offer&&!financialOfferLocked(p)&&p.offer.disbursementSchedulePolicyVersion!==1)p.offer.paymentCalendarSignature=terms.paymentCalendarSignature;
   return rows;
 }
 function dispersionInitialCovered(rows){return rows.filter(r=>r.type==='Pago inicial requerido'&&r.status==='Pagado').length;}
@@ -10582,16 +10674,20 @@ function dispersionMarkDispersed(){
   if(!dispersionReadyForRelease(p)){toast('Completa contrato, pagos iniciales y comisión upfront antes de dispersar.');return false;}
   const a=p.application||(p.application={});
   const terms=dispersionTerms(p);
-  const date=document.getElementById('dispersionDateInput')?.value||dispersionDateOnly(new Date());
+  const date=document.getElementById('dispersionDateInput')?.value;
+  const activation=dispersionPrepareActivation(p,date);
+  if(activation.error){toast(activation.error);return false;}
+  const dbBefore=JSON.stringify(db),before=JSON.parse(JSON.stringify(p));
   const file=document.getElementById('dispersionReceiptInput')?.files?.[0];
   a.dispersionDate=date;
   a.disbursedAt=date;
   a.dispersionStatus='dispersed';
   a.disbursementStatus='Dispersada';
   if(file){a.dispersionReceiptName=file.name; a.dispersionReceiptUrl=`#comprobante-dispersion-${encodeURIComponent(file.name)}`;}
+  if(activation.rows)p.paymentSchedule=activation.rows;
   dispersionEnsureSchedule(p);
-  addEntityEvent(p,'Dispersión marcada como realizada',`${terms.provider} · ${fmtMoney(terms.amountToDisperse)} · ${formatMaybeDate(date)}`);
-  persist(); patientTab='dispersion'; renderPatientDetail(); toast('Dispersión guardada');
+  dispersionReceiptEvent(p,'Dispersión marcada como realizada',`${terms.provider} · ${fmtMoney(terms.amountToDisperse)} · ${formatMaybeDate(date)}`);
+  if(!dispersionCommitActivation(p,before,dbBefore))return false; patientTab='dispersion'; renderPatientDetail(); toast('Dispersión guardada');return true;
 }
 
 function dispersionSwitchDemo(kind){
@@ -11016,6 +11112,7 @@ function renderDispersionTab(p){
             <button class="btn btn-primary payment-apply-submit" type="button" data-base-disabled="${!contractSigned?'1':'0'}" onclick="dispersionApplyPayment()" ${!contractSigned?'disabled':''}>Aplicar pago</button>
           </div>
           ${dispersionPrepaymentReviewNoticeHtml(rows)}
+          ${dispersionContractedScheduleNoticeHtml(p,rows)}
           <div class="payment-apply-notes">
             <div class="payment-type-note" id="dispersionPaymentTypeCopy">${escapeHtml(dispersionPaymentTypeCopy(paymentTypeDefault,p))}</div>
             ${prepayAllowedDate?`<div class="payment-prepay-note">Prepago y liquidación anticipada disponibles a partir de ${formatMaybeDate(prepayAllowedDate)}.</div>`:`<div class="payment-prepay-note">Registra la fecha de dispersión para calcular la habilitación de prepago y liquidación según la configuración vigente.</div>`}
@@ -12331,8 +12428,8 @@ function servicingPatientProjection(record){
   const date=row=>servicingOfficeText(row.currentDueDate||row.dueDate).slice(0,10);
   const today=dispersionDateOnly(new Date()),settled=dispersionIsCreditLiquidated(p)||(built.length>0&&built.every(row=>pending(row)<=0));
   const next=built.filter(row=>pending(row)>0&&date(row)).sort((a,b)=>date(a).localeCompare(date(b)))[0];
-  const numberKeys=['number','capital','interest','interestIva','moratory','moratoryIva','commission','totalPayment','paidAmount','pendingAmount','capitalPending','dpd','extensionDays'];
-  const textKeys=['id','type','originalDueDate','currentDueDate','dueDate','paymentFrequency','status','extensionStatus','extendedDueDate'];
+  const numberKeys=['number','capital','interest','interestIva','moratory','moratoryIva','commission','totalPayment','paidAmount','pendingAmount','capitalPending','dpd','extensionDays','disbursementSchedulePolicyVersion','finalInstallmentAdjustment'];
+  const textKeys=['id','type','originalDueDate','currentDueDate','dueDate','paymentFrequency','status','extensionStatus','extendedDueDate','accrualStartDate'];
   const rows=built.map(row=>{const safe={};for(const key of numberKeys)if(typeof row[key]==='number'&&Number.isFinite(row[key]))safe[key]=row[key];for(const key of textKeys)if(typeof row[key]==='string')safe[key]=row[key];safe.pendingAmount=pending(row);return safe;});
   const upfront=terms.openingFeeMode==='upfront';
   return {creditId:servicingOfficeId(p.id),sourceApplicationId:sourceIds[0]||servicingOfficeId(p.application?.applicationId||p.id),patientAccountId,offerFingerprintDigest:window.PulzzoDemoServicing.digestText(window.PulzzoDemoBridge.fingerprint(original.offer)),calculatedAt:new Date().toISOString(),summary:{outstanding:settled?0:roundToCents(dispersionActiveCapitalRowsForSettlement(built).reduce((sum,row)=>sum+dispersionCapitalPendingForSettlement(row),0)),overdue:roundToCents(built.filter(row=>date(row)&&date(row)<today).reduce((sum,row)=>sum+pending(row),0)),settled,nextDueDate:next?date(next):'',nextPaymentAmount:next?pending(next):0,currency:'MXN',calendarStatus:!dispersionContractSigned(p)?'blocked':terms.dispersionDate?'active':'preliminary',openingFee:{mode:terms.openingFeeMode||'upfront',due:upfront?terms.openingFeeAmount:0,paid:upfront?dispersionUpfrontOpeningFeePaidAmount(p,terms.openingFeeAmount):0,pending:dispersionUpfrontOpeningFeePending(p,terms)}},rows,initialPayments:{required:terms.initialCount,covered:dispersionInitialCovered(built),pendingAmount:roundToCents(built.filter(row=>row.type==='Pago inicial requerido').reduce((sum,row)=>sum+pending(row),0))}};
@@ -12442,5 +12539,12 @@ window.openPatientProfileRequest=openPatientProfileRequest;
 <div id="sidebarTooltip" class="sidebar-tooltip" role="tooltip" hidden></div>
 <script src="assets/js/backoffice-sidebar.js"></script>
 <script src="assets/js/demo-servicing.js"></script>
+<script src="assets/js/crm-demo-store.js"></script>
+<script src="assets/js/patient-demo.js"></script>
+<script src="assets/js/crm-demo-corrections.js"></script>
+<script src="assets/js/crm-demo-evidence.js"></script>
+<script src="assets/js/crm-office-adapter.js"></script>
+<script src="assets/js/crm-demo-office.js"></script>
+<script src="assets/js/backoffice-crm.js"></script>
 </body>
 </html>

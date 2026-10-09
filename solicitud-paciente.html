@@ -2091,9 +2091,9 @@ const verifiedStorageSnapshot=localStorage.getItem('pulzzo_verified');
 const state = PulzzoPatientDemo.readStorage(localStorage, 'pulzzo_application', {procedureDone:false,estimateDone:false,geoDone:false,creditAuthConfirmed:false});
 if(!state.patientAccountId && patientFromStorage.patientAccountId)state.patientAccountId=patientFromStorage.patientAccountId;
 let applicationMemorySnapshot=JSON.stringify(state);
-state.documentFiles=PulzzoPatientDemo.normalizeDocuments(state.documentFiles||{});
+if(!PulzzoPatientDemo.patientSubmitted(state))state.documentFiles=PulzzoPatientDemo.normalizeDocuments(state.documentFiles||{});
 const pendingEstimate=PulzzoPatientDemo.readStorage(sessionStorage,'pulzzo_pending_estimate');
-if(!state.procedureDone && !state.procedure?.amount && PulzzoPatientDemo.quote(pendingEstimate.amount,pendingEstimate.termMonths)){
+if(!PulzzoPatientDemo.patientSubmitted(state) && !state.procedureDone && !state.procedure?.amount && PulzzoPatientDemo.quote(pendingEstimate.amount,pendingEstimate.termMonths)){
   state.requestedAmount=pendingEstimate.amount;
   state.selectedTerm=pendingEstimate.termMonths;
 }
@@ -2101,7 +2101,7 @@ if(!state.procedureDone && !state.procedure?.amount && PulzzoPatientDemo.quote(p
 
 /* Limpieza inicial: el módulo de procedimiento no debe abrir con especialidad/procedimiento precargados.
    Solo conserva esos datos si el usuario ya guardó formalmente el módulo. */
-if(!state.procedureDone && !state.estimateDone){
+if(!PulzzoPatientDemo.patientSubmitted(state) && !state.procedureDone && !state.estimateDone){
   state.specialties = [];
   state.procedures = [];
   state.otherProcedure = '';
@@ -2109,9 +2109,64 @@ if(!state.procedureDone && !state.estimateDone){
   persistApplicationState();
 }
 
-ensureApplicationBaseState();
+if(!PulzzoPatientDemo.patientSubmitted(state))ensureApplicationBaseState();
 const patient = patientFromStorage;
 
+// Submitted application inputs are read-only; corrections use a separate observed-field draft.
+function syncPatientSubmissionLock(){
+  const locked=PulzzoPatientDemo.patientSubmitted(state);
+  document.querySelectorAll('#view-geolocalizacion input,#view-geolocalizacion select,#view-geolocalizacion textarea,#view-procedimiento input,#view-procedimiento select,#view-procedimiento textarea,#view-estimacion input,#view-estimacion select,#view-identidad input,#view-identidad select,#view-identidad textarea,#view-ingresos input,#view-ingresos select,#view-ingresos textarea,#view-documentos input,#view-documentos select,.references-section-card input,.references-section-card select,[data-stage-action="save-references"]').forEach(el=>{
+    if(locked){el.disabled=true;el.dataset.submissionLocked='true';el.setAttribute('aria-disabled','true');}
+    else if(el.dataset.submissionLocked){el.disabled=false;delete el.dataset.submissionLocked;el.removeAttribute('aria-disabled');}
+  });
+}
+function canEditPatientObservedField(path){
+  const api=window.PulzzoDemoServicing;
+  return !!api?.canEditPatientCorrection?.(state,state.patientAccountId,path,localStorage);
+}
+function savePatientObservedField(path,value){
+  if(!canEditPatientObservedField(path))throw Error('Este campo no está habilitado para corrección.');
+  state.demoPatientCorrectionDraft=state.demoPatientCorrectionDraft||{};
+  state.demoPatientCorrectionDraft[path]=value;
+  saveState();
+  renderPatientCorrectionEditor();
+}
+function patientCorrectionRequirements(){
+  const draft=state.demoPatientCorrectionDraft||{},profile=draft.incomeType??state.incomeType,choice=draft.ciecChoice??state.ciecChoice;
+  const keys=profile==='nomina'?['bank','payroll']:profile==='independiente'&&choice!=='yes'?['bank','csf','annualReturns','monthlyReturn','complianceOpinion']:['bank'];
+  return keys.map(k=>({key:k,min:k==='bank'||k==='payroll'?3:k==='annualReturns'?2:1}));
+}
+function patientCorrectionFieldLabel(path){
+  const labels={incomeType:'Tipo de ingreso',incomeMonthly:'Ingreso mensual',comfortablePayment:'Pago mensual estimado',ciecChoice:'Recorrido fiscal demo',name:'Nombre completo',curp:'CURP',rfc:'RFC',rfcBase:'RFC sin homoclave',homoclave:'Homoclave',housingStatus:'Tipo de vivienda',housingPayment:'Pago de vivienda',first:'Primer nombre',second:'Segundo nombre',paternal:'Apellido paterno',maternal:'Apellido materno',street:'Calle',exterior:'Número exterior',interior:'Número interior',zip:'Código postal',colony:'Colonia',city:'Ciudad',state:'Estado',phone:'Teléfono',relationship:'Parentesco',relationshipType:'Tipo de parentesco',relationshipOther:'Otro parentesco',bank:'Estados de cuenta',payroll:'Recibos de nómina',csf:'Constancia fiscal',annualReturns:'Declaraciones anuales',monthlyReturn:'Declaración mensual',complianceOpinion:'Opinión de cumplimiento',ineFront:'INE frente',ineBack:'INE reverso',proofAddress:'Comprobante de domicilio',selfieVideo:'Video selfie'};
+  const keys=path.split('.');return (keys[0]==='references'?'Referencia '+(Number(keys[1])+1)+': ':'')+(labels[keys.at(-1)]||path);
+}
+function renderPatientCorrectionEditor(){
+  const host=document.getElementById('demo-servicing-panel')||document.getElementById('portalShell');
+  if(!host)return;
+  let panel=document.getElementById('patient-observed-fields');
+  if(!panel){panel=document.createElement('section');panel.id='patient-observed-fields';host.appendChild(panel);}
+  const r=state.demoPatientCorrection;
+  if(!r){panel.innerHTML=PulzzoPatientDemo.patientSubmitted(state)?'<p>Datos enviados: bloqueados durante la revisión. Solo se habilitarán campos observados por backoffice.</p>':'';return;}
+  const draft=state.demoPatientCorrectionDraft||{},base=r.baseline||PulzzoPatientDemo.patientSnapshot(state);
+  panel.innerHTML='<h3>Correcciones del expediente</h3><p>'+escapeHtml(r.reason||'')+'</p><p>'+escapeHtml(r.status==='requested'?'Edita únicamente los campos observados. Los datos enviados se conservan hasta aprobación.':'Campos bloqueados: corrección '+r.status)+ '</p>';
+  for(const path of r.allowedFields||[]){
+    if(!(path in PulzzoPatientDemo.patientCorrectionFields))continue;
+    const row=document.createElement('label');row.style.cssText='display:block;margin:12px 0';
+    const title=document.createElement('span');title.textContent=patientCorrectionFieldLabel(path);row.appendChild(title);
+    const value=draft[path]??base[path];let input;
+    if(path.startsWith('documentFiles.')||path.startsWith('identityFiles.')){
+      input=document.createElement('input');input.type='file';input.multiple=path.startsWith('documentFiles.');input.accept='.pdf,image/*,video/*';
+      input.addEventListener('change',()=>{const files=Array.from(input.files||[]).map(f=>({name:f.name,type:f.type,size:f.size,lastModified:f.lastModified}));savePatientObservedField(path,input.multiple?files:files[0]||null);});
+      const description=document.createElement('small');description.textContent=(Array.isArray(value)?value:[value]).filter(Boolean).map(f=>f.name).join(', ');row.appendChild(description);
+    }else if(path==='incomeType'||path==='ciecChoice'){
+      input=document.createElement('select');const options=path==='incomeType'?[['nomina','Empleado con nómina'],['independiente','Independiente o negocio propio']]:[['yes','Consulta fiscal simulada'],['no','Carga de documentos']];
+      for(const [val,label]of options){const option=document.createElement('option');option.value=val;option.textContent=label;input.appendChild(option);}input.value=value||'';
+      input.addEventListener('change',()=>savePatientObservedField(path,input.value));
+    }else{input=document.createElement('input');input.type='text';input.value=value||'';input.maxLength=500;input.addEventListener('change',()=>savePatientObservedField(path,input.value));}
+    input.dataset.patientObservedField=path;input.disabled=!canEditPatientObservedField(path);row.appendChild(input);panel.appendChild(row);
+  }
+  const requirements=document.createElement('p');requirements.textContent='Requisitos según el ingreso corregido: '+patientCorrectionRequirements().map(x=>patientCorrectionFieldLabel(x.key)+' ('+x.min+')').join(', ')+'. Si falta observar un documento necesario, solicita su habilitación a backoffice.';panel.appendChild(requirements);
+}
 function getPatientNameParts(){
   return {
     first: patient.primerNombre || patient.nombre || '',
@@ -2361,6 +2416,9 @@ function maskEmail(value){const email=String(value||'').trim(); if(!email || !em
 function authDestinationText(ch){const patient=state.patient||patientFromStorage||{}; const phone=patient.celular||patient.phone||''; const email=patient.email||patient.correo||''; if(ch==='email') return `por correo electrónico a ${maskEmail(email)}`; return `por SMS al número ${maskPhone(phone)}`;}
 function syncAuthCheckboxClasses(){document.querySelectorAll('.auth-check').forEach(label=>{const input=label.querySelector('input'); label.classList.toggle('checked',!!input?.checked);});}
 function initAuthUI(){
+  const host=document.getElementById('view-autorizacion');
+  if(host && !PulzzoPatientDemo.patientSubmitted(state) && !host.querySelector('#preSubmitReferences')){const refs=document.createElement('div');refs.id='preSubmitReferences';refs.innerHTML=renderReferencesCard();host.appendChild(refs);}
+
   ['authCheckConsult','authCheckElectronic','authCheckValidity'].forEach(id=>{const el=document.getElementById(id); if(el) el.checked=!!state.creditAuthChecks?.[id];});
   const channel=selectedAuthChannel();
   document.querySelectorAll('[data-auth-channel]').forEach(btn=>btn.classList.toggle('selected',btn.dataset.authChannel===channel));
@@ -2404,6 +2462,8 @@ function updateNipTimer(){
 }
 function startNipTimer(){ clearInterval(nipTimerInterval); updateNipTimer(); nipTimerInterval=setInterval(()=>{ updateNipTimer(); if(state.nipSent && Date.now()>=(state.nipCanResendAt||0)){ clearInterval(nipTimerInterval); } },1000); }
 function confirmNip(){
+  if(PulzzoPatientDemo.patientSubmitted(state))return;
+
   const input=document.getElementById('nipInput'), guide=document.getElementById('authValidation');
   const nip=String(input?.value||'').replace(/\D/g,'').slice(0,6); if(input) input.value=nip;
   if(nip.length!==6){ if(guide){guide.textContent='Ingresa los 6 dígitos del NIP.'; guide.classList.remove('hidden');} return; }
@@ -2460,6 +2520,8 @@ function requiresBureauNip(){
   return state.requiresBureauNip !== false;
 }
 function reuseValidBureauAuthorization(){
+  if(PulzzoPatientDemo.patientSubmitted(state))return;
+
   const authDate=getCreditAuthDateValue() || backendNow();
   state.creditAuthConfirmed=true;
   state.applicationSubmitted=!!(state.procedureDone && state.estimateDone && state.identityDone && state.incomeDone && state.documentsDone);
@@ -2502,9 +2564,10 @@ function assertApplicationFresh(){
     throw new Error('La solicitud cambió en otra pestaña. Recarga para continuar.');
   }
 }
-function persistApplicationState(){
+function persistApplicationState(options={}){
   try{
     assertApplicationFresh();
+    PulzzoPatientDemo.assertPatientDataUnchanged(JSON.parse(applicationMemorySnapshot),state,options.applyPatientCorrection===true);
     PulzzoPatientDemo.scrubSecrets(state);
     const next=JSON.stringify(state);
     localStorage.setItem('pulzzo_application',next);
@@ -2515,15 +2578,15 @@ function persistApplicationState(){
     throw error;
   }
 }
-function saveState(){
-  persistApplicationState();
+function saveState(options={}){
+  persistApplicationState(options);
   // Canonical application is committed. Auxiliary rendering/payload failures must
   // never turn a successful acceptance into a failed or retryable transaction.
   try{prepareBackendPayload();renderChecklist();}catch(error){console.error('No se pudo actualizar la vista auxiliar de la solicitud.');}
 }
 window.addEventListener('storage',event=>{if(event.key===null || ['pulzzo_application','pulzzo_patient','pulzzo_verified'].includes(event.key)){try{assertApplicationFresh();}catch(error){/* The notice blocks stale saves; reload is explicit. */}}});
 window.addEventListener('pageshow',()=>{try{assertApplicationFresh();}catch(error){}});
-function showView(name){name=PulzzoPatientDemo.resumeView(state,name); state.lastView=name; persistApplicationState(); history.replaceState(null,'','#'+name); document.querySelectorAll('.module').forEach(v=>v.classList.remove('active'));const view=document.getElementById('view-'+name); if(view) view.classList.add('active'); const appWrap=document.querySelector('.app-wrap'); if(appWrap) appWrap.classList.toggle('portal-mode',name==='portal'); document.body.classList.toggle('portal-profile-mode',name==='portal'); updateTimeline(name); if(name==='geolocalizacion') updateGeoUI(); if(name==='estimacion') renderEstimate(); if(name==='identidad') showIdentitySubstep(state.identitySubstep||'docs'); if(name==='documentos') updateDocumentsView(); if(name==='autorizacion') initAuthUI(); if(name==='portal') renderPortal(); window.scrollTo(0,0)}
+function showView(name){name=PulzzoPatientDemo.patientSubmitted(state)?'portal':PulzzoPatientDemo.resumeView(state,name); state.lastView=name; persistApplicationState(); history.replaceState(null,'','#'+name); document.querySelectorAll('.module').forEach(v=>v.classList.remove('active'));const view=document.getElementById('view-'+name); if(view) view.classList.add('active'); const appWrap=document.querySelector('.app-wrap'); if(appWrap) appWrap.classList.toggle('portal-mode',name==='portal'); document.body.classList.toggle('portal-profile-mode',name==='portal'); updateTimeline(name); if(name==='geolocalizacion') updateGeoUI(); if(name==='estimacion') renderEstimate(); if(name==='identidad') showIdentitySubstep(state.identitySubstep||'docs'); if(name==='documentos') updateDocumentsView(); if(name==='autorizacion') initAuthUI(); if(name==='portal') renderPortal(); window.scrollTo(0,0)}
 function cardStatus(done,active){return done?'ready':active?'active':'locked'}
 function cardLabel(done,active){return done?'Listo':active?'Pendiente':'Bloqueado'}
 function renderChecklist(){const items=[
@@ -2535,7 +2598,9 @@ function renderChecklist(){const items=[
   {id:'autorizacion',icon:'🔐',title:'Autorización crediticia',desc:requiresBureauNip()?'NIP y consentimiento electrónico':'Autorización vigente',done:!!state.creditAuthConfirmed || !requiresBureauNip(),active:!!state.documentsDone && requiresBureauNip(),view:'autorizacion'}
 ]; const el=document.getElementById('checklist'); el.innerHTML=items.map(it=>`<div class="dash-card clickable" data-view="${it.view}"><div class="dash-icon">${it.icon}</div><div class="dash-body"><h3>${it.title}</h3><p>${it.desc}</p></div><span class="chip ${cardStatus(it.done,it.active)}">${cardLabel(it.done,it.active)}</span><div class="dash-arrow">›</div></div>`).join(''); el.querySelectorAll('[data-view]').forEach(card=>card.addEventListener('click',()=>showView(card.dataset.view)));}
 
-function saveIncomeDraft(){const missing=incomeFirstMissing() || firstRequiredFieldMissingIn('ingresos'); if(missing){showValidationGuide('ingresos',missing.msg,missing.target); return;} state.incomeDone=true; state.incomeType=(document.querySelector('#income-options .option.selected')||{}).dataset?.value||state.incomeType||''; state.incomeMonthly=document.getElementById('incomeMonthly')?.value||state.incomeMonthly||''; state.comfortablePayment=document.getElementById('comfortablePayment')?.value||state.comfortablePayment||''; clearMissingMarks(document.getElementById('view-ingresos')); saveState(); showView('documentos');}
+function saveIncomeDraft(){
+  if(PulzzoPatientDemo.patientSubmitted(state))return;
+const missing=incomeFirstMissing() || firstRequiredFieldMissingIn('ingresos'); if(missing){showValidationGuide('ingresos',missing.msg,missing.target); return;} state.incomeDone=true; state.incomeType=(document.querySelector('#income-options .option.selected')||{}).dataset?.value||state.incomeType||''; state.incomeMonthly=document.getElementById('incomeMonthly')?.value||state.incomeMonthly||''; state.comfortablePayment=document.getElementById('comfortablePayment')?.value||state.comfortablePayment||''; clearMissingMarks(document.getElementById('view-ingresos')); saveState(); showView('documentos');}
 
 
 function ensureMultiState(){
@@ -2804,6 +2869,8 @@ function renderDoctorDirectory(){
   }).join('');
 }
 function setSelected(group,value){
+  if(PulzzoPatientDemo.patientSubmitted(state))return;
+
   document.querySelectorAll(`[data-name="${group}"] .option`).forEach(o=>o.classList.toggle('selected',o.dataset.value===value));
   state[group]=value;
   if(group==='incomeType') syncIncomeRadioOptions();
@@ -3343,6 +3410,8 @@ function updateEstimateButton(){
   if(btn) btn.dataset.ready=state.selectedTerm?'true':'false';
 }
 function saveEstimate(){
+  if(PulzzoPatientDemo.patientSubmitted(state))return;
+
   if(!state.selectedTerm){
     showValidationGuide('estimacion','Selecciona un plazo para continuar.',document.getElementById('estimate-grid'));
     updateEstimateButton();
@@ -3708,6 +3777,8 @@ function markIdentityFile(key,file){
   updateIdentityButton();
 }
 function removeIdentityUpload(key){
+  if(PulzzoPatientDemo.patientSubmitted(state))return;
+
   const cfg=getIdentityConfig(key); if(!cfg) return;
   const file=identityUploads[key]; if(file?.__pulzzoUrl) URL.revokeObjectURL(file.__pulzzoUrl);
   delete identityUploads[key]; delete state.identityFiles[key];
@@ -3865,7 +3936,7 @@ function handleIncomeRadioKey(event){
   else if(![' ','Enter'].includes(event.key))return;
   event.preventDefault();setSelected('incomeType',options[next].dataset.value);options[next].focus();
 }
-if(state.incomeType==='informal') state.incomeType=''; populateSpecialties(); populateStates(); syncPatientRecipientUI(); syncIncomeRadioOptions();
+if(!PulzzoPatientDemo.patientSubmitted(state)){if(state.incomeType==='informal') state.incomeType=''; populateSpecialties(); populateStates(); syncPatientRecipientUI(); syncIncomeRadioOptions();}
 document.addEventListener('keydown',handleIncomeRadioKey);
 ['incomeMonthly','comfortablePayment'].forEach(id=>{const el=document.getElementById(id); if(el){el.addEventListener('blur',()=>formatMoneyInput(el));}});
 const documentUploads=Object.fromEntries(['bank','payroll','csf','annualReturns','monthlyReturn','complianceOpinion'].map(key=>[key,(state.documentFiles?.[key]||[]).map(file=>({...file,metadataOnly:true}))]));
@@ -4163,7 +4234,7 @@ function secureDoc(key,name,desc,status,value){
   return {kind:'secure',key,name,desc,status,value:String(value||'')};
 }
 function getPortalDocsByProfile(){
-  const profile=state.documentProfile || state.incomeType || 'nomina';
+  const profile=state.incomeType || state.documentProfile || 'nomina';
   const docs=[
     singleDoc('ineFront','INE frente','Identificación oficial','Aprobado','identidad'),
     singleDoc('ineBack','INE reverso','Identificación oficial','Aprobado','identidad'),
@@ -4240,6 +4311,8 @@ function openPortalDocModal(name,desc,status,area,url,type){
   activateDocumentModal(modal);
 }
 function replacePortalFile(groupKey,index,file){
+  if(PulzzoPatientDemo.patientSubmitted(state))return;
+
   if(!file) return;
   const idx=Number(index)||0;
   documentUploads[groupKey]=documentUploads[groupKey]||[];
@@ -4515,6 +4588,7 @@ function normalizePaymentFrequencyValue(value){
   return 'Mensual';
 }
 function normalizeOfferPaymentState(preferredFrequency){
+  if(state.offerAccepted||state.contractSigned)return {frequency:normalizePaymentFrequencyValue(state.paymentFrequency||state.offer?.paymentFrequency),paymentDay:state.preferredPaymentDay||state.offer?.paymentDayOption||''};
   const frequency=normalizePaymentFrequencyValue(preferredFrequency || state.paymentFrequency || 'Mensual');
   state.paymentFrequency=frequency;
   if(frequency==='Quincenal'){
@@ -4775,7 +4849,7 @@ function ensureReferences(){
   return state.references;
 }
 function renderReferencesCard(){
-  const refs=ensureReferences();
+  const refs=PulzzoPatientDemo.patientSubmitted(state)?(state.references||[]):ensureReferences();
   const relationOptions=['Madre','Padre','Primo','Hermano','Tío','Otro'];
   const rows=[0,1].map(i=>{
     const current=refs[i]?.relationshipType || refs[i]?.relationship || '';
@@ -4829,6 +4903,8 @@ function formatReferencePhoneInput(el){
   return el.value;
 }
 function saveReferences(){
+  if(PulzzoPatientDemo.patientSubmitted(state)){showValidationGuide('portal','Las referencias enviadas están bloqueadas. Solicita una corrección a backoffice.',null);return;}
+
   const refs=[0,1].map(i=>{
     const relation=document.getElementById(`referenceRelation${i}`)?.value||'';
     const other=document.getElementById(`referenceOther${i}`)?.value.trim()||'';
@@ -4871,7 +4947,7 @@ function getPatientServicingProjection(){
     if(!window.PulzzoDemoServicing?.validCached(envelope,{kind:'patient_servicing',accountId,applicationId:state.applicationId}))return null;
     const payload=envelope.payload;
     if(payload.patientAccountId!==accountId || payload.sourceApplicationId!==state.applicationId || !Array.isArray(payload.rows) || payload.rows.some(row=>!row || typeof row!=='object' || Array.isArray(row)))return null;
-    if(!state.demoBridgeCaseId || payload.creditId!==state.demoBridgeCaseId || !state.demoBridgeOfferFingerprint || payload.offerFingerprintDigest!==window.PulzzoDemoServicing.digestText(state.demoBridgeOfferFingerprint))return null;
+    if(!state.demoBridgeCaseId || payload.creditId!==state.demoBridgeCaseId || !state.demoBridgeOfferFingerprint || payload.offerFingerprintDigest!==window.PulzzoDemoServicing.digestText(window.PulzzoDemoBridge.fingerprint(state.offer||{})))return null;
     return payload;
   }catch(error){return null;}
 }
@@ -5002,7 +5078,7 @@ function showScheduleModal(){
     const cells=moneyKeys.map(key=>`<td>${escapeHtml(servicingMoney(row[key]))}</td>`).join('');
     const statusClass=['Pagado','Pagado anticipado','Liquidado anticipadamente'].includes(row.status)?'ready':row.status==='Vencido'?'locked':'active';
     const extension=row.extensionStatus?`<br><small>Prórroga: ${escapeHtml(row.extensionStatus)}${row.extendedDueDate?' · '+escapeHtml(servicingDate(row.extendedDueDate)):''}</small>`:'';
-    return `<tr><td>${escapeHtml(String(row.number??''))}</td><td>${escapeHtml(row.type||'Pago')}${row.paymentFrequency?`<br><small>${escapeHtml(row.paymentFrequency)}</small>`:''}</td><td>${escapeHtml(servicingDate(row.originalDueDate))}</td><td>${escapeHtml(servicingDate(row.currentDueDate||row.dueDate))}</td>${cells}<td><span class="chip ${statusClass}">${escapeHtml(row.status||'Pendiente de confirmar')}</span>${typeof row.dpd==='number'&&row.dpd>0?`<br><small>${escapeHtml(String(row.dpd))} días de atraso</small>`:''}${extension}</td></tr>`;
+    return `<tr><td>${escapeHtml(String(row.number??''))}</td><td>${escapeHtml(row.type||'Pago')}${row.paymentFrequency?`<br><small>${escapeHtml(row.paymentFrequency)}</small>`:''}</td><td>${escapeHtml(servicingDate(row.originalDueDate))}</td><td>${escapeHtml(servicingDate(row.currentDueDate||row.dueDate))}</td>${cells}<td><span class="chip ${statusClass}">${escapeHtml(row.status||'Pendiente de confirmar')}</span>${typeof row.dpd==='number'&&row.dpd>0?`<br><small>${escapeHtml(String(row.dpd))} días de atraso</small>`:''}${extension}${Number(row.finalInstallmentAdjustment)?`<br><small>Ajuste de última parcialidad: ${escapeHtml(servicingMoney(row.finalInstallmentAdjustment))}</small>`:''}</td></tr>`;
   }).join('');
   openPortalFlowModal('Tabla de amortización',`${renderServicingSummary(projection)}<div class="post-note">Calendario recibido del backoffice demo. Conserva los pagos parciales, anticipos y ajustes registrados al momento del corte. Esta consulta no registra pagos ni actualiza saldos automáticamente; recibe una nueva actualización para consultar cambios posteriores.</div><div class="amort-table-wrap"><table class="amort-table"><thead><tr><th>#</th><th>Tipo</th><th>Fecha original</th><th>Vencimiento actual</th><th>Pago total</th><th>Pagado</th><th>Pendiente</th><th>Capital</th><th>Interés</th><th>IVA interés</th><th>Moratorio</th><th>IVA moratorio</th><th>Comisión</th><th>Capital pendiente</th><th>Estatus</th></tr></thead><tbody>${rows||'<tr><td colspan="15">No hay mensualidades registradas en el corte recibido.</td></tr>'}</tbody></table></div>`);
 }
@@ -5026,10 +5102,16 @@ function readOfferPaymentSelection(triggerElement){
     selectedPaymentDay=dayEl?.value || state.preferredPaymentDay || '12';
     if(!isValidMonthlyPaymentDay(selectedPaymentDay)) selectedPaymentDay='12';
   }
+  const quoted=state.offer||{};
+  const quotedFrequency=quoted.paymentFrequency||quoted.frequency;
+  const dayKey=value=>String(value??'').toLowerCase().replace(/último día del mes|ultimo dia del mes|fin de mes/g,'last_day').replace(/ y /g,'_').replace(/\s/g,'');
+  const quotedDay=quoted.paymentDayOption||quoted.preferredPaymentDay||quoted.paymentDay||(Array.isArray(quoted.paymentDays)?quoted.paymentDays.join('_'):'');
+  if((quotedFrequency && normalizePaymentFrequencyValue(quotedFrequency==='biweekly'?'Quincenal':quotedFrequency==='monthly'?'Mensual':quotedFrequency)!==selectedFrequency)||(quotedDay && dayKey(quotedDay)!==dayKey(selectedPaymentDay)))return {ok:false,message:'El calendario elegido no coincide con la oferta cotizada. Solicita una oferta actualizada antes de aceptar.',target:paymentConfig};
   return {ok:true, frequency:selectedFrequency, paymentDay:selectedPaymentDay, target:paymentConfig};
 }
 
 function handleOfferPaymentControlChange(target){
+  if(state.offerAccepted||state.contractSigned)return false;
   try{assertApplicationFresh();}catch(error){return false;}
   if(!target?.matches?.('[data-payment-frequency],[data-payment-day],[data-biweekly-payment-pair]')) return false;
   if(target.matches('[data-payment-frequency]')){
@@ -5093,6 +5175,7 @@ function handlePostApprovalAction(action, triggerElement){
   }
   if(action==='reject-offer'){ state.offerRejected=true; state.offerAccepted=false; state.rejectionSource='client_rejected_offer'; state.reapplyAllowed=true; state.offerRejectedAt=new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric'}); saveState(); prepareBackendPayload(); renderPortal(); return; }
   if(action==='save-payment-day'){
+    if(state.offerAccepted||state.contractSigned)return;
     const selection=readOfferPaymentSelection(triggerElement);
     if(!selection.ok){ showValidationGuide('portal', selection.message, selection.target); return; }
     state.paymentFrequency=selection.frequency;
@@ -5426,7 +5509,7 @@ document.addEventListener('click',e=>{const eye=e.target.closest('[data-toggle-p
 document.addEventListener('click',e=>{const btn=e.target.closest('[data-doc-choice]'); if(!btn) return; state[btn.dataset.docChoice]=btn.dataset.value; saveState(); updateDocumentsView();});
 function configureMoneyInput(id){const el=document.getElementById(id);if(el)el.setAttribute('inputmode','decimal');}
 ['housingPayment','incomeMonthly','comfortablePayment'].forEach(configureMoneyInput);
-restorePatientDraft(); renderChecklist(); updateForm(); initIdentityFlow(); updateTimeline('procedimiento');
+if(!PulzzoPatientDemo.patientSubmitted(state)){restorePatientDraft(); updateForm(); initIdentityFlow();} renderChecklist(); updateTimeline('procedimiento');
 
 
 
@@ -5703,6 +5786,8 @@ function clearNewApplicationEvaluationFields(){
   const view=document.getElementById('view-procedimiento'); if(view) clearMissingMarks(view);
 }
 function startNewApplication(mode='update'){
+  if(PulzzoPatientDemo.patientSubmitted(state)){showValidationGuide('portal','La solicitud enviada está bloqueada. Los cambios requieren revisión de backoffice.',null);return;}
+
   if(mode==='reuse') mode='update';
   if(!canStartNewApplication()) return openNewApplicationModal();
   assertApplicationFresh();
@@ -7712,10 +7797,22 @@ button[data-stage-action="view-contract-document"]:not(:disabled):active{
 }
 </style>
 
-<script>window.PulzzoPatientDemoBridge={getState:()=>{assertApplicationFresh();return state;},getAccount:()=>{assertApplicationFresh();return patientFromStorage;},assertFresh:()=>assertApplicationFresh(),save:()=>saveState(),refresh:()=>renderPortal()};</script>
+<script>window.PulzzoPatientDemoBridge={getState:()=>{assertApplicationFresh();return state;},getAccount:()=>{assertApplicationFresh();return patientFromStorage;},assertFresh:()=>assertApplicationFresh(),save:options=>saveState(options),getCorrectionSnapshot:()=>PulzzoPatientDemo.patientSnapshot(state),refresh:()=>{renderPortal();renderPatientCorrectionEditor();syncPatientSubmissionLock();}};</script>
 <script src="assets/pulzzo-demo-bridge.js"></script>
 <script src="assets/js/demo-servicing.js"></script>
-<script>window.PulzzoPatientDemoBridge.refresh();</script>
+<script>
+document.addEventListener('click',event=>{
+  if(!PulzzoPatientDemo.patientSubmitted(state))return;
+  const target=event.target;
+  if(target.closest?.('#view-procedimiento,#view-identidad,#view-ingresos,#view-documentos,#view-estimacion,#view-geolocalizacion') && target.closest?.('button,.option,.multi-item,input,select,textarea')){
+    event.preventDefault();event.stopImmediatePropagation();
+    showValidationGuide('portal','Datos enviados y bloqueados. Utiliza los campos observados por backoffice para corregir.',null);
+  }
+},true);
+const patientLockObserver=new MutationObserver(()=>syncPatientSubmissionLock());
+patientLockObserver.observe(document.body,{childList:true,subtree:true});
+window.PulzzoPatientDemoBridge.refresh();
+</script>
 <link rel="stylesheet" href="assets/css/patient-responsive.css">
 <link rel="stylesheet" href="assets/css/portal-color-semantics.css">
 </body></html>

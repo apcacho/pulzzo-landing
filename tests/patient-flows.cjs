@@ -99,19 +99,18 @@ assert.equal(h.context.getPortalDocsByProfile().find(d=>d.key==='annualReturns')
 assert.equal(h.context.getFilesForPortal('bank','Estados',3).length,0);
 h.context.documentUploads.bank=[{name:'saved.pdf',size:10,type:'application/pdf',metadataOnly:true,status:'En revisión'}];
 assert.equal(h.context.getFileUrl(h.context.documentUploads.bank[0]),'');
+// These upload tests use an unsubmitted draft; accepted data is tested as immutable separately.
+s.offerAccepted=false;s.contractSigned=false;s.signatureStatus='unsigned';h.context.applicationMemorySnapshot=JSON.stringify(s);
 const replacement=new File(['demo'],'replacement.pdf',{type:'application/pdf'});
 h.context.replacePortalFile('bank',0,replacement);
 assert.equal(s.documentFiles.bank[0].name,'replacement.pdf');assert.equal(h.context.documentUploads.bank.length,1);
 h.context.removeDocumentUpload('bank',0);assert.equal(s.documentFiles.bank.length,0);assert.equal(s.documentsDone,false);
 const html=h.context.renderFilesList({key:'annualReturns'});assert.equal(typeof html,'string');
 s.ciecChoice='yes';assert.ok(!h.context.getDocumentItems().some(i=>i.type==='field'));assert.match(h.context.renderPortalSatPasswordMetric(),/sin credenciales/);
-// New applications reset every old offer/signature URL and payment indicator while retaining permitted records.
-Object.assign(s,{identity:{name:'Paciente Demo'},identityFiles:{ineFront:{name:'demo.png'}},documentFiles:migrated,demoBridgeCaseId:'old',demoBridgeOfferFingerprint:'old',contractSignedAt:'old',signatureType:'digital',signStatus:'signed',signedDocumentUrl:'old',contractUrl:'old',offer:{approvedAmount:1},initialPaymentRequired:true,initialPaymentPaid:true,doctorPaymentPaid:true,applicationCreatedAt:'old',incomeDone:true,incomeMonthly:'1',comfortablePayment:'1'});
-h.context.canStartNewApplication=()=>true;h.context.buildApplicationSnapshot=()=>({applicationId:'old',status:'closed'});
-h.context.isCreditAuthorizationValid=()=>false;h.context.ensureApplicationBaseState=()=>{};h.context.closeDocumentModal=()=>{};h.context.showView=()=>{};h.context.updateTimeline=()=>{};h.context.syncPatientRecipientUI=()=>{};h.context.updateForm=()=>{};h.context.clearNewApplicationEvaluationFields=()=>{s.procedure={};s.selectedTerm='';s.procedureDone=false;s.estimateDone=false;};
-h.context.startNewApplication();
-for(const key of ['demoBridgeCaseId','demoBridgeOfferFingerprint','offer','contractSignedAt','signatureType','signStatus','signedDocumentUrl','contractUrl'])assert.equal(s[key],undefined,key);
-assert.equal(s.offerAccepted,false);assert.equal(s.contractSigned,false);assert.equal(s.incomeDone,false);assert.equal(s.selectedTerm,'');assert.equal(s.identity.name,'Paciente Demo');assert.equal(s.documentFiles.annualReturns.length,2);assert.equal(s.previousApplications.length,1);
+// A legacy submitted/accepted application cannot be reset by starting a replacement.
+Object.assign(s,{identity:{name:'Paciente Demo'},demoBridgeCaseId:'old',offerAccepted:true,contractSigned:true,offer:{approvedAmount:1},incomeMonthly:'1'});
+const submittedSnapshot=JSON.stringify(s);h.context.showValidationGuide=()=>{};
+h.context.startNewApplication();assert.equal(JSON.stringify(s),submittedSnapshot);
 // Sanitization covers nested known state and backup without reading/logging secret values.
 const store=new Map([['pulzzo_application',JSON.stringify({ciecPassword:'synthetic-not-a-secret',nested:{satPassword:'synthetic'},keep:1})],['pulzzo_backend_payload',JSON.stringify({application:{password:'synthetic'},postApproval:{offer:null}})],['pulzzo_patient_demo_recovery_backup',JSON.stringify({history:[{records:{password2:'synthetic'}}]})]]);
 Demo.scrubKnownStorage({getItem:k=>store.get(k),setItem:(k,v)=>store.set(k,v),removeItem:k=>store.delete(k)});

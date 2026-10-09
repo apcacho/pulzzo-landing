@@ -58,7 +58,7 @@ for(const mode of ['financed','upfront']){
  assert.equal(caseRecord.offer.upfrontOpeningFeeDue,mode==='upfront'?3480:0);
  const exported=bridge.makeReply(caseRecord);
  bridge.applyReply(patient,exported);
- assert.deepEqual(patient.offer,caseRecord.offer);
+ assert.deepEqual(patient.offer,bridge.publicOffer(caseRecord.offer));
  patient.offerAccepted=true;
  bridge.importHandoff(database,bridge.makeHandoff(patient,{}));
  const contracted=JSON.stringify(patient.offer);
@@ -107,7 +107,7 @@ assert.equal(configuredDraft.offer.openingFeeRate,.03);assert.equal(configuredDr
 assert.equal(configuredDraft.offer.paymentFrequency,'biweekly');assert.equal(configuredDraft.offer.openingFeeIvaAmount,480);
 assert.equal(configuredDraft.offer.approvedAmount,103480);
 bridge.applyReply(configuredPatient,bridge.makeReply(configuredDraft));
-assert.deepEqual(configuredPatient.offer,JSON.parse(JSON.stringify(configuredDraft.offer)));
+assert.deepEqual(configuredPatient.offer,bridge.publicOffer(JSON.parse(JSON.stringify(configuredDraft.offer))));
 configuredPatient.offerAccepted=true;
 bridge.importHandoff(financialContext.db,bridge.makeHandoff(configuredPatient,{}));
 const acceptedTerms=JSON.stringify(configuredDraft.offer);

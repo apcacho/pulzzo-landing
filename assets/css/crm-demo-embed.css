@@ -1,0 +1,18 @@
+/* Content-only module inside Backoffice. One scrolling content surface. */
+.crm-embedded body{min-width:0;background:#f6f8fa}
+.crm-embedded .app-header{min-height:0;padding:12px 26px;gap:12px;justify-content:flex-end;background:#fff}
+.crm-embedded .app-header .brand,.crm-embedded .app-header .demo-badge,.crm-embedded .header-links>a{display:none}
+.crm-embedded .header-links{margin-left:0}
+.crm-embedded .actor-label{font-size:11px;margin-left:0}
+.crm-embedded .actor-label select{font-size:12px}
+.crm-embedded .demo-warning{padding:9px 26px;font-size:10px}
+.crm-embedded .app-shell{display:block;min-height:0}
+.crm-embedded .app-shell>.sidebar{display:flex;flex-direction:row;align-items:center;flex-wrap:wrap;gap:9px;padding:12px 26px;border-right:0;border-bottom:1px solid var(--line)}
+.crm-embedded .sidebar>.eyebrow,.crm-embedded .sidebar-note{display:none}
+.crm-embedded .context-link{width:auto;min-width:148px}
+.crm-embedded .holder-entry{margin:0 0 0 auto;white-space:normal}
+.crm-embedded .seed-button{display:inline-flex;margin:0;font-size:10px}
+.crm-embedded .app-shell main{padding:24px 26px 32px}
+.crm-embedded .app-footer{padding:12px 26px}
+@media(max-width:920px){.crm-embedded .contact-workspace{grid-template-columns:minmax(220px,.85fr) minmax(0,1.2fr)}.crm-embedded .holder-entry{display:none}}
+@media(max-width:680px){.crm-embedded .app-header{padding:10px 14px;flex-wrap:wrap}.crm-embedded .actor-label{font-size:10px;flex:1}.crm-embedded .actor-label select{max-width:100%;width:100%;min-height:36px}.crm-embedded .demo-warning{padding:9px 14px}.crm-embedded .app-shell>.sidebar{padding:10px 14px;gap:8px}.crm-embedded .context-link{flex:1;min-width:0}.crm-embedded .seed-button{flex:1 0 100%;min-height:34px}.crm-embedded .app-shell main{padding:20px 14px}.crm-embedded .contact-workspace{grid-template-columns:1fr}.crm-embedded .app-footer{padding:12px 14px}}

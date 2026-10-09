@@ -26,5 +26,7 @@ for(const [name,before] of Object.entries(require('./backoffice-payment-before.j
  assert.ok(start>=0&&end>start);behaviorHtml=behaviorHtml.slice(0,start)+before+behaviorHtml.slice(end);
 }
 behaviorHtml=behaviorHtml.replace('<script src="assets/js/backoffice-portfolio-payment.js"></script>','');
+// The separately tested CRM append/decision adapter does not edit legacy inline logic.
+for(const name of ['crm-demo-store','patient-demo','crm-demo-corrections','crm-demo-evidence','crm-office-adapter','crm-demo-office','backoffice-crm'])behaviorHtml=behaviorHtml.replace('<script src="assets/js/'+name+'.js"></script>','');
 return behaviorHtml;
 };

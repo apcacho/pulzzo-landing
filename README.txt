@@ -1,1 +1,3 @@
-Pulzzo landing v1296. Cambia el icono de timeline "Pulzzo coordina el pago" por el logo de Pulzzo. Mantiene v1295 mobile drawer, footer logo y redes sociales.
+PULZZO DEMO: CRM, registro asistido, portales y backoffice.
+Lee README.md para ejecutar, probar y revisar los límites.
+Entrada CRM: backoffice.html#crm, con Admin demo; CRM está dentro del menú lateral del backoffice. Solo datos ficticios. No activar Gmail ni publicar sin autorización.

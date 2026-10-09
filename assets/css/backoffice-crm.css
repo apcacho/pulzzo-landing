@@ -1,0 +1,12 @@
+/* Scope layout changes to the active CRM section; retain the existing BO shell. */
+#appView[data-crm-active="true"]{height:100vh;height:100dvh;min-height:0;overflow:hidden}
+#appView[data-crm-active="true"]>.main{min-height:0;overflow:hidden}
+#appView[data-crm-active="true"] .content{padding:0;min-height:0}
+#crm{min-width:0;line-height:0}
+#crmWorkspaceFrame{display:block;width:100%;border:0;min-width:0;background:#f6f8fa}
+#appView[data-crm-active="true"] .topbar{box-sizing:border-box}
+#appView[data-crm-active="true"] #pageSub{font-size:12px}
+@media(max-width:820px){#appView[data-crm-active="true"] .topbar>div:first-of-type{min-width:0}#appView[data-crm-active="true"] #pageSub{font-size:10px;line-height:1.4}}
+
+.crm-entry-note{font-size:12px;line-height:1.5;padding:12px;border:1px solid #dce6ee;background:#f8fafc;border-radius:12px;color:#52657b;margin:0 0 18px}.crm-entry-note[hidden]{display:none}
+@media(max-width:520px){#appView[data-crm-active="true"] .top-actions>a[href="crm.html"]{display:none}#appView[data-crm-active="true"] .topbar{height:auto;min-height:74px;flex-wrap:wrap;gap:8px;padding-block:10px}#appView[data-crm-active="true"] .top-actions{max-width:100%;flex-wrap:wrap}#appView[data-crm-active="true"] #pageTitle{font-size:20px}}

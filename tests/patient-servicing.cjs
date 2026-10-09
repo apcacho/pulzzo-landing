@@ -43,7 +43,7 @@ function patientHarness(payloadOverride={}){
  const state={applicationId:'APP-SERVICING',patientAccountId:'PAT-OWNER',offerReady:true,offerAccepted:true,offerAcceptedAt:'2026-08-01T12:00:00.000Z',contractSigned:true,signatureStatus:'signed',preferredPaymentDay:'5 y 20',paymentFrequency:'Quincenal',offer:{approvedAmount:2000.01,monthlyPayment:2232.01,termMonths:12,initialPaymentRequired:true,initialInstallments:2},signedContractUrl:'about:blank'};
  state.demoBridgeCaseId='CREDIT-A';state.demoBridgeOfferFingerprint=Bridge.fingerprint(state.offer);
  const h=harness(state),patient={...legacyPatient,patientAccountId:'PAT-OWNER'};
- h.context.patientFromStorage=patient;h.context.window.PulzzoDemoServicing=Servicing;
+ h.context.patientFromStorage=patient;h.context.window.PulzzoDemoServicing=Servicing;h.context.window.PulzzoDemoBridge=Bridge;
  h.data.set('pulzzo_patient',JSON.stringify(patient));h.context.patientStorageSnapshot=h.data.get('pulzzo_patient');
  h.data.set('pulzzo_verified','true');h.context.verifiedStorageSnapshot='true';
  h.checkpoint=()=>{const raw=JSON.stringify(h.state);h.data.set('pulzzo_application',raw);h.context.applicationStorageSnapshot=raw;h.context.applicationMemorySnapshot=raw;};
@@ -110,3 +110,9 @@ failed.context.localStorage.setItem=(key,value)=>{if(key==='pulzzo_application')
 failed.context.localStorage.setItem=write;failedUI.button.onclick();assert.ok(failed.state.servicingProjection,'same received message can safely retry after failed save');
 const switched=patientHarness(),switchedUI=mountPatient(switched);switched.data.set('pulzzo_patient',JSON.stringify({...legacyPatient,patientAccountId:'PAT-OTHER'}));switchedUI.button.onclick();assert.equal(switched.state.servicingProjection,undefined);
 console.log('PASS: actual mounted receive callback preserves signed terms, repeats safely, rolls back failed storage, retries successfully and refuses account switches.');
+
+// Legacy accepted private fingerprint remains untouched while canonical public digest renders new servicing.
+const legacyRender=patientHarness();legacyRender.state.demoBridgeOfferFingerprint=JSON.stringify({internalMargins:{secret:123},approvedAmount:2000.01});legacyRender.received();
+const preservedLegacyFingerprint=legacyRender.state.demoBridgeOfferFingerprint;
+assert.ok(legacyRender.context.getPatientServicingProjection());legacyRender.context.showScheduleModal();assert.match(legacyRender.modal,/\$647.61/);assert.equal(legacyRender.state.demoBridgeOfferFingerprint,preservedLegacyFingerprint);
+console.log('PASS: legacy accepted fingerprint remains unchanged while canonical public-offer servicing renders.');
