@@ -58,3 +58,8 @@ La entrada principal es `backoffice.html#crm`, con Admin demo. El CRM aparece co
 La integración reconoce únicamente su propia ventana hija de mismo origen y la sesión Admin demo activa. No utiliza mensajes de origen abierto. Cambiar de sección o cerrar sesión retira la vista CRM, invalida la instancia y cierra sus diálogos; atrás/adelante pertenece al backoffice. Los roles Riesgo y Solo lectura no adquieren permisos CRM. La selección de KAM continúa siendo una simulación, no autenticación real.
 
 Se añadió una prueba independiente de manejadores de navegación, historial, cierre de diálogos, permisos, entrada antigua e invariancia SHA-256 del código inline original del backoffice. Se mantienen las pruebas funcionales completas y la validación del build. La disposición móvil se ajustó estructuralmente para evitar doble desplazamiento y recortes de la cabecera. No se pudo realizar inspección visual: Chromium falla antes de cargar la página debido a `socket() Operation not permitted`. Las pruebas DOM/VM no sustituyen revisión visual en un navegador real.
+
+
+## Actualización posterior de diseño
+
+La integración por ventana hija descrita arriba fue reemplazada por montaje nativo, con estilos heredados del Backoffice. La revisión y los resultados actuales están en [REVISION-CRM-DISENO-BACKOFFICE-20261009.md](REVISION-CRM-DISENO-BACKOFFICE-20261009.md). Los apartados anteriores conservan el registro de sus verificaciones históricas.

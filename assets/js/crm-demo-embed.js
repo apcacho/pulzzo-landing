@@ -1,14 +1,8 @@
-/* Canonical CRM entry and same-origin Backoffice navigation adapter. No authentication. */
+/* Canonical CRM entry and native, root-scoped Backoffice adapter. No authentication. */
 (function () {
   'use strict';
-  let shell = null, context = null;
-  try {
-    if (window.parent !== window && new URLSearchParams(location.search).get('embedded') === 'backoffice' && window.parent.location.origin === location.origin) {
-      shell = window.parent.PulzzoCRMBackoffice;
-      context = shell && shell.getContext(window);
-    }
-  } catch (_) {}
-  if (!context) {
+  // Legacy links keep their route, but no page or query flag creates another CRM shell.
+  if (/\/crm-demo\.html$/.test(location.pathname)) {
     window.crmDemoEntryBlocked = true;
     const parts = location.hash.replace(/^#/, '').split('/');
     const type = parts[0] === 'doctor' ? 'doctor' : 'patient';
@@ -18,24 +12,59 @@
     location.replace('backoffice.html#crm/' + type + '/' + view + id);
     return;
   }
-  document.documentElement.classList.add('crm-embedded');
-  window.PulzzoCRMEmbedding = {
-    actorId: context.actorId,
-    writeRoute(hash, replace) {
-      if (!shell.getContext(window)) return false;
-      // The Backoffice is the only history owner. A child never adds joint entries.
-      history.replaceState(null, '', hash);
-      return shell.navigate(window, hash, replace);
-    },
-    ready() { shell.sync(window); }
-  };
-  document.addEventListener('click', function (event) {
-    const link = event.target.closest('a[href]');
-    if (!link) return;
-    const url = new URL(link.href, location.href);
-    // Holder onboarding is its own portal and must not replace the CRM frame.
-    if (url.origin === location.origin && url.pathname.endsWith('/asistido-demo.html')) {
-      link.target = '_blank'; link.rel = 'noopener noreferrer';
+  function mount(options) {
+    const host = options.host, owner = host.ownerDocument || document;
+    if (!host.attachShadow || !window.PulzzoCRMTemplate || !window.PulzzoCRMUI) throw new Error('El módulo CRM no está disponible. Recarga Backoffice para intentarlo de nuevo.');
+    const root = host.attachShadow({mode:'open'});
+    for (const href of ['assets/css/crm-demo.css', 'assets/css/crm-demo-embed.css']) {
+      const link = owner.createElement('link');
+      link.rel = 'stylesheet'; link.href = href; root.appendChild(link);
     }
-  }, true);
+    const surface = owner.createElement('div');
+    surface.className = 'crm-surface'; surface.dataset.context = 'patient';
+    surface.innerHTML = window.PulzzoCRMTemplate;
+    root.appendChild(surface);
+    // Give the existing CRM UI only its own DOM and events. Shadow DOM isolates its
+    // generic classes/IDs while the Backoffice design tokens inherit through host.
+    const scopedDocument = {
+      body:surface, documentElement:surface,
+      getElementById:id => root.getElementById(id),
+      querySelector:selector => root.querySelector(selector),
+      querySelectorAll:selector => root.querySelectorAll(selector),
+      addEventListener:(type, handler) => root.addEventListener(type, handler),
+      removeEventListener:(type, handler) => root.removeEventListener(type, handler)
+    };
+    const holderLink = function (event) {
+      const link = event.target.closest?.('a[href]');
+      if (!link) return;
+      const url = new URL(link.href, location.href);
+      if (url.origin === location.origin && url.pathname.endsWith('/asistido-demo.html')) {
+        link.target = '_blank'; link.rel = 'noopener noreferrer';
+      }
+    };
+    root.addEventListener('click', holderLink, true);
+    let app;
+    try {
+      const embedding = Object.assign({}, options.embedding, {focusContact() {
+        if (window.innerWidth > 820) return;
+        const detail = root.getElementById('contactDetail');
+        // Explicit selection only: history restoration and ordinary renders must
+        // retain the user's scroll position. No motion is needed to reveal a card.
+        const topbar = owner.querySelector('.topbar');
+        detail.style.scrollMarginTop = ((topbar ? topbar.getBoundingClientRect().height : 0) + 16) + 'px';
+        detail.focus({preventScroll:true});
+        detail.scrollIntoView({block:'start', behavior:'instant'});
+      }});
+      app = window.PulzzoCRMUI.createApp({window, document:scopedDocument, embedding});
+      if (!app || !app.navigate) throw new Error('El CRM local no pudo iniciar. Revisa el almacenamiento de este navegador.');
+    } catch (error) {
+      root.removeEventListener('click', holderLink, true);
+      throw error;
+    }
+    return {
+      app,
+      destroy() {root.removeEventListener('click', holderLink, true);app.destroy();}
+    };
+  }
+  window.PulzzoCRMEmbedding = Object.freeze({mount});
 })();

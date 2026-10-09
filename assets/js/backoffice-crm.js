@@ -5,7 +5,7 @@
   const app = document.getElementById('appView');
   if (!section || !app) return;
   const actorIds = ['kam_ana', 'kam_luis', 'admin_demo'];
-  let frame = null, crmHash = '#patient/contacts', actorId = 'kam_ana', restoring = false;
+  let workspace = null, mounted = null, crmHash = '#patient/contacts', actorId = 'kam_ana', restoring = false;
   const originalSetView = window.setView;
   const originalInitApp = window.initApp;
   const originalSetSidebarOpen = window.setSidebarOpen;
@@ -23,24 +23,22 @@
     if (location.hash === hash) return;
     history[replace ? 'replaceState' : 'pushState'](null, '', hash);
   }
-  function validChild(child) { return authorized() && currentView === 'crm' && !!frame && frame.contentWindow === child; }
-  function sizeFrame() {
-    if (!frame) return;
-    const topbar = document.querySelector('.topbar');
-    const height = Math.max(1, window.innerHeight - (topbar ? topbar.getBoundingClientRect().height : 74));
-    frame.style.height = height + 'px';
-  }
-  function dismissChild() {
-    if (!frame) return;
-    try { if (frame.contentWindow.crmDemoApp) frame.contentWindow.crmDemoApp.closeDialog(true); } catch (_) {}
+  function validHost(host) { return authorized() && currentView === 'crm' && !!workspace && workspace === host; }
+  function dismissCRM() {
+    if (mounted) mounted.app.closeDialog(true);
   }
   function teardown() {
-    if (frame) {
-      try { const chosen = frame.contentWindow.crmDemoApp?.state.actor.id; if (actorIds.includes(chosen)) actorId = chosen; } catch (_) {}
-      dismissChild();
-      frame.remove();
-      frame = null;
+    const previous = mounted;
+    if (previous) {
+      const chosen = previous.app.state.actor.id;
+      if (actorIds.includes(chosen)) actorId = chosen;
     }
+    const previousHost = workspace;
+    mounted = null; workspace = null;
+    // Invalidates pending evidence intents, revokes previews and removes every
+    // per-mount listener before a new actor/session can create another surface.
+    if (previous) previous.destroy();
+    if (previousHost) previousHost.remove();
     app.removeAttribute('data-crm-active');
   }
   function header() {
@@ -48,15 +46,32 @@
     document.getElementById('pageTitle').textContent = 'CRM · ' + (provider ? 'Proveedores' : 'Clientes');
     document.getElementById('pageSub').textContent = 'Prospectos, contacto, tareas y registro asistido · simulación local';
   }
-  function applyChildRoute() {
-    if (!frame) return;
+  function applyCRMRoute() {
+    if (!mounted) return;
+    const route = crmHash.slice(1).split('/'), wasRestoring = restoring;
+    restoring = true;
+    try { mounted.app.navigate(route[0], route[1], route[2] ? decodeURIComponent(route[2]) : null, true); }
+    finally { restoring = wasRestoring; }
+  }
+  function mountCRM() {
+    const host = document.createElement('div');
+    host.id = 'crmWorkspace';
+    workspace = host;
+    section.replaceChildren(host);
     try {
-      const child = frame.contentWindow, crm = child.crmDemoApp;
-      if (!crm || !crm.navigate) return;
-      const route = crmHash.slice(1).split('/');
-      restoring = true;
-      crm.navigate(route[0], route[1], route[2] ? decodeURIComponent(route[2]) : null, true);
-    } finally { restoring = false; }
+      mounted = window.PulzzoCRMEmbedding.mount({host, embedding:{
+        actorId,
+        readRoute:() => crmHash,
+        renderHeader:header,
+        writeRoute:(hash, replace) => window.PulzzoCRMBackoffice.navigate(host, hash, replace)
+      }});
+    } catch (error) {
+      teardown();
+      const notice = document.createElement('p');
+      notice.className = 'crm-load-error'; notice.setAttribute('role', 'alert');
+      notice.textContent = error.message || 'No se pudo abrir CRM. Vuelve a elegir CRM para reintentar.';
+      section.replaceChildren(notice);
+    }
   }
   function showCRM(hash, replace) {
     if (!authorized()) {
@@ -87,16 +102,8 @@
     app.setAttribute('data-crm-active', 'true');
     header();
     if (!restoring) writeHash('#crm/' + crmHash.slice(1), replace);
-    if (!frame) {
-      frame = document.createElement('iframe');
-      frame.id = 'crmWorkspaceFrame';
-      frame.title = 'CRM: prospectos y registro asistido DEMO';
-      frame.setAttribute('referrerpolicy', 'no-referrer');
-      frame.src = 'crm-demo.html?embedded=backoffice' + crmHash;
-      section.appendChild(frame);
-      window.scrollTo?.(0, 0);
-    } else applyChildRoute();
-    sizeFrame();
+    if (!workspace) mountCRM();
+    else applyCRMRoute();
     if (window.innerWidth < 821) originalSetSidebarOpen(false, true);
     if (dismissedOfficeModal) {
       const focus = window.innerWidth < 821 ? document.getElementById('mobileMenu') : document.querySelector('.nav-btn[data-id="crm"]');
@@ -122,19 +129,21 @@
     if (requested) showCRM(requested, true);
   };
   window.setSidebarOpen = function (open, returnFocus) {
-    if (open) dismissChild();
+    if (open) dismissCRM();
     return originalSetSidebarOpen(open, returnFocus);
   };
   window.PulzzoCRMBackoffice = {
-    getContext(child) { return validChild(child) ? {actorId, demo:true, section:'crm'} : null; },
-    navigate(child, hash, replace) {
-      if (!validChild(child)) return false;
+    getContext(host) { return validHost(host) ? {actorId, demo:true, section:'crm'} : null; },
+    getApp(host) { return validHost(host) && mounted ? mounted.app : null; },
+    navigate(host, hash, replace) {
+      if (!validHost(host)) return false;
       crmHash = normalize(hash); header();
-      try { const chosen = child.crmDemoApp?.state.actor.id; if (actorIds.includes(chosen)) actorId = chosen; } catch (_) {}
+      const chosen = mounted && mounted.app.state.actor.id;
+      if (actorIds.includes(chosen)) actorId = chosen;
       if (!restoring) writeHash('#crm/' + crmHash.slice(1), !!replace);
       return true;
     },
-    sync(child) { if (!validChild(child)) return false; applyChildRoute(); sizeFrame(); return true; }
+    sync(host) { if (!validHost(host)) return false; applyCRMRoute(); return true; }
   };
   function updateLoginHint() {
     const hint = document.getElementById('crmLoginHint');
@@ -156,11 +165,6 @@
   updateLoginHint();
   window.addEventListener('popstate', restoreRoute);
   window.addEventListener('hashchange', restoreRoute);
-  window.addEventListener('resize', sizeFrame);
-  if (typeof ResizeObserver === 'function') {
-    const headerSize = new ResizeObserver(sizeFrame);
-    headerSize.observe(document.querySelector('.topbar'));
-  }
   window.addEventListener('pageshow', function (event) { if (event.persisted && session) restoreRoute(); });
   window.addEventListener('pagehide', teardown);
 })();
