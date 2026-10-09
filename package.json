@@ -2,9 +2,11 @@
   "name": "pulzzo-crm-mail-local",
   "private": true,
   "scripts": {
-    "test": "node tests/run.cjs && node --test tests/crm-mail.test.mjs",
+    "test": "node scripts/build-crm-embed.mjs --check && node tests/run.cjs && node --test tests/crm-mail.test.mjs",
     "build": "node scripts/build-mail.mjs",
-    "db:generate": "drizzle-kit generate"
+    "db:generate": "drizzle-kit generate",
+    "build:crm": "node scripts/build-crm-embed.mjs",
+    "check:crm": "node scripts/build-crm-embed.mjs --check"
   },
   "devDependencies": {
     "drizzle-kit": "0.31.4",

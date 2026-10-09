@@ -1,6 +1,8 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { build } from 'esbuild';
+// Direct build invocations must also regenerate the static CRM embedding.
+await import('./build-crm-embed.mjs');
 const root=path.resolve(import.meta.dirname,'..'),dist=path.join(root,'dist');
 await fs.rm(dist,{recursive:true,force:true});
 await fs.mkdir(path.join(dist,'client'),{recursive:true});

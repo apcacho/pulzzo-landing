@@ -70,7 +70,13 @@
       const notice = document.createElement('p');
       notice.className = 'crm-load-error'; notice.setAttribute('role', 'alert');
       notice.textContent = error.message || 'No se pudo abrir CRM. Vuelve a elegir CRM para reintentar.';
-      section.replaceChildren(notice);
+      const retry = document.createElement('button');
+      retry.type = 'button'; retry.className = 'btn btn-primary';
+      retry.textContent = 'Reintentar CRM';
+      retry.addEventListener('click', function () {
+        if (authorized() && currentView === 'crm' && !workspace && section.contains(retry)) showCRM(crmHash, true);
+      });
+      section.replaceChildren(notice, retry);
     }
   }
   function showCRM(hash, replace) {

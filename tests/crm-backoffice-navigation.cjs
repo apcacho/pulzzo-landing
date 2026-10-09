@@ -127,7 +127,7 @@ test('CRM mounts natively only for Admin, with scoped DOM and one Backoffice she
  assert.equal(h.get('nav').children.filter(n=>n.dataset.id==='crm').length,1);
  h.clickNav('crm');assert.equal(h.view(),'crm');assert.equal(h.get('appView').getAttribute('data-crm-active'),'true');
  const host=h.document.getElementById('crmWorkspace');assert.ok(host);assert.ok(host.shadowRoot);assert.equal(h.frames.length,0);assert.equal(h.window.location.hash,'#crm/patient/contacts');
- assert.equal(host.shadowRoot.querySelectorAll('link').length,2);assert.equal(host.shadowRoot.querySelector('h1'),null);assert.equal(host.shadowRoot.querySelector('.app-header'),null);assert.equal(host.shadowRoot.querySelector('.sidebar'),null);
+ assert.equal(host.shadowRoot.querySelectorAll('link').length,0,'No CRM stylesheet network requests on entry');assert.equal(host.shadowRoot.querySelectorAll('style').length,1);assert.equal(host.shadowRoot.children[0].tagName,'STYLE','Styles precede all CRM content');assert.equal(host.shadowRoot.querySelector('h1'),null);assert.equal(host.shadowRoot.querySelector('.app-header'),null);assert.equal(host.shadowRoot.querySelector('.sidebar'),null);
  assert.ok(host.shadowRoot.getElementById('contactList'));assert.equal(h.document.getElementById('contactList'),null,'CRM IDs cannot leak into Backoffice selectors');assert.equal(h.document.body.dataset.context,undefined,'CRM context never restyles the Backoffice body');
  assert.equal(h.get('nav').children.find(n=>n.dataset.id==='crm').getAttribute('aria-current'),'page');assert.equal(h.get('crm').classList.contains('active'),true);assert.equal(h.get('dashboard').classList.contains('active'),false);assert.equal(h.get('appView').classList.contains('hidden'),false);
  h.clickNav('crm');assert.equal(h.document.getElementById('crmWorkspace'),host);assert.equal(h.get('crm').children.length,1);assert.equal(h.history.entries().length,2);
@@ -247,5 +247,40 @@ test('Portfolio payment drawer uses its existing close handler and cannot be int
  h.window.history.back();assert.equal(h.view(),'crm');assert.equal(h.document.getElementById('portfolioPaymentOverlay'),null);assert.equal(h.evaluate('portfolioPaymentSession'),null);assert.equal(h.get('appView').inert,false);
  h.window.history.forward();h.get('portfolioPaymentOverlay');h.evaluate("portfolioPaymentSession={saving:true,inertNodes:[],bodyStyle:{},scrollY:0};");const entries=h.history.entries().length;
  h.window.history.back();assert.equal(h.view(),'portfolio');assert.equal(h.window.location.hash,'#bo/portfolio');assert.ok(h.document.getElementById('portfolioPaymentOverlay'));assert.equal(h.evaluate('portfolioPaymentSession.saving'),true);assert.equal(h.get('crm').children.length,0);assert.equal(h.history.entries().length,entries);
+});
+test('Cold CRM mount installs complete styles before UI with no dependency on CSS load events',()=>{
+ const h=shell({role:'admin'}),original=h.document.createElement,events=[];
+ h.document.createElement=function(tag){
+  assert.notEqual(tag,'link','Blocked or indefinitely delayed CSS requests cannot affect CRM mount');
+  const node=original(tag);events.push(tag);return node;
+ };
+ const api=h.window.PulzzoCRMUI,createApp=api.createApp;
+ api.createApp=function(config){
+  const host=h.document.getElementById('crmWorkspace');
+  assert.equal(host.shadowRoot.children[0].tagName,'STYLE');
+  assert.equal(host.shadowRoot.children[0].textContent,read('assets/css/crm-demo.css')+'\n'+read('assets/css/crm-demo-embed.css'));
+  return createApp(config);
+ };
+ h.clickNav('crm');const first=attachCRM(h);assert.ok(events.includes('style'));assert.equal(first.root.querySelectorAll('link').length,0);
+ h.navigate('patients');h.window.history.back();const second=attachCRM(h);assert.notEqual(first.host,second.host);assert.equal(second.root.children[0].tagName,'STYLE');
+ h.get('logoutBtn').dispatch('click');assert.equal(h.document.getElementById('crmWorkspace'),null);assert.equal(h.window.PulzzoCRMBackoffice.getApp(second.host),null);
+ h.login('admin');assert.equal(attachCRM(h).root.children[0].tagName,'STYLE');
+});
+test('Failed style installation never creates raw CRM UI; retry is scoped and restores active shell',()=>{
+ const h=shell({role:'admin'}),original=h.document.createElement;
+ h.document.createElement=function(tag){const node=original(tag);if(tag==='style')node.sheet=null;return node;};
+ h.clickNav('crm');assert.equal(h.document.getElementById('crmWorkspace'),null);assert.equal(h.get('crm').querySelector('.crm-load-error').getAttribute('role'),'alert');
+ assert.equal(h.get('crm').querySelector('.crm-surface'),null);
+ const retry=h.get('crm').querySelector('button');assert.equal(retry.textContent,'Reintentar CRM');
+ h.document.createElement=original;retry.dispatch('click');const fresh=attachCRM(h);assert.equal(h.get('appView').getAttribute('data-crm-active'),'true');assert.equal(fresh.root.children[0].tagName,'STYLE');
+ retry.dispatch('click');assert.equal(attachCRM(h).host,fresh.host,'Detached retry cannot duplicate a live mount');
+ h.navigate('patients');retry.dispatch('click');assert.equal(h.view(),'patients');assert.equal(h.document.getElementById('crmWorkspace'),null);
+ h.get('logoutBtn').dispatch('click');retry.dispatch('click');assert.equal(h.session(),null);assert.equal(h.document.getElementById('crmWorkspace'),null);
+});
+test('UI initialization failure can retry on a fresh host without leaked event handlers',()=>{
+ const h=shell({role:'admin'}),api=h.window.PulzzoCRMUI,createApp=api.createApp;let failedRoot;
+ api.createApp=function(){failedRoot=h.document.getElementById('crmWorkspace').shadowRoot;throw Error('Simulated initialization failure');};
+ h.clickNav('crm');assert.equal(h.document.getElementById('crmWorkspace'),null);assert.equal(failedRoot.listeners.click.length,0);
+ api.createApp=createApp;h.get('crm').querySelector('button').dispatch('click');assert.ok(attachCRM(h).app);assert.equal(h.get('crm').querySelector('.crm-load-error'),null);
 });
 (async()=>{for(const {label,fn} of cases){await fn();groups++;console.log('PASS',label);}console.log(`PASS: ${groups} CRM-in-Backoffice integration groups. Actual handler/DOM/History tests; browser geometry, rendering and assistive-technology checks are separate.`);})().catch(error=>{console.error(error);process.exitCode=1;});
