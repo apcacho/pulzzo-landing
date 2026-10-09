@@ -239,3 +239,11 @@
 /* Keep the compact contact placeholder above generic BO text roles. */
 .crm-surface .contact-empty-copy h2{font-size:var(--bo-size-card);font-weight:var(--bo-weight-heading);line-height:1.4}
 .crm-surface .contact-empty-copy p{font-size:var(--bo-size-meta);color:var(--muted);line-height:1.5}
+/* Keep this short intake form compact inside the shared Backoffice dialog. */
+.crm-surface .prospect-editor .prospect-section{margin:0 0 16px;padding:0 0 16px}
+.crm-surface .prospect-editor .prospect-section legend{margin-bottom:10px}
+.crm-surface .prospect-editor .form-grid{gap:12px 16px}
+.crm-surface .prospect-editor .field-help{margin-top:5px;font-size:var(--bo-size-meta);font-weight:400}
+.crm-surface .prospect-editor .form-actions{margin-top:12px;padding-top:14px}
+.crm-surface .public-photo-alert{border-color:#E8D9BA;background:#FFFAF0;color:#765C29}
+.crm-surface .task-column.unscheduled{grid-column:1/-1}

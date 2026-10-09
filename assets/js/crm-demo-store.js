@@ -106,8 +106,44 @@
       try { state = JSON.parse(raw); } catch (_) { fail('invalid_storage', 'Los datos CRM están dañados. No se sobrescribieron.'); }
       return { raw, state: assertState(state) };
     }
+    // Publication follow-up is a canonical, read-only system task projection. It
+    // shares the CRM task surfaces without creating another mutable source of truth.
+    // A photo upload is never evidence that the photo was published.
+    function publicPhotoTasks(state) {
+      if (!['admin', 'kam'].includes(actor.role) || !Object.values(state.contacts).some(c => c.type === 'doctor' && canAccess(c))) return {};
+      let rows;
+      try {
+        if (typeof options.getPublicPhotoTasks === 'function') rows = options.getPublicPhotoTasks();
+        else {
+          let publication = root && root.PulzzoDoctorPublication, context = root && root.PulzzoDoctorPublicationContext;
+          if (typeof require === 'function') {
+            if (!publication) { try { publication = require('./doctor-publication.js'); } catch (_) {} }
+            if (!context) { try { context = require('./doctor-publication-context.js'); } catch (_) {} }
+          }
+          if (!publication || !context || typeof context.resolveProvider !== 'function') return {};
+          rows = publication.createStore({ storage, actor, now: getNow, resolveProvider: id => context.resolveProvider(storage, id) }).photoTasks();
+        }
+      } catch (_) { return {}; } // Unavailable publication data never fabricates a closed task.
+      const result = {}, seen = new Set();
+      for (const row of Array.isArray(rows) ? rows : []) {
+        const c = row && state.contacts[row.contactId], id = row && 'doctor-photo:' + row.providerId;
+        // System task IDs use a fixed namespace plus the complete valid provider ID.
+        // They may exceed the persisted CRM-ID bound and are never stored in that map.
+        if (!c || !canAccess(c) || c.type !== 'doctor' || !isId(row.providerId) || row.id !== id || row.kind !== 'doctor_public_photo' || seen.has(id)) continue;
+        if (!c.accountId || c.accountId !== c.holderId || row.accountId !== c.accountId || row.assignedKam !== c.assignedKam || !['open', 'closed'].includes(row.status) || row.status === 'closed' && row.publishedPhoto !== true || row.status === 'open' && row.publishedPhoto !== false) continue;
+        if (!isId(row.publishedVersionId) || !Number.isFinite(Date.parse(row.createdAt)) || !Number.isFinite(Date.parse(row.updatedAt))) continue;
+        seen.add(id);
+        result[id] = { id, kind: 'doctor_public_photo', systemManaged: true, provenance: 'published_doctor_profile', providerId: row.providerId, contactId: c.id, assignedKam: c.assignedKam,
+          title: 'Completar fotografía pública', dueAt: null, status: row.status, publishedVersionId: row.publishedVersionId,
+          createdAt: row.createdAt, createdBy: 'doctor_publication', updatedAt: row.updatedAt,
+          closedAt: row.status === 'closed' ? row.updatedAt : null, closedBy: null,
+          closeReason: row.status === 'closed' ? 'Fotografía publicada en el directorio.' : null };
+      }
+      return result;
+    }
+    function taskRecords(state) { return Object.assign({}, state.tasks, publicPhotoTasks(state)); }
     function project(state, input) {
-      if (actor.role === 'admin') return clone(state);
+      if (actor.role === 'admin') { const result = clone(state); result.tasks = clone(taskRecords(state)); return result; }
       const result = clone(state), allowed = new Set(Object.values(state.contacts).filter(c => canAccess(c)).map(c => c.id));
       let tokenInvitation = null, tokenExpedient = null;
       if (actor.role === 'holder' && input && input.invitationToken) {
@@ -120,6 +156,7 @@
       // A presented expired/revoked token can report its state, without exposing its dossier.
       if (tokenInvitation) result.invitations[tokenInvitation.id] = clone(tokenInvitation);
       if (tokenExpedient && !result.expedients[tokenExpedient.id]) result.expedients[tokenExpedient.id] = tokenExpedient;
+      Object.assign(result.tasks, publicPhotoTasks(state));
       return result;
     }
     function snapshot(input) { return project(read().state, input); }
@@ -533,6 +570,7 @@
         }
       }
       for (const [id, task] of Object.entries(after.tasks)) {
+        if (id.startsWith('doctor-photo:') || task.kind === 'doctor_public_photo' || task.systemManaged) fail('system_task', 'La tarea de fotografía proviene de la publicación y no se modifica manualmente.');
         text(task.title, 300, true); iso(task.dueAt);
         if (!['open', 'closed'].includes(task.status)) fail('invalid_task', 'El estado de la tarea no es válido.');
         if (task.status === 'closed') { text(task.closeReason, 2000, true); iso(task.closedAt); }
@@ -752,7 +790,7 @@
     }
     function updateTask(id, patch, revision) {
       return transact(revision, (draft, ctx) => {
-        requireStaff(); const task = draft.tasks[id]; if (!task) fail('task_not_found', 'No se encontró la tarea.'); requireContact(draft, task.contactId);
+        requireStaff(); if (String(id).startsWith('doctor-photo:')) fail('system_task', 'La tarea se cierra únicamente cuando la fotografía se publica; cargarla como borrador no la cierra.'); const task = draft.tasks[id]; if (!task) fail('task_not_found', 'No se encontró la tarea.'); requireContact(draft, task.contactId);
         if (task.status !== 'open') fail('task_closed', 'La tarea ya está cerrada.');
         if (!plain(patch) || Object.keys(patch).some(k => !['title', 'dueAt'].includes(k))) fail('protected_field', 'Sólo puedes cambiar el título y vencimiento.');
         if (has(patch, 'title')) task.title = text(patch.title, 300, true);
@@ -762,7 +800,7 @@
     }
     function closeTask(id, reason, revision) {
       return transact(revision, (draft, ctx) => {
-        requireStaff(); const task = draft.tasks[id]; if (!task) fail('task_not_found', 'No se encontró la tarea.'); const contact = requireContact(draft, task.contactId);
+        requireStaff(); if (String(id).startsWith('doctor-photo:')) fail('system_task', 'La tarea se cierra únicamente cuando la fotografía se publica; cargarla como borrador no la cierra.'); const task = draft.tasks[id]; if (!task) fail('task_not_found', 'No se encontró la tarea.'); const contact = requireContact(draft, task.contactId);
         if (task.status === 'closed') fail('task_closed', 'La tarea ya está cerrada; no se duplicó el cierre.');
         task.closeReason = text(reason, 2000, true); task.status = 'closed'; task.closedAt = ctx.now; task.closedBy = actor.id; task.updatedAt = ctx.now;
         audit(draft, ctx, 'task_closed', contact.id, { taskId: id, reason: task.closeReason }); event(draft, ctx, 'task_closed', contact, { taskId: id }); return task;
@@ -820,7 +858,7 @@
     function getContact(id) { const state = read().state; return clone(requireContact(state, id)); }
     function listLinked(key, filter) {
       filter = filter || {}; const state = read().state;
-      return Object.values(state[key]).filter(item => (canAccess(state.contacts[item.contactId]) || key === 'audit' && filter.includeArchived === true && actor.role === 'admin' && state.contacts[item.contactId] && state.contacts[item.contactId].deletedAt) && (!filter.contactId || item.contactId === filter.contactId) && (!filter.status || item.status === filter.status)).sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || '')).map(clone);
+      return Object.values(key === 'tasks' ? taskRecords(state) : state[key]).filter(item => (canAccess(state.contacts[item.contactId]) || key === 'audit' && filter.includeArchived === true && actor.role === 'admin' && state.contacts[item.contactId] && state.contacts[item.contactId].deletedAt) && (!filter.contactId || item.contactId === filter.contactId) && (!filter.status || item.status === filter.status)).sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || '')).map(clone);
     }
     function operationalStatus(id) {
       const contact = getContact(id);
@@ -841,12 +879,12 @@
       const activities = events.filter(e => e.type === 'activity_recorded');
       const submitted = new Set(events.filter(e => ['holder_submitted', 'onboarding_submitted', 'expedient_submitted'].includes(e.type) && e.expedientId && state.expedients[e.expedientId] && state.expedients[e.expedientId].contactId === e.contactId && state.expedients[e.expedientId].submittedAt === e.createdAt && e.actorRole === 'holder').map(e => e.contactId));
       const started = new Set(events.filter(e => ['onboarding_started', 'expedient_created', 'assisted_draft_created', 'self_service_created'].includes(e.type) && e.expedientId && state.expedients[e.expedientId] && state.expedients[e.expedientId].contactId === e.contactId && state.expedients[e.expedientId].createdAt === e.createdAt).map(e => e.contactId));
-      const openTasks = Object.values(state.tasks).filter(t => ids.has(t.contactId) && t.status === 'open');
+      const openTasks = Object.values(taskRecords(state)).filter(t => ids.has(t.contactId) && t.status === 'open');
       const byStage = { patient: {}, doctor: {} }; for (const type of Object.keys(STAGES)) for (const stage of STAGES[type]) byStage[type][stage] = 0;
       for (const contact of contacts) byStage[contact.type][contact.stage]++;
       const kams = new Set(contacts.map(c => c.assignedKam || 'unassigned'));
       const byKam = Array.from(kams).sort().map(kamId => { const ownIds = new Set(contacts.filter(c => (c.assignedKam || 'unassigned') === kamId).map(c => c.id)); return { kamId, newContacts: Array.from(newIds).filter(id => ownIds.has(id)).length, activities: activities.filter(e => ownIds.has(e.contactId)).length, submitted: Array.from(submitted).filter(id => ownIds.has(id)).length }; });
-      return { period: { month, year }, counts: { newContacts: newIds.size, patients: contacts.filter(c => c.type === 'patient' && newIds.has(c.id)).length, doctors: contacts.filter(c => c.type === 'doctor' && newIds.has(c.id)).length, activities: activities.length, openTasks: openTasks.length, overdueTasks: openTasks.filter(t => t.dueAt < getNow()).length, submitted: submitted.size, onboardingStarted: started.size, referralContacts: contacts.filter(c => newIds.has(c.id) && ['referral', 'kam_referral', 'doctor_referral'].includes(c.originalSource)).length }, byStage, byKam, events: clone(events), currentSnapshot: { contacts: contacts.length, openTasks: openTasks.length }, demo: true };
+      return { period: { month, year }, counts: { newContacts: newIds.size, patients: contacts.filter(c => c.type === 'patient' && newIds.has(c.id)).length, doctors: contacts.filter(c => c.type === 'doctor' && newIds.has(c.id)).length, activities: activities.length, openTasks: openTasks.length, overdueTasks: openTasks.filter(t => t.dueAt && t.dueAt < getNow()).length, submitted: submitted.size, onboardingStarted: started.size, referralContacts: contacts.filter(c => newIds.has(c.id) && ['referral', 'kam_referral', 'doctor_referral'].includes(c.originalSource)).length }, byStage, byKam, events: clone(events), currentSnapshot: { contacts: contacts.length, openTasks: openTasks.length }, demo: true };
     }
     return Object.freeze({ actor, snapshot, transact, createContact, seedExamples, updateContact, getContact, listContacts, moveCommercialStage, setStage, reassignContact, deleteContact, restoreContact, listArchivedContacts, getArchivedContact, createReferral, resolveReferral, applyReferral, createTask, updateTask, closeTask, addActivity,
       listTasks: filter => listLinked('tasks', filter), listActivities: filter => listLinked('activities', filter), listAudit: filter => listLinked('audit', filter), dashboard, operationalStatus,

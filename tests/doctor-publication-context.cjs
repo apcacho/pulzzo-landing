@@ -1,0 +1,30 @@
+'use strict';
+const assert=require('node:assert/strict'),Context=require('../assets/js/doctor-publication-context.js'),UI=require('../assets/js/doctor-publication-ui.js');
+function storage(db,crm){const map=new Map([[Context.BO_KEY,JSON.stringify(db)]]);if(crm)map.set(Context.CRM_KEY,JSON.stringify(crm));return {getItem:k=>map.get(k)||null,setItem:(k,v)=>map.set(k,v),map};}
+const provider={id:'MED-A',doctorAccountId:'DOC-A',status:'correction_required',onboarding:{approved:true},profile:{name:'Ana <script>','prefix':'Dra.',city:'Mérida',state:'Yucatán'},links:{instagram:'@ana',website:'https://example.test/ana',other:'javascript:alert(1)'},fiscal:{rfc:'PRIVATE',clabe:'SECRET'},procedures:['Consulta']};
+const s=storage({providers:[provider],patients:[]});
+assert.deepEqual(Context.resolveProvider(s,'MED-A'),{id:'MED-A',doctorAccountId:'DOC-A',accountId:'DOC-A',contactId:null,assignedKam:null,eligible:true});
+assert.equal(Context.holderProvider(s,'DOC-A').id,'MED-A');assert.equal(Context.holderProvider(s,'DOC-B'),null);
+const draft=Context.fields(provider);assert.equal(draft.links.instagram,undefined);assert.equal(draft.links.other,undefined);assert.equal(draft.links.website,'https://example.test/ana');assert.equal(draft.photo,null);assert.equal(draft.fiscal,undefined);assert.doesNotMatch(JSON.stringify(draft),/PRIVATE|SECRET/);
+for(const bad of ['@handle','example.test/a','javascript:alert(1)','data:text/html,x','https://u:pass@example.test','https://example.test/\nfoo'])assert.equal(Context.safeUrl(bad),'');
+assert.equal(Context.safeUrl('https://example.test/a?b=1'),'https://example.test/a?b=1');
+for(const second of [{id:'OTHER',doctorAccountId:'DOC-A'},{id:'MED-A',doctorAccountId:'DOC-B'}])assert.equal(Context.resolveProvider(storage({providers:[provider,second],patients:[]}),'MED-A'),null);
+assert.equal(Context.resolveProvider(storage({providers:[provider],patients:[{id:'PAT',patientAccountId:'DOC-A'}]}),'MED-A'),null);
+const contact={id:'C-A',type:'doctor',holderId:'DOC-A',accountId:'DOC-A',assignedKam:'KAM-A'};let crm={version:1,contacts:{'C-A':contact},expedients:{}};
+assert.equal(Context.resolveProvider(storage({providers:[provider],patients:[]},crm),'MED-A').assignedKam,'KAM-A');
+assert.equal(Context.providerForContact(storage({providers:[provider],patients:[]},crm),contact).id,'MED-A');
+for(const bad of [{...contact,type:'patient'},{...contact,deletedAt:'2026-10-09'},{...contact,accountId:'OTHER'}])assert.equal(Context.resolveProvider(storage({providers:[provider],patients:[]},{...crm,contacts:{'C-A':bad}}),'MED-A'),null);
+assert.equal(Context.resolveProvider(storage({providers:[{...provider,crmIntake:{contactId:'OTHER',accountId:'DOC-A'}}],patients:[]},crm),'MED-A'),null);
+assert.equal(Context.resolveProvider(storage({providers:[{...provider,onboarding:{approved:false}}],patients:[]}), 'MED-A').eligible,false);
+// A valid assisted receipt must survive the shared mapping; any changed coordinate fails closed.
+const identity={id:'DOC-A',demo:true,verifiedAt:'2026-10-09T10:00:00Z'},actions=Object.fromEntries(['otp','finalConfirmation'].map(k=>[k,{actorId:'DOC-A',actorRole:'holder',confirmed:true,demo:true,at:'2026-10-09T10:01:00Z',capacity:'holder',authorityConfirmed:true}]));
+const exp={id:'EXP-A',contactId:'C-A',kind:'doctor',status:'submitted',holderIdentity:identity,fields:{name:'Ana'},documents:[],submittedAt:'2026-10-09T10:02:00Z',submissionRevision:1};
+exp.submissionSnapshot={schema:'pulzzo.crm.submission.v1',demo:true,revision:1,submissionId:'SUB-A',expedientId:'EXP-A',contactId:'C-A',accountId:'DOC-A',kind:'doctor',holderIdentity:identity,holderActions:actions,holderConfirmation:actions.finalConfirmation,fields:exp.fields,documents:[],submittedAt:exp.submittedAt};
+const imported={...provider,crmIntake:{accountId:'DOC-A',contactId:'C-A',expedientId:'EXP-A',submissionId:'SUB-A',submittedAt:exp.submittedAt}};
+const assisted=storage({providers:[imported],patients:[]},{...crm,expedients:{'EXP-A':exp}});assert.equal(Context.resolveProvider(assisted,'MED-A').contactId,'C-A');
+let reassigned=JSON.parse(assisted.getItem(Context.CRM_KEY));reassigned.contacts['C-A'].assignedKam='KAM-B';assisted.setItem(Context.CRM_KEY,JSON.stringify(reassigned));assert.equal(Context.resolveProvider(assisted,'MED-A').assignedKam,'KAM-B');
+reassigned.expedients['EXP-A'].submissionSnapshot.holderConfirmation.authorityConfirmed=false;assisted.setItem(Context.CRM_KEY,JSON.stringify(reassigned));assert.equal(Context.resolveProvider(assisted,'MED-A'),null);
+const fields=[{displayName:'Dra. Ana',specialty:'Cirugía plástica',city:'Mérida',state:'Yucatán',services:['Rinoplastia'],bio:'Consulta profesional'},{displayName:'Clínica Uno',specialty:'Dental',city:'Monterrey',state:'Nuevo León',services:['Implante']}];
+assert.equal(UI.filterProfiles(fields,{text:'cirugia merida'}).length,1);assert.equal(UI.filterProfiles(fields,{procedure:'Rinoplastia'}).length,1);assert.equal(UI.filterProfiles(fields,{state:'Yucatán',city:'Monterrey'}).length,0);assert.equal(UI.filterProfiles(fields,{specialty:'Dental',text:'uno'}).length,1);
+const card=UI.profileCardHtml({...draft,bio:'<img src=x onerror=alert(1)>'});assert.match(card,/&lt;script&gt;/);assert.doesNotMatch(card,/<script>|onerror="|javascript:/);assert.match(card,/rel="noopener noreferrer"/);assert.match(card,/Perfil sin foto/);
+console.log('PASS publication context/UI: exact stable identity, ambiguous/conflicting/wrong-type/archive denial, fresh assignment, approved eligibility, public allowlist, safe URLs/text, optional photo, accent-insensitive filters.');

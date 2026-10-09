@@ -50,7 +50,7 @@ test('Approval creates a single durable milestone; correction, fiscal rejection 
  const approvedAt=r.run('db.providers[0].onboarding.approvedAt');assert.ok(approvedAt);assert.equal(r.run('db.providers.length'),3);
  r.run("providerTab='fiscal';providerFiscal('MED-001',false)");assert.equal(r.run('providerTab'),'fiscal');assert.equal(r.run('providerIsApproved(db.providers[0])'),true);
  r.run("openCorrection('provider','MED-001')");r.el('modalText').value='Documento nuevo';r.el('modalReason').value='Actualizar';r.run("confirmCorrection('provider','MED-001');providerReject('MED-001');setView('providers')");
- assert.match(r.ui('providerList').innerHTML,/Laura/);assert.match(r.ui('providerList').innerHTML,/Alta aprobada · En directorio/);assert.match(r.ui('providerList').innerHTML,/Revisión actual: Rechazado/);
+ assert.match(r.ui('providerList').innerHTML,/Laura/);assert.match(r.ui('providerList').innerHTML,/Alta aprobada · Expediente permanente/);assert.match(r.ui('providerList').innerHTML,/Revisión actual: Rechazado/);
  assert.equal(r.run('db.providers[0].onboarding.approvedAt'),approvedAt);
  r.run("providerApprove('MED-001')");assert.equal(r.run('db.providers[0].onboarding.approvedAt'),approvedAt);
  const reload=runtime([...r.storage]);assert.equal(reload.run('db.providers.filter(providerIsApproved).length'),2);

@@ -4110,82 +4110,26 @@ html, body {
     <div class="section-center reveal">
       <span class="section-tag">Directorio Médico</span>
       <h2 class="h1 section-title">Encuentra un doctor o clínica con Pulzzo</h2>
-      <p class="body-l section-subtitle">Busca por especialidad, estado o ciudad. Si tu doctor aún no está registrado, puedes referirlo y nosotros lo contactamos.</p>
+      <p class="body-l section-subtitle">Busca por especialidad, procedimiento, estado o ciudad entre las fichas autorizadas de esta demostración.</p>
     </div>
-    <div class="search-filters reveal" style="background:var(--offwhite);border:1px solid var(--gray-light);border-radius:16px;padding:24px 28px;margin-bottom:32px;">
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:14px;align-items:end;flex-wrap:wrap;">
-
-        <!-- Dropdown 1: Especialidad buscable -->
-        <div>
-          <label style="font-size:13px;font-weight:500;color:var(--gray-dark);display:block;margin-bottom:6px;">Especialidad</label>
-          <div class="idx-dd" id="idx-esp-dd">
-            <button type="button" class="idx-toggle" id="idx-esp-toggle" aria-haspopup="listbox" aria-expanded="false">
-              <span class="idx-summary ph" id="idx-esp-summary">Todas las especialidades</span>
-              <span class="idx-caret"></span>
-            </button>
-            <div class="idx-menu" id="idx-esp-menu" style="display:none;">
-              <input type="text" class="idx-search" id="idx-esp-search" placeholder="Buscar especialidad..." autocomplete="off">
-              <div class="idx-options" id="idx-esp-options"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Dropdown 2: Procedimiento buscable -->
-        <div>
-          <label style="font-size:13px;font-weight:500;color:var(--gray-dark);display:block;margin-bottom:6px;">Procedimiento</label>
-          <div class="idx-dd" id="idx-proc-dd">
-            <button type="button" class="idx-toggle" id="idx-proc-toggle" disabled aria-haspopup="listbox" aria-expanded="false">
-              <span class="idx-summary ph" id="idx-proc-summary">Elige especialidad primero</span>
-              <span class="idx-caret"></span>
-            </button>
-            <div class="idx-menu" id="idx-proc-menu" style="display:none;">
-              <input type="text" class="idx-search" id="idx-proc-search" placeholder="Buscar procedimiento..." autocomplete="off">
-              <div class="idx-options" id="idx-proc-options"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Estado -->
-        <div>
-          <label style="font-size:13px;font-weight:500;color:var(--gray-dark);display:block;margin-bottom:6px;">Estado</label>
-          <select id="filter-estado" onchange="updateMunicipios(this.value)" style="width:100%;padding:11px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--white);color:var(--navy);font-family:var(--font-body);">
-            <option value="">Todos los estados</option>
-            <option>Aguascalientes</option><option>Baja California</option><option>Baja California Sur</option>
-            <option>Campeche</option><option>Chiapas</option><option>Chihuahua</option>
-            <option>Ciudad de México</option><option>Coahuila</option><option>Colima</option>
-            <option>Durango</option><option>Estado de México</option><option>Guanajuato</option>
-            <option>Guerrero</option><option>Hidalgo</option><option>Jalisco</option>
-            <option>Michoacán</option><option>Morelos</option><option>Nayarit</option>
-            <option>Nuevo León</option><option>Oaxaca</option><option>Puebla</option>
-            <option>Querétaro</option><option>Quintana Roo</option><option>San Luis Potosí</option>
-            <option>Sinaloa</option><option>Sonora</option><option>Tabasco</option>
-            <option>Tamaulipas</option><option>Tlaxcala</option><option>Veracruz</option>
-            <option>Yucatán</option><option>Zacatecas</option>
-          </select>
-        </div>
-
-        <!-- Municipio -->
-        <div>
-          <label style="font-size:13px;font-weight:500;color:var(--gray-dark);display:block;margin-bottom:6px;">Municipio / Ciudad</label>
-          <select id="filter-municipio" disabled style="width:100%;padding:11px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--white);color:var(--navy);font-family:var(--font-body);opacity:.5;">
-            <option value="">Selecciona un estado primero</option>
-          </select>
-        </div>
-
-        <button onclick="buscarDoctores()" class="btn btn-primary" style="height:44px;padding:0 24px;white-space:nowrap;">Buscar doctores</button>
+    <div class="directory-demo-note" role="note"><strong>Directorio de demostración local</strong><span>Solo muestra versiones autorizadas por el titular, aprobadas y publicadas en este mismo navegador. No hay publicación en internet, verificación médica real ni conexión con un servidor. Usa datos ficticios.</span></div>
+    <form id="doctor-directory-search" class="search-filters directory-filter-form" role="search" aria-label="Buscar en el directorio médico">
+      <div class="directory-filter-grid">
+        <label for="filter-categoria">Especialidad<select id="filter-categoria"><option value="">Todas las especialidades</option></select></label>
+        <label for="filter-procedimiento">Procedimiento<select id="filter-procedimiento"><option value="">Todos los procedimientos</option></select></label>
+        <label for="filter-estado">Estado<select id="filter-estado"><option value="">Todos los estados</option></select></label>
+        <label for="filter-municipio">Municipio / ciudad<select id="filter-municipio"><option value="">Todas las ciudades</option></select></label>
+        <button type="submit" class="btn btn-primary">Buscar doctores</button>
       </div>
-
-      <!-- Campo libre -->
-      <div style="margin-top:16px;">
-        <label style="font-size:13px;font-weight:500;color:var(--gray-dark);display:block;margin-bottom:6px;">Describe tu procedimiento</label>
-        <input type="text" id="filter-descripcion" placeholder="Ej. cirugía de rodilla, rinoplastia, manga gástrica, implantes dentales, cirugía de columna, rehabilitación postquirúrgica, tratamiento de fertilidad, etc." style="width:100%;padding:11px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--white);color:var(--navy);font-family:var(--font-body);box-sizing:border-box;">
-      </div>
-    </div>
+      <div class="directory-text-row"><label for="filter-descripcion">Nombre, clínica o procedimiento<input type="search" id="filter-descripcion" placeholder="Ej. rinoplastia, rehabilitación o nombre del doctor" maxlength="160"></label><button type="button" id="directory-clear" class="publication-button publication-button-secondary">Limpiar filtros</button></div>
+    </form>
+    <div class="directory-result-heading"><h3>Doctores y clínicas</h3><p id="directory-count" role="status" aria-live="polite"></p></div>
+    <div id="doctor-directory-results" class="directory-results"><p class="publication-empty">Cargando directorio local…</p></div>
     <div style="max-width:400px;margin:0 auto;">
       <div style="background:var(--navy);border-radius:var(--radius-lg);padding:24px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:12px;">
         <div style="font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--cyan);text-transform:uppercase;">Doctor no registrado</div>
         <h3 style="font-size:17px;font-weight:700;color:var(--white);">¿Tu doctor o clínica no está en Pulzzo?</h3>
-        <p style="font-size:13px;color:rgba(255,255,255,.6);line-height:1.5;">Compártenos sus datos y lo contactamos para explicarle cómo puede trabajar con Pulzzo.</p>
+        <p style="font-size:13px;color:rgba(255,255,255,.6);line-height:1.5;">Explora el formulario de referencia con datos ficticios. Esta demo no envía invitaciones ni contacta a nadie.</p>
         <button type="button" class="btn btn-primary btn-sm btn-full" onclick="openReferModal()">Referir doctor o clínica</button>
       </div>
     </div>
@@ -4618,129 +4562,7 @@ document.addEventListener('keydown', function(e){ if(e.key === 'Escape') toggleD
     otro:["Otro procedimiento médico programado"]
   };
 
-  // Estado actual del buscador
-  var idxEspValue='', idxProcValue='';
-
-  // ── Especialidad dropdown ──
-  var idxEspDd=document.getElementById('idx-esp-dd');
-  var idxEspToggle=document.getElementById('idx-esp-toggle');
-  var idxEspMenu=document.getElementById('idx-esp-menu');
-  var idxEspSummary=document.getElementById('idx-esp-summary');
-  var idxEspOptions=document.getElementById('idx-esp-options');
-  var idxEspSearch=document.getElementById('idx-esp-search');
-
-  function idxBuildEsp(query){
-    idxEspOptions.innerHTML='';
-    var q=idxNorm(query||'');
-    var items=[{value:'',label:'Todas las especialidades'}].concat(
-      Object.entries(idxEspLabels).map(function(e){return{value:e[0],label:e[1]};})
-    );
-    items.forEach(function(item){
-      if(q && !idxNorm(item.label).includes(q)) return;
-      var div=document.createElement('div');
-      div.className='idx-opt'+(idxEspValue===item.value?' selected':'');
-      div.textContent=item.label;
-      div.addEventListener('click',function(){
-        idxEspValue=item.value;
-        idxEspSummary.textContent=item.label;
-        idxEspSummary.classList.toggle('ph',!item.value);
-        idxCloseEsp();
-        idxEspSearch.value='';
-        idxUpdateProc(item.value);
-      });
-      idxEspOptions.appendChild(div);
-    });
-    if(!idxEspOptions.children.length){
-      var no=document.createElement('div');no.className='idx-no-results';no.textContent='Sin resultados';
-      idxEspOptions.appendChild(no);
-    }
-  }
-  function idxCloseEsp(){
-    idxEspDd.classList.remove('open');
-    idxEspMenu.style.display='none';
-    idxEspToggle.setAttribute('aria-expanded','false');
-  }
-  idxEspToggle.addEventListener('click',function(){
-    var open=idxEspDd.classList.toggle('open');
-    idxEspMenu.style.display=open?'block':'none';
-    idxEspToggle.setAttribute('aria-expanded',String(open));
-    if(open){idxBuildEsp('');setTimeout(function(){idxEspSearch.focus();},40);}
-  });
-  idxEspSearch.addEventListener('input',function(){idxBuildEsp(this.value);});
-  idxEspSearch.addEventListener('keydown',function(e){if(e.key==='Escape')idxCloseEsp();});
-  idxBuildEsp('');
-
-  // ── Procedimiento dropdown ──
-  var idxProcDd=document.getElementById('idx-proc-dd');
-  var idxProcToggle=document.getElementById('idx-proc-toggle');
-  var idxProcMenu=document.getElementById('idx-proc-menu');
-  var idxProcSummary=document.getElementById('idx-proc-summary');
-  var idxProcOptions=document.getElementById('idx-proc-options');
-  var idxProcSearch=document.getElementById('idx-proc-search');
-
-  function idxUpdateProc(cat){
-    idxProcValue='';
-    idxProcSummary.textContent=cat?'Selecciona un procedimiento':'Elige especialidad primero';
-    idxProcSummary.classList.add('ph');
-    idxProcToggle.disabled=!cat;
-    idxCloseProc();
-    idxProcSearch.value='';
-    idxBuildProc(cat,'');
-  }
-  function idxBuildProc(cat,query){
-    idxProcOptions.innerHTML='';
-    if(!cat) return;
-    var q=idxNorm(query||'');
-    var items=idxProcMap[cat]||[];
-    items.forEach(function(item){
-      if(q && !idxNorm(item).includes(q)) return;
-      var div=document.createElement('div');
-      div.className='idx-opt'+(idxProcValue===item?' selected':'');
-      div.textContent=item;
-      div.addEventListener('click',function(){
-        idxProcValue=item;
-        idxProcSummary.textContent=item;
-        idxProcSummary.classList.remove('ph');
-        idxCloseProc();
-        idxProcSearch.value='';
-      });
-      idxProcOptions.appendChild(div);
-    });
-    if(!idxProcOptions.children.length){
-      var no=document.createElement('div');no.className='idx-no-results';no.textContent='Sin resultados';
-      idxProcOptions.appendChild(no);
-    }
-  }
-  function idxCloseProc(){
-    idxProcDd.classList.remove('open');
-    idxProcMenu.style.display='none';
-    idxProcToggle.setAttribute('aria-expanded','false');
-  }
-  idxProcToggle.addEventListener('click',function(){
-    if(idxProcToggle.disabled) return;
-    var open=idxProcDd.classList.toggle('open');
-    idxProcMenu.style.display=open?'block':'none';
-    idxProcToggle.setAttribute('aria-expanded',String(open));
-    if(open){idxBuildProc(idxEspValue,idxProcSearch.value);setTimeout(function(){idxProcSearch.focus();},40);}
-  });
-  idxProcSearch.addEventListener('input',function(){idxBuildProc(idxEspValue,this.value);});
-  idxProcSearch.addEventListener('keydown',function(e){if(e.key==='Escape')idxCloseProc();});
-
-  document.addEventListener('click',function(e){
-    if(!idxEspDd.contains(e.target)) idxCloseEsp();
-    if(!idxProcDd.contains(e.target)) idxCloseProc();
-  });
-
-  function buscarDoctores() {
-    var cat = idxEspValue;
-    var proc = idxProcValue;
-    var estado = document.getElementById('filter-estado').value;
-    var municipio = document.getElementById('filter-municipio') ? document.getElementById('filter-municipio').value : '';
-    var desc = document.getElementById('filter-descripcion') ? document.getElementById('filter-descripcion').value : '';
-    var filtros = [cat, proc, estado, municipio, desc].filter(Boolean);
-    showToast(filtros.length ? 'Directorio de demostración: estos filtros no se guardaron y todavía no hay resultados conectados.' : 'Elige al menos un filtro para buscar doctores.');
-  }
-
+  function buscarDoctores() { window.PulzzoDoctorPublicationUI?.searchDirectory(); }
 
   // ---- DIRECTORIO: Municipios por estado ----
   var municipiosPorEstado = {
@@ -5067,7 +4889,7 @@ document.addEventListener('keydown', function(e){ if(e.key === 'Escape') toggleD
         <div>
           <div class="refer-kicker">Referir médico</div>
           <h2>¿Tu doctor no está en Pulzzo?</h2>
-          <p class="refer-subtitle">Compártenos sus datos y lo contactamos para explicarle cómo puede trabajar con Pulzzo.</p>
+          <p class="refer-subtitle">Explora el formulario de referencia con datos ficticios. Esta demo no envía invitaciones ni contacta a nadie.</p>
         </div>
         <button class="refer-close" onclick="closeReferModal()" aria-label="Cerrar">✕</button>
       </div>
@@ -5402,5 +5224,9 @@ document.addEventListener('keydown',function(e){
 </script>
 
 
+<link rel="stylesheet" href="assets/css/doctor-publication.css">
+<script src="assets/js/doctor-publication-context.js"></script>
+<script src="assets/js/doctor-publication.js"></script>
+<script src="assets/js/doctor-publication-ui.js"></script>
 </body>
 </html>

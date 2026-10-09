@@ -13,7 +13,7 @@ const pages={
  'login-paciente.html':'5a5e4b0d125e940ae6d95e7c05f28ba0ef14f5cece47acddf5538cc35b1cf642',
  'login-doctor.html':'3c85089afcc42177f33a5a58328cfb04a477a6820eaba3007421338f69f7df20',
  'registro-paciente.html':'3f560f65cf51d75a6ca502bf4d4d089d63c3bc297a29998eca5bd4e5d50cc416',
- 'registro-doctor.html':'e9d399c64c0d64b1fdfb51178ab5ac6531f1b00b6ccde46cad3ec5f55ee6e2f7',
+ 'registro-doctor.html':'96dca834d93521e07094c8b7aae5b674155264ce2e39f62e958a6b0d669be2e6',
  'verificacion-cuenta.html':'ce2f4184c76a5a208fd0bdf68bdc18012774804fa13fd7835c54f87061c65843',
  'verificacion-doctor.html':'b84dc7bb90b744d4dcede23b3cae47e7e778028fb5efb1f59cc542135f96b047',
  'solicitud-paciente.html':'d22dd1566ab38bd12549fce9b3bd6a9d9b518026a48f83e3b9bfe1ade3113644'

@@ -1336,6 +1336,7 @@ body.profile-mode #doctorProfilePanel .profile-attention-card .profile-section-c
     </div>
     <p class="profile-hero-copy">Gestiona tu perfil y cirugías, conecta y financia en un solo lugar.</p>
   </section>
+  <section id="doctor-publication-holder" class="doctor-publication-holder" aria-label="Tu ficha pública del directorio"></section>
   <nav class="profile-tabs" id="doctorProfileTabs" aria-label="Secciones del perfil médico"></nav>
   <div class="profile-mobile-section-nav" id="doctorProfileMobileNav" aria-label="Secciones del perfil médico en móvil">
     <button class="profile-mobile-section-button ui-selection-current" id="doctorProfileMobileToggle" type="button" aria-expanded="false">
@@ -2284,11 +2285,9 @@ setProcedureSummary();
     return cleaned;
   }
   function profileLinkHref(value){
-    const display=cleanLinkValue(value);
-    if(!display) return '';
     const raw=String(value||'').trim();
-    if(/^https?:\/\//i.test(raw) && cleanLinkValue(raw)) return raw;
-    return `https://${display}`;
+    if(!/^https?:\/\//i.test(raw)||/[\u0000-\u0020\u007f]/.test(raw))return '';
+    try{const url=new URL(raw);return ['https:','http:'].includes(url.protocol)&&!url.username&&!url.password&&url.hostname.includes('.')?url.href:'';}catch(_){return ''; }
   }
 
   function profilePhoneFormatMX(value){
@@ -3145,7 +3144,7 @@ setProcedureSummary();
       }).join('');
     };
     if(activeTab==='Datos médicos'){
-      const photoSummary=s.profilePhotoData?`<div class="profile-photo-main"><img class="profile-photo-img" src="${htmlSafeProfile(/^data:image\/(png|jpeg|webp|gif);base64,[A-Za-z0-9+/=]+$/.test(s.profilePhotoData)?s.profilePhotoData:'')}" alt="Foto de perfil médico"><div><strong>Foto de perfil cargada</strong><p>Imagen lista para mostrarse cuando Pulzzo active tu perfil.</p><span class="profile-status">En revisión</span></div></div><div class="profile-photo-toolbar"><button class="profile-btn ui-action-secondary" type="button" data-profile-doc="Foto de perfil">Ver foto</button><button class="profile-btn ui-action-secondary" type="button" id="profileModifyPhoto">Modificar foto</button></div>`:(s.photoMode==='social'?`<div class="profile-photo-main"><div class="profile-photo-placeholder">Redes</div><div><strong>Foto desde redes profesionales</strong><p>Preferencia guardada para la demostración. No se descargó ninguna imagen de tus redes.</p><span class="profile-status">En revisión</span></div></div><div class="profile-photo-toolbar"><button class="profile-btn ui-action-secondary" type="button" id="profileModifyPhoto">Modificar foto</button></div>`:`<div class="profile-photo-main"><div class="profile-photo-placeholder">Foto</div><div><strong>Foto pendiente</strong><p>Elige una opción para completar tu foto de perfil médico. Podrás actualizarla después.</p></div></div><div class="profile-photo-toolbar"><button class="profile-btn ui-action-secondary" type="button" id="profileModifyPhoto">Agregar foto</button></div>`);
+      const photoSummary=s.profilePhotoData?`<div class="profile-photo-main"><img class="profile-photo-img" src="${htmlSafeProfile(/^data:image\/(png|jpeg|webp|gif);base64,[A-Za-z0-9+/=]+$/.test(s.profilePhotoData)?s.profilePhotoData:'')}" alt="Foto de perfil médico"><div><strong>Foto de perfil cargada</strong><p>Foto guardada localmente. Su uso en el directorio requiere tu autorización sobre una ficha pública.</p><span class="profile-status">En revisión</span></div></div><div class="profile-photo-toolbar"><button class="profile-btn ui-action-secondary" type="button" data-profile-doc="Foto de perfil">Ver foto</button><button class="profile-btn ui-action-secondary" type="button" id="profileModifyPhoto">Modificar foto</button></div>`:(s.photoMode==='social'?`<div class="profile-photo-main"><div class="profile-photo-placeholder">Redes</div><div><strong>Foto desde redes profesionales</strong><p>Preferencia guardada para la demostración. No se descargó ninguna imagen de tus redes.</p><span class="profile-status">En revisión</span></div></div><div class="profile-photo-toolbar"><button class="profile-btn ui-action-secondary" type="button" id="profileModifyPhoto">Modificar foto</button></div>`:`<div class="profile-photo-main"><div class="profile-photo-placeholder">Foto</div><div><strong>Foto opcional</strong><p>Puedes continuar sin foto. El directorio usará un avatar hasta que elijas agregar una.</p></div></div><div class="profile-photo-toolbar"><button class="profile-btn ui-action-secondary" type="button" id="profileModifyPhoto">Agregar foto</button></div>`);
       const photoHtml=`<div class="profile-photo-card">${photoSummary}<p>PNG, JPEG, WebP o GIF. Máximo 5 MiB por foto; el guardado depende del espacio disponible en este navegador.</p><p id="profilePhotoMessage" role="status" aria-live="polite" aria-atomic="true"></p></div><div class="profile-photo-edit-options" id="profilePhotoOptions"><button class="profile-photo-option ui-choice" id="profilePhotoUploadBtn" type="button"><strong>Subir foto</strong><p>Carga una foto profesional desde tu dispositivo.</p></button><button class="profile-photo-option ui-choice" id="profilePhotoCameraBtn" type="button"><strong>Tomar foto</strong><p>Abre la cámara y toma una foto nueva.</p></button><button class="profile-photo-option ui-choice" id="profilePhotoSocialBtn" type="button"><strong>Usar foto de redes</strong><p>Guarda esta preferencia demo; no descarga imágenes de tus redes.</p></button><input id="profilePhotoUploadInput" type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden><input id="profilePhotoCameraInput" type="file" accept="image/png,image/jpeg,image/webp,image/gif" capture="user" hidden></div>`;
       const rejectedBank=profileDocFiles('bank_cover').find(file=>file.status==='Rechazado');
       const notificationsHtml=`<h3 class="profile-section-title">Notificaciones</h3><p class="profile-data-aside-copy">Aquí verás si necesitamos que corrijas algo o si hay una actualización importante.</p>${rejectedBank?`<div class="profile-notification-card"><div class="profile-notification-title"><span class="profile-notification-dot"></span><span>Corrección requerida</span></div><p>Carátula bancaria rechazada.</p>${correctionReasonHtml(rejectedBank.reason)}<button class="profile-btn ui-action-secondary" type="button" data-profile-correction-target="bank_cover">Ir a corrección</button></div>`:'<div class="profile-empty">Sin correcciones bancarias pendientes registradas.</div>'}`;
@@ -3820,5 +3819,9 @@ body.profile-mode .profile-mobile-section-nav{display:none;}
 <script src="assets/js/demo-servicing.js"></script>
 <link rel="stylesheet" href="assets/css/registration-responsive.css">
 <link rel="stylesheet" href="assets/css/portal-color-semantics.css">
+<link rel="stylesheet" href="assets/css/doctor-publication.css">
+<script src="assets/js/doctor-publication-context.js"></script>
+<script src="assets/js/doctor-publication.js"></script>
+<script src="assets/js/doctor-publication-ui.js"></script>
 </body>
 </html>

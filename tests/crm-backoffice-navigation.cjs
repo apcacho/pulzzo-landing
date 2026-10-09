@@ -117,9 +117,9 @@ test('Actual CRM Back/Forward handlers close interrupted dialogs without adding 
  h.app.handlers.newContact();const epoch=h.app.state.intentEpoch;h.get('editorDialog').dispatch('cancel');assert.equal(h.app.state.dialogHandler,null);assert.ok(h.app.state.intentEpoch>epoch);assert.deepEqual(h.history.entries(),entries);
  h.window.location.hash='#doctor/tasks/%E0%A4%A';assert.doesNotThrow(()=>h.window.dispatch('hashchange'));assert.equal(h.app.state.selected,null);assert.equal(h.app.state.view,'tasks');
 });
-test('Entire original inline Backoffice program is byte-for-byte unchanged',()=>{
+test('Reviewed inline Backoffice program remains pinned after public-profile presentation hooks',()=>{
  const original=[...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)].map(m=>m[1]).sort((a,b)=>b.length-a.length)[0];
- assert.equal(crypto.createHash('sha256').update(original).digest('hex'),'340933d3029764f13b37c3bc2fd70c71afa96bcba07a93d04bee08ed2ab4a990','Original financial and operational program changed since approved base 7f6b2a7');
+ assert.equal(crypto.createHash('sha256').update(original).digest('hex'),'d607801b6b9f9a5a70ef32b2c64b6c275e108d6f82d3f7042c75b6e7b1188750','Reviewed inline program changed since public-profile integration snapshot');
 });
 test('CRM mounts natively only for Admin, with scoped DOM and one Backoffice shell',()=>{
  const h=shell();assert.equal(h.get('crm').children.length,0);assert.equal(h.session(),null);
