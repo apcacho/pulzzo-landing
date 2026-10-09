@@ -21,7 +21,7 @@ Abre `http://127.0.0.1:8080/backoffice.html#crm`. El servidor escucha solo en tu
 - `backoffice.html`: revisión, ofertas, documentos, cartera e importación de altas CRM
 - `crm.html`: módulo de correo separado, sin conexión real mientras no se configure
 
-La sección CRM hereda los estilos del Backoffice y se monta sin iframe. Consulta la [revisión de diseño y sus límites de validación](REVISION-CRM-DISENO-BACKOFFICE-20261009.md).
+La sección CRM hereda los estilos del Backoffice y se monta sin iframe. Consulta la [revisión integral de experiencia y sus límites de validación](REVISION-CRM-EXPERIENCIA-20261009.md). La vista Contactos permite alternar Lista/Kanban; el Dashboard incluye gráficos basados en eventos reales de la demo.
 
 Revisa [reglas y límites del CRM](REGLAS-CRM-REGISTRO-ASISTIDO-DEMO.md), [integración de portales](REGLAS-INTEGRACION-PORTALES-DEMO.md), [cartera y configuración](REGLAS-CARTERA-CONFIGURACION.md) y [correo](CONEXION-GMAIL-CRM.md).
 

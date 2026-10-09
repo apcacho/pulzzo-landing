@@ -76,7 +76,7 @@ function shell({width=1200,hash='',role=null}={}){
  vm.runInContext('var modalFocusOrigin=null,modalInertState=[];let reviewContext=null,reviewNested=false;function readonlyFinancialHtml(value){return value;}function renderDocumentReview(){};',context);
  for(const name of ['readonly','modalReleaseBackground','modalSetupAccessibility','modal','closeModal','reviewRestoreOrigin','closeDocumentReview'])vm.runInContext(extract(html,name),context);
  vm.runInContext(read('assets/js/backoffice-sidebar.js'),context);
- for(const file of ['crm-demo-store.js','crm-assisted.js','crm-demo-template.js','crm-demo-embed.js','crm-demo-ui.js','backoffice-crm.js'])vm.runInContext(read('assets/js/'+file),context);
+ for(const file of ['crm-demo-store.js','crm-assisted.js','crm-demo-template.js','crm-demo-embed.js','crm-demo-analytics.js','crm-demo-ui.js','backoffice-crm.js'])vm.runInContext(read('assets/js/'+file),context);
  const evaluate=source=>vm.runInContext(source,context);
  const login=role=>{const user=evaluate(`users.find(u=>u.role===${JSON.stringify(role)})`);get('loginEmail').value=user.email;get('loginPass').value=user.pass;context.login();return user;};
  if(role)login(role);

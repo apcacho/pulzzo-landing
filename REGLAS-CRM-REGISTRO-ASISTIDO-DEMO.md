@@ -62,3 +62,8 @@ Los archivos binarios se almacenan en IndexedDB: hasta 5 MiB por archivo, 25 MiB
 `npm test` ejecuta las regresiones previas y las nuevas pruebas de dominio, UI mediante manejadores reales, evidencia y revisión adversarial. `npm run build` genera el paquete local sin desplegar. `node scripts/validate-mail-build.mjs` verifica el empaquetado del correo existente.
 
 La validación visual con navegador es una etapa independiente. En este entorno Chromium no pudo abrir una página por la restricción de creación de sockets; no se declara QA visual ni IndexedDB real en Chromium como realizada. Las pruebas funcionales de evidencia usan un backend transaccional inyectado; queda conservado el smoke opcional para un entorno con navegador habilitado.
+
+
+## Actualización de experiencia · 9 de octubre de 2026
+
+Lista y Kanban usan el mismo store. La reunión agendada es una etapa comercial de proveedores. “Enviado a revisión” se actualiza únicamente por envío del titular: no se arrastra ni se cambia manualmente. Mover una tarjeta a captura no inicia un expediente ni aumenta el indicador de inicios. Los gráficos usan eventos auténticos; la conversión se calcula sobre altas del mismo mes enviadas en ese mes, con período UTC. Consulta `REVISION-CRM-EXPERIENCIA-20261009.md` para definiciones, evidencia y revisión visual pendiente.

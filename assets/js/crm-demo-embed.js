@@ -28,6 +28,7 @@
     // generic classes/IDs while the Backoffice design tokens inherit through host.
     const scopedDocument = {
       body:surface, documentElement:surface,
+      get activeElement(){return root.activeElement;},
       getElementById:id => root.getElementById(id),
       querySelector:selector => root.querySelector(selector),
       querySelectorAll:selector => root.querySelectorAll(selector),
@@ -46,13 +47,13 @@
     let app;
     try {
       const embedding = Object.assign({}, options.embedding, {focusContact() {
-        if (window.innerWidth > 820) return;
         const detail = root.getElementById('contactDetail');
         // Explicit selection only: history restoration and ordinary renders must
         // retain the user's scroll position. No motion is needed to reveal a card.
         const topbar = owner.querySelector('.topbar');
-        detail.style.scrollMarginTop = ((topbar ? topbar.getBoundingClientRect().height : 0) + 16) + 'px';
         detail.focus({preventScroll:true});
+        if (window.innerWidth > 820 && (!app || app.state.contactLayout !== 'kanban')) return;
+        detail.style.scrollMarginTop = ((topbar ? topbar.getBoundingClientRect().height : 0) + 16) + 'px';
         detail.scrollIntoView({block:'start', behavior:'instant'});
       }});
       app = window.PulzzoCRMUI.createApp({window, document:scopedDocument, embedding});

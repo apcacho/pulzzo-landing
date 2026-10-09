@@ -18,9 +18,10 @@
       <div class="workspace-bar"><nav class="tabs" aria-label="Vista del CRM"><button type="button" class="tab active" data-view="contacts" aria-pressed="true">Contactos</button><button type="button" class="tab" data-view="tasks" aria-pressed="false">Tareas</button><button type="button" class="tab" data-view="dashboard" aria-pressed="false">Dashboard</button></nav><span class="storage-label" id="storageLabel">Guardado en este navegador</span></div>
       <p class="notice" id="notice" role="status" aria-live="polite" hidden></p>
       <section id="contactsView" aria-label="Contactos">
-        <div class="contact-workspace">
-          <section class="panel directory" aria-label="Directorio de prospectos">
-            <div class="directory-filters"><label class="search-label">Buscar prospecto<input id="contactSearch" type="search" placeholder="Nombre, correo o teléfono" maxlength="160"></label><div class="filter-row"><label>Etapa<select id="stageFilter"><option value="">Todas las etapas</option></select></label><label>Responsable<select id="ownerFilter"><option value="">Todos los accesibles</option><option value="kam_ana">Ana</option><option value="kam_luis">Luis</option></select></label></div></div>
+        <div class="panel contact-controls"><div class="directory-filters"><label class="search-label">Buscar prospecto<input id="contactSearch" type="search" placeholder="Nombre, correo o teléfono" maxlength="160"></label><div class="filter-row"><label>Etapa<select id="stageFilter"><option value="">Todas las etapas</option></select></label><label>Responsable<select id="ownerFilter"><option value="">Todos los accesibles</option><option value="kam_ana">Ana</option><option value="kam_luis">Luis</option></select></label></div></div><div class="contact-view-bar"><span>Seguimiento comercial</span><div class="view-toggle" role="group" aria-label="Presentación de contactos"><button type="button" data-contact-layout="list" aria-pressed="true">Lista</button><button type="button" data-contact-layout="kanban" aria-pressed="false">Kanban</button></div></div></div>
+        <div id="commercialBoard" class="commercial-board" role="region" aria-label="Tablero de etapas comerciales" hidden></div><p id="boardAnnouncement" class="sr-only" role="status" aria-live="polite"></p>
+        <div id="contactWorkspace" class="contact-workspace">
+          <section id="contactDirectory" class="panel directory" aria-label="Directorio de prospectos">
             <div class="directory-summary"><span id="contactCount">0 contactos</span><span>Etapa comercial</span></div>
             <div id="contactList" class="contact-list"></div>
           </section>

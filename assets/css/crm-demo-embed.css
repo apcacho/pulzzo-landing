@@ -49,7 +49,7 @@
 .crm-contexts{display:flex;gap:8px;flex-wrap:wrap}
 .crm-toolbar-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-left:auto}
 .crm-surface .actor-label{display:flex;align-items:center;gap:8px;margin:0;white-space:normal}
-.crm-surface .actor-label select{margin:0;max-width:220px;width:auto}
+.crm-surface .actor-label select{margin:0;max-width:none;width:250px}
 .crm-surface .context-link{justify-content:flex-start;min-width:132px}
 .crm-surface .context-link.active{background:var(--soft);border-color:var(--crm-selection-line);color:var(--bo-control-ink)}
 .crm-surface .context-count{font-size:var(--bo-size-label);margin-left:auto}
@@ -68,8 +68,8 @@
 .crm-surface .panel{border:1px solid var(--line2);border-radius:20px;box-shadow:0 4px 18px rgba(7,20,47,.025);background:var(--white);overflow:hidden}
 .crm-surface .contact-workspace{grid-template-columns:minmax(260px,.85fr) minmax(0,1.65fr);gap:20px;align-items:start}
 .crm-surface :is(.panel-heading,.detail-hero){padding:22px 24px;border-bottom-color:var(--line2)}
-.crm-surface .directory-filters{padding:18px 20px;background:#FCFDFE}
-.crm-surface .filter-row{gap:12px;margin-top:14px}
+.crm-surface .directory-filters{display:grid;grid-template-columns:minmax(240px,1fr) minmax(480px,1.5fr);gap:20px;padding:18px 20px;background:#FCFDFE}
+.crm-surface .filter-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:0}
 .crm-surface .directory-summary{padding:12px 20px;background:var(--bg);border-color:var(--line2);gap:12px;flex-wrap:wrap}
 .crm-surface .contact-list{max-height:none;overflow:visible}
 .crm-surface .contact-row{padding:18px 20px;gap:12px;grid-template-columns:36px minmax(0,1fr);border:0;border-bottom:1px solid var(--line2);border-radius:0;min-height:0;text-align:left;justify-content:normal;align-items:start;font-weight:var(--bo-weight-body);background:var(--white)}
@@ -112,13 +112,105 @@
 .crm-surface dialog::backdrop{background:rgba(3,10,24,.58)}
 .crm-surface .dialog-heading{padding:22px 24px;border-color:var(--line2);align-items:flex-start}
 .crm-surface #dialogContent{padding:22px 24px}
-.crm-surface .form-grid{gap:16px}
+.crm-surface .form-grid{gap:16px;grid-template-columns:repeat(2,minmax(0,1fr))}
 .crm-surface .form-actions{border-top:1px solid var(--line2);padding-top:18px;margin-top:20px}
 .crm-surface .app-footer{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding:20px 0 0;margin-top:20px;border-color:var(--line2);background:transparent;font-size:var(--bo-size-meta);text-align:left}
-@media(max-width:1100px){.crm-surface .contact-workspace{grid-template-columns:minmax(240px,.85fr) minmax(0,1.2fr)}.crm-surface .metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.crm-surface .panel-heading{flex-wrap:wrap}.crm-toolbar-actions{margin-left:0}}
-@media(max-width:820px),(pointer:coarse){.crm-surface{--bo-control-height:44px;--bo-field-height:44px}.crm-surface :is(button,.button-link){min-height:44px}}
+/* Data charts use the existing Dashboard cards, type and semantic colors. */
+.crm-surface{--crm-chart-aqua:var(--aqua);--crm-chart-navy:var(--navy);--crm-chart-coral:var(--coral);--crm-chart-track:var(--line2)}
+.crm-surface .analytics-heading{padding:20px 20px 0;color:var(--muted);font-size:var(--bo-size-meta)}
+.crm-surface .analytics-heading p{font-size:var(--bo-size-meta)}
+.crm-surface .analytics-period{font-weight:var(--bo-weight-entity);color:var(--ink);margin-bottom:4px}
+.crm-surface :is(.analytics-grid,.analytics-bottom-grid){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;padding:0 20px 20px}
+.crm-surface .analytics-card{min-width:0;margin:0;padding:20px;border:1px solid var(--line2);border-radius:16px;background:var(--white)}
+.crm-surface .analytics-card figcaption{margin-bottom:20px}
+.crm-surface .analytics-card figcaption h3{font-size:var(--bo-size-item);margin-bottom:6px}
+.crm-surface .analytics-card figcaption p{color:var(--muted);font-size:var(--bo-size-meta)}
+.crm-surface .analytics-bars{list-style:none;padding:0;margin:0;display:grid;gap:14px}
+.crm-surface .analytics-bar-row{min-width:0}
+.crm-surface .analytics-bar-label{display:flex;justify-content:space-between;gap:14px;margin-bottom:6px;font-size:var(--bo-size-meta)}
+.crm-surface .analytics-bar-label>span{overflow-wrap:anywhere;min-width:0}
+.crm-surface .analytics-bar-label strong{flex-shrink:0;font-variant-numeric:tabular-nums}
+.crm-surface .analytics-bar{display:block;width:100%;height:9px;border-radius:4px;overflow:hidden}
+.crm-surface :is(.analytics-scale,.analytics-definition){color:var(--muted);font-size:var(--bo-size-meta);margin-top:16px}
+.crm-surface .analytics-data{margin-top:18px;border-top:1px solid var(--line2);padding-top:12px}
+.crm-surface .analytics-data summary{font-size:var(--bo-size-meta);cursor:pointer;color:var(--crm-accent-ink);padding:6px 0}
+.crm-surface .analytics-table-scroll{max-width:100%;overflow:auto;margin-top:12px;border-radius:8px}
+.crm-surface .analytics-table-scroll table{margin:0;min-width:260px}
+.crm-surface .analytics-table-scroll caption{text-align:left;color:var(--muted);padding:8px 12px;font-size:var(--bo-size-label)}
+.crm-surface .analytics-table-scroll :is(th,td){padding:10px;font-size:var(--bo-size-meta);white-space:normal}
+.crm-surface .analytics-kam-table{min-width:480px!important}
+.crm-surface .analytics-conversion-layout{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.crm-surface .analytics-donut{position:relative;flex:0 0 144px;width:144px;height:144px}
+.crm-surface .analytics-donut svg{display:block;max-width:100%;height:100%}
+.crm-surface .analytics-donut-value{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:var(--bo-weight-number) 26px/1 var(--bo-display);font-variant-numeric:tabular-nums}
+.crm-surface .analytics-conversion-copy{flex:1 1 160px;min-width:0;font-size:var(--bo-size-meta)}
+.crm-surface .analytics-conversion-copy p{font-size:var(--bo-size-meta)}
+.crm-surface .analytics-legend{display:grid;gap:10px;list-style:none;padding:0;margin:16px 0 0;font-size:var(--bo-size-meta);color:var(--muted)}
+.crm-surface .analytics-legend li{display:flex;align-items:center;gap:8px}
+.crm-surface .analytics-legend-dot{display:inline-block;flex:0 0 10px;width:10px;height:10px;border-radius:3px;background:var(--crm-chart-track)}
+.crm-surface .analytics-legend-dot.aqua{background:var(--crm-chart-aqua)}
+.crm-surface .analytics-empty{padding:24px 12px;text-align:center;color:var(--muted);display:grid;gap:10px;min-height:110px;align-content:center}
+.crm-surface .analytics-empty p{font-size:var(--bo-size-meta)}
+.crm-surface .analytics-empty>span{font-size:28px;color:var(--line)}
+.crm-surface .analytics-empty-portfolio{margin:0 20px 20px;background:var(--bg);border-radius:12px}
+.crm-surface .analytics-empty-portfolio h3{text-align:center}
+.crm-surface .analytics-period-empty{margin:0 20px 20px;color:var(--muted);font-size:var(--bo-size-meta)}
+.crm-surface .analytics-method{margin:0 20px 20px}
+/* Filters own the full CRM width, independent of the narrow list rail. */
+.crm-surface .contact-controls{margin-bottom:20px}
+.crm-surface .directory-filters label{min-width:0}
+.crm-surface .contact-view-bar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;padding:12px 20px;border-top:1px solid var(--line2);color:var(--muted);font-size:var(--bo-size-meta)}
+.crm-surface .view-toggle{display:flex;gap:4px;padding:3px;border:1px solid var(--line2);border-radius:12px;background:var(--bg)}
+.crm-surface .view-toggle button{min-width:80px;border-color:transparent;background:transparent}
+.crm-surface .view-toggle [aria-pressed="true"]{background:var(--white);border-color:var(--crm-selection-line);color:var(--crm-accent-ink)}
+.crm-surface .contact-workspace.board-detail{grid-template-columns:minmax(0,1fr)}
+.crm-surface .contact-action-group{display:grid;gap:12px;margin-top:18px}
+.crm-surface .contact-primary-actions{display:flex;align-items:stretch;flex-wrap:wrap;gap:10px;margin:0}
+.crm-surface .contact-primary-actions :is(button,.button-link){min-height:38px;margin:0;flex:0 0 auto}
+.crm-surface .action-caption{margin:0;line-height:1.5;max-width:70ch}
+.crm-surface .detail-name p{overflow-wrap:anywhere;margin-top:6px}
+.crm-surface .dialog-context{margin:0 0 20px;color:var(--muted);font-size:var(--bo-size-meta)}
+.crm-surface .form-section{min-width:0;margin:0 0 24px;padding:0 0 24px;border:0;border-bottom:1px solid var(--line2)}
+.crm-surface .form-section legend{font-family:var(--bo-display);font-size:var(--bo-size-item);font-weight:var(--bo-weight-entity);color:var(--ink);padding:0;margin-bottom:6px}
+.crm-surface .section-help{font-size:var(--bo-size-meta);color:var(--muted);line-height:1.5;margin:0 0 14px}
+.crm-surface .upload-field{padding:14px;border:1px dashed var(--line);border-radius:12px;background:var(--bg);min-width:0}
+.crm-surface .upload-field input[type="file"]{display:block;width:100%;max-width:100%;font-size:var(--bo-size-meta);background:transparent;border:0;padding:8px 0 0}
+.crm-surface input::file-selector-button{font:inherit;color:var(--ink);background:var(--white);border:1px solid var(--line);border-radius:8px;padding:8px 12px;margin-right:10px;min-height:36px;cursor:pointer}
+.crm-surface .linked-records{margin:0;padding:0;border:0}
+.crm-surface .linked-records summary{cursor:pointer;padding:8px 0;font-weight:var(--bo-weight-control)}
+.crm-surface .linked-records[open]>.section-help{margin-top:12px}
+.crm-surface .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+/* Desktop pipeline scrolls inside its keyboard-focusable region; mobile stacks columns. */
+.crm-surface .commercial-board{margin-bottom:24px;min-width:0}
+.crm-surface .board-help{font-size:var(--bo-size-meta);color:var(--muted);margin:0 0 16px}
+.crm-surface .kanban-columns{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(240px,280px);align-items:start;gap:16px;max-width:100%;overflow-x:auto;padding-bottom:12px;overscroll-behavior-inline:contain}
+.crm-surface .kanban-column{min-width:0;padding:12px;border:1px solid var(--line2);border-radius:16px;background:var(--bg)}
+.crm-surface .kanban-column>header{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:4px 2px 14px}
+.crm-surface .kanban-column h3{font-size:var(--bo-size-item);line-height:1.45;overflow-wrap:anywhere}
+.crm-surface .kanban-column header .badge{flex-shrink:0;min-width:28px;text-align:center}
+.crm-surface .kanban-cards{display:grid;gap:12px}
+.crm-surface .kanban-card{min-width:0;padding:14px;background:var(--white);border:1px solid var(--line);border-radius:12px;box-shadow:0 4px 12px rgba(7,20,47,.025)}
+.crm-surface .kanban-card[draggable="true"]{cursor:grab}
+.crm-surface .kanban-open{display:block;width:100%;border:0;background:transparent;padding:0;text-align:left;min-height:0}
+.crm-surface .kanban-open strong{display:block;font-size:var(--bo-size-item);line-height:1.45;overflow-wrap:anywhere}
+.crm-surface .kanban-open[aria-pressed="true"] strong{color:var(--crm-accent-ink)}
+.crm-surface .kanban-open span{display:block;color:var(--muted);font-size:var(--bo-size-meta);font-weight:var(--bo-weight-body);margin-top:4px;overflow-wrap:anywhere}
+.crm-surface .kanban-meta{display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:14px;font-size:var(--bo-size-label);color:var(--muted)}
+.crm-surface .kanban-next{padding-top:12px;margin-top:12px;border-top:1px solid var(--line2);font-size:var(--bo-size-meta)}
+.crm-surface .kanban-next time{display:block;margin-top:4px;color:var(--muted)}
+.crm-surface .kanban-next.overdue time{color:#991B1B}
+.crm-surface .kanban-move{width:100%;margin-top:14px;justify-content:center}
+.crm-surface .kanban-empty{padding:18px 4px;font-size:var(--bo-size-meta);color:var(--muted);text-align:center}
+.crm-surface .stage-system-note{font-size:var(--bo-size-label);color:var(--muted);margin:0 0 12px}
+.crm-surface .system-stage{border-style:dashed}
+@media(max-width:1100px){.crm-surface .directory-filters{grid-template-columns:minmax(0,1fr)}.crm-surface .contact-workspace{grid-template-columns:minmax(240px,.85fr) minmax(0,1.2fr)}.crm-surface .metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.crm-surface .panel-heading{flex-wrap:wrap}.crm-toolbar-actions{margin-left:0}}
+@media(max-width:820px),(pointer:coarse){.crm-surface{--bo-control-height:44px;--bo-field-height:44px}.crm-surface :is(button,.button-link){min-height:44px}.crm-surface .contact-primary-actions :is(button,.button-link){min-height:44px}.crm-surface input::file-selector-button{min-height:44px}}
 @media(max-width:820px){
  .crm-surface :is(input,select,textarea){font-size:16px}
+ .crm-surface .directory-filters{grid-template-columns:minmax(0,1fr)}
+ .crm-surface :is(.analytics-grid,.analytics-bottom-grid){grid-template-columns:minmax(0,1fr);padding:0 16px 16px;gap:16px}
+ .crm-surface .analytics-card{padding:16px}
+ .crm-surface .kanban-columns{grid-auto-flow:row;grid-auto-columns:auto;grid-template-columns:minmax(0,1fr);overflow-x:visible;padding-bottom:0}
  .crm-surface .contact-workspace,.crm-surface .dashboard-split,.crm-surface .task-board{grid-template-columns:minmax(0,1fr)}
  .crm-toolbar{align-items:stretch}.crm-contexts{flex:1 0 100%}.crm-contexts .context-link{flex:1;min-width:0}
  .crm-toolbar-actions{flex:1 0 100%;margin:0}.crm-toolbar-actions #newContact{margin-left:auto}
@@ -129,8 +221,9 @@
  .crm-surface .task-board,.crm-surface .metric-grid{padding:16px}
  .crm-surface .dashboard-split{padding:0 16px 18px}
  .crm-surface .dialog-heading,.crm-surface #dialogContent{padding:18px 16px}
- .crm-surface .period-controls{flex-wrap:wrap;justify-content:flex-start;width:100%}.crm-surface .period-controls label{flex:1 1 120px;min-width:0}.crm-surface .period-controls :is(input,select){max-width:none;width:100%}
+ .crm-surface .period-controls{flex-wrap:wrap;justify-content:flex-start;width:100%}.crm-surface .period-controls label{flex:1 1 230px;min-width:0}.crm-surface .period-controls label:has(#dashboardYear){flex:0 1 100px}.crm-surface .period-controls :is(input,select){max-width:none;width:100%}
 }
+@media(max-width:620px){.crm-surface .filter-row{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:520px){
  .crm-surface .filter-row,.crm-surface .form-grid,.crm-surface .info-grid{grid-template-columns:minmax(0,1fr)}
  .crm-surface .form-grid .full,.crm-surface .info-grid .wide{grid-column:auto}

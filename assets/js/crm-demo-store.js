@@ -15,8 +15,10 @@
   const IMMUTABLE_MAPS = ['activities', 'audit', 'events'];
   const STAGES = Object.freeze({
     patient: Object.freeze(['new', 'contacted', 'interested', 'application_started', 'submitted', 'no_response', 'not_interested']),
-    doctor: Object.freeze(['new', 'contacted_demo', 'interested', 'registration_started', 'submitted', 'no_response', 'not_interested'])
+    doctor: Object.freeze(['new', 'contacted_demo', 'meeting_scheduled', 'interested', 'registration_started', 'submitted', 'no_response', 'not_interested'])
   });
+  // System stages remain readable, but may only be reached by their domain flow.
+  const COMMERCIAL_STAGES = Object.freeze(Object.fromEntries(Object.entries(STAGES).map(([type, stages]) => [type, Object.freeze(stages.filter(stage => stage !== 'submitted'))])));
   const SOURCES = Object.freeze(['unknown', 'direct', 'organic', 'campaign', 'kam_referral', 'doctor_referral', 'manual', 'direct_unknown', 'referral']);
   const ACTIVITY_TYPES = Object.freeze(['call', 'whatsapp', 'email', 'meeting', 'note', 'stage_change', 'other']);
   const plain = value => !!value && typeof value === 'object' && !Array.isArray(value) && (Object.getPrototypeOf(value) === Object.prototype || Object.getPrototypeOf(value) === null);
@@ -396,7 +398,17 @@
         if (!isId(c.createdBy) || c.assignedKam !== null && !isId(c.assignedKam) || !Array.isArray(c.assistingActors) || c.assistingActors.some(x => !isId(x)) || new Set(c.assistingActors).size !== c.assistingActors.length) fail('invalid_actor', 'Los participantes del contacto no son válidos.');
         if (!old && (c.createdBy !== actor.id || c.createdAt !== ctx.now || c.updatedAt !== ctx.now)) fail('invalid_audit_actor', 'La identidad y hora de creación provienen de la sesión actual.');
         if (['no_response', 'not_interested'].includes(c.stage)) text(c.stageReason, 2000, true);
+        if ((!old || old.stage !== c.stage) && c.stage === 'submitted') {
+          const submittedNow = Object.values(after.expedients).some(exp => exp.contactId === id && exp.kind === c.type && exp.submittedAt === ctx.now && !(before.expedients[exp.id] && before.expedients[exp.id].submittedAt) && exp.holderIdentity && exp.holderIdentity.id === actor.id && Object.values(after.events).some(e => !before.events[e.id] && ['holder_submitted', 'onboarding_submitted', 'expedient_submitted'].includes(e.type) && e.expedientId === exp.id && e.contactId === id));
+          if (actor.role !== 'holder' || !submittedNow) fail('holder_action_required', 'La etapa de envío sólo se actualiza con el envío confirmado del titular.');
+        }
         if (old) {
+          if (old.stage === 'submitted' && c.stage !== old.stage) fail('stage_read_only', 'El envío confirmado no puede deshacerse con un cambio comercial.');
+          if (old.stage !== c.stage || (old.stageReason || '') !== (c.stageReason || '')) {
+            const trackedAudit = Object.values(after.audit).some(a => !before.audit[a.id] && a.action === 'contact_stage_changed' && a.contactId === id && a.from === old.stage && a.to === c.stage);
+            const trackedEvent = Object.values(after.events).some(e => !before.events[e.id] && e.type === 'contact_stage_changed' && e.contactId === id && e.from === old.stage && e.to === c.stage);
+            if (!trackedAudit || !trackedEvent) fail('audit_required', 'El cambio de etapa requiere auditoría y un evento del mismo contacto.');
+          }
           for (const field of ['id', 'type', 'createdAt', 'createdBy', 'originalSource', 'referringKam']) if (!equal(old[field], c[field])) fail('immutable_attribution', 'La identidad y la atribución original no se sobrescriben.');
           if (old.assistingActors.some(x => !c.assistingActors.includes(x))) fail('immutable_history', 'No se eliminan participantes del historial.');
           const identityLocked = old.accountId || old.holderId || old.accountExists || Object.values(before.expedients).some(e => e.contactId === id && (e.holderIdentity || e.submittedAt || e.activeInvitationId));
@@ -429,7 +441,14 @@
         if (record.contactId && !canAccess(after.contacts[record.contactId]) && !(actor.role === 'admin' || actor.role === 'kam' && before.contacts[record.contactId] && before.contacts[record.contactId].assignedKam === actor.id && after.contacts[record.contactId].deletedAt)) fail('forbidden', 'El actor no puede agregar historial a otro contacto.');
         if (key === 'events') {
           if (['contact_created', 'self_service_created'].includes(record.type) && before.contacts[record.contactId]) fail('invalid_event', 'Un evento de alta requiere un contacto nuevo.');
-          if (['holder_submitted', 'onboarding_submitted', 'expedient_submitted'].includes(record.type) && (actor.role !== 'holder' || !after.expedients[record.expedientId] || !after.expedients[record.expedientId].submittedAt || before.expedients[record.expedientId] && before.expedients[record.expedientId].submittedAt)) fail('invalid_event', 'Un envío debe corresponder a un envío real del titular.');
+          if (['holder_submitted', 'onboarding_submitted', 'expedient_submitted'].includes(record.type)) {
+            const exp = after.expedients[record.expedientId];
+            if (actor.role !== 'holder' || !exp || exp.contactId !== record.contactId || exp.submittedAt !== ctx.now || !exp.holderIdentity || exp.holderIdentity.id !== actor.id || before.expedients[record.expedientId] && before.expedients[record.expedientId].submittedAt) fail('invalid_event', 'Un envío debe corresponder a un envío real del titular y del mismo contacto.');
+          }
+          if (['onboarding_started', 'expedient_created', 'assisted_draft_created', 'self_service_created'].includes(record.type)) {
+            const exp = after.expedients[record.expedientId];
+            if (!exp || before.expedients[exp.id] || exp.contactId !== record.contactId || exp.createdAt !== ctx.now || exp.createdBy !== actor.id) fail('invalid_event', 'Un inicio requiere un expediente nuevo del mismo contacto y actor.');
+          }
           if (record.type === 'activity_recorded' && (!after.activities[record.activityId] || before.activities[record.activityId] || after.activities[record.activityId].contactId !== record.contactId)) fail('invalid_event', 'El evento requiere una actividad nueva del mismo contacto.');
         }
       }
@@ -522,21 +541,39 @@
         return contact;
       });
     }
-    function setStage(id, stage, details, revision) {
+    // Canonical staff-only commercial transition. It never creates an expediente,
+    // performs a holder submission or updates a backoffice/financial decision.
+    // A repeated drop is a no-op, including its optional follow-up task.
+    function moveCommercialStage(id, stage, details, revision) {
       if (typeof details === 'number' && revision === undefined) { revision = details; details = {}; }
       details = details || {};
       return transact(revision, (draft, ctx) => {
         requireStaff(); const contact = requireContact(draft, id);
-        if (!STAGES[contact.type].includes(stage)) fail('invalid_stage', 'La etapa no corresponde al tipo de contacto. La aprobación se consulta en backoffice.');
-        const reason = text(details.reason || '', 2000, ['no_response', 'not_interested'].includes(stage));
+        if (!plain(details) || Object.keys(details).some(key => !['reason', 'nextAction', 'nextActionAt', 'expectedStage'].includes(key))) fail('protected_field', 'El cambio comercial sólo admite motivo, siguiente acción y etapa de origen.');
+        if (!COMMERCIAL_STAGES[contact.type].includes(stage)) fail('invalid_stage', 'Selecciona una etapa comercial del mismo tipo. El envío lo confirma el titular y la aprobación se consulta en backoffice.');
+        if (has(details, 'expectedStage') && details.expectedStage !== contact.stage) fail('stale_stage', 'La etapa cambió desde que abriste esta tarjeta. Actualiza antes de moverla.');
+        if (contact.stage === 'submitted') fail('stage_read_only', 'El contacto ya fue enviado a revisión. El envío y las decisiones de backoffice se conservan sin cambios.');
+        const reason = text(has(details, 'reason') ? details.reason : contact.stage === stage ? contact.stageReason || '' : '', 2000, ['no_response', 'not_interested'].includes(stage));
+        const nextAction = text(details.nextAction || '', 300, false), nextActionAt = details.nextActionAt ? iso(details.nextActionAt, 'próxima acción') : null;
+        if (nextActionAt && !nextAction) fail('invalid_task', 'La próxima acción necesita una descripción.');
         if (contact.stage === stage && (contact.stageReason || '') === reason) return contact;
-        const from = contact.stage; contact.stage = stage; contact.stageReason = reason || null; contact.updatedAt = ctx.now;
-        audit(draft, ctx, 'contact_stage_changed', id, { from, to: stage, reason });
-        event(draft, ctx, 'contact_stage_changed', contact, { from, to: stage, reason });
-        ctx.append('activities', { contactId: id, type: 'stage_change', summary: from + ' → ' + stage + (reason ? ': ' + reason : ''), contactAt: ctx.now, evidence: [] });
+        const from = contact.stage;
+        contact.stage = stage; contact.stageReason = reason || null; contact.updatedAt = ctx.now;
+        const record = { contactId: id, type: 'stage_change', summary: from + ' → ' + stage + (reason ? ': ' + reason : ''), contactAt: ctx.now, evidence: [], nextAction, nextActionAt };
+        if (nextAction && nextActionAt) {
+          const task = { id: ctx.id('task'), contactId: id, title: nextAction, dueAt: nextActionAt, status: 'open', closeReason: null, createdAt: ctx.now, createdBy: actor.id, updatedAt: ctx.now, closedAt: null, closedBy: null };
+          draft.tasks[task.id] = task; record.nextActionTaskId = task.id;
+          audit(draft, ctx, 'task_created', id, { taskId: task.id }); event(draft, ctx, 'task_created', contact, { taskId: task.id });
+        }
+        const transition = { from, to: stage, reason, nextAction, nextActionAt, nextActionTaskId: record.nextActionTaskId || null, source: 'commercial' };
+        audit(draft, ctx, 'contact_stage_changed', id, transition);
+        event(draft, ctx, 'contact_stage_changed', contact, transition);
+        ctx.append('activities', record);
         return contact;
       });
     }
+    // Compatibility entry point shares the same validation and atomic boundary.
+    function setStage(id, stage, details, revision) { return moveCommercialStage(id, stage, details, revision); }
     function reassignContact(id, kamId, reason, revision) {
       return transact(revision, (draft, ctx) => {
         if (actor.role !== 'admin') fail('forbidden', 'Sólo un administrador DEMO puede reasignar contactos.');
@@ -674,8 +711,8 @@
       const createdEvents = events.filter(e => ['contact_created', 'self_service_created'].includes(e.type));
       const newIds = new Set(createdEvents.map(e => e.contactId));
       const activities = events.filter(e => e.type === 'activity_recorded');
-      const submitted = new Set(events.filter(e => ['holder_submitted', 'onboarding_submitted', 'expedient_submitted'].includes(e.type) && e.expedientId && state.expedients[e.expedientId] && state.expedients[e.expedientId].submittedAt).map(e => e.contactId));
-      const started = new Set(events.filter(e => ['onboarding_started', 'expedient_created', 'assisted_draft_created', 'self_service_created'].includes(e.type) || e.type === 'contact_stage_changed' && ['application_started', 'registration_started'].includes(e.to)).map(e => e.contactId));
+      const submitted = new Set(events.filter(e => ['holder_submitted', 'onboarding_submitted', 'expedient_submitted'].includes(e.type) && e.expedientId && state.expedients[e.expedientId] && state.expedients[e.expedientId].contactId === e.contactId && state.expedients[e.expedientId].submittedAt === e.createdAt && e.actorRole === 'holder').map(e => e.contactId));
+      const started = new Set(events.filter(e => ['onboarding_started', 'expedient_created', 'assisted_draft_created', 'self_service_created'].includes(e.type) && e.expedientId && state.expedients[e.expedientId] && state.expedients[e.expedientId].contactId === e.contactId && state.expedients[e.expedientId].createdAt === e.createdAt).map(e => e.contactId));
       const openTasks = Object.values(state.tasks).filter(t => ids.has(t.contactId) && t.status === 'open');
       const byStage = { patient: {}, doctor: {} }; for (const type of Object.keys(STAGES)) for (const stage of STAGES[type]) byStage[type][stage] = 0;
       for (const contact of contacts) byStage[contact.type][contact.stage]++;
@@ -683,9 +720,9 @@
       const byKam = Array.from(kams).sort().map(kamId => { const ownIds = new Set(contacts.filter(c => (c.assignedKam || 'unassigned') === kamId).map(c => c.id)); return { kamId, newContacts: Array.from(newIds).filter(id => ownIds.has(id)).length, activities: activities.filter(e => ownIds.has(e.contactId)).length, submitted: Array.from(submitted).filter(id => ownIds.has(id)).length }; });
       return { period: { month, year }, counts: { newContacts: newIds.size, patients: contacts.filter(c => c.type === 'patient' && newIds.has(c.id)).length, doctors: contacts.filter(c => c.type === 'doctor' && newIds.has(c.id)).length, activities: activities.length, openTasks: openTasks.length, overdueTasks: openTasks.filter(t => t.dueAt < getNow()).length, submitted: submitted.size, onboardingStarted: started.size, referralContacts: contacts.filter(c => newIds.has(c.id) && ['referral', 'kam_referral', 'doctor_referral'].includes(c.originalSource)).length }, byStage, byKam, events: clone(events), currentSnapshot: { contacts: contacts.length, openTasks: openTasks.length }, demo: true };
     }
-    return Object.freeze({ actor, snapshot, transact, createContact, updateContact, getContact, listContacts, setStage, reassignContact, deleteContact, createReferral, resolveReferral, applyReferral, createTask, updateTask, closeTask, addActivity,
+    return Object.freeze({ actor, snapshot, transact, createContact, updateContact, getContact, listContacts, moveCommercialStage, setStage, reassignContact, deleteContact, createReferral, resolveReferral, applyReferral, createTask, updateTask, closeTask, addActivity,
       listTasks: filter => listLinked('tasks', filter), listActivities: filter => listLinked('activities', filter), listAudit: filter => listLinked('audit', filter), dashboard, operationalStatus,
       canAccessContact: id => canAccess(read().state.contacts[id]), inspectIdentity, normalizeEmail, normalizePhone });
   }
-  return Object.freeze({ STORAGE_KEY, STORE: STORAGE_KEY, VERSION, STAGES, SOURCES, ACTIVITY_TYPES, normalizeEmail, normalizePhone, findLegacyIdentity, createStore });
+  return Object.freeze({ STORAGE_KEY, STORE: STORAGE_KEY, VERSION, STAGES, COMMERCIAL_STAGES, SOURCES, ACTIVITY_TYPES, normalizeEmail, normalizePhone, findLegacyIdentity, createStore });
 });
