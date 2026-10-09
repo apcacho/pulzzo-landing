@@ -1,0 +1,45 @@
+'use strict';
+const assert=require('node:assert/strict'),crypto=require('node:crypto');
+const M=require('../assets/js/demo-servicing.js'),B=require('../assets/pulzzo-demo-bridge.js');
+function store(){const data=new Map();return {data,getItem:k=>data.get(k)??null,setItem:(k,v)=>data.set(k,String(v)),removeItem:k=>data.delete(k)};}
+const s=store();
+for(const str of ['','abc','médico 🩺','x'.repeat(1000)])assert.equal(M.digestText(str),crypto.createHash('sha256').update(str).digest('hex'));
+const e1=M.publish(s,'patient_servicing','P1','APP1',{balance:100}),e2=M.publish(s,'patient_servicing','P2','APP1',{balance:999});
+assert.equal(M.receive(s,'patient_servicing','P1','APP1').payload.balance,100);assert.equal(M.receive(s,'patient_servicing','P2','APP1').payload.balance,999);
+assert.throws(()=>M.receive(s,'patient_servicing','P1','APP2'));assert.equal(M.validCached(e1,{accountId:'P2'}),false);
+const fresh=M.publish(s,'patient_servicing','P1','APP1',{balance:50});assert.equal(fresh.revision,2);const next={};M.applyProjection(next,fresh,{accountId:'P1'});assert.throws(()=>M.applyProjection(next,e1,{accountId:'P1'}),/antigua/);assert.equal(next.servicingProjection.payload.balance,50);
+const tampered=structuredClone(fresh);tampered.payload.balance=0;assert.equal(M.validCached(tampered),false);
+const before=s.getItem(M.STORE),put=s.setItem;s.setItem=()=>{throw Error('QuotaExceeded')};assert.throws(()=>M.publish(s,'x','P1','APP1',{}),/Quota/);assert.equal(s.getItem(M.STORE),before);s.setItem=put;
+assert.throws(()=>M.publishAndSave(s,'doctor_profile','D1','D1',{}, {},()=>{throw Error('profile quota')}),/profile quota/);assert.equal(s.getItem(M.STORE),before);
+const empty=store();assert.throws(()=>M.publishAndSave(empty,'doctor_profile','D1','D1',{}, {},()=>{throw Error('profile quota')}));assert.equal(empty.getItem(M.STORE),null);
+// Never roll back a newer mailbox write from an intervening callback.
+assert.throws(()=>M.publishAndSave(s,'x','P1','APP1',{}, {},()=>{M.publish(s,'x','P2','APP2',{keep:true});throw Error('later failure')}));assert.equal(M.receive(s,'x','P2','APP2').payload.keep,true);
+const state={doctorAccountId:'D1',submitted:true,fiscal:{rfc:'OLD',clabe:'UNCHANGED'},medval:{method:'upload'},profile:{name:'Doctor demo'},files:{hidden:'not transported'}};
+const profile=M.publish(s,'doctor_profile','D1','D1',{doctorAccountId:'D1',snapshot:M.profileSnapshot(state)}),provider={id:'PROV1',doctorAccountId:'D1'};
+M.importProfile(provider,profile);assert.equal(provider.demoProfileReview.status,'review');assert.doesNotMatch(JSON.stringify(profile),/not transported|Doctor demo/);
+assert.throws(()=>M.importProfile({id:'OTHER',doctorAccountId:'D2'},profile),/no corresponde/);
+const review=provider.demoProfileReview;assert.throws(()=>M.requestCorrection(review,['profile.name'],'bad'),/habilitados/);assert.throws(()=>M.requestCorrection(review,['fiscal.rfc'],''),/motivo/);
+M.requestCorrection(review,['fiscal.rfc'],'Corrige el RFC ficticio');let r=M.publish(s,'doctor_review','D1','PROV1',review,{providerId:'PROV1'});M.applyReview(state,r,'D1');
+assert.equal(M.canEditCorrection(state,'D1','fiscal.rfc'),true);assert.equal(M.canEditCorrection(state,'D2','fiscal.rfc'),false);assert.equal(M.canEditCorrection(state,'D1','fiscal.clabe'),false);
+state.demoCorrectionDraft={'fiscal.rfc':'NEW','fiscal.clabe':'BAD'};assert.throws(()=>M.makeCorrectionSubmission(state,'D1'),/no habilitados/);
+state.demoCorrectionDraft={'fiscal.rfc':'NEW'};const submission=M.makeCorrectionSubmission(state,'D1'),env=M.publish(s,'doctor_correction','D1','PROV1',submission,{providerId:'PROV1'});state.demoCorrection.status='submitted';
+M.applyReview(state,r,'D1');assert.equal(state.demoCorrection.status,'submitted','same-envelope replay cannot unlock');r=M.publish(s,'doctor_review','D1','PROV1',review,{providerId:'PROV1'});M.applyReview(state,r,'D1');assert.equal(state.demoCorrection.status,'submitted','re-export requested cannot unlock');
+assert.equal(M.canEditCorrection(state,'D1','fiscal.rfc'),false);
+const altered=structuredClone(env);altered.payload.version++;assert.throws(()=>M.acceptCorrectionSubmission(review,altered));
+M.acceptCorrectionSubmission(review,env);assert.equal(review.status,'re_review');assert.equal(review.snapshot['fiscal.rfc'],'OLD');assert.equal(review.candidateSnapshot['fiscal.rfc'],'NEW');assert.throws(()=>M.acceptCorrectionSubmission(review,env),/antigua/);
+M.approveCorrection(review);r=M.publish(s,'doctor_review','D1','PROV1',review,{providerId:'PROV1'});M.applyReview(state,r,'D1');assert.equal(state.fiscal.rfc,'NEW');assert.equal(state.fiscal.clabe,'UNCHANGED');assert.equal(state.demoCorrection.status,'approved');assert.equal(state.demoCorrectionDraft,undefined);M.applyReview(state,r,'D1');assert.equal(state.fiscal.rfc,'NEW');
+assert.throws(()=>M.applyReview(state,M.publish(s,'doctor_review','D2','PROV1',{...review,doctorAccountId:'D2'},{providerId:'PROV1'}),'D1'));
+const accepted={patientAccountId:'P1',applicationId:'APP',demoBridgeCaseId:'CASE',offerAccepted:true,contractSigned:true,offer:{approvedAmount:100},demoBridgeOfferFingerprint:'unchanged'};const original=JSON.stringify(accepted.offer);M.applyProjection(accepted,M.publish(s,'patient_servicing','P1','APP',{balance:1}),{accountId:'P1',applicationId:'APP'});assert.equal(JSON.stringify(accepted.offer),original);assert.equal(accepted.demoBridgeOfferFingerprint,'unchanged');
+assert.throws(()=>B.makeHandoff({patientAccountId:'P1',applicationSubmitted:true,applicationId:'APP',procedure:{amount:10}},{patientAccountId:'P2'}),/cuenta/);
+console.log('PASS: scoped mailbox/revision/hash, cross-account isolation, stale and replay rejection, accepted-offer preservation, SHA256 contract digest, correction field/nonce/version/review locks, quota rollback.');
+// Execute the existing patient-offer bridge's mounted handlers over the new scoped mailbox.
+function bridgeWindow(storage,adapterName,adapter){const elements=[];const doc={createElement(tag){const n={tagName:tag,style:{},children:[],value:'',textContent:'',listeners:{},appendChild(x){this.children.push(x);},setAttribute(){},addEventListener(t,fn){this.listeners[t]=fn;},replaceChildren(){this.children=[];}};elements.push(n);return n;},body:{appendChild(){}}};const w={document:doc,localStorage:storage,confirm:()=>true,PulzzoDemoServicing:M,[adapterName]:adapter};B.mount(w);return {w,button:label=>{const b=elements.find(n=>n.tagName==='button'&&n.textContent===label);assert.ok(b,label);return ()=>b.listeners.click();},select:()=>elements.find(n=>n.tagName==='select'),status:()=>elements.filter(n=>n.tagName==='p').at(-1)};}
+const bs=store(),ps={patientAccountId:'P-SCOPE',applicationId:'APP-SCOPE',applicationSubmitted:true,procedure:{amount:10000}},pd={patientAccountId:'P-SCOPE',nombre:'Paciente Demo'},database={patients:[]};bs.setItem('pulzzo_patient',JSON.stringify(pd));let selectedRecord,failSave=false;
+const pw=bridgeWindow(bs,'PulzzoPatientDemoBridge',{getAccount:()=>({patientAccountId:'P-SCOPE'}),getState:()=>ps,save:()=>{if(failSave)throw Error('patient quota');bs.setItem('pulzzo_application',JSON.stringify(ps));},refresh(){},assertFresh(){}});
+const sendPatient=pw.button('1. Enviar caso / decisión al backoffice demo');failSave=true;sendPatient();assert.equal(ps.demoBridgeCaseId,undefined);assert.equal(bs.getItem(M.STORE),null,'failed state rolls back scoped handoff');failSave=false;sendPatient();assert.ok(ps.demoBridgeCaseId);
+const ow=bridgeWindow(bs,'PulzzoBackofficeDemoBridge',{getDatabase:()=>database,canImport:()=>true,save:()=>bs.setItem('office',JSON.stringify(database)),select:id=>selectedRecord=database.patients.find(p=>p.id===id),refresh(){},getSelected:()=>selectedRecord});
+ow.button('Actualizar casos demo disponibles')();ow.select().value=JSON.stringify(['P-SCOPE','APP-SCOPE']);ow.button('2. Importar caso / decisión del paciente demo')();assert.equal(database.patients.length,1);assert.equal(selectedRecord.patientAccountId,'P-SCOPE');assert.equal(selectedRecord.demoBridge.handoffEnvelope.accountId,'P-SCOPE');
+ow.button('2. Importar caso / decisión del paciente demo')();assert.equal(database.patients.length,1,'same handoff replay idempotent');selectedRecord.offer={status:'enviada',approvedAmount:10000,termMonths:12,monthlyPayment:1000};selectedRecord.application.offerReady=true;ow.button('3. Enviar oferta seleccionada al paciente demo')();pw.button('4. Recibir oferta del backoffice demo')();assert.equal(ps.offer.approvedAmount,10000);assert.equal(ps.demoOfferEnvelope.accountId,'P-SCOPE');
+ps.offerAccepted=true;sendPatient();ow.button('2. Importar caso / decisión del paciente demo')();assert.equal(selectedRecord.application.offerAccepted,true);assert.equal(selectedRecord.offer.status,'aceptada');
+assert.equal(bs.getItem('pulzzo_demo_patient_handoff'),null);assert.equal(bs.getItem('pulzzo_demo_backoffice_reply'),null);
+console.log('PASS: actual mounted case/offer/acceptance flow uses account/application mailboxes, duplicate import is idempotent, failed handoff save rolls back, no singleton fallback.');

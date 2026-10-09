@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Accede a tu portal de paciente Pulzzo.">
+<meta name="description" content="Retoma la demostración local del portal de paciente Pulzzo, sin contraseñas ni autenticación real.">
 <meta name="theme-color" content="#07142F">
 <link rel="icon" type="image/png" href="assets/favicon/favicon-v1337.png">
 <link rel="apple-touch-icon" href="assets/favicon/apple-touch-icon-v1337.png">
-<title>Iniciar sesión paciente | Pulzzo</title>
+<title>Acceso demo paciente | Pulzzo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -4409,8 +4409,9 @@ img{max-width:100%;display:block}
   }
 }
 </style>
+<link rel="stylesheet" href="assets/css/auth-headings.css">
 </head>
-<body class="patient-page">
+<body class="patient-page ui-color-semantics ui-patient">
 
 <nav class="navbar" id="navbar">
   <div class="navbar-inner">
@@ -4423,7 +4424,7 @@ img{max-width:100%;display:block}
     </a>
 
     <div class="navbar-actions">
-      <a href="index.html" class="btn btn-primary btn-sm">Volver al inicio</a>
+      <a href="index.html" class="btn btn-primary btn-sm ui-action-secondary">Volver al inicio</a>
     </div>
   </div>
 </nav>
@@ -4433,127 +4434,108 @@ img{max-width:100%;display:block}
   <div class="auth-bg" aria-hidden="true"></div>
   <section class="auth-wrap">
     <div class="auth-copy">
-      <div class="auth-pill ">Ingreso paciente</div>
+      <div class="auth-pill ">Demo paciente</div>
       <h1 class="auth-title">El financiamiento médico que tu salud <span>merece.</span></h1>
-      <p class="auth-subtitle">Accede para revisar el avance de tu solicitud, completar información pendiente y mantener el seguimiento de tu financiamiento médico.</p>
+      <p class="auth-subtitle">Explora el recorrido del paciente con datos ficticios. El avance de esta demostración se guarda solo en este navegador.</p>
       <div class="auth-points" aria-label="Beneficios de acceso">
-        <div class="auth-point"><span class="auth-point-icon ">✓</span><span>Acceso diseñado para mantener el proceso simple, protegido y fácil de seguir.</span></div>
-        <div class="auth-point"><span class="auth-point-icon ">✓</span><span>Información organizada para continuar el flujo correcto sin perder contexto.</span></div>
-        <div class="auth-point"><span class="auth-point-icon ">✓</span><span>Comunicación clara, sin prometer aprobación ni resultados médicos.</span></div>
+        <div class="auth-point"><span class="auth-point-icon ">✓</span><span>Demo local sin contraseñas ni autenticación real.</span></div>
+        <div class="auth-point"><span class="auth-point-icon ">✓</span><span>Continúa el registro guardado sin reemplazar sus datos.</span></div>
+        <div class="auth-point"><span class="auth-point-icon ">✓</span><span>No crea solicitudes reales ni envía mensajes ni aprueba financiamiento.</span></div>
       </div>
     </div>
 
     <section class="auth-card" aria-labelledby="login-title">
       <div class="auth-card-head">
-        <div class="auth-card-kicker ">Acceso paciente</div>
-        <h1 id="login-title">Accede a tu portal de paciente</h1>
-        <p>Consulta el avance de tu solicitud, completa información pendiente o da seguimiento a tu financiamiento.</p>
+        <div class="auth-card-kicker ">Acceso demo local</div>
+        <h1 id="login-title">Continúa tu demo de paciente</h1>
+        <p>Se abrirá únicamente el registro demo guardado en este navegador. Cualquier persona con acceso a este navegador puede verlo; no ingreses datos reales.</p>
       </div>
 
-      <form class="form-grid" action="#" method="post">
+      <form class="form-grid" id="patientLoginForm" action="#" method="post" autocomplete="off">
         <div class="field">
-          <label for="email">Correo o celular</label>
-          <input id="email" name="email" type="text" autocomplete="username" placeholder="tu@correo.com o 55 1234 5678">
+          <label for="email">Registro demo en este navegador</label>
+          <input id="email" name="demoProfile" type="text" autocomplete="off" placeholder="Crea primero un registro demo" readonly aria-describedby="login-message">
         </div>
-        <div class="field">
-          <label for="password">Contraseña</label>
-          <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Ingresa tu contraseña">
-        </div>
-
-        <div class="form-row">
-          <a href="#" class="text-link " onclick="return false;">¿Olvidaste tu contraseña?</a>
-        </div>
-
-        <button class="auth-btn" type="submit">Iniciar sesión</button>
+        <p id="login-message" role="status" aria-live="polite"></p>
+        <button id="login-demo-btn" class="auth-btn ui-action-primary" type="submit" disabled>Continuar demo local</button>
       </form>
 
       <div class="auth-divider"></div>
 
       <div class="auth-switch">
-        <div>¿No tienes cuenta? <a href="registro-paciente.html" class="">Regístrate como paciente</a></div>
+        <div>¿Primera visita? <a href="registro-paciente.html" class="">Crear registro demo</a></div>
         <div><strong>¿Eres doctor o clínica?</strong> <a href="login-doctor.html" class="">Inicia sesión</a></div>
       </div>
     </section>
   </section>
 </main>
+<script src="assets/js/patient-demo.js"></script>
 <script>
-// Detección inteligente: si el campo empieza con dígitos, aplica máscara XX XXXX XXXX
-document.getElementById('email').addEventListener('input', function() {
-  var v = this.value;
-  if (/^\d/.test(v)) {
-    var digits = v.replace(/\D/g, '').slice(0, 10);
-    if (digits.length > 6) digits = digits.slice(0,2) + ' ' + digits.slice(2,6) + ' ' + digits.slice(6);
-    else if (digits.length > 2) digits = digits.slice(0,2) + ' ' + digits.slice(2);
-    this.value = digits;
+(function () {
+  var form = document.getElementById('patientLoginForm');
+  var identifier = document.getElementById('email');
+  var button = document.getElementById('login-demo-btn');
+  var message = document.getElementById('login-message');
+  var demo = window.PulzzoPatientDemo;
+  var storage;
+  var displayedIdentity = '';
+
+  function identityOf(patient) {
+    if (!patient || typeof patient !== 'object' || Array.isArray(patient)) return '';
+    var email = patient.correo || patient.email;
+    if (typeof email !== 'string' || !email.trim()) return '';
+    return JSON.stringify([email, patient.celular || patient.phone || '', patient.fullName || patient.nombre || '', patient.demoId || '']);
   }
-});
-
-// Login demo: no cambia el diseño. Solo prepara la redirección inteligente.
-// En producción, estos valores deberán venir del backend después de autenticar al paciente.
-(function() {
-  var form = document.querySelector('.auth-card form');
-  var emailInput = document.getElementById('email');
-  var passwordInput = document.getElementById('password');
-
-  var redirectByStatus = {
-    registration_incomplete: 'registro-paciente.html',
-    verification_pending: 'verificacion-cuenta.html',
-    application_incomplete: 'solicitud-paciente.html',
-    profile_active: 'solicitud-paciente.html#portal',
-    offer_available: 'solicitud-paciente.html#oferta-contrato',
-    correction_required: 'solicitud-paciente.html#notificaciones',
-    client_rejected: 'solicitud-paciente.html#portal',
-    pulzzo_rejected_reapply: 'solicitud-paciente.html#portal',
-    pulzzo_rejected_blocked: 'solicitud-paciente.html#portal'
-  };
-
-  function getDemoPatientStatus() {
-    return localStorage.getItem('pulzzoPatientStatus') ||
-           localStorage.getItem('applicationStatus') ||
-           'profile_active';
-  }
-
-  function getDemoLastView(status) {
-    var lastView = localStorage.getItem('pulzzoPatientLastView') ||
-                   localStorage.getItem('lastPatientView') || '';
-
-    if (status === 'application_incomplete' && lastView) {
-      return 'solicitud-paciente.html#' + lastView;
+  function readPatient() { return demo.readStorage(storage, 'pulzzo_patient', {}); }
+  function refresh() {
+    try {
+      var patient = readPatient();
+      displayedIdentity = identityOf(patient);
+      identifier.value = displayedIdentity ? (patient.correo || patient.email) : '';
+      button.disabled = !displayedIdentity;
+      message.textContent = displayedIdentity
+        ? 'Este acceso solo retoma la demo local. No verifica identidad ni usa contraseñas.'
+        : 'No hay un registro local disponible. Usa “Crear registro demo” para comenzar.';
+    } catch (error) {
+      button.disabled = true;
+      message.textContent = 'No pudimos leer el almacenamiento local. Permite el almacenamiento de este sitio para continuar la demo.';
     }
-
-    return redirectByStatus[status] || 'solicitud-paciente.html#portal';
   }
-
-  function saveDemoLoginSession(identifier) {
-    localStorage.setItem('pulzzoPatientLoggedIn', 'true');
-    localStorage.setItem('pulzzoPatientIdentifier', identifier || 'demo');
-    localStorage.setItem('pulzzoLastLoginAt', new Date().toISOString());
+  try {
+    if (!demo) throw new Error('Demo unavailable');
+    storage = window.localStorage;
+    storage.getItem('pulzzo_patient');
+    demo.scrubKnownStorage(storage);
+    refresh();
+  } catch (error) {
+    message.textContent = 'No pudimos abrir la demo local. Recarga la página y verifica que el almacenamiento de este sitio esté disponible.';
+    return;
   }
-
-  if (!form) return;
-
-  form.addEventListener('submit', function(event) {
+  window.addEventListener('storage', refresh);
+  window.addEventListener('pageshow', refresh);
+  form.addEventListener('submit', function (event) {
     event.preventDefault();
-
-    var identifier = (emailInput && emailInput.value || '').trim();
-    var password = (passwordInput && passwordInput.value || '').trim();
-
-    if (!identifier) {
-      if (emailInput) emailInput.focus();
-      return;
+    try {
+      demo.scrubKnownStorage(storage);
+      var currentIdentity = identityOf(readPatient());
+      if (!currentIdentity || currentIdentity !== displayedIdentity) {
+        refresh();
+        message.textContent = 'El registro local cambió. Revisa el registro mostrado antes de continuar.';
+        return;
+      }
+      button.disabled = true;
+      if (storage.getItem('pulzzo_verified') !== 'true') {
+        window.location.href = 'verificacion-cuenta.html';
+        return;
+      }
+      var state = demo.readStorage(storage, 'pulzzo_application', {});
+      window.location.href = 'solicitud-paciente.html#' + demo.resumeView(state);
+    } catch (error) {
+      button.disabled = false;
+      message.textContent = 'No pudimos recuperar tu demo. Tu registro no se ha reemplazado; vuelve a intentarlo.';
     }
-
-    if (!password) {
-      if (passwordInput) passwordInput.focus();
-      return;
-    }
-
-    saveDemoLoginSession(identifier);
-
-    var status = getDemoPatientStatus();
-    var nextUrl = getDemoLastView(status);
-    window.location.href = nextUrl;
   });
 })();
 </script>
+<link rel="stylesheet" href="assets/css/portal-color-semantics.css">
 </body>

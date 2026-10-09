@@ -3463,6 +3463,7 @@ html, body {
 .idx-opt.selected{background:#E0FAF9;font-weight:600;color:#0D7A82}
 .idx-no-results{padding:10px;font-size:13px;color:#94A3B8;text-align:center}
 </style>
+<link rel="stylesheet" href="assets/css/public-responsive.css">
 </head>
 <body>
 
@@ -3542,9 +3543,9 @@ html, body {
       <!-- Solicitar crédito -->
       <a href="registro-paciente.html" class="btn btn-primary btn-sm">Solicitar financiamiento</a>
     </div>
-    <div class="hamburger" id="hamburger" onclick="toggleDrawer()">
+    <button class="hamburger" id="hamburger" onclick="toggleDrawer()" type="button" aria-label="Abrir menú" aria-controls="drawer" aria-expanded="false">
       <span></span><span></span><span></span>
-    </div>
+    </button>
   </div>
 </nav>
 
@@ -3923,7 +3924,7 @@ html, body {
       </div>
 
       <p style="display:block;text-align:left;font-size:12px;color:rgba(255,255,255,.5);margin:16px 0 0 0;line-height:1.6;max-width:100%;padding-left:0;">
-        La oferta final puede variar según el perfil del solicitante, monto, plazo, validación del procedimiento y condiciones aplicables.
+        Simulación ilustrativa con factores de costo total de demostración; no son tasas comerciales aprobadas. La oferta final puede variar según el perfil, monto, plazo y validación.
       </p>
     </div>
   </div>
@@ -4275,21 +4276,21 @@ html, body {
         <p class="footer-tagline">Financiamiento médico para procedimientos programados en México.</p>
 
         <div class="footer-socials" aria-label="Redes sociales de Pulzzo">
-          <a href="#" onclick="return false;" class="social-btn instagram" aria-label="Instagram de Pulzzo"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <span class="social-btn instagram" role="img" aria-label="Instagram de Pulzzo (no disponible en demo)" title="No disponible en esta demo"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
             <rect x="4" y="4" width="16" height="16" rx="5" ry="5" fill="none" stroke="currentColor" stroke-width="2"/>
             <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/>
             <circle cx="17.5" cy="6.5" r="1.2" fill="currentColor"/>
-          </svg></a>
-          <a href="#" onclick="return false;" class="social-btn facebook" aria-label="Facebook de Pulzzo">f</a>
-          <a href="#" onclick="return false;" class="social-btn linkedin" aria-label="LinkedIn de Pulzzo">in</a>
-          <a href="#" onclick="return false;" class="social-btn whatsapp" aria-label="WhatsApp de Pulzzo"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          </svg></span>
+          <span class="social-btn facebook" role="img" aria-label="Facebook de Pulzzo (no disponible en demo)" title="No disponible en esta demo">f</span>
+          <span class="social-btn linkedin" role="img" aria-label="LinkedIn de Pulzzo (no disponible en demo)" title="No disponible en esta demo">in</span>
+          <span class="social-btn whatsapp" role="img" aria-label="WhatsApp de Pulzzo (no disponible en demo)" title="No disponible en esta demo"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
             <path d="M12 3.2c-4.85 0-8.8 3.82-8.8 8.52 0 1.51.41 2.99 1.18 4.29L3.2 20.8l4.94-1.12a9.03 9.03 0 0 0 3.86.85c4.85 0 8.8-3.82 8.8-8.52S16.85 3.2 12 3.2zm0 15.87c-1.2 0-2.39-.29-3.44-.85l-.25-.13-2.93.66.71-2.79-.16-.27a7.15 7.15 0 0 1-1.07-3.77c0-3.85 3.18-6.99 7.09-6.99s7.09 3.13 7.09 6.99-3.18 7-7.09 7zm3.89-5.19c-.21-.1-1.24-.6-1.43-.67-.19-.07-.33-.1-.47.1-.14.2-.54.67-.66.81-.12.14-.24.16-.45.05-.21-.1-.9-.33-1.7-1.06-.62-.56-1.04-1.25-1.16-1.46-.12-.2-.01-.31.09-.41.09-.09.21-.24.31-.36.1-.12.14-.2.21-.34.07-.14.03-.26-.02-.36-.05-.1-.47-1.12-.64-1.54-.17-.4-.35-.35-.47-.36h-.4c-.14 0-.36.05-.55.24s-.72.69-.72 1.68.74 1.95.84 2.08c.1.14 1.46 2.31 3.61 3.14 2.14.82 2.14.55 2.53.51.39-.04 1.24-.49 1.41-.96.17-.47.17-.87.12-.96-.05-.09-.19-.14-.4-.24z" fill="currentColor"/>
-          </svg></a>
+          </svg></span>
         </div>
         
       </div>
       <div class="footer-col"><h4>Pacientes</h4><ul><li><a href="#como-funciona">¿Cómo funciona?</a></li><li><a href="#especialidades">Especialidades</a></li><li><a href="#simulador">Solicitar financiamiento</a></li><li><a href="faq.html">Preguntas frecuentes</a></li><li><a href="#simulador">Solicitar ahora</a></li></ul></div>
-      <div class="footer-col"><h4>Doctores y clínicas</h4><ul><li><a href="#" onclick="return false;">Alta gratuita</a></li><li><a href="#proveedores">Portal médico</a></li><li><a href="#proveedores">Beneficios</a></li><li><a href="mailto:hola@pulzzo.mx">Contacto B2B</a></li></ul></div>
+      <div class="footer-col"><h4>Doctores y clínicas</h4><ul><li><a href="registro-doctor.html">Alta gratuita</a></li><li><a href="login-doctor.html">Portal médico</a></li><li><a href="#proveedores">Beneficios</a></li><li><a href="mailto:hola@pulzzo.mx">Contacto B2B</a></li></ul></div>
       <div class="footer-col"><h4>Empresa</h4><ul><li><a href="faq.html">Sobre Pulzzo</a></li><li><a href="terminos-condiciones.html">Términos y condiciones</a></li><li><a href="aviso-privacidad.html">Aviso de privacidad</a></li></ul></div>
     </div>
 
@@ -4376,6 +4377,7 @@ html, body {
 
 <div id="pulzzo-toast" role="status" aria-live="polite"></div>
 
+<script src="assets/js/patient-demo.js"></script>
 <script>
   // ---- MODALS ----
   function openModal(id) { const el=document.getElementById(id); if(el){el.style.display='block';document.body.style.overflow='hidden';} }
@@ -4425,10 +4427,10 @@ html, body {
   const hamburger = document.getElementById('hamburger');
   const shouldOpen = typeof forceState === 'boolean' ? forceState : !drawer.classList.contains('open');
   drawer.classList.toggle('open', shouldOpen);
-  if (hamburger) hamburger.classList.toggle('open', shouldOpen);
+  if (hamburger) { hamburger.classList.toggle('open', shouldOpen); hamburger.setAttribute('aria-expanded',String(shouldOpen)); }
   document.body.classList.toggle('drawer-open', shouldOpen);
 }
-window.addEventListener('resize', function(){ if(window.innerWidth > 1023) toggleDrawer(false); });
+window.addEventListener('resize', function(){ if(window.innerWidth > 1279) toggleDrawer(false); });
 document.addEventListener('keydown', function(e){ if(e.key === 'Escape') toggleDrawer(false); });
 
   // ---- HOW IT WORKS TABS ----
@@ -4446,7 +4448,7 @@ document.addEventListener('keydown', function(e){ if(e.key === 'Escape') toggleD
   // ---- CALCULATOR v2 ----
   const SIMULATOR_CONFIG={
     // Factores planos temporales. Antes de publicar, sustituir por los valores comerciales aprobados o por respuesta del backend.
-    costFactorsFlat:{6:.18,12:.28,18:.38,24:.48}
+    costFactorsFlat:PulzzoPatientDemo.costFactorsFlat
   };
   function getTotalCostFactor(months){
     return SIMULATOR_CONFIG.costFactorsFlat[months] || 0;
@@ -4466,28 +4468,35 @@ document.addEventListener('keydown', function(e){ if(e.key === 'Escape') toggleD
     const activePlan = document.querySelector('.sc2-plan-active');
     const activeTerm = activePlan ? parseInt(activePlan.dataset.months) : 12;
     [6,12,18,24].forEach(m=>{
-      const total=Math.round(a+a*getTotalCostFactor(m));
-      const monthly=Math.round(total/m);
+      const quote=PulzzoPatientDemo.quote(a,m);
+      const total=quote.total;
+      const monthly=quote.monthly;
       const mEl=document.getElementById('sc2-m'+m);
       const tEl=document.getElementById('sc2-t'+m);
-      if(mEl)mEl.textContent='$'+monthly.toLocaleString('es-MX');
-      if(tEl)tEl.textContent='Total $'+total.toLocaleString('es-MX');
+      if(mEl)mEl.textContent=PulzzoPatientDemo.money(monthly);
+      if(tEl)tEl.textContent='Total '+PulzzoPatientDemo.money(total);
     });
     // Update dynamic summary row with the selected term
     const sumTerm = activeTerm;
-    const sumTotal = Math.round(a + a * getTotalCostFactor(sumTerm));
-    const sumMonthly = Math.round(sumTotal / sumTerm);
+    const summaryQuote=PulzzoPatientDemo.quote(a,sumTerm);
+    const sumTotal = summaryQuote.total;
+    const sumMonthly = summaryQuote.monthly;
     const sp = document.getElementById('sum-principal');
     const sterm = document.getElementById('sum-term');
     const sm = document.getElementById('sum-monthly');
     const st = document.getElementById('sum-total');
     if(sp) sp.textContent = '$' + a.toLocaleString('es-MX');
     if(sterm) sterm.textContent = sumTerm + ' meses';
-    if(sm) sm.textContent = '$' + sumMonthly.toLocaleString('es-MX');
-    if(st) st.textContent = '$' + sumTotal.toLocaleString('es-MX');
+    if(sm) sm.textContent = PulzzoPatientDemo.money(sumMonthly);
+    if(st) st.textContent = PulzzoPatientDemo.money(sumTotal);
     const slider=document.getElementById('sc2-slider');
     if(slider){const p=(a-10000)/(300000-10000)*100;slider.style.background=`linear-gradient(to right,var(--cyan) 0%,var(--cyan) ${p}%,rgba(255,255,255,.15) ${p}%,rgba(255,255,255,.15) 100%)`;}
   }
+  document.querySelector('.sc2-cta-button')?.addEventListener('click',()=>{
+    const termMonths=Number(document.querySelector('.sc2-plan-active')?.dataset.months||12);
+    const quote=PulzzoPatientDemo.quote(sc2Amount,termMonths);
+    if(quote) sessionStorage.setItem('pulzzo_pending_estimate',JSON.stringify(quote));
+  });
   function sc2Select(months){
     document.querySelectorAll('.sc2-plan').forEach(p=>p.classList.remove('sc2-plan-active'));
     const el=document.querySelector(`.sc2-plan[data-months="${months}"]`);
@@ -4729,7 +4738,7 @@ document.addEventListener('keydown', function(e){ if(e.key === 'Escape') toggleD
     var municipio = document.getElementById('filter-municipio') ? document.getElementById('filter-municipio').value : '';
     var desc = document.getElementById('filter-descripcion') ? document.getElementById('filter-descripcion').value : '';
     var filtros = [cat, proc, estado, municipio, desc].filter(Boolean);
-    showToast(filtros.length ? 'Búsqueda guardada. Pronto conectaremos el directorio con resultados reales.' : 'Elige al menos un filtro para buscar doctores.');
+    showToast(filtros.length ? 'Directorio de demostración: estos filtros no se guardaron y todavía no hay resultados conectados.' : 'Elige al menos un filtro para buscar doctores.');
   }
 
 
@@ -5070,7 +5079,7 @@ document.addEventListener('keydown', function(e){ if(e.key === 'Escape') toggleD
     </div>
 
     <!-- BODY blanco -->
-    <div class="refer-body" id="refer-form-body">
+    <div class="refer-body" id="refer-form-body"><p role="note">Formulario de demostración. Usa solo datos ficticios: no se envía ni se guarda un referido y no se contacta a nadie.</p>
       <form id="refer-form" onsubmit="submitRefer(event)">
 
         <div class="refer-section-label">Datos del doctor o clínica</div>
@@ -5166,7 +5175,7 @@ document.addEventListener('keydown', function(e){ if(e.key === 'Escape') toggleD
         </div>
 
         <button class="refer-submit" type="submit" id="refer-submit-btn">
-          Enviar referido
+          Probar referido demo
         </button>
 
       </form>
@@ -5175,8 +5184,8 @@ document.addEventListener('keydown', function(e){ if(e.key === 'Escape') toggleD
     <!-- Success -->
     <div class="refer-success" id="refer-success">
       <div class="refer-success-icon">✓</div>
-      <h3>¡Referido recibido!</h3>
-      <p>Contactaremos a tu doctor en los próximos días y te avisaremos a tu correo cuando lo hagamos.</p>
+      <h3>Demostración completada</h3>
+      <p>No se envió ni se guardó ningún referido. Esta demo no contacta al doctor ni envía correos.</p>
     </div>
 
   </div>
@@ -5365,7 +5374,7 @@ function closeReferModal(){
     s.style.display='none';s.style.flexDirection='';
     document.getElementById('refer-form').reset();
     document.getElementById('refer-submit-btn').disabled=false;
-    document.getElementById('refer-submit-btn').textContent='Enviar referido';
+    document.getElementById('refer-submit-btn').textContent='Probar referido demo';
     setReferTipo('doctor');
     refEspMulti=[];refEspSingle='';
     var nat=document.getElementById('ref-esp');if(nat)nat.innerHTML='';
@@ -5380,13 +5389,12 @@ function submitRefer(e){
   e.preventDefault();
   var btn=document.getElementById('refer-submit-btn');
   btn.disabled=true;
-  btn.textContent='Enviando...';
-  setTimeout(function(){
+  btn.textContent='Demostración completada';
+  (function(){
     document.getElementById('refer-form-body').style.display='none';
     var s=document.getElementById('refer-success');
     s.style.display='flex';
-    setTimeout(closeReferModal,4000);
-  },1200);
+  })();
 }
 document.addEventListener('keydown',function(e){
   if(e.key==='Escape')closeReferModal();

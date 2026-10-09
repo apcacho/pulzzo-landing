@@ -1,0 +1,11 @@
+'use strict';
+const fs=require('node:fs');
+const path=require('node:path');
+const {spawnSync}=require('node:child_process');
+// Explicit allowlist: never discover or launch browser suites automatically.
+const files=['design-preservation.cjs','auth-heading-alignment.cjs','platform-color-semantics.cjs','portal-color-semantics.cjs','doctor-flows.cjs','patient-auth.cjs','patient-flows.cjs','backoffice-flows.cjs','backoffice-queues.cjs','backoffice-operational.cjs','backoffice-review-workflow.cjs','backoffice-controls.cjs','backoffice-compact-controls.cjs','provider-layout.cjs','provider-membership.cjs','backoffice-refinement.cjs','backoffice-typography.cjs','backoffice-selects.cjs','bridge.cjs','local-links.cjs','syntax.cjs','responsive-structure.cjs','backoffice-sidebar.cjs','backoffice-navigation-icons.cjs','payment-integrity.cjs','backoffice-portfolio.cjs','backoffice-configuration.cjs','portfolio-payment-drawer.cjs','portfolio-polish.cjs','configuration-polish.cjs','portfolio-mobile-structure.cjs','portfolio-identity-search.cjs','audit-accessibility.cjs','audit-date-offer-policies.cjs','financial-engine.cjs','patient-doctor-integrity.cjs','backoffice-operational-integrity.cjs','demo-servicing.cjs','doctor-servicing.cjs','patient-servicing.cjs','backoffice-portal-projections.cjs'];
+for(const file of files){
+  const result=spawnSync(process.execPath,[path.join(__dirname,file)],{stdio:'inherit'});
+  if(result.status!==0)process.exit(result.status||1);
+}
+console.log(`PASS: ${files.length} regression suites. Browser rendering is a separate, unrun check.`);

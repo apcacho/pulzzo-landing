@@ -1,0 +1,37 @@
+'use strict';
+// Production handlers in an isolated DOM/VM; not a rendered accessibility certification.
+const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict');
+const root=path.join(__dirname,'..'),source=fs.readFileSync(path.join(root,'backoffice.html'),'utf8');
+const script=[...source.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].find(m=>m[1].includes('const baseState='))[1];
+const elements=new Map(),listeners={},storage=new Map();let document;
+function el(id){if(elements.has(id))return elements.get(id);const attrs={},classes=new Set();const e={id,attrs,value:'',textContent:'',innerHTML:'',style:{},dataset:{},children:[],isConnected:true,inert:false,tagName:'DIV',className:'',focus(){document.activeElement=this},getAttribute:k=>attrs[k],setAttribute(k,v){attrs[k]=String(v)},removeAttribute(k){delete attrs[k]},addEventListener(){},closest(){return null},getClientRects(){return [1]},querySelector(s){return this.queries?.[s]||null},querySelectorAll(s){return this.lists?.[s]||[]},contains(x){return x===this||this.children.includes(x)},classList:{add(...a){a.forEach(x=>classes.add(x))},remove(...a){a.forEach(x=>classes.delete(x))},contains:x=>classes.has(x),toggle(x,v){if(v)classes.add(x);else classes.delete(x)}}};elements.set(id,e);return e;}
+document={querySelector:s=>el(s.replace(/^#/,'')),querySelectorAll:()=>[],getElementById:id=>elements.get(id)||null,activeElement:null,addEventListener:(n,f)=>(listeners[n]??=[]).push(f),removeEventListener(){},body:el('body')};
+const context=vm.createContext({document,window:{addEventListener(){},scrollTo(){}},localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,String(v)),removeItem:k=>storage.delete(k)},console,Intl,Date,Blob,URL,setTimeout(){},clearTimeout(){},innerWidth:1200,confirm:()=>true});
+const run=code=>vm.runInContext(code,context);run(script);run("session=users.find(u=>u.role==='admin');");
+const panel=el('modal'),backdrop=el('modalBackdrop'),main=el('main'),prior=el('prior'),heading=el('heading'),close=el('close'),field=el('field'),label=el('label'),input=el('note'),last=el('last');
+heading.id='';input.id='';document.body.children=[main,backdrop];backdrop.parentElement=document.body;panel.children=[input,last];panel.queries={'h3,h2':heading};panel.lists={'button.x':[close],'.field':[field]};field.queries={'label':label,'input,select,textarea':input};document.activeElement=prior;
+run("modal('<h3>Prueba</h3>')");assert.equal(panel.attrs.role,'dialog');assert.equal(panel.attrs['aria-modal'],'true');assert.equal(panel.attrs['aria-labelledby'],'genericModalTitle');assert.equal(close.attrs['aria-label'],'Cerrar ventana');assert.equal(label.attrs.for,input.id);assert.equal(main.inert,true);assert.equal(document.activeElement,panel);
+panel.lists['button:not([disabled]),input:not([disabled]):not([type="hidden"]),select:not([disabled]),textarea:not([disabled]),a[href],iframe,[tabindex="0"]']=[input,last];
+let prevented=false;context.event={key:'Tab',shiftKey:false,preventDefault(){prevented=true}};document.activeElement=main;run('modalKeydown(event)');assert.ok(prevented);assert.equal(document.activeElement,input);
+context.event.shiftKey=true;document.activeElement=input;run('modalKeydown(event)');assert.equal(document.activeElement,last);
+context.event.key='Escape';run('modalKeydown(event)');assert.equal(main.inert,false);assert.equal(document.activeElement,prior);assert.equal(backdrop.classList.contains('show'),false);
+console.log('PASS: generic dialog labels, keyboard loop, escaped focus recovery, Escape, background inertness and focus restoration');
+assert.match(source, /id="toast"[^>]*role="status"[^>]*aria-live="polite"/);
+const bureau=run('BUREAU_CREDIT_DASHBOARD_HTML');assert.match(bureau,/\.mop-cell-big:focus::after/);assert.match(bureau,/color: #172C40/);assert.match(bureau,/class="mop-cell-big" tabindex="0" data-tip="[^"]+" aria-label=/);
+console.log('PASS: toast live region and bureau keyboard/explanatory-label/contrast source contracts');
+run(fs.readFileSync(path.join(root,'assets/js/backoffice-portfolio.js'),'utf8'));
+const shell=el('portfolioFilterShell'),filterBackdrop=el('portfolioFilterBackdrop'),filterSearch=el('portfolioSearch'),other=el('other'),toggle=el('portfolioFilterToggle'),region=el('portfolioRegion');
+shell.parentElement=region;region.parentElement=document.body;region.children=[shell,filterBackdrop,other];document.body.children=[main,region];shell.children=[filterSearch,toggle];shell.lists={'button:not([disabled]),input:not([disabled]),select:not([disabled])':[filterSearch,toggle]};
+run('portfolioSetFiltersOpen(true)');assert.equal(main.inert,true);assert.equal(other.inert,true);assert.equal(filterBackdrop.inert,false);
+context.event.key='Tab';context.event.shiftKey=false;document.activeElement=main;run('portfolioFilterKeydown(event)');assert.equal(document.activeElement,filterSearch);
+run('portfolioSetFiltersOpen(false)');assert.equal(main.inert,false);assert.equal(other.inert,false);assert.equal(document.activeElement,toggle);
+console.log('PASS: filter background isolation, escaped-focus recovery and complete cleanup');
+run(fs.readFileSync(path.join(root,'assets/js/backoffice-portfolio-payment.js'),'utf8'));
+for(const [id,value] of Object.entries({Amount:'',Date:'2026-10-08',Type:'early_liquidation',Reference:'',Method:'SPEI',Target:'auto'}))el('portfolioPayment'+id).value=value;
+el('portfolioPaymentSave');el('portfolioPaymentPreview');el('portfolioPaymentSettlementQuote');
+run("portfolioPaymentSession={creditId:'A',quote:{calculationDate:'2026-10-08',total:12345.67}};portfolioPaymentIsCurrent=()=>true;portfolioPaymentCredit=()=>({});dispersionPaymentTypeCopy=()=>'';portfolioPaymentRefresh();");
+assert.match(el('portfolioPaymentSettlementQuote').textContent,/12,345.67/);assert.match(el('portfolioPaymentSettlementQuote').textContent,/2026-10-08/);assert.equal(el('portfolioPaymentAmount').value,'');assert.equal(el('portfolioPaymentSave').disabled,true);
+el('portfolioPaymentDate').value='2026-10-07';run('portfolioPaymentRefresh()');assert.equal(el('portfolioPaymentSettlementQuote').textContent,'');
+console.log('PASS: settlement quote is visible without a received amount and invalidates on date change');
+const config=fs.readFileSync(path.join(root,'assets/js/backoffice-configuration.js'),'utf8');assert.match(config,/id="cfg-tab-\$\{id\}"/);assert.match(config,/getElementById\('cfg-tab-'\+tab\)\?\.focus/);assert.match(config,/id="cfg-message" tabindex="-1"/);
+console.log('PASS: configuration rerender focus targets remain explicit. Rendered browser/assistive-device checks unrun.');

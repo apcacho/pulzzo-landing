@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Crea tu cuenta y empieza tu solicitud de financiamiento médico en minutos. Pulzzo te acompaña para validar tu perfil y preparar una oferta personalizada.">
+<meta name="description" content="Crea un registro ficticio para explorar la demostración local de Pulzzo, sin datos reales ni contraseñas.">
 <meta name="theme-color" content="#07142F">
 <link rel="icon" type="image/png" href="assets/favicon/favicon-v1337.png">
 <link rel="apple-touch-icon" href="assets/favicon/apple-touch-icon-v1337.png">
-<title>Regístrate como paciente | Pulzzo</title>
+<title>Registro demo paciente | Pulzzo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -4725,8 +4725,10 @@ img{max-width:100%;display:block}
 }
 </style>
 
+<link rel="stylesheet" href="assets/css/registration-responsive.css">
+<link rel="stylesheet" href="assets/css/auth-headings.css">
 </head>
-<body class="patient-page">
+<body class="patient-page ui-color-semantics ui-patient">
 
 <nav class="navbar" id="navbar">
   <div class="navbar-inner">
@@ -4739,7 +4741,7 @@ img{max-width:100%;display:block}
     </a>
 
     <div class="navbar-actions">
-      <a href="index.html" class="btn btn-primary btn-sm">Volver al inicio</a>
+      <a href="index.html" class="btn btn-primary btn-sm ui-action-secondary">Volver al inicio</a>
     </div>
   </div>
 </nav>
@@ -4749,172 +4751,196 @@ img{max-width:100%;display:block}
   <div class="auth-bg" aria-hidden="true"></div>
   <section class="auth-wrap">
     <div class="auth-copy">
-      <div class="auth-pill">Registro paciente</div>
+      <div class="auth-pill">Registro demo paciente</div>
       <h1 class="auth-title">El financiamiento médico que tu salud <span>merece.</span></h1>
-      <p class="auth-subtitle">Crea tu cuenta en minutos y da el primer paso para financiar tu procedimiento médico en mensualidades claras y sin sorpresas.</p>
+      <p class="auth-subtitle">Explora el recorrido de una solicitud con un paciente ficticio. Esta demostración solo guarda el avance en este navegador.</p>
       <div class="auth-points" aria-label="Beneficios de registro">
-        <div class="auth-point"><span class="auth-point-icon">✓</span><span>Registro rápido</span></div>
-        <div class="auth-point"><span class="auth-point-icon">✓</span><span>Solo pagas si aceptas una oferta aprobada.</span></div>
-        <div class="auth-point"><span class="auth-point-icon">✓</span><span>Tu información está protegida y podrás dar seguimiento en tu portal.</span></div>
+        <div class="auth-point"><span class="auth-point-icon">✓</span><span>Datos de ejemplo listos para usar</span></div>
+        <div class="auth-point"><span class="auth-point-icon">✓</span><span>No se crean solicitudes ni compromisos reales.</span></div>
+        <div class="auth-point"><span class="auth-point-icon">✓</span><span>Sin contraseñas ni envío de correos o mensajes.</span></div>
       </div>
     </div>
 
     <section class="auth-card" aria-labelledby="registro-title">
       <div class="auth-card-head">
-        <div class="auth-card-kicker">Crear cuenta paciente</div>
-        <h1 id="registro-title">Inicia tu solicitud</h1>
-        <p>Primero guardamos tus datos básicos. Después completaremos tu solicitud y validación.</p>
+        <div class="auth-card-kicker">Crear registro demo</div>
+        <h1 id="registro-title">Inicia tu solicitud demo</h1>
+        <p>Usaremos estos datos ficticios para probar el recorrido. No ingreses información personal, médica, financiera ni contraseñas reales. Cualquier persona con acceso a este navegador podrá ver la demo.</p>
       </div>
 
-      <form class="form-grid" id="patientRegisterForm" action="#" method="post">
+      <form class="form-grid" id="patientRegisterForm" action="#" method="post" autocomplete="off">
         <div class="form-row name-row">
           <div class="field">
             <label for="primer_nombre">Primer nombre<span class="req">*</span></label>
-            <input id="primer_nombre" name="primer_nombre" type="text" autocomplete="given-name" placeholder="Primer nombre" required><div class="field-error">Completa tu primer nombre.</div>
+            <input id="primer_nombre" name="primer_nombre" type="text" autocomplete="off" value="Paciente" readonly><div class="field-error">Completa tu primer nombre.</div>
           </div>
           <div class="field">
             <label for="segundo_nombre">Segundo nombre</label>
-            <input id="segundo_nombre" name="segundo_nombre" type="text" autocomplete="additional-name" placeholder="Segundo nombre">
+            <input id="segundo_nombre" name="segundo_nombre" type="text" autocomplete="off" value="" readonly>
           </div>
           <div class="field">
             <label for="apellido_paterno">Apellido paterno<span class="req">*</span></label>
-            <input id="apellido_paterno" name="apellido_paterno" type="text" autocomplete="family-name" placeholder="Apellido paterno" required><div class="field-error">Completa tu apellido paterno.</div>
+            <input id="apellido_paterno" name="apellido_paterno" type="text" autocomplete="off" value="Demo" readonly><div class="field-error">Completa tu apellido paterno.</div>
           </div>
           <div class="field">
             <label for="apellido_materno">Apellido materno</label>
-            <input id="apellido_materno" name="apellido_materno" type="text" autocomplete="family-name" placeholder="Apellido materno">
+            <input id="apellido_materno" name="apellido_materno" type="text" autocomplete="off" value="" readonly>
           </div>
         </div>
 
         <div class="form-row contact-row">
           <div class="field">
             <label for="correo">Correo electrónico<span class="req">*</span></label>
-            <input id="correo" name="correo" type="email" autocomplete="email" placeholder="tu@correo.com" required><div class="field-error">Escribe un correo válido.</div>
+            <input id="correo" name="correo" type="email" autocomplete="off" value="paciente@example.test" readonly><div class="field-error">Escribe un correo válido.</div>
           </div>
           <div class="field">
             <label for="celular">Celular<span class="req">*</span></label>
-            <input id="celular" name="celular" type="tel" autocomplete="tel" placeholder="55 1234 5678" required><div class="field-error">Escribe tu celular a 10 dígitos.</div>
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="field">
-            <label for="password">Crear contraseña<span class="req">*</span></label>
-            <div class="password-wrap"><input id="password" name="password" type="password" autocomplete="new-password" placeholder="Mínimo 8 caracteres" minlength="8" required><button class="password-toggle" type="button" data-toggle-password="password" aria-label="Mostrar u ocultar contraseña"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg></button></div><div class="field-error">Escribe una contraseña de mínimo 8 caracteres.</div>
-          </div>
-          <div class="field">
-            <label for="password2">Confirma contraseña<span class="req">*</span></label>
-            <div class="password-wrap"><input id="password2" name="password2" type="password" autocomplete="new-password" placeholder="Repite tu contraseña" minlength="8" required><button class="password-toggle" type="button" data-toggle-password="password2" aria-label="Mostrar u ocultar contraseña"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg></button></div><div class="field-error">Confirma tu contraseña.</div>
+            <input id="celular" name="celular" type="tel" autocomplete="off" value="55 0000 0000" readonly><div class="field-error">Escribe tu celular a 10 dígitos.</div>
           </div>
         </div>
 
         <div class="consent-box">
           <input type="checkbox" id="consent" name="consent" required>
-          <label for="consent">Acepto el <a href="aviso-privacidad.html" class="text-link" target="_blank">Aviso de Privacidad</a> y los <a href="terminos-condiciones.html" class="text-link" target="_blank">Términos y Condiciones</a> de Pulzzo.</label>
+          <label for="consent">Entiendo que usaré datos ficticios en una demostración local. No se creará una cuenta ni una solicitud real.</label>
         </div>
 
-        <button class="auth-btn" type="submit">Iniciar solicitud</button>
+        <p id="register-message" role="status" aria-live="polite"></p>
+        <div id="recovery-box" hidden><button id="reset-demo-btn" class="text-link" type="button" style="border:0;background:none;font:inherit;cursor:pointer;">Reiniciar demo local dañada</button></div>
+        <button id="register-demo-btn" class="auth-btn ui-action-primary" type="submit" disabled>Iniciar demo con estos datos</button>
       </form>
 
       <div class="auth-divider"></div>
 
       <div class="auth-switch">
-        <div>¿Ya tienes cuenta? <a href="login-paciente.html">Inicia sesión</a></div>
+        <div>¿Ya tienes un registro local? <a href="login-paciente.html">Continuar demo</a></div>
         <div><strong>¿Eres doctor, clínica u hospital?</strong> <a href="registro-doctor.html" class="doctor-link">Regístrate aquí</a></div>
       </div>
     </section>
   </section>
 </main>
+<script src="assets/js/patient-demo.js"></script>
 <script>
-// Formato de teléfono: XX XXXX XXXX
-document.getElementById('celular').addEventListener('input', function() {
-  var v = this.value.replace(/\D/g, '').slice(0, 10);
-  if (v.length > 6) v = v.slice(0,2) + ' ' + v.slice(2,6) + ' ' + v.slice(6);
-  else if (v.length > 2) v = v.slice(0,2) + ' ' + v.slice(2);
-  this.value = v;
-});
-
-
-function getCleanValue(id){ return (document.getElementById(id)?.value || '').trim(); }
-function buildPatientFullName(){
-  return [getCleanValue('primer_nombre'), getCleanValue('segundo_nombre'), getCleanValue('apellido_paterno'), getCleanValue('apellido_materno')].filter(Boolean).join(' ');
-}
-document.querySelectorAll('[data-toggle-password]').forEach(function(btn){
-  btn.addEventListener('click', function(){
-    var input = document.getElementById(btn.dataset.togglePassword);
-    if(!input) return;
-    input.type = input.type === 'password' ? 'text' : 'password';
-  });
-});
-function clearRegisterErrors(){
-  document.querySelectorAll('.field.has-error,.consent-box.has-error').forEach(function(el){ el.classList.remove('has-error'); });
-}
-function markRegisterError(inputId){
-  var input=document.getElementById(inputId);
-  if(!input) return null;
-  var field=input.closest('.field') || input.closest('.consent-box');
-  if(field) field.classList.add('has-error');
-  return input;
-}
-function focusFirstRegisterError(el){
-  if(!el) return;
-  el.scrollIntoView({behavior:'smooth',block:'center'});
-  setTimeout(function(){ try{ el.focus({preventScroll:true}); }catch(e){ el.focus(); } },250);
-}
-document.getElementById('patientRegisterForm')?.addEventListener('submit', function(e){
-  e.preventDefault();
-  clearRegisterErrors();
-  var primer = getCleanValue('primer_nombre');
-  var segundo = getCleanValue('segundo_nombre');
-  var paterno = getCleanValue('apellido_paterno');
-  var materno = getCleanValue('apellido_materno');
-  var correo = getCleanValue('correo');
-  var celularDigits = getCleanValue('celular').replace(/\D/g,'');
-  var password = getCleanValue('password');
-  var password2 = getCleanValue('password2');
+(function () {
+  var form = document.getElementById('patientRegisterForm');
+  var button = document.getElementById('register-demo-btn');
   var consent = document.getElementById('consent');
-  var firstError = null;
-  if(!primer) firstError = firstError || markRegisterError('primer_nombre');
-  if(!paterno) firstError = firstError || markRegisterError('apellido_paterno');
-  if(!correo || !document.getElementById('correo').checkValidity()) firstError = firstError || markRegisterError('correo');
-  if(celularDigits.length !== 10) firstError = firstError || markRegisterError('celular');
-  if(!password || password.length < 8) firstError = firstError || markRegisterError('password');
-  if(!password2 || password2.length < 8) firstError = firstError || markRegisterError('password2');
-  if(password && password2 && password !== password2){
-    var p2 = markRegisterError('password2');
-    var err = document.querySelector('#password2')?.closest('.field')?.querySelector('.field-error');
-    if(err) err.textContent = 'Las contraseñas no coinciden.';
-    firstError = firstError || p2;
+  var message = document.getElementById('register-message');
+  var demo = window.PulzzoPatientDemo;
+  var storage;
+  var recoveryBox = document.getElementById('recovery-box');
+  var recoveryKeys = ['pulzzo_patient', 'pulzzo_application', 'pulzzo_backend_payload', 'pulzzo_register_backend_payload', 'pulzzo_verification_backend_payload', 'pulzzo_verified'];
+  var backupKey = 'pulzzo_patient_demo_recovery_backup';
+
+  function isObject(value) { return value && typeof value === 'object' && !Array.isArray(value); }
+  function readRecord(key) {
+    var raw = storage.getItem(key);
+    if (raw === null || !raw.trim() || raw.trim() === '{}') return { present: false, value: {} };
+    try {
+      var value = JSON.parse(raw);
+      return { present: true, value: value, malformed: !isObject(value) };
+    } catch (error) { return { present: true, value: null, malformed: true }; }
   }
-  if(!consent.checked){
-    consent.closest('.consent-box')?.classList.add('has-error');
-    firstError = firstError || consent;
+  function needsRecovery() {
+    var patient = readRecord('pulzzo_patient');
+    var application = readRecord('pulzzo_application');
+    var email = isObject(patient.value) && (patient.value.correo || patient.value.email);
+    var knownIdentity = typeof email === 'string' && email.trim();
+    return patient.malformed || application.malformed || (patient.present && !knownIdentity) || (application.present && !knownIdentity);
   }
-  if(firstError){
-    focusFirstRegisterError(firstError);
+  function hasExistingRecord() {
+    // Never replace an existing identity or application, even if its JSON is damaged.
+    return ['pulzzo_patient', 'pulzzo_application'].some(function (key) {
+      var value = storage.getItem(key);
+      return value !== null && value.trim() !== '' && value.trim() !== '{}';
+    });
+  }
+  function refresh() {
+    var exists = hasExistingRecord();
+    button.disabled = exists;
+    var recoverable = needsRecovery();
+    recoveryBox.hidden = !recoverable;
+    message.textContent = recoverable
+      ? 'Hay datos locales dañados o un avance sin registro asociado. Puedes reiniciar esta demo de forma explícita; los datos legibles se respaldarán antes de borrarlos.'
+      : exists
+        ? 'Ya hay un registro o avance local. Usa “Continuar demo” para retomarlo; no reemplazaremos sus datos.'
+        : 'Estos datos de ejemplo se guardarán solo en este navegador.';
+  }
+  try {
+    if (!demo) throw new Error('Demo unavailable');
+    storage = window.localStorage;
+    storage.getItem('pulzzo_patient');
+    demo.scrubKnownStorage(storage);
+    refresh();
+  } catch (error) {
+    message.textContent = 'No pudimos acceder al almacenamiento local. Recarga la página y permite el almacenamiento de este sitio para usar la demo.';
     return;
   }
-  var patient = {
-    nombre: primer,
-    primerNombre: primer,
-    segundoNombre: segundo,
-    apellidoPaterno: paterno,
-    apellidoMaterno: materno,
-    fullName: buildPatientFullName(),
-    correo: correo,
-    email: correo,
-    celular: getCleanValue('celular'),
-    phone: getCleanValue('celular')
-  };
-  patient.backendReady = { source:'registro_paciente', capturedAt:new Date().toISOString(), userAgent:navigator.userAgent, termsAccepted:!!consent.checked, legalEntity:'Pulzzo Capital SAPI de CV', version:'v81_register_desktop_right'  };
-  localStorage.setItem('pulzzo_patient', JSON.stringify(patient));
-  localStorage.setItem('pulzzo_verified','false');
-  localStorage.setItem('pulzzo_register_backend_payload', JSON.stringify({patient:patient, verificationStatus:'pending', createdAt:new Date().toISOString()}));
-  // Al registrar una cuenta nueva, arranca un flujo limpio de solicitud.
-  localStorage.removeItem('pulzzo_application');
-  window.location.href = 'verificacion-cuenta.html';
-});
-
+  function refreshSafely() {
+    try { refresh(); } catch (error) { button.disabled = true; }
+  }
+  window.addEventListener('storage', refreshSafely);
+  window.addEventListener('pageshow', refreshSafely);
+  document.getElementById('reset-demo-btn').addEventListener('click', function () {
+    try {
+      if (!needsRecovery()) { refresh(); return; }
+      if (!window.confirm('¿Reiniciar la demo local de paciente? Se borrarán el registro y su avance de este navegador. Guardaremos una copia local de los datos legibles sin contraseñas; los datos inválidos o ilegibles se descartarán sin respaldo. No afecta al portal de doctores ni crea una cuenta real.')) return;
+      var records = {};
+      recoveryKeys.forEach(function (key) {
+        var raw = storage.getItem(key);
+        if (raw === null) return;
+        try {
+          var value = JSON.parse(raw);
+          if (isObject(value)) records[key] = demo.scrubSecrets(value);
+          else if (key === 'pulzzo_verified' && typeof value === 'boolean') records[key] = value;
+        } catch (error) { /* Never copy unreadable text that could contain credentials. */ }
+      });
+      var previous = demo.readStorage(storage, backupKey, {});
+      var history = Array.isArray(previous.history) ? previous.history : [];
+      history.push({ savedAt: new Date().toISOString(), records: records });
+      storage.setItem(backupKey, JSON.stringify(demo.scrubSecrets({ history: history })));
+      recoveryKeys.forEach(function (key) { storage.removeItem(key); });
+      consent.checked = false;
+      refresh();
+      message.textContent = 'Demo local reiniciada. Los datos legibles se respaldaron sin contraseñas; puedes comenzar con los datos ficticios mostrados.';
+    } catch (error) {
+      message.textContent = 'No pudimos completar el reinicio. No inicies otro registro hasta que el almacenamiento esté disponible.';
+      button.disabled = true;
+    }
+  });
+  form.addEventListener('submit', function (event) {
+    event.preventDefault();
+    try {
+      if (hasExistingRecord()) { refresh(); return; }
+      if (!consent.checked) { consent.reportValidity(); return; }
+      button.disabled = true;
+      var createdAt = new Date().toISOString();
+      var patient = {
+        demo: true,
+        demoId: 'patient-demo-' + Date.now(),
+        patientAccountId: window.PulzzoPatientDemo.newPatientAccountId(),
+        nombre: 'Paciente',
+        primerNombre: 'Paciente',
+        segundoNombre: '',
+        apellidoPaterno: 'Demo',
+        apellidoMaterno: '',
+        fullName: 'Paciente Demo',
+        correo: 'paciente@example.test',
+        email: 'paciente@example.test',
+        celular: '55 0000 0000',
+        phone: '55 0000 0000',
+        createdAt: createdAt
+      };
+      // Verification is a local demo milestone, never an authentication claim.
+      storage.setItem('pulzzo_verified', 'false');
+      storage.setItem('pulzzo_patient', JSON.stringify(patient));
+      window.location.href = 'verificacion-cuenta.html';
+    } catch (error) {
+      button.disabled = false;
+      message.textContent = 'No pudimos guardar la demo. Revisa el almacenamiento del navegador y vuelve a intentarlo.';
+    }
+  });
+})();
 </script>
+<link rel="stylesheet" href="assets/css/portal-color-semantics.css">
 </body>
 </html>

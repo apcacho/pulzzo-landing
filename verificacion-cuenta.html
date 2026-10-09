@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="theme-color" content="#07142F">
 <link rel="icon" type="image/png" href="assets/favicon/favicon-v1337.png">
-<link rel="apple-touch-icon" href="assets/favicon/apple-touch-icon-v1337.png"><title>Verifica tu cuenta | Pulzzo</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><style>
+<link rel="apple-touch-icon" href="assets/favicon/apple-touch-icon-v1337.png"><title>Verificación demo | Pulzzo</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><style>
 :root{
   --midnight:#030A18;--navy:#07142F;--navy2:#0B1E3D;--surface:#101B35;
   --aqua:#20C7D4;--aqua-l:#55DCE2;--mint:#BDF7F4;--aqua-bg:#EFFFFF;
@@ -131,79 +131,105 @@
 }
 
 </style></head>
-<body>
-<nav class="navbar"><div class="navbar-inner"><a class="brand" href="index.html"><picture><source srcset="assets/images/logo-pulzzo.webp" type="image/webp"><img src="assets/images/logo-pulzzo.png" alt="Pulzzo"></picture><span>pulzzo</span></a><div class="nav-actions"><a href="registro-paciente.html" class="btn btn-ghost">Regresar</a><a href="index.html" class="btn btn-primary">Volver al inicio</a></div></div></nav>
-<main class="shell"><div class="wrap grid"><section class="copy"><div class="pill">Verificación de cuenta</div><h1>Confirma tu correo y <span>continúa tu solicitud.</span></h1><p>Validamos tu cuenta antes de guardar información sensible de tu solicitud médica y financiera.</p><div class="points"><div class="point"><span class="check">✓</span><span>Código de 6 dígitos</span></div><div class="point"><span class="check">✓</span><span>Enviado por correo y WhatsApp</span></div><div class="point"><span class="check">✓</span><span>Después entrarás al módulo de procedimiento</span></div></div></section>
-<section class="card small" aria-labelledby="verify-title"><div class="kicker">Cuenta paciente</div><h1 id="verify-title">Verifica tu cuenta</h1><p id="verify-copy">Te enviamos un código de 6 dígitos a tu correo y WhatsApp.</p><form id="verify-form" class="form-grid"><div class="field"><label for="code">Código de verificación</label><input id="code" class="otp" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="000000"></div><button id="verify-btn" class="btn btn-primary" type="submit" disabled>Verificar cuenta</button></form><div id="message" class="toast"></div><div class="divider"></div><p class="resend-row">¿No recibiste el código? <button id="resend" class="resend-link" type="button" disabled>Reenviar código</button> <span id="resend-countdown" class="resend-countdown">en 01:00</span></p></section></div></main>
+<body class="ui-color-semantics ui-patient">
+<nav class="navbar"><div class="navbar-inner"><a class="brand" href="index.html"><picture><source srcset="assets/images/logo-pulzzo.webp" type="image/webp"><img src="assets/images/logo-pulzzo.png" alt="Pulzzo"></picture><span>pulzzo</span></a><div class="nav-actions"><a href="login-paciente.html" class="btn btn-ghost ui-action-secondary">Regresar</a><a href="index.html" class="btn btn-primary ui-action-secondary">Volver al inicio</a></div></div></nav>
+<main class="shell"><div class="wrap grid"><section class="copy"><div class="pill">Verificación demo</div><h1>Prueba este paso y <span>continúa la demo.</span></h1><p>Esta simulación no verifica tu identidad ni envía códigos por correo, SMS o WhatsApp. No ingreses códigos reales.</p><div class="points"><div class="point"><span class="check">✓</span><span>Código de ejemplo: 123456</span></div><div class="point"><span class="check">✓</span><span>El avance se guarda solo en este navegador</span></div><div class="point"><span class="check">✓</span><span>Después continuarás tu solicitud demo</span></div></div></section>
+<section class="card small" aria-labelledby="verify-title"><div class="kicker">Paciente demo</div><h1 id="verify-title">Verificación simulada</h1><p id="verify-copy">Usa el código de ejemplo 123456. No se ha enviado ningún mensaje.</p><form id="verify-form" class="form-grid" autocomplete="off"><div class="field"><label for="code">Código demo: 123456</label><input id="code" name="demoCode" class="otp" type="text" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="123456" aria-describedby="verify-copy" disabled></div><button id="verify-btn" class="btn btn-primary ui-action-primary" type="submit" disabled>Completar verificación demo</button></form><div id="message" class="toast" role="status" aria-live="polite"></div><div class="divider"></div><p class="resend-row"><button id="resend" class="resend-link" type="button">Mostrar código demo</button></p><p class="resend-row"><a id="demo-next-link" class="text-link" href="login-paciente.html">Volver al acceso demo</a></p></section></div></main>
+<script src="assets/js/patient-demo.js"></script>
 <script>
-const patient = JSON.parse(localStorage.getItem('pulzzo_patient') || '{}');
-const copy = document.getElementById('verify-copy');
-if (patient.correo || patient.celular) { copy.textContent = 'Te enviamos un código de 6 dígitos a ' + (patient.correo || 'tu correo') + ' y ' + (patient.celular || 'tu WhatsApp') + '.'; }
-const code = document.getElementById('code');
-const btn = document.getElementById('verify-btn');
-const msg = document.getElementById('message');
-code.addEventListener('input', () => { code.value = code.value.replace(/\D/g,'').slice(0,6); btn.disabled = code.value.length !== 6; });
-document.getElementById('verify-form').addEventListener('submit', e => { e.preventDefault(); if(code.value.length !== 6) return; localStorage.setItem('pulzzo_verified','true'); localStorage.setItem('pulzzo_verification_backend_payload', JSON.stringify({verified:true, verifiedAt:new Date().toISOString(), channel:'demo_code', userAgent:navigator.userAgent, version:'v82_flujo_conectado'})); msg.className='toast ok'; msg.textContent='Cuenta verificada. Te llevamos a tu solicitud.'; setTimeout(()=>{ window.location.href='solicitud-paciente.html'; },700); });
-const resend = document.getElementById('resend');
-const resendCountdown = document.getElementById('resend-countdown');
-let resendSeconds = 60;
-let resendTimer = null;
+(function () {
+  var demo = window.PulzzoPatientDemo;
+  var storage;
+  var code = document.getElementById('code');
+  var button = document.getElementById('verify-btn');
+  var message = document.getElementById('message');
+  var nextLink = document.getElementById('demo-next-link');
+  var currentIdentity = '';
+  var finished = false;
+  var DEMO_CODE = '123456';
 
-function formatResendTime(seconds){
-  const safeSeconds = Math.max(0, seconds);
-  const minutes = String(Math.floor(safeSeconds / 60)).padStart(2,'0');
-  const rest = String(safeSeconds % 60).padStart(2,'0');
-  return minutes + ':' + rest;
-}
-
-function renderResendState(){
-  const isWaiting = resendSeconds > 0;
-  resend.disabled = isWaiting;
-  resendCountdown.textContent = isWaiting ? 'en ' + formatResendTime(resendSeconds) : '';
-}
-
-function startResendCountdown(){
-  clearInterval(resendTimer);
-  resendSeconds = 60;
-  renderResendState();
-  resendTimer = setInterval(() => {
-    resendSeconds -= 1;
-    renderResendState();
-    if(resendSeconds <= 0){
-      clearInterval(resendTimer);
-      resendTimer = null;
-    }
-  }, 1000);
-}
-
-resend.addEventListener('click', () => {
-  if(resend.disabled) return;
-  msg.className='toast ok';
-  msg.textContent='Código reenviado.';
-  startResendCountdown();
-});
-
-startResendCountdown();
-
-
-// v109 mobile-only verification copy. Desktop remains unchanged.
-(function(){
-  const mq=window.matchMedia('(max-width: 640px)');
-  function apply(){
-    const copy=document.getElementById('verify-copy');
-    if(!copy) return;
-    if(!copy.dataset.fullText) copy.dataset.fullText=copy.textContent;
-    const patient=JSON.parse(localStorage.getItem('pulzzo_patient')||'{}');
-    if(mq.matches){
-      const email=patient.correo||'tu correo';
-      const cell=patient.celular||'tu celular';
-      copy.textContent='Enviamos un código a '+email+' y '+cell+'.';
-    }else{
-      copy.textContent=copy.dataset.fullText;
-    }
+  function identityOf(patient) {
+    if (!patient || typeof patient !== 'object' || Array.isArray(patient)) return '';
+    var email = patient.correo || patient.email;
+    if (typeof email !== 'string' || !email.trim()) return '';
+    return JSON.stringify([email, patient.celular || patient.phone || '', patient.fullName || patient.nombre || '', patient.demoId || '']);
   }
-  mq.addEventListener?mq.addEventListener('change',apply):mq.addListener(apply);
-  document.addEventListener('DOMContentLoaded',apply);
-  window.addEventListener('load',apply);
+  function showMessage(text, ok) {
+    message.className = 'toast ' + (ok ? 'ok' : 'err');
+    message.textContent = text;
+  }
+  function destination() {
+    return 'solicitud-paciente.html#' + demo.resumeView(demo.readStorage(storage, 'pulzzo_application', {}));
+  }
+  function guardPatient() {
+    var identity = identityOf(demo.readStorage(storage, 'pulzzo_patient', {}));
+    if (!identity || (currentIdentity && currentIdentity !== identity)) {
+      code.disabled = true;
+      button.disabled = true;
+      showMessage(identity ? 'El registro local cambió. Vuelve al acceso demo antes de continuar.' : 'Primero crea un registro demo en este navegador. No se ha verificado ninguna cuenta.');
+      nextLink.href = identity ? 'login-paciente.html' : 'registro-paciente.html';
+      nextLink.textContent = identity ? 'Volver al acceso demo' : 'Crear registro demo';
+      return false;
+    }
+    currentIdentity = identity;
+    if (storage.getItem('pulzzo_verified') === 'true') {
+      code.disabled = true;
+      button.disabled = true;
+      finished = true;
+      showMessage('Este paso de la demo ya está completo. Puedes continuar tu avance guardado.', true);
+      nextLink.href = destination();
+      nextLink.textContent = 'Continuar solicitud demo';
+      return false;
+    }
+    return true;
+  }
+  try {
+    if (!demo) throw new Error('Demo unavailable');
+    storage = window.localStorage;
+    storage.getItem('pulzzo_patient');
+    demo.scrubKnownStorage(storage);
+    if (guardPatient()) code.disabled = false;
+  } catch (error) {
+    showMessage('No pudimos abrir el registro local. Recarga la página y verifica el almacenamiento del navegador.');
+    return;
+  }
+  code.addEventListener('input', function () {
+    code.value = code.value.replace(/\D/g, '').slice(0, 6);
+    button.disabled = finished || code.disabled || code.value.length !== 6;
+    if (!finished) { message.className = 'toast'; message.textContent = ''; }
+  });
+  function refreshSafely() {
+    try {
+      if (guardPatient()) {
+        code.disabled = false;
+        button.disabled = finished || code.value.length !== 6;
+      }
+    } catch (error) { code.disabled = true; button.disabled = true; }
+  }
+  window.addEventListener('storage', refreshSafely);
+  window.addEventListener('pageshow', refreshSafely);
+  document.getElementById('verify-form').addEventListener('submit', function (event) {
+    event.preventDefault();
+    try {
+      if (finished || !guardPatient()) return;
+      if (code.value !== DEMO_CODE) {
+        showMessage('Ese no es el código de ejemplo. Usa 123456; no ingreses códigos reales.');
+        code.focus();
+        return;
+      }
+      button.disabled = true;
+      storage.setItem('pulzzo_verified', 'true');
+      finished = true;
+      showMessage('Paso demo completo. Continuamos con tu solicitud de ejemplo.', true);
+      window.location.href = destination();
+    } catch (error) {
+      button.disabled = false;
+      showMessage('No pudimos guardar este paso. Revisa el almacenamiento del navegador y vuelve a intentarlo.');
+    }
+  });
+  document.getElementById('resend').addEventListener('click', function () {
+    if (!finished) showMessage('El código demo es 123456. No se envían correos, SMS ni mensajes de WhatsApp.', true);
+  });
 })();
-</script></body></html>
+</script><link rel="stylesheet" href="assets/css/portal-color-semantics.css">
+</body></html>

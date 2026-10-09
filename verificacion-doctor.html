@@ -45,19 +45,34 @@
 }
 
 </style></head>
-<body>
-<nav class="navbar"><div class="navbar-inner"><a class="brand" href="index.html"><picture><source srcset="assets/images/logo-pulzzo.webp" type="image/webp"><img src="assets/images/logo-pulzzo.png" alt="Pulzzo"></picture><span>pulzzo</span></a><div class="nav-actions"><a href="registro-paciente.html" class="btn btn-ghost">Regresar</a><a href="index.html" class="btn btn-primary">Volver al inicio</a></div></div></nav>
-<main class="shell"><div class="wrap grid"><section class="copy"><div class="pill" style="border-color:rgba(255,138,91,.44);background:rgba(255,138,91,.10);color:#FF8A5B">Verificación de cuenta</div><h1>Confirma tu correo y <span>activa tu cuenta médica.</span></h1><p>Validamos tu cuenta antes de guardar información profesional, fiscal y bancaria de tu perfil médico.</p><div class="points"><div class="point"><span class="check">✓</span><span>Código de 6 dígitos</span></div><div class="point"><span class="check">✓</span><span>Enviado por correo o celular</span></div><div class="point"><span class="check">✓</span><span>Después continuarás al onboarding médico</span></div></div></section>
-<section class="card small" aria-labelledby="verify-title"><div class="kicker">Cuenta médica</div><h1 id="verify-title">Verifica tu cuenta médica</h1><p id="verify-copy">Te enviamos un código de 6 dígitos a tu correo y celular registrados.</p><form id="verify-form" class="form-grid"><div class="field"><label for="code">Código de verificación</label><input id="code" class="otp" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="000000"></div><button id="verify-btn" class="btn btn-primary" type="submit" disabled>Verificar cuenta</button></form><div id="message" class="toast"></div><div class="divider"></div><p style="text-align:center;font-size:13px">¿No recibiste el código? <button id="resend" class="text-link" style="background:none;border:0;cursor:pointer">Reenviar código</button></p></section></div></main>
+<body class="ui-color-semantics ui-doctor">
+<nav class="navbar"><div class="navbar-inner"><a class="brand" href="index.html"><picture><source srcset="assets/images/logo-pulzzo.webp" type="image/webp"><img src="assets/images/logo-pulzzo.png" alt="Pulzzo"></picture><span>pulzzo</span></a><div class="nav-actions"><a href="registro-doctor.html" class="btn btn-ghost ui-action-secondary">Regresar</a><a href="index.html" class="btn btn-primary ui-action-secondary">Volver al inicio</a></div></div></nav>
+<main class="shell"><div class="wrap grid"><section class="copy"><div class="pill" style="border-color:rgba(255,138,91,.44);background:rgba(255,138,91,.10);color:#FF8A5B">Verificación de cuenta</div><h1>Confirma tu correo y <span>activa tu cuenta médica.</span></h1><p>Demostración del recorrido de verificación. Usa solo datos ficticios; no valida una cuenta real.</p><div class="points"><div class="point"><span class="check">✓</span><span>Código de 6 dígitos</span></div><div class="point"><span class="check">✓</span><span>Código de demostración local</span></div><div class="point"><span class="check">✓</span><span>Después continuarás al onboarding médico</span></div></div></section>
+<section class="card small" aria-labelledby="verify-title"><div class="kicker">Cuenta médica</div><h1 id="verify-title">Verifica tu cuenta médica</h1><p id="verify-copy">Simulación local. Usa el código de ejemplo 123456. No se envían mensajes.</p><form id="verify-form" class="form-grid"><div class="field"><label for="code">Código de verificación</label><input id="code" class="otp" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="000000"></div><button id="verify-btn" class="btn btn-primary ui-action-primary" type="submit" disabled>Verificar cuenta</button></form><div id="message" class="toast" role="status" aria-live="polite"></div><div class="divider"></div><p style="text-align:center;font-size:13px">¿No recibiste el código? <button id="resend" class="text-link" style="background:none;border:0;cursor:pointer">Reenviar código</button></p></section></div></main>
 <script>
-const patient = JSON.parse(localStorage.getItem('pulzzo_patient') || '{}');
+let doctor = {};
+try { doctor = JSON.parse(localStorage.getItem('pulzzo_doctor') || '{}'); } catch (_) {}
+if(!doctor || typeof doctor !== 'object' || Array.isArray(doctor)) doctor = {};
+const doctorIdentity = JSON.stringify([doctor.correo || '', doctor.celular || '']);
 const copy = document.getElementById('verify-copy');
-if (patient.correo || patient.celular) { copy.textContent = 'Te enviamos un código de 6 dígitos a ' + (patient.correo || 'tu correo') + ' y ' + (patient.celular || 'tu WhatsApp') + '.'; }
+copy.textContent = 'Simulación local para ' + (doctor.correo || 'tu cuenta médica') + '. Usa el código de ejemplo 123456. No se envían mensajes.';
 const code = document.getElementById('code');
 const btn = document.getElementById('verify-btn');
 const msg = document.getElementById('message');
 code.addEventListener('input', () => { code.value = code.value.replace(/\D/g,'').slice(0,6); btn.disabled = code.value.length !== 6; });
-document.getElementById('verify-form').addEventListener('submit', e => { e.preventDefault(); if(code.value.length !== 6) return; localStorage.setItem('pulzzo_verified','true'); localStorage.setItem('pulzzo_verification_backend_payload', JSON.stringify({verified:true, verifiedAt:new Date().toISOString(), channel:'demo_code', userAgent:navigator.userAgent, version:'v82_flujo_conectado'})); msg.className='toast ok'; msg.textContent='Cuenta verificada. Te llevamos a tu solicitud.'; setTimeout(()=>{ window.location.href='onboarding-doctor.html'; },700); });
+document.getElementById('verify-form').addEventListener('submit', e => {
+  e.preventDefault();
+  let currentDoctor = {};
+  try { currentDoctor = JSON.parse(localStorage.getItem('pulzzo_doctor') || '{}') || {}; } catch (_) {}
+  if(!(doctor.correo || doctor.celular) || doctorIdentity !== JSON.stringify([currentDoctor.correo || '', currentDoctor.celular || ''])) { msg.className='toast err'; msg.textContent='Registra primero tu cuenta de ejemplo o vuelve a abrir esta verificación para la cuenta actual.'; return; }
+  if(code.value !== '123456') { msg.className='toast err'; msg.textContent='Usa el código de ejemplo 123456.'; return; }
+  if(btn.dataset.submitting === 'true') return;
+  btn.dataset.submitting = 'true'; btn.disabled = true;
+  localStorage.setItem('pulzzo_doctor_verified','true');
+  localStorage.setItem('pulzzo_doctor_verification', JSON.stringify({demo:true,verified:true,verifiedAt:new Date().toISOString(),channel:'demo_code'}));
+  msg.className='toast ok'; msg.textContent='Verificación de ejemplo completada. Abriendo tu perfil médico.';
+  setTimeout(()=>{ window.location.href='registro-doctor.html#perfil-medico'; },700);
+});
 const resend = document.getElementById('resend');
 let resendTimer = 60;
 let resendInterval = null;
@@ -92,7 +107,7 @@ function startResendCountdown(){
 resend.addEventListener('click', () => {
   if(resend.disabled) return;
   msg.className='toast ok';
-  msg.textContent='Enviamos un nuevo código de verificación.';
+  msg.textContent='Simulación: el código de ejemplo es 123456. No se envían mensajes.';
   startResendCountdown();
 });
 startResendCountdown();
@@ -105,11 +120,11 @@ startResendCountdown();
     const copy=document.getElementById('verify-copy');
     if(!copy) return;
     if(!copy.dataset.fullText) copy.dataset.fullText=copy.textContent;
-    const patient=JSON.parse(localStorage.getItem('pulzzo_patient')||'{}');
+    const account=doctor;
     if(mq.matches){
-      const email=patient.correo||'tu correo';
-      const cell=patient.celular||'tu celular';
-      copy.textContent='Enviamos un código a '+email+' y '+cell+'.';
+      const email=account.correo||'tu cuenta médica';
+      const cell=account.celular||'';
+      copy.textContent='Simulación local para '+email+'. Código de ejemplo: 123456. No se envían mensajes.';
     }else{
       copy.textContent=copy.dataset.fullText;
     }
@@ -118,4 +133,5 @@ startResendCountdown();
   document.addEventListener('DOMContentLoaded',apply);
   window.addEventListener('load',apply);
 })();
-</script></body></html>
+</script><link rel="stylesheet" href="assets/css/portal-color-semantics.css">
+</body></html>

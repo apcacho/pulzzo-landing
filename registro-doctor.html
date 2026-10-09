@@ -1118,8 +1118,9 @@ body.profile-mode #doctorProfilePanel .profile-attention-card .profile-section-c
   body.profile-mode #doctorProfilePanel .profile-attention-card .profile-optional-badge{margin-bottom:16px!important;}
 }
 </style>
+<link rel="stylesheet" href="assets/css/auth-headings.css">
 </head>
-<body class="doctor-page">
+<body class="doctor-page ui-color-semantics ui-doctor">
 
 <nav class="navbar" id="navbar" aria-label="Navegación principal">
   <div class="navbar-inner">
@@ -1131,7 +1132,7 @@ body.profile-mode #doctorProfilePanel .profile-attention-card .profile-section-c
       <span class="brand-word" style="color:#FFFFFF;letter-spacing:-0.055em;font-family:var(--font-display);font-size:25px;font-weight:700;text-transform:lowercase;line-height:1;">pulzzo</span>
     </a>
     <div class="navbar-actions">
-      <a href="index.html" class="btn btn-primary btn-sm">Volver al inicio</a>
+      <a href="index.html" class="btn btn-primary btn-sm ui-action-secondary">Volver al inicio</a>
     </div>
   </div>
 </nav>
@@ -1160,7 +1161,8 @@ body.profile-mode #doctorProfilePanel .profile-attention-card .profile-section-c
         <p>Completa tus datos principales. Después podrás cargar documentos y terminar la validación de tu cuenta.</p>
       </div>
 
-      <form class="form-grid" action="#" method="post">
+      <p class="helper">Prototipo local: usa solo datos ficticios. El registro y la verificación son simulados; no se crea una cuenta real.</p>
+      <p id="doctor-registration-message" role="alert"></p><form class="form-grid" action="#" method="post">
 
         <!-- Tipo de cuenta -->
         <div class="section-label">Tipo de cuenta</div>
@@ -1202,7 +1204,7 @@ body.profile-mode #doctorProfilePanel .profile-attention-card .profile-section-c
         <div class="field">
           <label for="esp_toggle">Especialidad(es)</label>
           <div class="multi-select" id="esp_select">
-            <button type="button" class="multi-toggle" id="esp_toggle" aria-haspopup="listbox" aria-expanded="false">
+            <button type="button" class="multi-toggle ui-action-secondary" id="esp_toggle" aria-haspopup="listbox" aria-expanded="false">
               <span class="multi-summary is-placeholder" id="esp_summary">Selecciona especialidad</span>
               <span class="multi-caret" aria-hidden="true"></span>
             </button>
@@ -1211,8 +1213,8 @@ body.profile-mode #doctorProfilePanel .profile-attention-card .profile-section-c
                 <input type="text" class="multi-search" id="esp_search" placeholder="Buscar especialidad..." autocomplete="off">
               </div>
               <div class="multi-toolbar enhanced">
-                <button type="button" class="multi-select-all" id="esp_select_all">Seleccionar todo</button>
-                <button type="button" class="multi-clear-all" id="esp_clear_all">Borrar todo</button>
+                <button type="button" class="multi-select-all ui-action-secondary" id="esp_select_all">Seleccionar todo</button>
+                <button type="button" class="multi-clear-all ui-action-secondary" id="esp_clear_all">Borrar todo</button>
                 <span class="multi-count" id="esp_count">0 seleccionadas</span>
               </div>
               <div class="multi-options" id="esp_options"></div>
@@ -1226,7 +1228,7 @@ body.profile-mode #doctorProfilePanel .profile-attention-card .profile-section-c
         <div class="field">
           <label id="label-proc" for="proc_toggle">Procedimientos que realizas</label>
           <div class="multi-select" id="proc_multiselect">
-            <button type="button" class="multi-toggle" id="proc_toggle" disabled aria-haspopup="listbox" aria-expanded="false">
+            <button type="button" class="multi-toggle ui-action-secondary" id="proc_toggle" disabled aria-haspopup="listbox" aria-expanded="false">
               <span class="multi-summary is-placeholder" id="proc_summary">Primero selecciona una especialidad</span>
               <span class="multi-caret" aria-hidden="true"></span>
             </button>
@@ -1235,8 +1237,8 @@ body.profile-mode #doctorProfilePanel .profile-attention-card .profile-section-c
                 <input type="text" class="multi-search" id="proc_search" placeholder="Buscar procedimiento..." autocomplete="off">
               </div>
               <div class="multi-toolbar enhanced">
-                <button type="button" class="multi-select-all" id="proc_select_all">Seleccionar todo</button>
-                <button type="button" class="multi-clear-all" id="proc_clear">Borrar todo</button>
+                <button type="button" class="multi-select-all ui-action-secondary" id="proc_select_all">Seleccionar todo</button>
+                <button type="button" class="multi-clear-all ui-action-secondary" id="proc_clear">Borrar todo</button>
                 <span class="multi-count" id="proc_count"><span id="proc-toolbar-label">Selecciona tus procedimientos</span> · 0 seleccionados</span>
               </div>
               <div class="multi-options" id="proc_options"></div>
@@ -1272,7 +1274,7 @@ body.profile-mode #doctorProfilePanel .profile-attention-card .profile-section-c
         <div class="form-row">
           <div class="field">
             <label for="correo_med">Correo profesional</label>
-            <input id="correo_med" name="correo_med" type="email" autocomplete="email" placeholder="contacto@tuclinica.com">
+            <input id="correo_med" name="correo_med" type="email" autocomplete="off" required placeholder="medico@example.test">
           </div>
           <div class="field">
             <label for="celular_med">Celular</label>
@@ -1284,17 +1286,17 @@ body.profile-mode #doctorProfilePanel .profile-attention-card .profile-section-c
         <div class="section-label">Seguridad</div>
         <div class="form-row">
           <div class="field" id="pass_field">
-            <label for="pass_med">Contraseña</label>
+            <label for="pass_med">Contraseña de ejemplo</label>
             <div class="password-wrap">
-              <input id="pass_med" name="pass_med" type="password" autocomplete="new-password" placeholder="Mínimo 8 caracteres" minlength="8" required>
+              <input id="pass_med" name="pass_med" type="password" autocomplete="off" value="demo-only" readonly>
               <button class="password-eye" type="button" data-toggle-password="pass_med" aria-label="Mostrar u ocultar contraseña"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
             </div>
             <div class="password-error">La contraseña debe tener mínimo 8 caracteres.</div>
           </div>
           <div class="field" id="pass2_field">
-            <label for="pass_med2">Confirma contraseña</label>
+            <label for="pass_med2">Confirmación de ejemplo</label>
             <div class="password-wrap">
-              <input id="pass_med2" name="pass_med2" type="password" autocomplete="new-password" placeholder="Repite tu contraseña" minlength="8" required>
+              <input id="pass_med2" name="pass_med2" type="password" autocomplete="off" value="demo-only" readonly>
               <button class="password-eye" type="button" data-toggle-password="pass_med2" aria-label="Mostrar u ocultar contraseña"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
             </div>
             <div class="password-error">Las contraseñas deben coincidir.</div>
@@ -1307,7 +1309,7 @@ body.profile-mode #doctorProfilePanel .profile-attention-card .profile-section-c
           <label for="consent_med">Acepto el <a href="aviso-privacidad.html" target="_blank">Aviso de Privacidad</a> y los <a href="terminos-condiciones.html" target="_blank">Términos y Condiciones</a> de Pulzzo.</label>
         </div>
 
-        <button class="auth-btn" type="submit">Crear mi cuenta</button>
+        <button class="auth-btn ui-action-primary" type="submit">Crear mi cuenta</button>
       </form>
 
       <div class="auth-divider"></div>
@@ -1334,7 +1336,7 @@ body.profile-mode #doctorProfilePanel .profile-attention-card .profile-section-c
   </section>
   <nav class="profile-tabs" id="doctorProfileTabs" aria-label="Secciones del perfil médico"></nav>
   <div class="profile-mobile-section-nav" id="doctorProfileMobileNav" aria-label="Secciones del perfil médico en móvil">
-    <button class="profile-mobile-section-button" id="doctorProfileMobileToggle" type="button" aria-expanded="false">
+    <button class="profile-mobile-section-button ui-selection-current" id="doctorProfileMobileToggle" type="button" aria-expanded="false">
       <span class="profile-mobile-section-label">Datos médicos</span>
       <span class="profile-mobile-section-chevron">⌄</span>
     </button>
@@ -1343,11 +1345,11 @@ body.profile-mode #doctorProfilePanel .profile-attention-card .profile-section-c
   <section class="profile-panel" id="doctorProfilePanel"></section>
 </main>
 
-<div class="profile-view-modal" id="profileDocModal" aria-hidden="true">
+<div class="profile-view-modal" id="profileDocModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="profileDocTitle" tabindex="-1">
   <div class="profile-view-card">
     <div class="profile-view-head">
       <h3 id="profileDocTitle">Documento</h3>
-      <button class="profile-btn" type="button" id="profileDocClose">Cerrar</button>
+      <button class="profile-btn ui-action-secondary" type="button" id="profileDocClose">Cerrar</button>
     </div>
     <div class="profile-view-body" id="profileDocBody"></div>
   </div>
@@ -1357,14 +1359,14 @@ body.profile-mode #doctorProfilePanel .profile-attention-card .profile-section-c
   <div class="profile-view-card profile-camera-card">
     <div class="profile-view-head">
       <h3>Tomar foto de perfil</h3>
-      <button class="profile-btn" type="button" id="profileCameraClose">Cerrar</button>
+      <button class="profile-btn ui-action-secondary" type="button" id="profileCameraClose">Cerrar</button>
     </div>
     <div class="profile-camera-body">
       <video id="profileCameraVideo" autoplay playsinline muted></video>
     </div>
     <div class="profile-camera-actions">
-      <button class="profile-btn" type="button" id="profileCameraCancel">Cancelar</button>
-      <button class="profile-btn profile-btn-coral" type="button" id="profileCameraCapture">Usar foto</button>
+      <button class="profile-btn ui-action-secondary" type="button" id="profileCameraCancel">Cancelar</button>
+      <button class="profile-btn profile-btn-coral ui-action-primary" type="button" id="profileCameraCapture">Usar foto</button>
     </div>
   </div>
 </div>
@@ -1709,7 +1711,7 @@ function buildEspOptions(query){
     if(q && !norm(label).includes(q)) return;
     const isSelected=espMultiValues.includes(value);
     const div=document.createElement('div');
-    div.className='multi-option'+(isSelected?' is-selected':'');
+    div.className='multi-option ui-choice'+(isSelected?' is-selected':'');
     div.setAttribute('data-value',value);
     const box=document.createElement('span');box.className='multi-box';
     const txt=document.createElement('span');txt.className='multi-option-text';txt.textContent=label;
@@ -1851,7 +1853,7 @@ function renderOtherProcFields(groups){
     if(!isOtherSpecialty){
       const removeBtn=document.createElement('button');
       removeBtn.type='button';
-      removeBtn.className='other-proc-remove';
+      removeBtn.className='other-proc-remove ui-action-danger';
       removeBtn.textContent='Quitar otros procedimientos';
       removeBtn.addEventListener('click',(e)=>{
         e.preventDefault();
@@ -1959,7 +1961,7 @@ function buildProcOptions(query){
     hdr.appendChild(hdrTxt);
 
     const btn=document.createElement('button');
-    btn.type='button';btn.className='proc-group-sel-all';
+    btn.type='button';btn.className='proc-group-sel-all ui-action-secondary';
     const allSelected=filtered.every(item=>sel.includes(item));
     btn.textContent=allSelected?'Quitar':'Seleccionar todo';
     if(allSelected)btn.classList.add('is-all');
@@ -1976,7 +1978,7 @@ function buildProcOptions(query){
 
     filtered.forEach(item=>{
       const div=document.createElement('div');
-      div.className='multi-option'+(sel.includes(item)?' is-selected':'');
+      div.className='multi-option ui-choice'+(sel.includes(item)?' is-selected':'');
       div.setAttribute('data-value',item);
       const box=document.createElement('span');box.className='multi-box';
       const txt=document.createElement('span');txt.className='multi-option-text';txt.textContent=item;
@@ -2134,6 +2136,15 @@ function validatePasswordFields(){
 
 document.querySelector('.form-grid').addEventListener('submit', function(e){
   e.preventDefault();
+  // Registration never destroys an existing local medical account or its files.
+  const existingAccount=localStorage.getItem('pulzzo_doctor');
+  const existingOnboarding=localStorage.getItem('pulzzoDoctorOnboardingCleanV3');
+  if(existingAccount || existingOnboarding){
+    let notice=document.getElementById('doctor-registration-message');
+    if(notice)notice.textContent='Ya hay un perfil médico en este navegador. Entra para retomarlo; sus datos y documentos se conservaron.';
+    window.location.href='login-doctor.html';
+    return;
+  }
   if(!validatePasswordFields()) return;
   const tipo=document.getElementById('tipo').value || 'doctor';
   const celular=document.getElementById('celular_med')?.value || '';
@@ -2154,12 +2165,16 @@ document.querySelector('.form-grid').addEventListener('submit', function(e){
   const tipoEstablecimiento=(document.getElementById('tipo_establecimiento')?.value || '').trim();
   const estadoOperacion=(document.getElementById('estado_med')?.value || '').trim();
   const municipioOperacion=(document.getElementById('municipio_med')?.value || '').trim();
+  const doctorAccountId='doctor-'+(globalThis.crypto?.randomUUID?.()||Date.now().toString(36)+'-'+Math.random().toString(36).slice(2));
   const initialOnboarding={
+    doctorAccountId,
     currentStep:1,
-    profile:{name:nombrePerfil,prefix:prefijoPerfil,accountType:tipo,establishmentType:tipo==='clinica'?tipoEstablecimiento:'',state:estadoOperacion,city:municipioOperacion},
+    profile:{name:nombrePerfil,email:(document.getElementById('correo_med')?.value || '').trim(),prefix:prefijoPerfil,accountType:tipo,establishmentType:tipo==='clinica'?tipoEstablecimiento:'',state:estadoOperacion,city:municipioOperacion},
     files:{official_id:[],license:[],csf:[],office_address:[],bank_cover:[],profile_photo:[]},
     errors:{},
     fiscal:{rfc:'',banco:'',clabe:'',titular:''},
+    medval:{method:'',procedureType:'',pendingQuestion:''},
+    clinicDocs:{legalType:'',sanitaryDocType:'',certRequired:''},
     contact:{registered:celular,officePhone:'',officeWhats:'',visible:'registered'},
     links:{website:'',instagram:'',facebook:'',doctoralia:'',linkedin:'',other:''},
     procedures:[...new Set([...selectedProcedures.filter(p=>!norm(p).startsWith('otro')),...extraProcedures])],
@@ -2169,10 +2184,27 @@ document.querySelector('.form-grid').addEventListener('submit', function(e){
     profilePhotoData:'',
     submitted:false
   };
+  // Multi-key local registration is recoverable: undo partial writes on failure.
+  const registrationKeys=['pulzzo_doctor','pulzzo_doctor_verified','pulzzo_doctor_verification','pulzzoDoctorAccountType','pulzzoDoctorSpecialties','pulzzoDoctorOnboardingCleanV3Status','pulzzoDoctorOnboardingCleanV3'];
+  const registrationBefore=Object.fromEntries(registrationKeys.map(key=>[key,localStorage.getItem(key)]));
+  try{
+  // Local demonstration only. Never persist passwords or share patient verification.
+  localStorage.setItem('pulzzo_doctor', JSON.stringify({doctorAccountId,nombre:nombrePerfil,correo:initialOnboarding.profile.email,celular,accountType:tipo,demo:true}));
+  localStorage.removeItem('pulzzo_doctor_verified');
+  localStorage.removeItem('pulzzo_doctor_verification');
   localStorage.setItem('pulzzoDoctorAccountType', tipo);
   localStorage.setItem('pulzzoDoctorSpecialties', JSON.stringify(espMultiValues.map(v => especialidadesLabels[v] || v)));
   localStorage.setItem('pulzzoDoctorOnboardingCleanV3Status', 'perfil_incompleto');
   localStorage.setItem('pulzzoDoctorOnboardingCleanV3', JSON.stringify(initialOnboarding));
+  }catch(error){
+    let restored=true;
+    // Free newly written keys first, so restoring old data does not require extra quota.
+    registrationKeys.filter(key=>registrationBefore[key]===null).forEach(key=>{try{localStorage.removeItem(key);}catch(_){restored=false;}});
+    registrationKeys.filter(key=>registrationBefore[key]!==null).forEach(key=>{try{localStorage.setItem(key,registrationBefore[key]);}catch(_){restored=false;}});
+    const notice=document.getElementById('doctor-registration-message');
+    if(notice)notice.textContent=restored?'No se pudo guardar el registro. No se creó una cuenta parcial; libera espacio y vuelve a intentarlo.':'No se pudo guardar el registro ni restaurar todos los datos. No continúes: revisa el almacenamiento del navegador.';
+    return;
+  }
   window.location.href='verificacion-doctor.html';
 });
 
@@ -2183,20 +2215,63 @@ setProcedureSummary();
 (function(){
   const tabs=['Datos médicos','Documentos','Fiscal y banco','Procedimientos','Pacientes interesados','Pacientes por operar','Historial'];
   let activeTab='Datos médicos';
-  function getState(){
-    const defaults={
-      procedures:[],
-      profile:{name:'',prefix:'',accountType:''},
-      fiscal:{rfc:'',banco:'',clabe:'',titular:''},
-      contact:{registered:'',officePhone:'',officeWhats:'',visible:'registered'},
-      links:{},
-      profileData:{},
-      files:{},
-      profilePhotoData:''
-    };
-    try{const saved=localStorage.getItem('pulzzoDoctorOnboardingCleanV3');if(saved)return {...defaults,...JSON.parse(saved)}}catch(e){}
-    return defaults;
+  const DOCTOR_STATE_KEY='pulzzoDoctorOnboardingCleanV3';
+  const DOCTOR_ACCOUNT_KEY='pulzzo_doctor';
+  let doctorAccountRaw=null,doctorAccountId='',doctorStateRaw=null,doctorAccountError='';
+  const doctorStateSnapshots=new WeakMap();
+  const record=value=>value&&typeof value==='object'&&!Array.isArray(value);
+  function initializeDoctorIdentity(){
+    const accountRaw=localStorage.getItem(DOCTOR_ACCOUNT_KEY),stateRaw=localStorage.getItem(DOCTOR_STATE_KEY);
+    if(!accountRaw||!stateRaw)return;
+    try{
+      const account=JSON.parse(accountRaw),state=JSON.parse(stateRaw);
+      if(!record(account)||!record(state))throw Error('invalid_account');
+      if(!account.doctorAccountId||!state.doctorAccountId){
+        // Legacy migration is local and additive. It never binds a provider or joins patients.
+        const email=String(account.correo||'').trim().toLowerCase();
+        if(!email||email!==String(state.profile?.email||'').trim().toLowerCase())throw Error('account_mismatch');
+        if(account.doctorAccountId&&state.doctorAccountId&&account.doctorAccountId!==state.doctorAccountId)throw Error('account_mismatch');
+        const id=account.doctorAccountId||state.doctorAccountId||'doctor-'+(globalThis.crypto?.randomUUID?.()||Date.now().toString(36)+'-'+Math.random().toString(36).slice(2));
+        const migratedAccount={...account,doctorAccountId:id},migratedState={...state,doctorAccountId:id};
+        try{
+          localStorage.setItem(DOCTOR_ACCOUNT_KEY,JSON.stringify(migratedAccount));
+          localStorage.setItem(DOCTOR_STATE_KEY,JSON.stringify(migratedState));
+        }catch(error){
+          try{localStorage.setItem(DOCTOR_ACCOUNT_KEY,accountRaw);localStorage.setItem(DOCTOR_STATE_KEY,stateRaw);}catch(_){}
+          throw error;
+        }
+      }
+      doctorAccountRaw=localStorage.getItem(DOCTOR_ACCOUNT_KEY);
+      const savedAccount=JSON.parse(doctorAccountRaw),savedState=JSON.parse(localStorage.getItem(DOCTOR_STATE_KEY));
+      if(typeof savedAccount.doctorAccountId!=='string'||!savedAccount.doctorAccountId||savedAccount.doctorAccountId!==savedState.doctorAccountId)throw Error('account_mismatch');
+      doctorAccountId=savedAccount.doctorAccountId;
+    }catch(_){doctorAccountRaw=null;doctorAccountId='';doctorAccountError='No se pudo identificar este perfil local. Revisa el almacenamiento antes de continuar.';}
   }
+  initializeDoctorIdentity();
+  function doctorAccountCurrent(){
+    if(!doctorAccountId||!doctorAccountRaw||localStorage.getItem(DOCTOR_ACCOUNT_KEY)!==doctorAccountRaw)return false;
+    try{return JSON.parse(localStorage.getItem(DOCTOR_STATE_KEY)||'null')?.doctorAccountId===doctorAccountId;}catch(_){return false;}
+  }
+  function staleDoctorProfile(){
+    const panel=document.getElementById('doctorProfilePanel');
+    if(panel)panel.innerHTML='<div class="profile-empty" role="alert">'+htmlSafeProfile(doctorAccountError||'La cuenta médica cambió. Recarga para continuar; no se guardaron cambios de la sesión anterior.')+'</div>';
+    const greeting=document.getElementById('doctorProfileGreeting');if(greeting)greeting.textContent='Perfil médico';
+    ['profileRequestModal','profileDocModal','profileCameraModal'].forEach(id=>{const modal=document.getElementById(id);if(modal){modal.classList.remove('open');modal.setAttribute('aria-hidden','true');if(id==='profileRequestModal')modal.innerHTML='';}});
+    const preview=document.getElementById('profileDocBody');if(preview)preview.textContent='';
+    stopProfilePhotoCamera();
+    return false;
+  }
+  function assertDoctorAccount(){if(!doctorAccountCurrent()){staleDoctorProfile();throw Error('account_changed');}}
+  function getState(){
+    assertDoctorAccount();
+    const defaults={procedures:[],profile:{name:'',prefix:'',accountType:''},fiscal:{rfc:'',banco:'',clabe:'',titular:''},contact:{registered:'',officePhone:'',officeWhats:'',visible:'registered'},links:{},profileData:{},files:{},profilePhotoData:''};
+    doctorStateRaw=localStorage.getItem(DOCTOR_STATE_KEY);
+    const saved=JSON.parse(doctorStateRaw);
+    const snapshot={...defaults,...saved};
+    doctorStateSnapshots.set(snapshot,doctorStateRaw);
+    return snapshot;
+  }
+  function canEditDoctorProfile(){return doctorAccountCurrent()&&!getState().submitted;}
   function visibleContact(s){return s.contact?.visible==='office'?s.contact?.officePhone:s.contact?.visible==='whatsapp'?s.contact?.officeWhats:s.contact?.visible==='custom'?(s.contact?.customPhone||s.contact?.custom||''):s.contact?.registered}
   function cleanLinkValue(value){
     const raw=String(value||'').trim();
@@ -2224,7 +2299,7 @@ setProcedureSummary();
   }
   function profileDataField(model,value,label,placeholder,type='text',locked=false){
     const disabled=locked?' disabled':'';
-    return `<div class="profile-edit-field"><label>${label}</label><input data-profile-model="${model}" value="${htmlSafeProfile(value||'')}" placeholder="${placeholder}" type="${type}"${disabled}></div>`;
+    return `<div class="profile-edit-field"><label for="profile-${model.replace('.','-')}">${htmlSafeProfile(label)}</label><input id="profile-${model.replace('.','-')}" data-profile-model="${model}" value="${htmlSafeProfile(value||'')}" placeholder="${placeholder}" type="${type}"${disabled}></div>`;
   }
   function profileDataSelect(model,value,label,options,locked=false){
     const disabled=locked?' disabled':'';
@@ -2248,7 +2323,7 @@ setProcedureSummary();
   }
   function attentionActionHtml(scope,locked){
     const label=locked?'Editar datos de atención':'Guardar datos de atención';
-    const tone=locked?'':' profile-btn-primary';
+    const tone=locked?' ui-action-secondary':' profile-btn-primary ui-action-primary';
     return `<div class="profile-attention-actions"><button class="profile-btn${tone}" type="button" data-profile-attention-action="${scope}">${label}</button></div>`;
   }
   function profileCurpValue(s){
@@ -2273,11 +2348,11 @@ setProcedureSummary();
     const office=profilePhoneFormatMX(contact.officePhone||'');
     const whats=profilePhoneFormatMX(contact.officeWhats||'');
     const custom=profilePhoneFormatMX(contact.customPhone||contact.custom||'');
-    const option=(value,label,help)=>`<label class="profile-contact-option"><input type="radio" name="profileVisibleContact" value="${value}" ${visible===value?'checked':''}><span><strong>${label}</strong>${help?`<small>${help}</small>`:''}</span></label>`;
-    return `<div class="profile-contact-editor" id="profileContactEditor"><h3>Contacto visible para pacientes</h3><p>Elige qué teléfono quieres mostrar a pacientes en tu perfil médico.</p><div class="profile-contact-options">${option('registered','Mostrar celular registrado',registered||'Pendiente')}${option('office',`Mostrar teléfono del ${place}`,office||'Captura o confirma este número')}${option('whatsapp',`Mostrar WhatsApp del ${place}`,whats||'Captura o confirma este número')}${option('custom','Capturar nuevo contacto','Usar un teléfono distinto como contacto visible')}</div><div class="profile-edit-grid profile-contact-fields"><div class="profile-edit-field"><label>Teléfono del ${place}</label><input class="profile-phone-input" data-profile-contact-field="officePhone" value="${htmlSafeProfile(office)}" placeholder="Ej. 55 1234 5678" maxlength="12" inputmode="numeric"></div><div class="profile-edit-field"><label>WhatsApp del ${place}</label><input class="profile-phone-input" data-profile-contact-field="officeWhats" value="${htmlSafeProfile(whats)}" placeholder="Ej. 55 1234 5678" maxlength="12" inputmode="numeric"></div><div class="profile-edit-field profile-custom-contact-field ${visible==='custom'?'':'hidden'}"><label>Nuevo contacto visible</label><input class="profile-phone-input" data-profile-contact-field="customPhone" value="${htmlSafeProfile(custom)}" placeholder="Ej. 55 1234 5678" maxlength="12" inputmode="numeric"></div></div><div class="profile-contact-error" id="profileContactError"></div><div class="profile-contact-actions"><button class="profile-btn" type="button" data-profile-contact-cancel>Cancelar</button><button class="profile-btn profile-btn-primary" type="button" data-profile-contact-save>Guardar contacto visible</button></div></div>`;
+    const option=(value,label,help)=>`<label class="profile-contact-option ui-choice"><input type="radio" name="profileVisibleContact" value="${value}" ${visible===value?'checked':''}><span><strong>${label}</strong>${help?`<small>${help}</small>`:''}</span></label>`;
+    return `<div class="profile-contact-editor" id="profileContactEditor"><h3>Contacto visible para pacientes</h3><p>Elige qué teléfono quieres mostrar a pacientes en tu perfil médico.</p><div class="profile-contact-options">${option('registered','Mostrar celular registrado',registered||'Pendiente')}${option('office',`Mostrar teléfono del ${place}`,office||'Captura o confirma este número')}${option('whatsapp',`Mostrar WhatsApp del ${place}`,whats||'Captura o confirma este número')}${option('custom','Capturar nuevo contacto','Usar un teléfono distinto como contacto visible')}</div><div class="profile-edit-grid profile-contact-fields"><div class="profile-edit-field"><label>Teléfono del ${place}</label><input class="profile-phone-input" data-profile-contact-field="officePhone" value="${htmlSafeProfile(office)}" placeholder="Ej. 55 1234 5678" maxlength="12" inputmode="numeric"></div><div class="profile-edit-field"><label>WhatsApp del ${place}</label><input class="profile-phone-input" data-profile-contact-field="officeWhats" value="${htmlSafeProfile(whats)}" placeholder="Ej. 55 1234 5678" maxlength="12" inputmode="numeric"></div><div class="profile-edit-field profile-custom-contact-field ${visible==='custom'?'':'hidden'}"><label>Nuevo contacto visible</label><input class="profile-phone-input" data-profile-contact-field="customPhone" value="${htmlSafeProfile(custom)}" placeholder="Ej. 55 1234 5678" maxlength="12" inputmode="numeric"></div></div><div class="profile-contact-error" id="profileContactError"></div><div class="profile-contact-actions"><button class="profile-btn ui-action-secondary" type="button" data-profile-contact-cancel>Cancelar</button><button class="profile-btn profile-btn-primary ui-action-primary" type="button" data-profile-contact-save>Guardar contacto visible</button></div></div>`;
   }
   function profileContactReadActionHtml(){
-    return `<div class="profile-contact-read-action"><button class="profile-btn" type="button" data-profile-contact-edit>Editar contacto visible</button></div>`;
+    return `<div class="profile-contact-read-action"><button class="profile-btn ui-action-secondary" type="button" data-profile-contact-edit>Editar contacto visible</button></div>`;
   }
   function bindProfileContactActions(){
     const edit=document.querySelector('[data-profile-contact-edit]');
@@ -2391,7 +2466,7 @@ setProcedureSummary();
     const hourOpts=['9:00 a 18:00','9:00 a 19:00','10:00 a 18:00','10:00 a 20:00','Personalizado'];
     const locked=!!pd.doctorAttentionSaved && !pd.doctorAttentionEditing;
     const disabled=locked?' disabled':'';
-    return `<section class="profile-data-card profile-attention-card"><span class="profile-status profile-optional-badge">OPCIONAL</span><h2 class="profile-section-title" style="font-size:22px">Datos de atención</h2><p class="profile-section-copy">Esta información es opcional y podrás editarla después desde tu perfil médico.</p><h3 class="profile-subsection-title">Consulta de valoración</h3><div class="profile-edit-grid">${profileDataField('profileData.consultationCost',pd.consultationCost,'Costo de consulta de valoración','Ej. $800','text',locked)}${profileDataSelect('profileData.virtualConsults',pd.virtualConsults,'¿Ofreces citas virtuales?',['Sí','No'],locked)}${pd.virtualConsults==='Sí'?profileDataField('profileData.virtualCost',pd.virtualCost,'Costo de consulta virtual','Ej. $600','text',locked):''}</div><h3 class="profile-subsection-title">Horarios de consulta</h3><div class="profile-edit-grid">${profileDataSelect('profileData.consultDaysPreset',pd.consultDaysPreset,'Días de consulta',dayOpts,locked)}${profileDataSelect('profileData.consultHoursPreset',pd.consultHoursPreset,'Horario de consulta',hourOpts,locked)}${pd.consultDaysPreset==='Personalizado'?profileDataField('profileData.consultDaysCustom',pd.consultDaysCustom,'Especifica los días','Ej. Lunes, miércoles y viernes','text',locked):''}${pd.consultHoursPreset==='Personalizado'?profileDataField('profileData.consultHoursCustom',pd.consultHoursCustom,'Especifica el horario','Ej. 8:30 a 14:00 y 16:00 a 19:00','text',locked):''}</div><h3 class="profile-subsection-title">Lugares donde atiende u opera</h3><div class="profile-edit-grid">${profileAttentionTagsField('profileData.consultationPlaces',pd.consultationPlaces,'Hospitales o clínicas donde das consulta','Agrega hospitales, clínicas o consultorios donde atiendes pacientes.','Escribe un lugar y presiona Enter',locked,pd.extraConsultPlaces)}${profileAttentionTagsField('profileData.surgeryPlaces',pd.surgeryPlaces,'Hospitales o clínicas donde operas','Agrega hospitales o clínicas donde realizas procedimientos.','Escribe un lugar y presiona Enter',locked,pd.procedureHospital)}</div><h3 class="profile-subsection-title">Asistente o coordinación</h3><div class="profile-edit-grid">${profileDataSelect('profileData.assistantContact',pd.assistantContact,'¿Tienes asistente o contacto de coordinación?',['Sí','No'],locked)}${pd.assistantContact==='Sí'?`${profileDataField('profileData.assistantName',pd.assistantName,'Nombre','Ej. Laura Pérez','text',locked)}<div class="profile-edit-field"><label>Teléfono / WhatsApp</label><input class="profile-phone-input" data-profile-model="profileData.assistantPhone" value="${htmlSafeProfile(profilePhoneFormatMX(pd.assistantPhone||''))}" placeholder="Ej. 55 7874 3746" maxlength="12" inputmode="numeric"${disabled}></div>${profileDataField('profileData.assistantEmail',pd.assistantEmail,'Correo adicional para dashboard','Ej. asistente@clinica.com','email',locked)}`:''}</div>${attentionActionHtml('doctor',locked)}</section>`;
+    return `<section class="profile-data-card profile-attention-card"><span class="profile-status profile-optional-badge">OPCIONAL</span><h2 class="profile-section-title" style="font-size:22px">Datos de atención</h2><p class="profile-section-copy">Esta información es opcional. Después de enviar el perfil, los cambios requieren una corrección autorizada.</p><h3 class="profile-subsection-title">Consulta de valoración</h3><div class="profile-edit-grid">${profileDataField('profileData.consultationCost',pd.consultationCost,'Costo de consulta de valoración','Ej. $800','text',locked)}${profileDataSelect('profileData.virtualConsults',pd.virtualConsults,'¿Ofreces citas virtuales?',['Sí','No'],locked)}${pd.virtualConsults==='Sí'?profileDataField('profileData.virtualCost',pd.virtualCost,'Costo de consulta virtual','Ej. $600','text',locked):''}</div><h3 class="profile-subsection-title">Horarios de consulta</h3><div class="profile-edit-grid">${profileDataSelect('profileData.consultDaysPreset',pd.consultDaysPreset,'Días de consulta',dayOpts,locked)}${profileDataSelect('profileData.consultHoursPreset',pd.consultHoursPreset,'Horario de consulta',hourOpts,locked)}${pd.consultDaysPreset==='Personalizado'?profileDataField('profileData.consultDaysCustom',pd.consultDaysCustom,'Especifica los días','Ej. Lunes, miércoles y viernes','text',locked):''}${pd.consultHoursPreset==='Personalizado'?profileDataField('profileData.consultHoursCustom',pd.consultHoursCustom,'Especifica el horario','Ej. 8:30 a 14:00 y 16:00 a 19:00','text',locked):''}</div><h3 class="profile-subsection-title">Lugares donde atiende u opera</h3><div class="profile-edit-grid">${profileAttentionTagsField('profileData.consultationPlaces',pd.consultationPlaces,'Hospitales o clínicas donde das consulta','Agrega hospitales, clínicas o consultorios donde atiendes pacientes.','Escribe un lugar y presiona Enter',locked,pd.extraConsultPlaces)}${profileAttentionTagsField('profileData.surgeryPlaces',pd.surgeryPlaces,'Hospitales o clínicas donde operas','Agrega hospitales o clínicas donde realizas procedimientos.','Escribe un lugar y presiona Enter',locked,pd.procedureHospital)}</div><h3 class="profile-subsection-title">Asistente o coordinación</h3><div class="profile-edit-grid">${profileDataSelect('profileData.assistantContact',pd.assistantContact,'¿Tienes asistente o contacto de coordinación?',['Sí','No'],locked)}${pd.assistantContact==='Sí'?`${profileDataField('profileData.assistantName',pd.assistantName,'Nombre','Ej. Laura Pérez','text',locked)}<div class="profile-edit-field"><label>Teléfono / WhatsApp</label><input class="profile-phone-input" data-profile-model="profileData.assistantPhone" value="${htmlSafeProfile(profilePhoneFormatMX(pd.assistantPhone||''))}" placeholder="Ej. 55 7874 3746" maxlength="12" inputmode="numeric"${disabled}></div>${profileDataField('profileData.assistantEmail',pd.assistantEmail,'Correo adicional para dashboard','Ej. asistente@clinica.com','email',locked)}`:''}</div>${attentionActionHtml('doctor',locked)}</section>`;
   }
 
 
@@ -2415,20 +2490,44 @@ setProcedureSummary();
     const contact=visibleContact(s)||'Pendiente';
     const contactEditing=!!pd.contactVisibleEditing;
     const contactEditor=contactEditing?profileContactEditorHtml(s,'clinic'):'';
-    return `<section class="profile-data-card" id="profile-clinic-main"><span class="profile-status">En revisión</span><h2 class="profile-section-title">Datos de clínica u hospital</h2><p class="profile-section-copy">Información principal del establecimiento registrada en Pulzzo.</p><div class="profile-grid"><div class="profile-card"><h3>Nombre del establecimiento</h3><strong>${htmlSafeProfile(name)}</strong></div><div class="profile-card"><h3>Tipo de establecimiento</h3><strong>${htmlSafeProfile(establishmentType)}</strong></div>${profileOperationLocationCards(s)}<div class="profile-card profile-areas-procedures-card"><h3>Especialidades</h3><div class="profile-specialties-list ${profileClinicSpecialtyLabels(s).length?'':'is-empty'}">${profileClinicSpecialtyLabels(s).length?profileClinicSpecialtyLabels(s).map(label=>`<span>${htmlSafeProfile(label)}</span>`).join(''):'<span>Sin especialidades registradas</span>'}</div><small class="profile-card-note">Gestiona nuevas especialidades y procedimientos desde la sección Procedimientos.</small><div class="profile-card-actions"><button class="profile-btn" type="button" data-profile-go-tab="Procedimientos">Ir a Procedimientos</button></div></div><div class="profile-card"><h3>Contacto visible</h3><strong>${htmlSafeProfile(contact)}</strong>${!contactEditing?profileContactReadActionHtml():''}</div></div>${contactEditor}</section><section class="profile-data-card"><h2 class="profile-section-title" style="font-size:22px">Foto de perfil de la clínica u hospital</h2>${photoHtml}</section><section class="profile-data-card"><h2 class="profile-section-title" style="font-size:22px">Presencia profesional</h2>${linksHtml}</section><section class="profile-data-card profile-attention-card" id="profile-clinic-attention"><span class="profile-status profile-optional-badge">OPCIONAL</span><h2 class="profile-section-title" style="font-size:22px">Datos de atención</h2><p class="profile-section-copy">Esta información es opcional y podrás editarla después desde tu perfil médico.</p><h3 class="profile-subsection-title">Horarios de atención</h3><div class="profile-edit-grid">${profileDataSelect('profileData.clinicDaysPreset',clinicDays,'Días de atención',dayOpts,locked)}${profileDataSelect('profileData.clinicHoursPreset',clinicHours,'Horario de atención',hourOpts,locked)}${profileDataSelect('profileData.clinicVirtualConsults',clinicVirtual,'¿Ofrecen citas virtuales?',['Sí','No'],locked)}${clinicDays==='Personalizado'?profileDataField('profileData.clinicDaysCustom',pd.clinicDaysCustom||pd.attentionDaysCustom,'Especifica los días','Ej. Lunes, miércoles y viernes','text',locked):''}${clinicHours==='Personalizado'?profileDataField('profileData.clinicHoursCustom',pd.clinicHoursCustom||pd.attentionHoursCustom,'Especifica el horario','Ej. 8:30 a 14:00 y 16:00 a 19:00','text',locked):''}</div><h3 class="profile-subsection-title">Contacto administrativo</h3><div class="profile-edit-grid">${profileDataField('profileData.adminContactName',adminName,'Nombre del contacto administrativo','Ej. Laura Pérez','text',locked)}<div class="profile-edit-field"><label>Teléfono / WhatsApp de coordinación</label><input class="profile-phone-input" data-profile-model="profileData.adminContactPhone" value="${htmlSafeProfile(profilePhoneFormatMX(adminPhone||''))}" placeholder="Ej. 55 1234 5678" maxlength="12" inputmode="numeric"${disabled}></div>${profileDataField('profileData.adminContactEmail',adminEmail,'Correo adicional para dashboard','Ej. administracion@clinica.com','email',locked)}</div>${attentionActionHtml('clinic',locked)}</section>`;
+    return `<section class="profile-data-card" id="profile-clinic-main"><span class="profile-status">En revisión</span><h2 class="profile-section-title">Datos de clínica u hospital</h2><p class="profile-section-copy">Información principal del establecimiento registrada en Pulzzo.</p><div class="profile-grid"><div class="profile-card"><h3>Nombre del establecimiento</h3><strong>${htmlSafeProfile(name)}</strong></div><div class="profile-card"><h3>Tipo de establecimiento</h3><strong>${htmlSafeProfile(establishmentType)}</strong></div>${profileOperationLocationCards(s)}<div class="profile-card profile-areas-procedures-card"><h3>Especialidades</h3><div class="profile-specialties-list ${profileClinicSpecialtyLabels(s).length?'':'is-empty'}">${profileClinicSpecialtyLabels(s).length?profileClinicSpecialtyLabels(s).map(label=>`<span>${htmlSafeProfile(label)}</span>`).join(''):'<span>Sin especialidades registradas</span>'}</div><small class="profile-card-note">Gestiona nuevas especialidades y procedimientos desde la sección Procedimientos.</small><div class="profile-card-actions"><button class="profile-btn ui-action-secondary" type="button" data-profile-go-tab="Procedimientos">Ir a Procedimientos</button></div></div><div class="profile-card"><h3>Contacto visible</h3><strong>${htmlSafeProfile(contact)}</strong>${!contactEditing?profileContactReadActionHtml():''}</div></div>${contactEditor}</section><section class="profile-data-card"><h2 class="profile-section-title" style="font-size:22px">Foto de perfil de la clínica u hospital</h2>${photoHtml}</section><section class="profile-data-card"><h2 class="profile-section-title" style="font-size:22px">Presencia profesional</h2>${linksHtml}</section><section class="profile-data-card profile-attention-card" id="profile-clinic-attention"><span class="profile-status profile-optional-badge">OPCIONAL</span><h2 class="profile-section-title" style="font-size:22px">Datos de atención</h2><p class="profile-section-copy">Esta información es opcional. Después de enviar el perfil, los cambios requieren una corrección autorizada.</p><h3 class="profile-subsection-title">Horarios de atención</h3><div class="profile-edit-grid">${profileDataSelect('profileData.clinicDaysPreset',clinicDays,'Días de atención',dayOpts,locked)}${profileDataSelect('profileData.clinicHoursPreset',clinicHours,'Horario de atención',hourOpts,locked)}${profileDataSelect('profileData.clinicVirtualConsults',clinicVirtual,'¿Ofrecen citas virtuales?',['Sí','No'],locked)}${clinicDays==='Personalizado'?profileDataField('profileData.clinicDaysCustom',pd.clinicDaysCustom||pd.attentionDaysCustom,'Especifica los días','Ej. Lunes, miércoles y viernes','text',locked):''}${clinicHours==='Personalizado'?profileDataField('profileData.clinicHoursCustom',pd.clinicHoursCustom||pd.attentionHoursCustom,'Especifica el horario','Ej. 8:30 a 14:00 y 16:00 a 19:00','text',locked):''}</div><h3 class="profile-subsection-title">Contacto administrativo</h3><div class="profile-edit-grid">${profileDataField('profileData.adminContactName',adminName,'Nombre del contacto administrativo','Ej. Laura Pérez','text',locked)}<div class="profile-edit-field"><label>Teléfono / WhatsApp de coordinación</label><input class="profile-phone-input" data-profile-model="profileData.adminContactPhone" value="${htmlSafeProfile(profilePhoneFormatMX(adminPhone||''))}" placeholder="Ej. 55 1234 5678" maxlength="12" inputmode="numeric"${disabled}></div>${profileDataField('profileData.adminContactEmail',adminEmail,'Correo adicional para dashboard','Ej. administracion@clinica.com','email',locked)}</div>${attentionActionHtml('clinic',locked)}</section>`;
   }
 
+  function profileOnboardingChoice(model,value,label,choices,locked=false){
+    return `<div class="profile-edit-field"><label for="onboarding-${model.replace('.','-')}">${htmlSafeProfile(label)}</label><select id="onboarding-${model.replace('.','-')}" data-profile-model="${model}"${locked?' disabled':''}><option value="">Selecciona una opción</option>${choices.map(([key,text])=>`<option value="${key}"${value===key?' selected':''}>${htmlSafeProfile(text)}</option>`).join('')}</select></div>`;
+  }
+  function renderProfileOnboardingFields(s){
+    const locked=!!s.submitted;
+    const clinic=(s.profile?.accountType||localStorage.getItem('pulzzoDoctorAccountType'))==='clinica';
+    const mv=s.medval||{},cd=s.clinicDocs||{};
+    const choice=(model,value,label,options)=>profileOnboardingChoice(model,value,label,options,locked);
+    const field=(model,value,label)=>profileDataField(model,value,label,'','text',locked);
+    let fields=clinic
+      ? choice('clinicDocs.legalType',cd.legalType,'Figura legal',[['physical','Persona física'],['moral','Persona moral']])+choice('clinicDocs.sanitaryDocType',cd.sanitaryDocType,'Documento sanitario que presentarás',[['notice','Aviso de funcionamiento'],['license','Licencia sanitaria'],['responsible','Aviso de responsable sanitario'],['other','Otro permiso/documento COFEPRIS']])+choice('clinicDocs.certRequired',cd.certRequired,'¿Tu tratamiento requiere una certificación adicional?',[['yes','Sí'],['no','No']])+(cd.certRequired==='yes'?field('clinicDocs.certProcedure',cd.certProcedure,'Tratamiento o procedimiento relacionado'):'')
+      : choice('medval.procedureType',mv.procedureType,'Tipo de procedimientos registrados',[['non_surgical','No quirúrgicos / consultorio'],['surgical','Quirúrgicos o invasivos'],['both','Ambos']])+choice('medval.method',mv.method,'Método de validación',[['upload','Subir mis documentos ahora'],['validate','Solicitar validación de Pulzzo']]);
+    if(!clinic){
+      if(mv.method==='validate')fields+=field('medval.curp',mv.curp,'CURP')+field('medval.medicalLicenseNumber',mv.medicalLicenseNumber,'Número de cédula profesional médica (opcional)')+field('medval.specialtyLicenseNumber',mv.specialtyLicenseNumber,'Número de cédula de especialidad (opcional)')+field('medval.councilNumber',mv.councilNumber,'Número de consejo o certificación (opcional)');
+      fields+=choice('medval.pendingQuestion',mv.pendingQuestion,'¿Tienes algún documento en trámite?',[['yes','Sí'],['no','No']]);
+      if(mv.pendingQuestion==='yes')fields+=field('medval.pendingDocType',mv.pendingDocType,'Documento en trámite')+field('medval.pendingSpecialty',mv.pendingSpecialty,'Especialidad relacionada');
+    }
+    if(!clinic && mv.method==='upload' && ['surgical','both'].includes(mv.procedureType)){
+      fields+=[['generalSurgeryNotApplicable','Cédula de Cirugía General: no aplica a mi formación'],['councilNotApplicable','Consejo o certificación profesional: no aplica'],['additionalNotApplicable','Certificación adicional: no aplica']].map(([key,label])=>`<label class="profile-edit-field"><input type="checkbox" data-profile-model="medval.${key}"${mv[key]?' checked':''}${locked?' disabled':''}> ${htmlSafeProfile(label)}</label>`).join('');
+    }
+    return `<section class="profile-data-card"><h3>Datos de incorporación</h3><p>${locked?'Datos enviados: la habilitación de correcciones requiere revisión.':'Completa estas opciones para mostrar los documentos de tu perfil. Los cambios se guardan automáticamente en este navegador.'} Demo local con datos ficticios; no inicia una validación externa.</p><div class="profile-edit-grid">${fields}</div></section>`;
+  }
   function bindProfileDataInputs(){
     document.querySelectorAll('[data-profile-model]').forEach(el=>{
       const update=()=>{
+        if(!canEditDoctorProfile())return;
         const s=getState();
         const parts=el.dataset.profileModel.split('.');
+        if(s.submitted && ['fiscal','medval','clinicDocs'].includes(parts[0]))return;
         if(!s[parts[0]]) s[parts[0]]={};
-        let val=el.value;
+        let val=el.type==='checkbox'?el.checked:el.value;
         if(el.classList.contains('profile-phone-input')){val=profilePhoneFormatMX(val);el.value=val;}
         s[parts[0]][parts[1]]=val;
         setProfileState(s);
-        if(el.tagName==='SELECT') setTimeout(renderProfile,0);
+        if(el.tagName==='SELECT'||el.type==='checkbox') setTimeout(renderProfile,0);
       };
       el.addEventListener('input',update);
       el.addEventListener('change',update);
@@ -2466,21 +2565,40 @@ setProcedureSummary();
     const copy=document.querySelector('.profile-hero-copy');
     if(copy) copy.textContent='Gestiona tu perfil y cirugías, conecta y financia en un solo lugar.';
   }
+  function closeProfileDoc(){
+    const modal=document.getElementById('profileDocModal');if(!modal)return;
+    modal.classList.remove('open');modal.setAttribute('aria-hidden','true');
+    const restore=modal._returnFocus;modal._returnFocus=null;if(restore?.isConnected)restore.focus();
+  }
+  function handleProfileDocModalKey(event){
+    const modal=document.getElementById('profileDocModal');if(!modal?.classList.contains('open'))return;
+    if(event.key==='Escape'){event.preventDefault();closeProfileDoc();return;}
+    if(event.key!=='Tab')return;
+    const items=Array.from(modal.querySelectorAll('button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])')).filter(el=>!el.hidden&&el.getAttribute('aria-hidden')!=='true'&&el.getClientRects().length);
+    const first=items[0],last=items[items.length-1];
+    if(!first){event.preventDefault();modal.focus();return;}
+    if(event.shiftKey&&(document.activeElement===first||!items.includes(document.activeElement))){event.preventDefault();last.focus();}
+    else if(!event.shiftKey&&(document.activeElement===last||!items.includes(document.activeElement))){event.preventDefault();first.focus();}
+  }
+  document.addEventListener('keydown',handleProfileDocModalKey);
   function openProfileDoc(title){
+    if(!doctorAccountCurrent())return staleDoctorProfile();
     const modal=document.getElementById('profileDocModal');
     const h=document.getElementById('profileDocTitle');
     const b=document.getElementById('profileDocBody');
     if(!modal||!h||!b) return;
+    if(!modal.classList.contains('open'))modal._returnFocus=document.activeElement;
     h.textContent=title;
-    b.innerHTML=`<div class="profile-preview-empty"><strong>${title}</strong><br>Vista previa demo del documento cargado. En producción aquí se abrirá el archivo real para revisión.</div>`;
+    b.innerHTML=`<div class="profile-preview-empty"><strong>${htmlSafeProfile(title)}</strong><br>Vista previa demo del documento cargado. En producción aquí se abrirá el archivo real para revisión.</div>`;
     modal.classList.add('open');
     modal.setAttribute('aria-hidden','false');
+    document.getElementById('profileDocClose')?.focus();
   }
   function bindProfileDocModal(){
     const close=document.getElementById('profileDocClose');
     const modal=document.getElementById('profileDocModal');
-    if(close) close.onclick=()=>{modal.classList.remove('open');modal.setAttribute('aria-hidden','true')};
-    if(modal) modal.onclick=e=>{if(e.target===modal){modal.classList.remove('open');modal.setAttribute('aria-hidden','true')}};
+    if(close) close.onclick=closeProfileDoc;
+    if(modal) modal.onclick=e=>{if(e.target===modal)closeProfileDoc();};
     document.querySelectorAll('[data-profile-doc]').forEach(btn=>btn.onclick=()=>openProfileDoc(btn.dataset.profileDoc));
     document.querySelectorAll('[data-profile-correction-target]').forEach(btn=>btn.onclick=()=>goToProfileCorrection(btn.dataset.profileCorrectionTarget));
     document.querySelectorAll('[data-profile-go-tab]').forEach(btn=>btn.onclick=()=>{activeTab=btn.dataset.profileGoTab;renderProfile();setTimeout(()=>document.getElementById('doctorProfilePanel')?.scrollIntoView({behavior:'smooth',block:'start'}),80);});
@@ -2518,7 +2636,7 @@ setProcedureSummary();
   function renderTabs(){
     const el=document.getElementById('doctorProfileTabs');
     if(el){
-      el.innerHTML=tabs.map(t=>`<button class="profile-tab ${activeTab===t?'active':''}" data-doctor-profile-tab="${t}" type="button">${t}</button>`).join('');
+      el.innerHTML=tabs.map(t=>`<button class="profile-tab ${activeTab===t?'active':''} ui-selection" data-doctor-profile-tab="${t}" type="button">${t}</button>`).join('');
       el.querySelectorAll('[data-doctor-profile-tab]').forEach(b=>b.onclick=()=>{activeTab=b.dataset.doctorProfileTab;renderProfile();});
     }
     const mobileNav=document.getElementById('doctorProfileMobileNav');
@@ -2527,26 +2645,88 @@ setProcedureSummary();
     const mobileLabel=mobileToggle?.querySelector('.profile-mobile-section-label');
     if(mobileNav&&mobileToggle&&mobileMenu&&mobileLabel){
       mobileLabel.textContent=activeTab;
-      mobileMenu.innerHTML=tabs.map(t=>`<button class="profile-mobile-section-option ${activeTab===t?'active':''}" data-doctor-profile-mobile-tab="${t}" type="button">${t}</button>`).join('');
+      mobileMenu.innerHTML=tabs.map(t=>`<button class="profile-mobile-section-option ${activeTab===t?'active':''} ui-selection" data-doctor-profile-mobile-tab="${t}" type="button">${t}</button>`).join('');
       mobileToggle.onclick=(ev)=>{ev.stopPropagation();const open=mobileNav.classList.toggle('open');mobileToggle.setAttribute('aria-expanded',open?'true':'false');};
       mobileMenu.querySelectorAll('[data-doctor-profile-mobile-tab]').forEach(b=>b.onclick=(ev)=>{ev.stopPropagation();activeTab=b.dataset.doctorProfileMobileTab;mobileNav.classList.remove('open');mobileToggle.setAttribute('aria-expanded','false');renderProfile();setTimeout(()=>document.getElementById('doctorProfilePanel')?.scrollIntoView({behavior:'smooth',block:'start'}),60);});
       document.addEventListener('click',()=>{mobileNav.classList.remove('open');mobileToggle.setAttribute('aria-expanded','false');},{once:true});
     }
   }
-  function setProfileState(next){
-    localStorage.setItem('pulzzoDoctorOnboardingCleanV3', JSON.stringify(next));
+  function saveDoctorState(next,options){
+    const fromServicing=!!options?.servicing;
+    assertDoctorAccount();
+    const raw=localStorage.getItem(DOCTOR_STATE_KEY);
+    const expected=doctorStateSnapshots.get(next)??doctorStateRaw;
+    if(raw!==expected)throw Error('El perfil cambió en otra pestaña. Recarga antes de guardar.');
+    if(!record(next)||next.doctorAccountId!==doctorAccountId)throw Error('account_changed');
+    const current=JSON.parse(raw);
+    if(current.submitted){
+      const allowedMeta=['demoCorrectionDraft'];
+      if(fromServicing)allowedMeta.push('demoCorrection','servicingProjection','demoProviderId','demoProfileRevision','demoExportVersion','demoReviewEnvelope');
+      const comparable=value=>{const copy={...value};allowedMeta.forEach(key=>delete copy[key]);return JSON.stringify(copy);};
+      const before={...getState(),...current};
+      if(comparable(before)!==comparable(next)){
+        if(!fromServicing||!options?.reviewApproved)throw Error('El perfil enviado está bloqueado. Usa los campos autorizados para corrección.');
+        const request=current.demoCorrection,review=next.demoCorrection;
+        if(!request||!review||review.status!=='approved'||request.requestId!==review.requestId||request.nonce!==review.nonce||request.version!==review.version||request.doctorAccountId!==doctorAccountId||request.providerId!==current.demoProviderId)throw Error('Revisión de corrección no válida.');
+        const approved=review.approvedChanges||{},allowed=request.allowedFields||[];
+        if(!record(approved)||Object.keys(approved).some(field=>!allowed.includes(field)||!DOCTOR_CORRECTION_FIELDS.includes(field)))throw Error('Campo de revisión no autorizado.');
+        const expected=JSON.parse(JSON.stringify(before));
+        Object.entries(approved).forEach(([field,value])=>{const [group,key]=field.split('.');expected[group]=expected[group]||{};expected[group][key]=value;});
+        if(comparable(expected)!==comparable(next))throw Error('La revisión intentó modificar datos no autorizados.');
+      }
+      if(!fromServicing){
+        const draft=next.demoCorrectionDraft||{};
+        if(!record(draft)||Object.keys(draft).some(field=>!window.PulzzoDemoServicing?.canEditCorrection?.(current,doctorAccountId,field)))throw Error('Campo de corrección no autorizado.');
+      }
+    }
+    const serialized=JSON.stringify(next);
+    localStorage.setItem(DOCTOR_STATE_KEY,serialized);
+    doctorStateRaw=serialized;
+    return true;
+  }
+  function setProfileState(next){return saveDoctorState(next);}
+
+  const PROFILE_PHOTO_MAX_BYTES=5*1024*1024;
+  let profilePhotoReadVersion=0;
+  function showProfilePhotoMessage(message,isError=false){
+    const node=document.getElementById('profilePhotoMessage');if(!node)return;
+    node.setAttribute('role',isError?'alert':'status');node.setAttribute('aria-live',isError?'assertive':'polite');node.textContent=message;
+  }
+  function persistProfilePhoto(dataUrl,mode,expectedAccount){
+    try{
+      assertDoctorAccount();
+      if(!canEditDoctorProfile())throw Error('submitted_profile');
+      if(expectedAccount!==undefined && localStorage.getItem('pulzzo_doctor')!==expectedAccount)throw Error('account_changed');
+      if(dataUrl){
+        const match=/^data:image\/(png|jpeg|webp|gif);base64,([A-Za-z0-9+/]+={0,2})$/.exec(String(dataUrl));
+        if(!match || match[2].length%4!==0)throw Error('invalid_photo');
+        const body=match[2],bytes=body.length/4*3-(body.endsWith('==')?2:body.endsWith('=')?1:0);
+        if(bytes<=0||bytes>PROFILE_PHOTO_MAX_BYTES)throw Error('photo_size');
+      }
+      const raw=localStorage.getItem('pulzzoDoctorOnboardingCleanV3');
+      const next=JSON.parse(raw||'null');
+      if(!next||typeof next!=='object'||Array.isArray(next))throw Error('missing_profile');
+      // Only a detached copy changes. setItem is atomic, so failures retain the old photo.
+      next.profilePhotoData=dataUrl;next.photoMode=mode;
+      setProfileState(next);
+    }catch(error){
+      const message=error.message==='account_changed'?'La cuenta cambió mientras se leía la foto. Recarga antes de continuar.':error.message==='photo_size'?'La foto supera el límite de 5 MiB. Elige una imagen más pequeña.':error.message==='invalid_photo'?'No se pudo leer una imagen válida. Usa PNG, JPEG, WebP o GIF.':'No se pudo guardar la foto. Puede faltar espacio en el navegador. Prueba una imagen más pequeña; la foto anterior se conservó.';
+      showProfilePhotoMessage(message,true);return false;
+    }
+    renderProfile();showProfilePhotoMessage('Foto guardada en este navegador.');return true;
   }
   function updateProfilePhotoFromFile(file){
-    if(!file) return;
-    const reader=new FileReader();
-    reader.onload=function(){
-      const s=getState();
-      s.profilePhotoData=reader.result;
-      s.photoMode='upload';
-      setProfileState(s);
-      renderProfile();
-    };
-    reader.readAsDataURL(file);
+    if(!file)return;
+    const version=++profilePhotoReadVersion;
+    if(!['image/png','image/jpeg','image/webp','image/gif'].includes(file.type)||!Number.isInteger(file.size)||file.size<=0||file.size>PROFILE_PHOTO_MAX_BYTES){showProfilePhotoMessage('Usa una imagen PNG, JPEG, WebP o GIF de hasta 5 MiB. La foto anterior se conservó.',true);return;}
+    let expectedAccount,reader;
+    try{expectedAccount=localStorage.getItem('pulzzo_doctor');reader=new FileReader();}
+    catch(error){showProfilePhotoMessage('No se pudo abrir la foto. La foto anterior se conservó.',true);return;}
+    showProfilePhotoMessage('Leyendo foto…');
+    reader.onload=()=>{if(version!==profilePhotoReadVersion)return;persistProfilePhoto(reader.result,'upload',expectedAccount);};
+    reader.onerror=()=>{if(version===profilePhotoReadVersion)showProfilePhotoMessage('No se pudo leer el archivo. Selecciónalo otra vez; la foto anterior se conservó.',true);};
+    reader.onabort=()=>{if(version===profilePhotoReadVersion)showProfilePhotoMessage('La lectura se canceló. La foto anterior se conservó.',true);};
+    try{reader.readAsDataURL(file);}catch(error){reader.onerror();}
   }
 
   let profilePhotoCameraStream=null;
@@ -2567,6 +2747,7 @@ setProcedureSummary();
     }
   }
   async function openProfilePhotoCamera(){
+    if(!canEditDoctorProfile())return;
     const fallback=()=>{
       const input=document.getElementById('profilePhotoCameraInput');
       if(input) input.click();
@@ -2580,6 +2761,7 @@ setProcedureSummary();
     try{
       stopProfilePhotoCamera();
       profilePhotoCameraStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:false});
+      if(!canEditDoctorProfile()){stopProfilePhotoCamera();return;}
       video.srcObject=profilePhotoCameraStream;
       modal.classList.add('open');
       modal.setAttribute('aria-hidden','false');
@@ -2596,13 +2778,9 @@ setProcedureSummary();
     canvas.height=video.videoHeight;
     const ctx=canvas.getContext('2d');
     ctx.drawImage(video,0,0,canvas.width,canvas.height);
-    const dataUrl=canvas.toDataURL('image/png');
-    const s=getState();
-    s.profilePhotoData=dataUrl;
-    s.photoMode='camera';
-    setProfileState(s);
-    closeProfilePhotoCamera();
-    renderProfile();
+    ++profilePhotoReadVersion;
+    try{const dataUrl=canvas.toDataURL('image/png');if(persistProfilePhoto(dataUrl,'camera'))closeProfilePhotoCamera();}
+    catch(error){showProfilePhotoMessage('No se pudo capturar la foto. La foto anterior se conservó.',true);}
   }
 
   function bindProfilePhotoActions(){
@@ -2611,8 +2789,8 @@ setProcedureSummary();
     const upload=document.getElementById('profilePhotoUploadInput');
     const camera=document.getElementById('profilePhotoCameraInput');
     if(modify&&options) modify.onclick=()=>options.classList.toggle('open');
-    if(upload) upload.onchange=e=>updateProfilePhotoFromFile(e.target.files&&e.target.files[0]);
-    if(camera) camera.onchange=e=>updateProfilePhotoFromFile(e.target.files&&e.target.files[0]);
+    if(upload) upload.onchange=e=>{updateProfilePhotoFromFile(e.target.files&&e.target.files[0]);e.target.value='';};
+    if(camera) camera.onchange=e=>{updateProfilePhotoFromFile(e.target.files&&e.target.files[0]);e.target.value='';};
     const uploadBtn=document.getElementById('profilePhotoUploadBtn');
     const cameraBtn=document.getElementById('profilePhotoCameraBtn');
     const socialBtn=document.getElementById('profilePhotoSocialBtn');
@@ -2626,31 +2804,38 @@ setProcedureSummary();
     if(cameraCancel) cameraCancel.onclick=closeProfilePhotoCamera;
     if(cameraCapture) cameraCapture.onclick=captureProfilePhotoFromCamera;
     if(cameraModal) cameraModal.onclick=e=>{if(e.target===cameraModal)closeProfilePhotoCamera();};
-    if(socialBtn) socialBtn.onclick=()=>{const s=getState();s.photoMode='social';s.profilePhotoData='';setProfileState(s);renderProfile();};
+    if(socialBtn) socialBtn.onclick=()=>{++profilePhotoReadVersion;persistProfilePhoto('','social');};
   }
 
   function htmlSafeProfile(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
 
-  const DEMO_PATIENTS_INTERESTED = [
-    {patient:'Mariana López',phone:'55 3498 2041',email:'mariana.lopez@email.com',procedure:'Rinoplastia funcional',specialty:'Otorrinolaringología',amount:'$58,000 MXN',date:'20/05/2026',clinic:'Clínica Pulzzo Roma',doctor:'Por asignar',next:'Revisar solicitud y contactar paciente',notes:'Busca confirmar disponibilidad y opciones de financiamiento.',action:'Ver solicitud'},
-    {patient:'Carlos Medina',phone:'55 7204 8831',email:'carlos.medina@email.com',procedure:'Artroscopia de rodilla',specialty:'Ortopedia y traumatología',amount:'$72,500 MXN',date:'18/05/2026',clinic:'Clínica Pulzzo Roma',doctor:'Por asignar',next:'Validar médico tratante y fecha tentativa',notes:'Tiene estudios previos y busca fecha durante el próximo mes.',action:'Ver solicitud'},
-    {patient:'Sofía Hernández',phone:'55 6081 4492',email:'sofia.hernandez@email.com',procedure:'Cirugía bariátrica',specialty:'Bariatría',amount:'$115,000 MXN',date:'16/05/2026',clinic:'Clínica Pulzzo Roma',doctor:'Por asignar',next:'Contactar paciente para completar información médica',notes:'Solicitó información sobre pago a meses y requisitos previos.',action:'Ver solicitud'}
-  ];
-  const DEMO_PATIENTS_TO_OPERATE = [
-    {patient:'Andrea Torres',procedure:'Colecistectomía laparoscópica',doctor:'Dr. Javier Ríos',date:'03/06/2026',financing:'Aprobado',amount:'$64,000 MXN',next:'Confirmar fecha de procedimiento'},
-    {patient:'Luis Fernández',procedure:'Reparación de ligamento cruzado',doctor:'Dra. Fernanda Salas',date:'07/06/2026',financing:'Aprobado',amount:'$89,500 MXN',next:'Pago a proveedor en proceso'}
-  ];
-  const DEMO_HISTORY = [
-    {date:'12/05/2026',patient:'Daniela Cruz',procedure:'Cirugía de hernia',doctor:'Dr. Rodrigo Vega',status:'Pagado',amount:'$48,000 MXN'},
-    {date:'04/05/2026',patient:'Miguel Santos',procedure:'Endoscopía avanzada',doctor:'Dra. Laura Pérez',status:'Pagado',amount:'$22,500 MXN'},
-    {date:'21/04/2026',patient:'Paola Ramírez',procedure:'Blefaroplastia',doctor:'Dr. Enrique Molina',status:'Cancelado',amount:'$0 MXN'}
-  ];
+  function doctorServicingRows(){
+    if(!doctorAccountCurrent())return [];
+    const state=getState(),envelope=state.servicingProjection,providerId=state.demoProviderId;
+    const service=window.PulzzoDemoServicing;
+    if(!providerId||!service?.validCached||!service.validCached(envelope,{kind:'doctor_servicing',accountId:doctorAccountId,applicationId:providerId,providerId}))return [];
+    if(envelope.payload?.doctorAccountId!==doctorAccountId||envelope.payload?.providerId!==providerId||!Array.isArray(envelope.payload.rows))return [];
+    return envelope.payload.rows.filter(row=>record(row)&&typeof row.applicationId==='string'&&typeof row.procedureId==='string').map(row=>({
+      applicationId:row.applicationId,patientName:String(row.patientName||''),procedureId:row.procedureId,procedureName:String(row.procedureName||''),status:String(row.status||''),procedureDate:String(row.procedureDate||''),providerId,
+      payouts:(Array.isArray(row.payouts)?row.payouts:[]).filter(pay=>record(pay)&&Number.isFinite(pay.amount)&&pay.amount>=0).map(pay=>({payoutId:String(pay.payoutId||''),amount:pay.amount,status:String(pay.status||''),paidAt:String(pay.paidAt||''),reference:String(pay.reference||'')}))
+    }));
+  }
+  function doctorRowGroup(row){
+    const state=String(row.status||'').toLowerCase();
+    if(['paid','pagado','cancelled','canceled','cancelado','completed','completado','rejected','rechazado'].includes(state))return 'history';
+    if(['approved','aprobado','contracted','scheduled','programado','in_progress','accepted','offer_accepted','contract_signed','signed','ready','funded'].includes(state))return 'operate';
+    return 'interested';
+  }
+  function doctorPayoutSummary(row){
+    if(!row.payouts.length)return 'Sin pago registrado';
+    return row.payouts.map(pay=>new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN'}).format(pay.amount)+' · '+pay.status).join(' / ');
+  }
   function profileDemoStatus(text){
     const t=String(text||'').toLowerCase();
     const cls=t.includes('cancel')?' profile-demo-status-red':t.includes('aprob')||t.includes('pagado')||t.includes('final')?' profile-demo-status-green':t.includes('evalu')?' profile-demo-status-blue':'';
     return `<span class="profile-demo-status${cls}">${htmlSafeProfile(text)}</span>`;
   }
-  function profileDemoAction(label,index){return `<button class="profile-demo-action" type="button" data-profile-request-index="${Number(index)||0}">${htmlSafeProfile(label||'Ver detalle')}</button>`;}
+  function profileDemoAction(label,index){return `<button class="profile-demo-action ui-action-secondary" type="button" data-profile-request-index="${htmlSafeProfile(index)}">${htmlSafeProfile(label||'Ver detalle')}</button>`;}
   function profileRequestDetailValue(label,value){return `<div class="profile-request-detail"><span>${htmlSafeProfile(label)}</span><strong>${htmlSafeProfile(value||'Pendiente')}</strong></div>`;}
   function closeProfileRequestModal(){
     const modal=document.getElementById('profileRequestModal');
@@ -2658,9 +2843,21 @@ setProcedureSummary();
     modal.classList.remove('open');
     modal.setAttribute('aria-hidden','true');
     document.body.classList.remove('profile-modal-open');
+    const restore=modal._returnFocus;modal._returnFocus=null;if(restore?.isConnected)restore.focus();
+  }
+  function handleProfileRequestModalKey(event){
+    const modal=document.getElementById('profileRequestModal');if(!modal?.classList.contains('open'))return;
+    if(event.key==='Escape'){event.preventDefault();closeProfileRequestModal();return;}
+    if(event.key!=='Tab')return;
+    const items=Array.from(modal.querySelectorAll('button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])')).filter(el=>!el.hidden&&el.getAttribute('aria-hidden')!=='true'&&el.getClientRects().length);
+    const first=items[0],last=items[items.length-1];
+    if(!first){event.preventDefault();modal.querySelector('.profile-request-dialog')?.focus();return;}
+    if(event.shiftKey&&(document.activeElement===first||!items.includes(document.activeElement))){event.preventDefault();last.focus();}
+    else if(!event.shiftKey&&(document.activeElement===last||!items.includes(document.activeElement))){event.preventDefault();first.focus();}
   }
   function openProfileRequestModal(index){
-    const item=DEMO_PATIENTS_INTERESTED[Number(index)]||DEMO_PATIENTS_INTERESTED[0];
+    if(!doctorAccountCurrent())return staleDoctorProfile();
+    const item=doctorServicingRows().find(row=>row.applicationId+'|'+row.procedureId===String(index));
     if(!item)return;
     let modal=document.getElementById('profileRequestModal');
     if(!modal){
@@ -2670,46 +2867,35 @@ setProcedureSummary();
       modal.setAttribute('aria-hidden','true');
       document.body.appendChild(modal);
     }
-    modal.innerHTML=`<div class="profile-request-dialog" role="dialog" aria-modal="true" aria-labelledby="profileRequestTitle">
-      <button class="profile-request-close" type="button" aria-label="Cerrar solicitud" data-profile-request-close>×</button>
-      <div class="profile-request-head"><span>Solicitud del paciente</span><h2 id="profileRequestTitle">${htmlSafeProfile(item.patient)}</h2><p>Detalle de la solicitud recibida para tu clínica u hospital.</p></div>
+    if(!modal.classList.contains('open'))modal._returnFocus=document.activeElement;
+    modal.innerHTML=`<div class="profile-request-dialog" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="profileRequestTitle">
+      <button class="profile-request-close ui-action-secondary" type="button" aria-label="Cerrar solicitud" data-profile-request-close>×</button>
+      <div class="profile-request-head"><span>Solicitud del paciente</span><h2 id="profileRequestTitle">${htmlSafeProfile(item.patientName)}</h2><p>Proyección recibida manualmente para el proveedor vinculado. Demo local.</p></div>
       <div class="profile-request-grid">
-        <section><h3>Paciente</h3>${profileRequestDetailValue('Nombre',item.patient)}${profileRequestDetailValue('Teléfono / WhatsApp',item.phone)}${profileRequestDetailValue('Correo',item.email)}</section>
-        <section><h3>Solicitud</h3>${profileRequestDetailValue('Procedimiento solicitado',item.procedure)}${profileRequestDetailValue('Especialidad / servicio',item.specialty)}${profileRequestDetailValue('Monto estimado',item.amount)}${profileRequestDetailValue('Fecha de solicitud',item.date)}</section>
+        <section><h3>Paciente</h3>${profileRequestDetailValue('Nombre',item.patientName)}${profileRequestDetailValue('Solicitud',item.applicationId)}</section>
+        <section><h3>Solicitud</h3>${profileRequestDetailValue('Procedimiento',item.procedureName)}${profileRequestDetailValue('ID de procedimiento',item.procedureId)}${profileRequestDetailValue('Proveedor vinculado',item.providerId)}${profileRequestDetailValue('Fecha de procedimiento',item.procedureDate)}${profileRequestDetailValue('Estado',item.status)}${profileRequestDetailValue('Pagos al proveedor',doctorPayoutSummary(item))}</section>
       </div>
-      <div class="profile-request-actions"><button class="profile-btn profile-btn-neutral" type="button" data-profile-request-close>Cerrar</button></div>
+      <div class="profile-request-actions"><button class="profile-btn profile-btn-neutral ui-action-secondary" type="button" data-profile-request-close>Cerrar</button></div>
     </div>`;
     modal.classList.add('open');
     modal.setAttribute('aria-hidden','false');
     document.body.classList.add('profile-modal-open');
     modal.querySelectorAll('[data-profile-request-close]').forEach(btn=>btn.onclick=closeProfileRequestModal);
     modal.onclick=e=>{if(e.target===modal)closeProfileRequestModal();};
+    modal.querySelector('[data-profile-request-close]')?.focus();
   }
   function bindProfileRequestModal(){
     document.querySelectorAll('[data-profile-request-index]').forEach(btn=>btn.onclick=()=>openProfileRequestModal(btn.dataset.profileRequestIndex));
   }
-  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeProfileRequestModal();});
-  function renderInterestedDemo(isClinic){
-    const rows=DEMO_PATIENTS_INTERESTED.map((item,index)=>isClinic
-      ? `<div class="profile-pipeline-row profile-interested-row"><span data-label="Paciente">${htmlSafeProfile(item.patient)}</span><span data-label="Procedimiento">${htmlSafeProfile(item.procedure)}</span><span data-label="Especialidad / servicio">${htmlSafeProfile(item.specialty)}</span><span data-label="Monto estimado">${htmlSafeProfile(item.amount)}</span><span data-label="Acciones">${profileDemoAction(item.action,index)}</span></div>`
-      : `<div class="profile-pipeline-row profile-interested-row"><span data-label="Paciente">${htmlSafeProfile(item.patient)}</span><span data-label="Procedimiento">${htmlSafeProfile(item.procedure)}</span><span data-label="Monto estimado">${htmlSafeProfile(item.amount)}</span><span data-label="Fecha">${htmlSafeProfile(item.date)}</span><span data-label="Acciones">${profileDemoAction(item.action,index)}</span></div>`
-    ).join('');
-    return `<div class="profile-pipeline-body">${rows}</div>`;
+  document.addEventListener('keydown',handleProfileRequestModalKey);
+  function renderDoctorServicingRows(group){
+    const rows=doctorServicingRows().filter(row=>doctorRowGroup(row)===group);
+    if(!rows.length)return '<div class="profile-empty">No hay solicitudes recibidas para esta sección. Solicita la vinculación explícita de tu cuenta y recibe los datos desde el intercambio demo.</div>';
+    return '<div class="profile-pipeline-body">'+rows.map(item=>`<div class="profile-pipeline-row profile-interested-row"><span data-label="Paciente">${htmlSafeProfile(item.patientName)}<small>${htmlSafeProfile(item.applicationId)}</small></span><span data-label="Procedimiento">${htmlSafeProfile(item.procedureName)}<small>${htmlSafeProfile(item.procedureId)}</small></span><span data-label="Estado">${profileDemoStatus(item.status)}</span><span data-label="Pagos al proveedor">${htmlSafeProfile(doctorPayoutSummary(item))}</span><span data-label="Acciones">${profileDemoAction('Ver detalle',item.applicationId+'|'+item.procedureId)}</span></div>`).join('')+'</div>';
   }
-  function renderToOperateDemo(isClinic){
-    const rows=DEMO_PATIENTS_TO_OPERATE.map(item=>isClinic
-      ? `<div class="profile-pipeline-row"><span data-label="Paciente">${htmlSafeProfile(item.patient)}</span><span data-label="Procedimiento">${htmlSafeProfile(item.procedure)}</span><span data-label="Médico tratante">${htmlSafeProfile(item.doctor)}</span><span data-label="Financiamiento">${profileDemoStatus(item.financing)}</span><span data-label="Monto aprobado">${htmlSafeProfile(item.amount)}</span><span data-label="Próximo paso">${htmlSafeProfile(item.next)}</span></div>`
-      : `<div class="profile-pipeline-row"><span data-label="Paciente">${htmlSafeProfile(item.patient)}</span><span data-label="Procedimiento">${htmlSafeProfile(item.procedure)}</span><span data-label="Fecha tentativa">${htmlSafeProfile(item.date)}</span><span data-label="Financiamiento">${profileDemoStatus(item.financing)}</span><span data-label="Monto aprobado">${htmlSafeProfile(item.amount)}</span><span data-label="Próximo paso">${htmlSafeProfile(item.next)}</span></div>`
-    ).join('');
-    return `<div class="profile-pipeline-body">${rows}</div>`;
-  }
-  function renderHistoryDemo(isClinic){
-    const rows=DEMO_HISTORY.map(item=>isClinic
-      ? `<div class="profile-pipeline-row profile-history-row profile-history-row-clinic"><span data-label="Fecha">${htmlSafeProfile(item.date)}</span><span data-label="Paciente">${htmlSafeProfile(item.patient)}</span><span data-label="Procedimiento">${htmlSafeProfile(item.procedure)}</span><span data-label="Médico tratante">${htmlSafeProfile(item.doctor)}</span><span data-label="Estatus">${profileDemoStatus(item.status)}</span><span data-label="Monto">${htmlSafeProfile(item.amount)}</span></div>`
-      : `<div class="profile-pipeline-row profile-history-row profile-history-row-doctor"><span data-label="Fecha">${htmlSafeProfile(item.date)}</span><span data-label="Paciente">${htmlSafeProfile(item.patient)}</span><span data-label="Procedimiento">${htmlSafeProfile(item.procedure)}</span><span data-label="Estatus">${profileDemoStatus(item.status)}</span><span data-label="Monto">${htmlSafeProfile(item.amount)}</span></div>`
-    ).join('');
-    return `<div class="profile-pipeline-body">${rows}</div>`;
-  }
+  function renderInterestedDemo(){return renderDoctorServicingRows('interested');}
+  function renderToOperateDemo(){return renderDoctorServicingRows('operate');}
+  function renderHistoryDemo(){return renderDoctorServicingRows('history');}
 
   function profileDocIdForSpecialty(label){return 'specialty_license_'+norm(label).replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'').slice(0,54);}
   function storedProfileProcedureGroups(){
@@ -2778,7 +2964,7 @@ setProcedureSummary();
       bucket.items.push({name,index});
     });
     const isClinicProcedureProfile=((getState().profile?.accountType||localStorage.getItem('pulzzoDoctorAccountType')||'doctor').toLowerCase()!=='doctor');
-    return `<div class="profile-proc-accordion-list">${groups.map(g=>`<details class="profile-proc-accordion"><summary><span class="profile-proc-accordion-title">${htmlSafeProfile(g.group)}</span><span class="profile-proc-accordion-actions"><span class="profile-proc-accordion-count">Ver ${g.items.length} procedimiento${g.items.length===1?'':'s'} seleccionado${g.items.length===1?'':'s'}</span>${isClinicProcedureProfile?`<button class="remove-btn profile-remove-specialty" type="button" data-profile-remove-specialty="${htmlSafeProfile(g.group)}">Quitar especialidad</button>`:''}</span></summary><div class="profile-proc-accordion-body">${g.items.map(item=>`<div class="profile-proc-accordion-row"><span>${htmlSafeProfile(item.name)}</span><button class="remove-btn" type="button" data-profile-remove-proc="${item.index}">Quitar</button></div>`).join('')}</div></details>`).join('')}</div>`;
+    return `<div class="profile-proc-accordion-list">${groups.map(g=>`<details class="profile-proc-accordion"><summary><span class="profile-proc-accordion-title">${htmlSafeProfile(g.group)}</span><span class="profile-proc-accordion-actions"><span class="profile-proc-accordion-count">Ver ${g.items.length} procedimiento${g.items.length===1?'':'s'} seleccionado${g.items.length===1?'':'s'}</span>${isClinicProcedureProfile?`<button class="remove-btn profile-remove-specialty ui-action-danger" type="button" data-profile-remove-specialty="${htmlSafeProfile(g.group)}">Quitar especialidad</button>`:''}</span></summary><div class="profile-proc-accordion-body">${g.items.map(item=>`<div class="profile-proc-accordion-row"><span>${htmlSafeProfile(item.name)}</span><button class="remove-btn ui-action-danger" type="button" data-profile-remove-proc="${item.index}">Quitar</button></div>`).join('')}</div></details>`).join('')}</div>`;
   }
 
   function profileProcedureCategories(s){
@@ -2834,7 +3020,7 @@ setProcedureSummary();
       chips.classList.toggle('hidden',!total);
       if(!total){chips.innerHTML='';return;}
       const visible=total>8?draft.slice(0,5):draft;
-      const chipHtml=visible.map(x=>`<span class="proc-chip">${htmlSafeProfile(x)}<button class="proc-chip-remove" type="button" aria-label="Quitar ${htmlSafeProfile(x)}" data-profile-chip-remove="${htmlSafeProfile(x)}">×</button></span>`).join('');
+      const chipHtml=visible.map(x=>`<span class="proc-chip">${htmlSafeProfile(x)}<button class="proc-chip-remove ui-action-danger" type="button" aria-label="Quitar ${htmlSafeProfile(x)}" data-profile-chip-remove="${htmlSafeProfile(x)}">×</button></span>`).join('');
       const summaryHtml=total>8?`<span class="proc-chip-summary">${total} procedimientos seleccionados</span>`:'';
       const moreHtml=total>8?`<span class="proc-chip-more">+${total-5} más</span>`:'';
       chips.innerHTML=summaryHtml+chipHtml+moreHtml;
@@ -2874,6 +3060,7 @@ setProcedureSummary();
     if(search)search.oninput=()=>{const q=norm(search.value||'');let any=false;document.querySelectorAll('#profileProcOptions .proc-option').forEach(row=>{const inSpecialty=rowInSelectedSpecialty(row);const show=inSpecialty&&(!q||norm(row.textContent).includes(q)||String(row.dataset.procLabel||'').includes(q));row.classList.toggle('proc-filter-hidden',!show);if(show)any=true;});document.querySelectorAll('#profileProcOptions .proc-group').forEach(group=>{const specialtyHidden=isClinicProfile&&(!selectedSpecialty||group.dataset.profileGroup!==selectedSpecialty);const visible=[...group.querySelectorAll('.proc-option')].some(row=>!row.classList.contains('proc-filter-hidden'));group.classList.toggle('proc-specialty-hidden',specialtyHidden);group.classList.toggle('proc-filter-hidden',!specialtyHidden&&!visible);});if(emptySearch)emptySearch.classList.toggle('is-visible',!!q&&!any);updateSelectAllLabel();};
     const add=document.getElementById('profileAddProcBtn');
     if(add)add.onclick=()=>{
+      if(!canEditDoctorProfile())return;
       if(isClinicProfile&&!selectedSpecialty){if(specialtyToggle)specialtyToggle.focus();return;}
       let selected=draft.filter(p=>allowed.includes(p));
       const hasOther=selected.some(isOtherProcedureNameProfile);
@@ -2898,6 +3085,7 @@ setProcedureSummary();
   }
 
   function renderProfile(){
+    if(!doctorAccountCurrent())return staleDoctorProfile();
     const s=getState();
     updateProfileGreeting(s);
     renderTabs();
@@ -2910,16 +3098,10 @@ setProcedureSummary();
     try{ specialties=JSON.parse(localStorage.getItem('pulzzoDoctorSpecialties')||'[]') }catch(e){ specialties=[] }
     if(!specialties.length && Array.isArray(s.specialties)) specialties=s.specialties;
     if(!specialties.length) specialties=[];
-    const specialtyText=specialties.join(', ');
+    const specialtyText=htmlSafeProfile((Array.isArray(specialties)?specialties:[]).join(', '));
     const docLabels={official_id:'Identificación oficial',med_license:'Cédula profesional médica',license:'Cédula profesional',gen_surgery_license:'Cédula de Cirugía General',council_cert:'Consejo / certificación profesional',additional_cert:'Certificación adicional',pending_proof:'Constancia o comprobante de trámite',clinic_rep_ine:'INE',legal_power:'Poder del representante legal',cofepris_permit:'Documento sanitario COFEPRIS',clinic_address_proof:'Comprobante de domicilio',treatment_cert:'Certificación o permiso adicional del tratamiento',csf:'Constancia de Situación Fiscal',office_address:'Comprobante de domicilio del consultorio',bank_cover:'Carátula de estado de cuenta'};
     const partLabel=(id,i)=> id==='official_id'||id==='license'||id==='clinic_rep_ine' ? (i===0?'Frente':'Reverso') : 'Documento';
-    const profileCorrectionReasons={
-      bank_cover:'El documento no muestra la CLABE completa ni el titular de la cuenta.',
-      official_id:'La imagen está borrosa y no permite validar el nombre completo.',
-      cofepris_permit:'El documento sanitario no corresponde al tipo de establecimiento seleccionado.',
-      clinic_address_proof:'El comprobante tiene más de 3 meses de antigüedad.'
-    };
-    const defaultProfileRejectionReason='El archivo no corresponde al documento solicitado o no se ve completo. Vuelve a subir el documento correcto.';
+    const defaultProfileRejectionReason='Hay un rechazo registrado, pero no se guardó un motivo. Consulta el detalle antes de corregir el documento.';
     const normalizeProfileDocStatus=(status)=>{
       const raw=String(status||'').toLowerCase();
       if(raw.includes('aprobad')||raw.includes('approved'))return 'Aprobado';
@@ -2934,10 +3116,9 @@ setProcedureSummary();
     };
     const profileDocFiles=(id)=>{
       const files=Array.isArray(s.files?.[id])?s.files[id]:[];
-      const demoRejected=!!profileCorrectionReasons[id]&&!files.some(f=>f&&f.status);
       return files.map(f=>{
-        const status=normalizeProfileDocStatus(demoRejected?'Rechazado':(f.status||'En revisión'));
-        return {...f,status,reason:status==='Rechazado'?(f.reason||profileCorrectionReasons[id]||defaultProfileRejectionReason):''};
+        const status=normalizeProfileDocStatus(f.status||'En revisión');
+        return {...f,status,reason:status==='Rechazado'?(f.reason||defaultProfileRejectionReason):''};
       });
     };
     const profileDocState=(id,files=profileDocFiles(id),optional=false)=>{
@@ -2949,7 +3130,7 @@ setProcedureSummary();
       return 'Pendiente';
     };
     const statusPill=(status)=>`<span class="profile-status ${profileDocStatusClass(status)}">${htmlSafeProfile(normalizeProfileDocStatus(status))}</span>`;
-    const profileUploadAction=(id,label='Subir documento',index=null)=>{const btnClass=label==='Volver a subir'?'profile-btn-primary':'profile-btn-coral';return `<label class="profile-btn ${btnClass}">${label}<input class="profile-correction-upload" type="file" data-profile-upload-doc="${id}" ${index!==null?`data-profile-file-index="${index}"`:''} ${id==='official_id'?'multiple':''} accept="image/*,application/pdf"></label>`;};
+    const profileUploadAction=(id,label='Subir documento',index=null)=>{const btnClass=label==='Volver a subir'?'profile-btn-primary ui-action-primary':'profile-btn-coral ui-action-primary';return `<label class="profile-btn ${btnClass}">${label}<input class="profile-correction-upload" type="file" data-profile-upload-doc="${id}" ${index!==null?`data-profile-file-index="${index}"`:''} ${id==='official_id'?'multiple':''} accept="image/*,application/pdf"></label>`;};
     const correctionReasonHtml=(reason)=>reason?`<div class="profile-correction-reason"><strong>Motivo del rechazo:</strong><span>${htmlSafeProfile(reason)}</span></div>`:'';
     const docFileRows=(id)=>{
       const files=profileDocFiles(id);
@@ -2958,13 +3139,14 @@ setProcedureSummary();
       return files.map((f,i)=>{
         const st=normalizeProfileDocStatus(f.status);
         const rejected=st==='Rechazado';
-        return `<div class="profile-doc-subrow"><div class="profile-doc-subrow-main"><strong>${partLabel(id,i)}</strong><small>${f.name||docLabels[id]||'Documento'}</small>${rejected?correctionReasonHtml(f.reason||defaultProfileRejectionReason):''}</div><div class="profile-doc-subrow-actions">${statusPill(st)}<button class="profile-btn" type="button" data-profile-doc="${docLabels[id]} - ${partLabel(id,i)}">Ver documento</button>${rejected?profileUploadAction(id,'Volver a subir',i):''}</div></div>`;
+        return `<div class="profile-doc-subrow"><div class="profile-doc-subrow-main"><strong>${partLabel(id,i)}</strong><small>${htmlSafeProfile(f.name||docLabels[id]||'Documento')}</small>${rejected?correctionReasonHtml(f.reason||defaultProfileRejectionReason):''}</div><div class="profile-doc-subrow-actions">${statusPill(st)}<button class="profile-btn ui-action-secondary" type="button" data-profile-doc="${htmlSafeProfile(docLabels[id]||'Documento')} - ${htmlSafeProfile(partLabel(id,i))}">Ver documento</button>${rejected?profileUploadAction(id,'Volver a subir',i):''}</div></div>`;
       }).join('');
     };
     if(activeTab==='Datos médicos'){
-      const photoSummary=s.profilePhotoData?`<div class="profile-photo-main"><img class="profile-photo-img" src="${s.profilePhotoData}" alt="Foto de perfil médico"><div><strong>Foto de perfil cargada</strong><p>Imagen lista para mostrarse cuando Pulzzo active tu perfil.</p><span class="profile-status">En revisión</span></div></div><div class="profile-photo-toolbar"><button class="profile-btn" type="button" data-profile-doc="Foto de perfil">Ver foto</button><button class="profile-btn" type="button" id="profileModifyPhoto">Modificar foto</button></div>`:(s.photoMode==='social'?`<div class="profile-photo-main"><div class="profile-photo-placeholder">Redes</div><div><strong>Foto desde redes profesionales</strong><p>Usaremos una imagen pública de tus enlaces profesionales para completar tu perfil.</p><span class="profile-status">En revisión</span></div></div><div class="profile-photo-toolbar"><button class="profile-btn" type="button" id="profileModifyPhoto">Modificar foto</button></div>`:`<div class="profile-photo-main"><div class="profile-photo-placeholder">Foto</div><div><strong>Foto pendiente</strong><p>Elige una opción para completar tu foto de perfil médico. Podrás actualizarla después.</p></div></div><div class="profile-photo-toolbar"><button class="profile-btn" type="button" id="profileModifyPhoto">Agregar foto</button></div>`);
-      const photoHtml=`<div class="profile-photo-card">${photoSummary}</div><div class="profile-photo-edit-options" id="profilePhotoOptions"><button class="profile-photo-option" id="profilePhotoUploadBtn" type="button"><strong>Subir foto</strong><p>Carga una foto profesional desde tu dispositivo.</p></button><button class="profile-photo-option" id="profilePhotoCameraBtn" type="button"><strong>Tomar foto</strong><p>Abre la cámara y toma una foto nueva.</p></button><button class="profile-photo-option" id="profilePhotoSocialBtn" type="button"><strong>Usar foto de redes</strong><p>Usaremos una imagen pública de tus enlaces profesionales.</p></button><input id="profilePhotoUploadInput" type="file" accept="image/*" hidden><input id="profilePhotoCameraInput" type="file" accept="image/*" capture="user" hidden></div>`;
-      const notificationsHtml=`<h3 class="profile-section-title">Notificaciones</h3><p class="profile-data-aside-copy">Aquí verás si necesitamos que corrijas algo o si hay una actualización importante.</p><div class="profile-notification-card"><div class="profile-notification-title"><span class="profile-notification-dot"></span><span>Corrección requerida</span></div><p>Estados de cuenta requiere revisión.</p><div class="profile-correction-reason"><strong>Motivo:</strong><span>El documento no muestra la CLABE completa ni el titular de la cuenta.</span></div><button class="profile-btn" type="button" data-profile-correction-target="bank_cover">Ir a corrección</button></div>`;
+      const photoSummary=s.profilePhotoData?`<div class="profile-photo-main"><img class="profile-photo-img" src="${htmlSafeProfile(/^data:image\/(png|jpeg|webp|gif);base64,[A-Za-z0-9+/=]+$/.test(s.profilePhotoData)?s.profilePhotoData:'')}" alt="Foto de perfil médico"><div><strong>Foto de perfil cargada</strong><p>Imagen lista para mostrarse cuando Pulzzo active tu perfil.</p><span class="profile-status">En revisión</span></div></div><div class="profile-photo-toolbar"><button class="profile-btn ui-action-secondary" type="button" data-profile-doc="Foto de perfil">Ver foto</button><button class="profile-btn ui-action-secondary" type="button" id="profileModifyPhoto">Modificar foto</button></div>`:(s.photoMode==='social'?`<div class="profile-photo-main"><div class="profile-photo-placeholder">Redes</div><div><strong>Foto desde redes profesionales</strong><p>Preferencia guardada para la demostración. No se descargó ninguna imagen de tus redes.</p><span class="profile-status">En revisión</span></div></div><div class="profile-photo-toolbar"><button class="profile-btn ui-action-secondary" type="button" id="profileModifyPhoto">Modificar foto</button></div>`:`<div class="profile-photo-main"><div class="profile-photo-placeholder">Foto</div><div><strong>Foto pendiente</strong><p>Elige una opción para completar tu foto de perfil médico. Podrás actualizarla después.</p></div></div><div class="profile-photo-toolbar"><button class="profile-btn ui-action-secondary" type="button" id="profileModifyPhoto">Agregar foto</button></div>`);
+      const photoHtml=`<div class="profile-photo-card">${photoSummary}<p>PNG, JPEG, WebP o GIF. Máximo 5 MiB por foto; el guardado depende del espacio disponible en este navegador.</p><p id="profilePhotoMessage" role="status" aria-live="polite" aria-atomic="true"></p></div><div class="profile-photo-edit-options" id="profilePhotoOptions"><button class="profile-photo-option ui-choice" id="profilePhotoUploadBtn" type="button"><strong>Subir foto</strong><p>Carga una foto profesional desde tu dispositivo.</p></button><button class="profile-photo-option ui-choice" id="profilePhotoCameraBtn" type="button"><strong>Tomar foto</strong><p>Abre la cámara y toma una foto nueva.</p></button><button class="profile-photo-option ui-choice" id="profilePhotoSocialBtn" type="button"><strong>Usar foto de redes</strong><p>Guarda esta preferencia demo; no descarga imágenes de tus redes.</p></button><input id="profilePhotoUploadInput" type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden><input id="profilePhotoCameraInput" type="file" accept="image/png,image/jpeg,image/webp,image/gif" capture="user" hidden></div>`;
+      const rejectedBank=profileDocFiles('bank_cover').find(file=>file.status==='Rechazado');
+      const notificationsHtml=`<h3 class="profile-section-title">Notificaciones</h3><p class="profile-data-aside-copy">Aquí verás si necesitamos que corrijas algo o si hay una actualización importante.</p>${rejectedBank?`<div class="profile-notification-card"><div class="profile-notification-title"><span class="profile-notification-dot"></span><span>Corrección requerida</span></div><p>Carátula bancaria rechazada.</p>${correctionReasonHtml(rejectedBank.reason)}<button class="profile-btn ui-action-secondary" type="button" data-profile-correction-target="bank_cover">Ir a corrección</button></div>`:'<div class="profile-empty">Sin correcciones bancarias pendientes registradas.</div>'}`;
       const profileAccountType=(s.profile?.accountType||localStorage.getItem('pulzzoDoctorAccountType')||'doctor').toLowerCase();
       let mainCards='';
       if(profileAccountType==='clinica'){
@@ -2989,7 +3171,7 @@ setProcedureSummary();
       const hasFiles=(id)=>profileDocFiles(id).length>0;
       const statusLabel=(id, notApplicable=false)=> notApplicable?'No aplica':docStatus(id);
       const docGroup=(id,title,copy)=>{const st=docStatus(id);return `<div class="profile-doc-group" data-profile-doc-group="${id}"><div class="profile-doc-group-head"><div><strong>${title}</strong><p>${copy}</p></div>${statusPill(st)}</div>${docFileRows(id)}</div>`;};
-      const summaryCard=(title,value)=>`<div class="profile-card"><h3>${title}</h3><strong>${value||'Pendiente'}</strong></div>`;
+      const summaryCard=(title,value)=>`<div class="profile-card"><h3>${htmlSafeProfile(title)}</h3><strong>${htmlSafeProfile(value||'Pendiente')}</strong></div>`;
       const fileDocSummary=(id,title,notApplicable=false)=>summaryCard(title,statusLabel(id,notApplicable));
       let profileDocsHtml='';
       if(accountType==='clinica'){
@@ -3002,7 +3184,7 @@ setProcedureSummary();
         const certAplica=cd.certRequired==='yes'?'Sí':cd.certRequired==='no'?'No':'Pendiente';
         const certBlock=cd.certRequired==='yes'
           ? `<div class="profile-doc-group profile-treatment-cert-card"><div class="profile-doc-group-head"><div><strong>Certificaciones por tratamiento</strong><p>El establecimiento indicó que algún tratamiento requiere certificación, constancia, permiso o aval adicional.</p></div>${statusPill(docStatus('treatment_cert'))}</div><div class="profile-doc-summary-grid">${summaryCard('Certificaciones por tratamiento','Sí')}${summaryCard('Tratamiento o procedimiento relacionado',cd.certProcedure||'Pendiente')}</div>${docGroup('treatment_cert','Documento de certificación o permiso adicional','Documento asociado al tratamiento o procedimiento relacionado.')}</div>`
-          : `<div class="profile-doc-group"><div class="profile-doc-group-head"><div><strong>Certificaciones por tratamiento</strong><p>Por ahora no aplica certificación adicional por tratamiento.</p></div><span class="profile-status">${certAplica}</span></div><div class="profile-doc-summary-grid">${summaryCard('Certificaciones por tratamiento',certAplica)}</div></div>`;
+          : `<div class="profile-doc-group"><div class="profile-doc-group-head"><div><strong>Certificaciones por tratamiento</strong><p>${cd.certRequired==='no'?'El establecimiento indicó que no aplica certificación adicional.':'Pendiente de indicar si aplica certificación adicional.'}</p></div><span class="profile-status">${certAplica}</span></div><div class="profile-doc-summary-grid">${summaryCard('Certificaciones por tratamiento',certAplica)}</div></div>`;
         const legalIntro=`<div class="profile-doc-group profile-validation-summary"><div class="profile-doc-group-head"><div><strong>Documentos de clínica u hospital</strong><p>Pulzzo revisará la información fiscal, legal, sanitaria y operativa de tu clínica u hospital.</p></div>${statusPill('En revisión')}</div><div class="profile-doc-summary-grid">${summaryCard('Figura legal seleccionada',legalType)}${summaryCard('Descripción',legalCopy)}</div></div>`;
         const cofeprisIntro=`<div class="profile-doc-group"><div class="profile-doc-group-head"><div><strong>Documento sanitario COFEPRIS</strong><p>Documento sanitario aplicable al establecimiento.</p></div>${statusPill(docStatus('cofepris_permit'))}</div><div class="profile-doc-summary-grid">${summaryCard('Tipo de documento sanitario',cofeprisType)}</div>${docFileRows('cofepris_permit')}</div>`;
         profileDocsHtml=`${legalIntro}${docGroup('csf','Constancia de Situación Fiscal','Documento fiscal cargado para validar la clínica u hospital.')}${docGroup('clinic_rep_ine',ineTitle,ineCopy)}${cd.legalType==='moral'?docGroup('legal_power','Poder del representante legal','Documento que acredita que la persona registrada puede representar legalmente a la clínica u hospital.'):''}${cofeprisIntro}${docGroup('clinic_address_proof','Comprobante de domicilio de la clínica u hospital','Domicilio físico del establecimiento para validación.')}${cd.legalType?certBlock:''}`;
@@ -3056,34 +3238,35 @@ setProcedureSummary();
         const validationCards=`${summaryBlock}${validationDetails}`;
         profileDocsHtml=`${docGroup('official_id','Identificación oficial','Documento de identidad cargado para validar tu perfil.')}${docGroup('csf','Constancia de Situación Fiscal','Documento fiscal cargado para validar tus datos.')}${docGroup('office_address','Comprobante de domicilio','Domicilio profesional registrado para validación.')}${validationCards}`;
       }
-      p.innerHTML=`<h2 class="profile-section-title">Documentos</h2><p class="profile-section-copy">Resumen documental de tu cuenta médica. Las correcciones se hacen aquí mismo y solo sobre el documento solicitado por Pulzzo.</p><div class="profile-list">${profileDocsHtml}</div>`;
+      p.innerHTML=`<h2 class="profile-section-title">Documentos</h2><p class="profile-section-copy">Resumen documental de tu cuenta médica. Los archivos guardados son metadatos de demostración.</p>${renderProfileOnboardingFields(s)}<div class="profile-list">${profileDocsHtml}</div>`;
     }
     if(activeTab==='Fiscal y banco'){
       const bankFiles=profileDocFiles('bank_cover');
       const bankStatus=profileDocState('bank_cover',bankFiles);
       const bankRejected=normalizeProfileDocStatus(bankStatus)==='Rechazado';
       const bankPending=normalizeProfileDocStatus(bankStatus)==='Pendiente';
-      const bankReason=(bankFiles.find(f=>normalizeProfileDocStatus(f.status)==='Rechazado')||{}).reason||profileCorrectionReasons.bank_cover;
-      const bankActions=`${bankFiles.length?'<button class="profile-btn" type="button" data-profile-doc="Carátula de estado de cuenta">Ver documento</button>':''}${bankRejected?profileUploadAction('bank_cover','Volver a subir'):(bankPending?profileUploadAction('bank_cover','Subir documento'):'')}`;
-      p.innerHTML=`<h2 class="profile-section-title">Fiscal y banco</h2><p class="profile-section-copy">Datos para pagos y validación bancaria. Si Pulzzo solicita una corrección, solo se habilitará el campo o archivo indicado.</p><div class="profile-grid" style="grid-template-columns:1fr"><div class="profile-card"><h3>Titular</h3><strong>${s.fiscal?.titular||'Pendiente'}</strong></div></div><div class="profile-grid" style="margin-top:18px"><div class="profile-card"><h3>RFC</h3><strong>${s.fiscal?.rfc||'Pendiente'}</strong></div><div class="profile-card"><h3>Banco</h3><strong>${s.fiscal?.banco||'Pendiente'}</strong></div><div class="profile-card"><h3>CLABE</h3><strong>${s.fiscal?.clabe||'Pendiente'}</strong></div></div><div class="profile-bank-cover-row" id="profile-bank-cover"><div><strong>Carátula de estado de cuenta</strong>${bankRejected?correctionReasonHtml(bankReason):''}</div><div class="profile-doc-subrow-actions">${statusPill(bankStatus)}${bankActions}</div></div>`;
+      const bankReason=(bankFiles.find(f=>normalizeProfileDocStatus(f.status)==='Rechazado')||{}).reason||defaultProfileRejectionReason;
+      const bankActions=`${bankFiles.length?'<button class="profile-btn ui-action-secondary" type="button" data-profile-doc="Carátula de estado de cuenta">Ver documento</button>':''}${bankRejected?profileUploadAction('bank_cover','Volver a subir'):(bankPending?profileUploadAction('bank_cover','Subir documento'):'')}`;
+      p.innerHTML=`<h2 class="profile-section-title">Fiscal y banco</h2><p class="profile-section-copy">Datos de demostración para pagos y validación bancaria. ${s.submitted?'La edición de datos enviados requiere revisión.':'Se guardan automáticamente en este navegador. Usa solo datos ficticios.'}</p><div class="profile-edit-grid">${profileDataField('fiscal.titular',s.fiscal?.titular,'Titular','','text',!!s.submitted)}${profileDataField('fiscal.rfc',s.fiscal?.rfc,'RFC','','text',!!s.submitted)}${profileDataField('fiscal.banco',s.fiscal?.banco,'Banco','','text',!!s.submitted)}${profileDataField('fiscal.clabe',s.fiscal?.clabe,'CLABE','','text',!!s.submitted)}</div><div class="profile-bank-cover-row" id="profile-bank-cover"><div><strong>Carátula de estado de cuenta</strong>${bankRejected?correctionReasonHtml(bankReason):''}</div><div class="profile-doc-subrow-actions">${statusPill(bankStatus)}${bankActions}</div></div>`;
     }
     if(activeTab==='Procedimientos'){
       const profileAccountType=(s.profile?.accountType||localStorage.getItem('pulzzoDoctorAccountType')||'doctor').toLowerCase();
       const isClinicProcedureProfile=profileAccountType!=='doctor';
       const cats=isClinicProcedureProfile?procedimientosData:profileProcedureCategories(s);
       const pickerGroups=cats.map(cat=>{
-        const options=cat.items.map(item=>`<label class="proc-option" data-profile-proc="${htmlSafeProfile(item)}" data-proc-value="${htmlSafeProfile(item)}" data-proc-label="${htmlSafeProfile(norm(item))}"><input type="checkbox" value="${htmlSafeProfile(item)}"><span class="proc-check"></span><span class="proc-label">${htmlSafeProfile(item)}</span></label>`).join('');
+        const options=cat.items.map(item=>`<label class="proc-option ui-choice" data-profile-proc="${htmlSafeProfile(item)}" data-proc-value="${htmlSafeProfile(item)}" data-proc-label="${htmlSafeProfile(norm(item))}"><input type="checkbox" value="${htmlSafeProfile(item)}"><span class="proc-check"></span><span class="proc-label">${htmlSafeProfile(item)}</span></label>`).join('');
         return `<div class="proc-group" data-profile-group="${htmlSafeProfile(cat.group)}"><div class="proc-group-label"><span>${htmlSafeProfile(cat.group)}</span></div>${options}</div>`;
       }).join('');
-      const specialtyPickerHtml=isClinicProcedureProfile?`<div class="proc-picker profile-specialty-picker" id="profileSpecialtyPicker"><button class="proc-picker-toggle" id="profileSpecialtyToggle" type="button"><span id="profileSpecialtySummary" class="is-placeholder">Selecciona especialidad</span><span>⌄</span></button><div class="proc-picker-menu hidden" id="profileSpecialtyMenu"><input class="proc-picker-search" id="profileSpecialtySearch" type="text" placeholder="Buscar especialidad..." autocomplete="off"><div class="proc-picker-options" id="profileSpecialtyOptions">${procedimientosData.map(cat=>`<button class="proc-option profile-specialty-option" type="button" data-profile-specialty-group="${htmlSafeProfile(cat.group)}"><span class="proc-label">${htmlSafeProfile(profileGroupToSpecialtyLabel(cat.group))}</span></button>`).join('')}</div></div><div class="proc-selected-note">Primero elige la especialidad que quieres agregar o actualizar.</div></div>`:'';
+      const specialtyPickerHtml=isClinicProcedureProfile?`<div class="proc-picker profile-specialty-picker" id="profileSpecialtyPicker"><button class="proc-picker-toggle ui-action-secondary" id="profileSpecialtyToggle" type="button"><span id="profileSpecialtySummary" class="is-placeholder">Selecciona especialidad</span><span>⌄</span></button><div class="proc-picker-menu hidden" id="profileSpecialtyMenu"><input class="proc-picker-search" id="profileSpecialtySearch" type="text" placeholder="Buscar especialidad..." autocomplete="off"><div class="proc-picker-options" id="profileSpecialtyOptions">${procedimientosData.map(cat=>`<button class="proc-option profile-specialty-option ui-choice" type="button" data-profile-specialty-group="${htmlSafeProfile(cat.group)}"><span class="proc-label">${htmlSafeProfile(profileGroupToSpecialtyLabel(cat.group))}</span></button>`).join('')}</div></div><div class="proc-selected-note">Primero elige la especialidad que quieres agregar o actualizar.</div></div>`:'';
       const procedureCards=renderGroupedProfileProcedures(s.procedures||[]);
       const pickerTitle=isClinicProcedureProfile?'Agregar especialidad o procedimiento':'Agregar procedimientos';
       const pickerCopy=isClinicProcedureProfile?'Selecciona una especialidad y después los procedimientos que ofrecerás. Si no encuentras un procedimiento exacto, selecciona Otro y podrás escribirlo manualmente.':'Busca y selecciona los procedimientos que ofrecerás. Si no encuentras un procedimiento exacto, busca y selecciona Otro, da click en Agregar procedimiento y podrás escribirlo manualmente.';
-      p.innerHTML=`<h2 class="profile-section-title">Procedimientos</h2><p class="profile-section-copy">Procedimientos que ofrecerás con Pulzzo.</p><div class="profile-proc-list">${procedureCards}</div><div class="profile-procedure-picker" id="profileProcPanel"><h3>${pickerTitle}</h3><p>${pickerCopy}</p><div class="profile-picker-grid ${isClinicProcedureProfile?'profile-picker-grid-clinic':''}">${specialtyPickerHtml}<div class="proc-picker" id="profileProcPicker"><button class="proc-picker-toggle" id="profileProcToggle" type="button"><span id="profileProcSummary" class="is-placeholder">${isClinicProcedureProfile?'Selecciona especialidad primero':'Selecciona procedimientos'}</span><span>⌄</span></button><div class="proc-picker-menu hidden" id="profileProcMenu"><input class="proc-picker-search" id="profileProcSearch" type="text" placeholder="Buscar procedimiento..." autocomplete="off"><div class="proc-picker-toolbar"><button type="button" id="profileProcSelectAll">Seleccionar todo</button><button type="button" id="profileProcClear">Borrar todo</button><span id="profileProcCount">0 seleccionados</span></div><div class="proc-picker-options" id="profileProcOptions">${pickerGroups||'<div class="proc-empty">No encontramos procedimientos disponibles.</div>'}</div><div id="profileProcEmptySearch">No encontramos procedimientos con esa búsqueda.</div></div><div class="proc-selected-note">${isClinicProcedureProfile?'Puedes seleccionar varios procedimientos de la especialidad elegida.':'Puedes seleccionar varios procedimientos de una o varias especialidades.'}</div><div class="profile-proc-selected hidden" id="profileProcChips"></div><div id="profileProcOtherWrap" class="hidden"><label>Escribe el procedimiento</label><input id="profileProcOtherInput" type="text" placeholder="Ej. Procedimiento específico"><div class="helper">Se agregará como procedimiento personalizado al presionar Agregar procedimiento.</div></div></div><button class="profile-btn profile-btn-coral" type="button" id="profileAddProcBtn">Agregar procedimiento</button></div></div>`;
-      document.querySelectorAll('[data-profile-remove-proc]').forEach(btn=>btn.onclick=()=>{const next=getState();next.procedures=(next.procedures||[]).filter((_,idx)=>idx!==Number(btn.dataset.profileRemoveProc));setProfileState(next);renderProfile();});
+      p.innerHTML=`<h2 class="profile-section-title">Procedimientos</h2><p class="profile-section-copy">Procedimientos que ofrecerás con Pulzzo.</p><div class="profile-proc-list">${procedureCards}</div><div class="profile-procedure-picker" id="profileProcPanel"><h3>${pickerTitle}</h3><p>${pickerCopy}</p><div class="profile-picker-grid ${isClinicProcedureProfile?'profile-picker-grid-clinic':''}">${specialtyPickerHtml}<div class="proc-picker" id="profileProcPicker"><button class="proc-picker-toggle ui-action-secondary" id="profileProcToggle" type="button"><span id="profileProcSummary" class="is-placeholder">${isClinicProcedureProfile?'Selecciona especialidad primero':'Selecciona procedimientos'}</span><span>⌄</span></button><div class="proc-picker-menu hidden" id="profileProcMenu"><input class="proc-picker-search" id="profileProcSearch" type="text" placeholder="Buscar procedimiento..." autocomplete="off"><div class="proc-picker-toolbar"><button type="button" id="profileProcSelectAll" class="ui-action-secondary">Seleccionar todo</button><button type="button" id="profileProcClear" class="ui-action-secondary">Borrar todo</button><span id="profileProcCount">0 seleccionados</span></div><div class="proc-picker-options" id="profileProcOptions">${pickerGroups||'<div class="proc-empty">No encontramos procedimientos disponibles.</div>'}</div><div id="profileProcEmptySearch">No encontramos procedimientos con esa búsqueda.</div></div><div class="proc-selected-note">${isClinicProcedureProfile?'Puedes seleccionar varios procedimientos de la especialidad elegida.':'Puedes seleccionar varios procedimientos de una o varias especialidades.'}</div><div class="profile-proc-selected hidden" id="profileProcChips"></div><div id="profileProcOtherWrap" class="hidden"><label>Escribe el procedimiento</label><input id="profileProcOtherInput" type="text" placeholder="Ej. Procedimiento específico"><div class="helper">Se agregará como procedimiento personalizado al presionar Agregar procedimiento.</div></div></div><button class="profile-btn profile-btn-coral ui-action-primary" type="button" id="profileAddProcBtn">Agregar procedimiento</button></div></div>`;
+      document.querySelectorAll('[data-profile-remove-proc]').forEach(btn=>btn.onclick=()=>{if(!canEditDoctorProfile())return;const next=getState();next.procedures=(next.procedures||[]).filter((_,idx)=>idx!==Number(btn.dataset.profileRemoveProc));setProfileState(next);renderProfile();});
       document.querySelectorAll('[data-profile-remove-specialty]').forEach(btn=>btn.onclick=(ev)=>{
         ev.preventDefault();
         ev.stopPropagation();
+        if(!canEditDoctorProfile())return;
         const group=btn.dataset.profileRemoveSpecialty||'';
         if(!group) return;
         const label=profileGroupToSpecialtyLabel(group);
@@ -3098,16 +3281,80 @@ setProcedureSummary();
       });
       bindProfileProcedurePicker();
     }
-    const isClinicProfile=((s.profile?.accountType||localStorage.getItem('pulzzoDoctorAccountType')||'doctor').toLowerCase()==='clinica');
-    if(activeTab==='Pacientes interesados')p.innerHTML=isClinicProfile?`<h2 class="profile-section-title">Pacientes interesados</h2><p class="profile-section-copy">Pipeline inicial de pacientes que soliciten un procedimiento con tu clínica u hospital.</p><div class="profile-pipeline-head profile-interested-head"><span>Paciente</span><span>Procedimiento</span><span>Especialidad / servicio</span><span>Monto estimado</span><span>Acciones</span></div>${renderInterestedDemo(true)}`:`<h2 class="profile-section-title">Pacientes interesados</h2><p class="profile-section-copy">Pipeline inicial de pacientes que seleccionen tu perfil o soliciten un procedimiento contigo.</p><div class="profile-pipeline-head profile-interested-head"><span>Paciente</span><span>Procedimiento</span><span>Monto estimado</span><span>Fecha</span><span>Acciones</span></div>${renderInterestedDemo(false)}`;
-    if(activeTab==='Pacientes por operar')p.innerHTML=isClinicProfile?`<h2 class="profile-section-title">Pacientes por operar</h2><p class="profile-section-copy">Vista operativa de financiamientos aprobados o próximos a procedimiento en tu clínica u hospital.</p><div class="profile-pipeline-head"><span>Paciente</span><span>Procedimiento</span><span>Médico tratante</span><span>Financiamiento</span><span>Monto aprobado</span><span>Próximo paso</span></div>${renderToOperateDemo(true)}`:`<h2 class="profile-section-title">Pacientes por operar</h2><p class="profile-section-copy">Vista operativa de financiamientos aprobados o próximos a procedimiento.</p><div class="profile-pipeline-head"><span>Paciente</span><span>Procedimiento</span><span>Fecha tentativa</span><span>Financiamiento</span><span>Monto aprobado</span><span>Próximo paso</span></div>${renderToOperateDemo(false)}`;
-    if(activeTab==='Historial')p.innerHTML=isClinicProfile?`<h2 class="profile-section-title">Historial</h2><p class="profile-section-copy">Solicitudes pagadas al proveedor médico o canceladas.</p><div class="profile-pipeline-head profile-history-head profile-history-head-clinic"><span>Fecha</span><span>Paciente</span><span>Procedimiento</span><span>Médico tratante</span><span>Estatus</span><span>Monto</span></div>${renderHistoryDemo(true)}`:`<h2 class="profile-section-title">Historial</h2><p class="profile-section-copy">Solicitudes pagadas al proveedor médico o canceladas aparecerán en esta sección.</p><div class="profile-pipeline-head profile-history-head profile-history-head-doctor"><span>Fecha</span><span>Paciente</span><span>Procedimiento</span><span>Estatus</span><span>Monto</span></div>${renderHistoryDemo(false)}`;
+    const servicingSections={'Pacientes interesados':renderInterestedDemo,'Pacientes por operar':renderToOperateDemo,'Historial':renderHistoryDemo};
+    if(servicingSections[activeTab])p.innerHTML=`<h2 class="profile-section-title">${htmlSafeProfile(activeTab)}</h2><p class="profile-section-copy">Vista local recibida manualmente. Solo contiene solicitudes y pagos de tu proveedor vinculado; no es información en tiempo real.</p><div class="profile-pipeline-head profile-interested-head"><span>Paciente / solicitud</span><span>Procedimiento propio</span><span>Estado</span><span>Pagos al proveedor</span><span>Detalle</span></div>${servicingSections[activeTab]()}`;
+    if(['Documentos','Fiscal y banco'].includes(activeTab))bindProfileDataInputs();
     bindProfileDocModal();
     bindProfilePhotoActions();
     bindProfileRequestModal();
+    applySubmittedProfileLock(s);
+    renderDoctorCorrection(s);
   }
+  const DOCTOR_CORRECTION_FIELDS=['fiscal.rfc','fiscal.clabe','fiscal.banco','fiscal.titular','medval.procedureType','medval.method','medval.curp','medval.medicalLicenseNumber','medval.specialtyLicenseNumber','medval.councilNumber','medval.pendingQuestion','medval.pendingDocType','medval.pendingSpecialty','medval.generalSurgeryNotApplicable','medval.councilNotApplicable','medval.additionalNotApplicable','clinicDocs.legalType','clinicDocs.sanitaryDocType','clinicDocs.certRequired','clinicDocs.certProcedure'];
+  const DOCTOR_CORRECTION_LABELS={'fiscal.rfc':'RFC','fiscal.clabe':'CLABE','fiscal.banco':'Banco','fiscal.titular':'Titular','medval.procedureType':'Tipo de procedimientos','medval.method':'Método de validación','medval.curp':'CURP','medval.medicalLicenseNumber':'Cédula profesional médica','medval.specialtyLicenseNumber':'Cédula de especialidad','medval.councilNumber':'Consejo o certificación','medval.pendingQuestion':'Documento en trámite','medval.pendingDocType':'Tipo de documento en trámite','medval.pendingSpecialty':'Especialidad del documento en trámite','medval.generalSurgeryNotApplicable':'Cirugía General: no aplica','medval.councilNotApplicable':'Consejo: no aplica','medval.additionalNotApplicable':'Certificación adicional: no aplica','clinicDocs.legalType':'Figura legal','clinicDocs.sanitaryDocType':'Documento sanitario','clinicDocs.certRequired':'Certificación adicional requerida','clinicDocs.certProcedure':'Procedimiento relacionado'};
+  const DOCTOR_CORRECTION_CHOICES={'medval.procedureType':[['non_surgical','No quirúrgicos / consultorio'],['surgical','Quirúrgicos o invasivos'],['both','Ambos']],'medval.method':[['upload','Subir documentos'],['validate','Solicitar validación']],'medval.pendingQuestion':[['yes','Sí'],['no','No']],'clinicDocs.legalType':[['physical','Persona física'],['moral','Persona moral']],'clinicDocs.sanitaryDocType':[['notice','Aviso de funcionamiento'],['license','Licencia sanitaria'],['responsible','Aviso de responsable sanitario'],['other','Otro permiso/documento']],'clinicDocs.certRequired':[['yes','Sí'],['no','No']]};
+  function correctionFieldValue(state,field){const [group,key]=field.split('.');return state[group]?.[key]??'';}
+  function renderDoctorCorrection(state){
+    const panel=document.getElementById('doctorProfilePanel'),service=window.PulzzoDemoServicing;
+    if(!panel||!service||!state.submitted)return;
+    const request=state.demoCorrection;
+    if(!request||request.doctorAccountId!==doctorAccountId||request.providerId!==state.demoProviderId)return;
+    const fields=DOCTOR_CORRECTION_FIELDS.filter(field=>service.canEditCorrection?.(state,doctorAccountId,field));
+    let controls='';
+    if(request.status==='requested'&&fields.length){
+      controls=fields.map(field=>{
+        const id='doctor-correction-'+field.replace('.','-'),label=service.FIELD_LABELS?.[field]||DOCTOR_CORRECTION_LABELS[field],draft=state.demoCorrectionDraft||{};
+        const value=Object.prototype.hasOwnProperty.call(draft,field)?draft[field]:correctionFieldValue(state,field);
+        const attr=`id="${id}" data-doctor-correction-field="${field}"`;
+        const choices=DOCTOR_CORRECTION_CHOICES[field];
+        const input=choices?`<select ${attr}><option value="">Selecciona una opción</option>${choices.map(([key,text])=>`<option value="${key}"${value===key?' selected':''}>${htmlSafeProfile(text)}</option>`).join('')}</select>`:field.endsWith('NotApplicable')?`<input ${attr} type="checkbox"${value===true?' checked':''}>`:`<input ${attr} type="text" maxlength="200" value="${htmlSafeProfile(value)}">`;
+        return `<div class="profile-edit-field"><label for="${id}">${htmlSafeProfile(label)}</label>${input}</div>`;
+      }).join('');
+    }
+    const copy=request.status==='submitted'?'Correcciones enviadas. Los datos originales siguen bloqueados hasta recibir la revisión.':request.status==='approved'?'Correcciones aprobadas y recibidas en este navegador.':'Solo puedes corregir los campos habilitados en esta solicitud. El borrador no modifica el perfil enviado. Usa “Enviar correcciones” en el intercambio demo cuando termines.';
+    panel.insertAdjacentHTML('afterbegin',`<section class="profile-data-card doctor-correction-card"><h3>Corrección de perfil · demo local</h3><p>${htmlSafeProfile(copy)}</p><p>${htmlSafeProfile(request.reason||'')}</p><div class="profile-edit-grid">${controls}</div><p id="doctorCorrectionMessage" role="status" aria-live="polite"></p></section>`);
+    document.querySelectorAll('[data-doctor-correction-field]').forEach(input=>{
+      const requestId=request.requestId,nonce=request.nonce,version=request.version;
+      const update=()=>{
+        try{
+          assertDoctorAccount();
+          const next=getState(),active=next.demoCorrection,field=input.dataset.doctorCorrectionField;
+          if(active?.requestId!==requestId||active.nonce!==nonce||active.version!==version||!DOCTOR_CORRECTION_FIELDS.includes(field)||!service.canEditCorrection(next,doctorAccountId,field))throw Error('La autorización de corrección cambió. Recibe la revisión actualizada.');
+          const value=input.type==='checkbox'?input.checked:String(input.value).slice(0,200);
+          const choices=DOCTOR_CORRECTION_CHOICES[field];
+          if(choices&&!choices.some(([key])=>key===value)&&value!=='')throw Error('Selecciona una opción válida.');
+          next.demoCorrectionDraft={...(next.demoCorrectionDraft||{})};
+          if(value===correctionFieldValue(next,field))delete next.demoCorrectionDraft[field];else next.demoCorrectionDraft[field]=value;
+          setProfileState(next);
+          const msg=document.getElementById('doctorCorrectionMessage');if(msg)msg.textContent='Borrador guardado localmente. Aún no se ha enviado.';
+        }catch(error){const msg=document.getElementById('doctorCorrectionMessage');if(msg)msg.textContent=error.message;}
+      };
+      input.addEventListener('input',update);input.addEventListener('change',update);
+    });
+  }
+  function applySubmittedProfileLock(state){
+    if(!state.submitted)return;
+    const selectors='[data-profile-model], [data-profile-contact-edit], [data-profile-contact-cancel], [data-profile-contact-save], [data-profile-contact-field], input[name="profileVisibleContact"], [data-profile-tag-input], [data-profile-tag-remove], [data-profile-attention-action], [data-profile-upload-doc], [data-profile-remove-proc], [data-profile-remove-specialty], #profileAddProcBtn, #profileModifyPhoto, #profilePhotoUploadBtn, #profilePhotoCameraBtn, #profilePhotoSocialBtn, #profilePhotoUploadInput, #profilePhotoCameraInput, #profileProcToggle, #profileSpecialtyToggle';
+    document.querySelectorAll(selectors).forEach(control=>{control.disabled=true;control.setAttribute('aria-disabled','true');control.setAttribute('title','Perfil enviado: requiere corrección autorizada por revisión.');});
+  }
+  window.PulzzoDoctorDemoBridge={
+    getState,
+    save:(next,options)=>saveDoctorState(next,{...options,servicing:true}),
+    refresh:renderProfile,
+    account:()=>doctorAccountCurrent()?{doctorAccountId}:null
+  };
+  // A cached rendered page must not act on a newly selected account in another tab.
+  ['click','input','change','submit'].forEach(type=>document.addEventListener(type,event=>{
+    if(location.hash!=='#perfil-medico'||doctorAccountCurrent())return;
+    event.preventDefault();event.stopImmediatePropagation();staleDoctorProfile();
+  },true));
+  window.addEventListener('storage',event=>{
+    if((event.key===null||[DOCTOR_ACCOUNT_KEY,DOCTOR_STATE_KEY].includes(event.key))&&!doctorAccountCurrent())staleDoctorProfile();
+  });
   function syncProfileMode(){
-    const isProfile = location.hash === '#perfil-medico';
+    let isProfile = location.hash === '#perfil-medico';
+    if(isProfile && (!doctorAccountCurrent() || !getState().profile?.email)){window.location.href='registro-doctor.html';isProfile=false;}
+    else if(isProfile && localStorage.getItem('pulzzo_doctor_verified')!=='true'){window.location.href='verificacion-doctor.html';isProfile=false;}
     document.body.classList.toggle('profile-mode', isProfile);
     if(isProfile){document.title='Perfil médico | Pulzzo';renderProfile();window.scrollTo(0,0);}else{document.title='Regístrate como doctor o clínica | Pulzzo';}
   }
@@ -3568,5 +3815,8 @@ body.profile-mode .profile-mobile-section-nav{display:none;}
 }
 </style>
 
+<script src="assets/js/demo-servicing.js"></script>
+<link rel="stylesheet" href="assets/css/registration-responsive.css">
+<link rel="stylesheet" href="assets/css/portal-color-semantics.css">
 </body>
 </html>

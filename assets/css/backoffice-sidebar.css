@@ -1,0 +1,31 @@
+/* Desktop collapse is local to the backoffice. Mobile keeps the full drawer. */
+#sidebar .sidebar-toggle{display:none;--bo-control-focus:#fff}
+#sidebar .nav-btn:not(.active),#sidebar .sidebar-close{--bo-control-focus:#fff}
+#sidebar .sidebar-logout-icon{display:none}
+.sidebar-tooltip{position:fixed;z-index:120;max-width:min(280px,calc(100vw - 24px));padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:var(--navy);color:#fff;font-size:13px;line-height:1.4;pointer-events:auto;box-shadow:0 4px 12px rgba(3,10,24,.18)}
+.sidebar-tooltip[hidden]{display:none}
+/* Give the logo 8px more breathing room in each desktop layout. */
+@media(min-width:821px){
+  #sidebar .sidebar-toggle{display:inline-flex;position:absolute;top:24px;right:10px;align-self:flex-end;align-items:center;justify-content:center;width:36px;min-height:36px;padding:0;margin:0 0 4px;border:1px solid rgba(255,255,255,.22);border-radius:8px;background:transparent;color:#fff;font-size:24px;line-height:1;cursor:pointer;flex-shrink:0}
+  #sidebar .side-brand{padding-right:40px}
+  #sidebar .sidebar-toggle:hover{background:rgba(255,255,255,.08)}
+  #sidebar .sidebar-toggle:focus-visible{outline:2px solid #fff;outline-offset:-2px}
+  #appView.sidebar-collapsed{grid-template-columns:80px minmax(0,1fr)}
+  #appView.sidebar-collapsed #sidebar{padding:18px 12px}
+  #appView.sidebar-collapsed .sidebar-toggle{position:static;align-self:center;margin-bottom:12px}
+  #appView.sidebar-collapsed .side-brand{justify-content:center;padding:4px 0 20px}
+  #appView.sidebar-collapsed .brand-word,
+  #appView.sidebar-collapsed .internal-pill,
+  #appView.sidebar-collapsed .user-card{display:none}
+  #appView.sidebar-collapsed .sidebar-label{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+  #appView.sidebar-collapsed .nav-btn{justify-content:center;padding:10px 0;gap:0;min-width:0}
+  #appView.sidebar-collapsed .nav-icon{flex:0 0 24px}
+  #appView.sidebar-collapsed .side-footer{padding:16px 0 0}
+  #appView.sidebar-collapsed .sidebar-logout-icon{display:inline;font-size:20px;line-height:1}
+}
+@media(min-width:821px) and (pointer:coarse){#sidebar .sidebar-toggle{width:44px;min-height:44px}}
+@media(forced-colors:active){#sidebar .sidebar-toggle{border-color:ButtonText}#sidebar .nav-btn.active{outline:2px solid Highlight!important;outline-offset:-2px!important}}
+
+/* Shared navigation icon metrics in both the full drawer and the compact rail. */
+#sidebar .nav-icon{flex:0 0 24px;background:transparent;border-radius:0}
+#sidebar .backoffice-nav-svg,#dashboard .workflow-secondary .backoffice-nav-svg{display:block;flex:0 0 20px;width:20px;height:20px}

@@ -1,0 +1,22 @@
+.hamburger{background:transparent;border:0;color:inherit}
+/* Extend the existing drawer to tablet landscape, where desktop links collide. */
+@media(min-width:1024px) and (max-width:1279px){
+ .navbar-links,.navbar-actions{display:none!important}
+ .navbar-inner{justify-content:space-between!important}
+ .hamburger{display:flex!important;margin-left:auto;width:44px;height:44px;align-items:center;justify-content:center;flex:0 0 44px}
+ .mobile-drawer{position:fixed!important;top:64px!important;right:-100vw!important;left:auto!important;width:100vw!important;height:calc(100vh - 64px)!important;height:calc(100dvh - 64px)!important;padding:16px 24px 24px!important;overflow-y:auto!important;overflow-x:hidden!important;visibility:hidden!important;pointer-events:none!important;transform:none!important;z-index:99!important}
+ .mobile-drawer.open{right:0!important;visibility:visible!important;pointer-events:auto!important}
+ body.drawer-open{overflow:hidden!important}
+ .drawer-nav-list,.drawer-section{display:grid;gap:8px;margin-bottom:12px}
+ .mobile-drawer a.drawer-nav-link{height:auto;min-height:44px;padding:10px;font-size:14px}
+ .mobile-drawer a.drawer-option-card{display:grid!important;grid-template-columns:36px minmax(0,1fr);gap:11px;height:auto;min-height:58px;padding:8px 12px;border-radius:16px}
+ .drawer-option-icon{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:11px}
+ .drawer-option-copy{display:grid;gap:1px}.drawer-option-copy strong{font-size:13.5px}.drawer-option-copy small{font-size:11px}
+ .drawer-primary-wrap{margin-top:16px}
+}
+@media(min-width:768px) and (max-width:1023px){#bloque-cards{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+.mobile-drawer a:focus-visible,.hamburger:focus-visible{outline:3px solid var(--aqua);outline-offset:3px}
+@media(prefers-reduced-motion:reduce){.mobile-drawer,.hamburger span{transition:none!important}}
+/* Expanded text and anchored legal headings must remain readable. */
+#faq .faq-item.open .faq-a{max-height:none}
+.legal-card[id],#contenido{scroll-margin-top:80px}

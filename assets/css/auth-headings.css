@@ -1,0 +1,5 @@
+/* Login and registration titles only; platform headings and form labels keep their alignment. */
+.auth-card > .auth-card-head > :is(#login-title,#registro-title,#registro-doctor-title),
+#loginView .login-card > h2{
+ text-align:center;
+}

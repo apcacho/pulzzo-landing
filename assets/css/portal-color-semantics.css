@@ -1,0 +1,109 @@
+/* Portal/auth color roles only. Explicit classes travel with rendered templates.
+   The important layer intentionally outranks legacy unlayered !important colors.
+   Desktop geometry, typography, headings and all workflow state stay unchanged. */
+@layer portal-color-semantics{
+ body.ui-color-semantics{
+  --ui-brand:var(--aqua,#20C7D4);
+  --ui-brand-hover:#32D5DD;
+  --ui-selection-bg:#EAF9FA;
+  --ui-selection-line:#9EDDE1;
+  --ui-selection-indicator:#178895;
+  --ui-control-ink:#14263D;
+  --ui-control-border:#D5DFE9;
+  --ui-control-hover:#F4F7FA;
+  --ui-danger:#B4232D;
+  --ui-danger-hover:#941D25;
+ }
+ body.ui-color-semantics.ui-doctor{
+  --ui-brand:var(--coral,#FF8A5B);
+  --ui-brand-hover:#F77B48;
+  --ui-selection-bg:#FFF1E9;
+  --ui-selection-line:#EDB69A;
+  --ui-selection-indicator:#B65F32;
+ }
+ body.ui-color-semantics :is(.ui-action-primary,.ui-action-secondary,.ui-action-commitment,.ui-action-danger,.ui-action-warning){
+  border-style:solid!important;
+  border-width:1px!important;
+  box-shadow:none!important;
+  transform:none!important;
+ }
+ body.ui-color-semantics .ui-action-secondary{
+  background:#FFF!important;
+  border-color:var(--ui-control-border)!important;
+  color:var(--ui-control-ink)!important;
+ }
+ /* Acceptance, signature and signed-document submission are commitments, not
+    completed approvals: keep the brand role rather than a success-green fill. */
+ body.ui-color-semantics :is(.ui-action-primary,.ui-action-commitment){
+  background:var(--ui-brand)!important;
+  border-color:var(--ui-brand)!important;
+  color:var(--ui-control-ink)!important;
+ }
+ body.ui-color-semantics .ui-action-danger{
+  background:var(--ui-danger)!important;
+  border-color:var(--ui-danger)!important;
+  color:#FFF!important;
+ }
+ body.ui-color-semantics .ui-action-warning{
+  background:#FFF7E6!important;
+  border-color:#D6A246!important;
+  color:#714B0B!important;
+ }
+ /* Selection has a quiet tint and a fine indicator, never a primary-action fill. */
+ body.ui-color-semantics .ui-selection{
+  background:transparent!important;
+  color:#526174!important;
+  box-shadow:none!important;
+ }
+ body.ui-color-semantics .ui-selection:is(.active,.selected,[aria-selected="true"]),
+ body.ui-color-semantics .ui-selection-current{
+  background:var(--ui-selection-bg)!important;
+  border-color:var(--ui-selection-line)!important;
+  color:var(--ui-control-ink)!important;
+  box-shadow:inset 0 -2px 0 var(--ui-selection-indicator)!important;
+ }
+ body.ui-color-semantics .ui-choice:is(.active,.selected,.is-selected,[aria-pressed="true"]),
+ body.ui-color-semantics .ui-choice:has(>input:checked){
+  background:var(--ui-selection-bg)!important;
+  border-color:var(--ui-selection-line)!important;
+  color:var(--ui-control-ink)!important;
+  box-shadow:inset 0 -2px 0 var(--ui-selection-indicator)!important;
+ }
+ body.ui-color-semantics .ui-choice input{accent-color:var(--ui-selection-indicator)!important}
+ body.ui-color-semantics :is(.ui-action-primary,.ui-action-secondary,.ui-action-commitment,.ui-action-danger,.ui-action-warning,.ui-selection,.ui-selection-current,.ui-choice):focus-visible{
+  outline:2px solid var(--ui-control-ink)!important;
+  outline-offset:-2px!important;
+ }
+ body.ui-color-semantics .ui-action-danger:focus-visible{outline-color:#FFF!important}
+ body.ui-color-semantics :is(.ui-action-primary,.ui-action-secondary,.ui-action-commitment,.ui-action-danger,.ui-action-warning,.ui-selection,.ui-selection-current,.ui-choice):disabled{
+  opacity:.45!important;
+  cursor:not-allowed!important;
+  box-shadow:none!important;
+  transform:none!important;
+ }
+ @media(hover:hover){
+  body.ui-color-semantics .ui-action-secondary:not(:disabled):hover{
+   background:var(--ui-control-hover)!important;
+   border-color:#A9BACB!important;
+   color:var(--ui-control-ink)!important;
+  }
+  body.ui-color-semantics :is(.ui-action-primary,.ui-action-commitment):not(:disabled):hover{
+   background:var(--ui-brand-hover)!important;
+   border-color:var(--ui-brand-hover)!important;
+  }
+  body.ui-color-semantics .ui-action-danger:not(:disabled):hover{
+   background:var(--ui-danger-hover)!important;
+   border-color:var(--ui-danger-hover)!important;
+  }
+  body.ui-color-semantics .ui-action-warning:not(:disabled):hover{background:#FEEBC1!important}
+  body.ui-color-semantics :is(.ui-selection,.ui-choice):not(:disabled):hover{
+   background:var(--ui-selection-bg)!important;
+   color:var(--ui-control-ink)!important;
+  }
+ }
+ /* Existing desktop/mobile control dimensions remain in their layout styles. */
+ @media(forced-colors:active){
+  body.ui-color-semantics :is(.ui-selection.active,.ui-selection.selected,.ui-selection-current,.ui-choice.selected,.ui-choice.is-selected){outline:1px solid Highlight!important;outline-offset:-2px!important}
+  body.ui-color-semantics :is(.ui-action-primary,.ui-action-secondary,.ui-action-commitment,.ui-action-danger,.ui-action-warning,.ui-selection,.ui-selection-current,.ui-choice):focus-visible{outline-color:Highlight!important}
+ }
+}

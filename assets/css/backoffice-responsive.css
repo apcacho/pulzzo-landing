@@ -1,0 +1,46 @@
+/* Responsive corrections: keep existing theme and tables, contain their layout. */
+.sidebar{overflow-y:auto;overscroll-behavior:contain;height:100vh;height:100dvh}
+.sidebar>*{flex-shrink:0}
+.sidebar-close,.sidebar-shade{display:none}
+.topbar>div:first-of-type{min-width:0}
+.table-wrap,.amortization-table-wrap,.amortization-manage-table-wrap{max-width:100%;min-width:0;overscroll-behavior-x:contain}
+.modal{max-height:calc(100vh - 36px);max-height:calc(100dvh - 36px);display:flex;flex-direction:column;min-width:0}
+.modal .modal-head,.modal .modal-actions{flex-shrink:0}
+.modal .modal-body{min-height:0;overflow:auto;overscroll-behavior:contain}
+.modal-actions{flex-wrap:wrap}
+.modal-head>div{min-width:0;overflow-wrap:anywhere}
+.modal-head .x{flex-shrink:0;min-width:44px;min-height:44px}
+.demo-user>div{min-width:0;overflow-wrap:anywhere}
+.toast{max-width:calc(100vw - 32px);overflow-wrap:anywhere}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--aqua);outline-offset:2px}
+@media(max-width:1180px) and (min-width:821px){.app{grid-template-columns:240px minmax(0,1fr)}}
+@media(max-width:820px){
+ .sidebar{max-width:calc(100vw - 24px);visibility:hidden}
+ .sidebar.open{visibility:visible}
+ .sidebar-close{display:flex;align-self:flex-end;min-width:44px;min-height:44px;align-items:center;justify-content:center;background:transparent;color:inherit;font-size:28px;cursor:pointer}
+ .sidebar-shade.open{display:block;position:fixed;inset:0;z-index:19;background:rgba(3,10,24,.62)}
+ .topbar{height:auto;min-height:74px;padding-block:12px;flex-wrap:wrap;gap:10px}
+ .topbar>div:first-of-type{flex:1 1 160px;overflow-wrap:anywhere}
+ .top-actions{margin-left:auto;flex-wrap:wrap}
+ .modal .btn{white-space:normal}
+ .field input,.field select,.field textarea{min-width:0;max-width:100%;font-size:16px}
+ .btn-sm,.tab{min-height:44px}
+}
+@media(max-width:520px){
+ .topbar>div:first-of-type{flex-basis:calc(100% - 64px)}
+ .modal-head,.modal-body,.modal-actions{padding:16px}
+ .modal-actions .btn{flex:1 1 120px}
+ .demo-user{flex-wrap:wrap}
+ .patient-reference-toolbar .btn{max-width:100%;white-space:normal}
+}
+@media(prefers-reduced-motion:reduce){.sidebar,.btn,.nav-btn{transition:none}}
+
+/* Searchable document/correction queues retain horizontal table access. */
+#documents .queue-filters,#corrections .queue-filters{margin-bottom:20px;border:1px solid var(--line2);border-radius:18px;background:#fff;padding:20px}
+#documents .queue-search-row,#corrections .queue-search-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:end}
+#documents .queue-search-row input,#corrections .queue-search-row input{flex:1;min-width:0}
+#documents .table-wrap,#corrections .table-wrap{max-width:100%;overflow-x:auto}
+#documents .table,#corrections .table{min-width:960px}
+#corrections .table .btn{white-space:nowrap;min-height:44px}
+.correction-context{padding:16px;border:1px solid var(--line2);border-radius:16px;background:#fff;margin-bottom:16px;overflow-wrap:anywhere}
+@media(max-width:520px){#documents .queue-search-row,#corrections .queue-search-row{grid-template-columns:minmax(0,1fr)}#documents .queue-search-row input,#corrections .queue-search-row input{flex-basis:100%}}

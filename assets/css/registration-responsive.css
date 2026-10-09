@@ -1,0 +1,25 @@
+/* Targeted registration layout corrections; original colors and typography retained. */
+.auth-wrap>*{min-width:0}
+@media(min-width:1024px) and (max-width:1279px){
+ body.patient-page .auth-wrap,body.doctor-page:not(.profile-mode) .auth-wrap{grid-template-columns:minmax(0,1fr)!important;max-width:780px!important;gap:32px!important}
+ body.patient-page .auth-shell,body.doctor-page:not(.profile-mode) .auth-shell{padding-left:32px!important;padding-right:32px!important}
+ body.patient-page .auth-card,body.doctor-page:not(.profile-mode) .auth-card{width:100%!important;max-width:100%!important;justify-self:stretch!important}
+}
+@media(min-width:1280px){
+ body.patient-page .auth-shell{padding-left:clamp(24px,4vw,88px)!important;padding-right:clamp(24px,4vw,88px)!important}
+ body.patient-page .auth-wrap{grid-template-columns:minmax(0,1fr) minmax(0,700px)!important;gap:clamp(32px,4vw,88px)!important}
+ body.patient-page .auth-card{width:100%!important;max-width:700px!important}
+}
+@media(max-width:760px){
+ body.patient-page .field input,body.patient-page .field select,body.patient-page .field textarea,body.patient-page #correo,
+ body.doctor-page .field input,body.doctor-page .field select,body.doctor-page .field textarea,
+ body.profile-mode #doctorProfilePanel input,body.profile-mode #doctorProfilePanel select,body.profile-mode #doctorProfilePanel textarea{font-size:16px!important}
+ body.profile-mode #doctorProfilePanel .profile-attention-tags-box input{min-width:0;width:100%;max-width:100%;flex:1 1 140px}
+ body.profile-mode #doctorProfilePanel .profile-btn{white-space:normal;min-height:44px;max-width:100%;overflow-wrap:anywhere}
+}
+/* Keep document/camera preview controls reachable on short screens. */
+.profile-view-card{display:flex;flex-direction:column;max-height:calc(100vh - 48px);max-height:calc(100dvh - 48px)}
+.profile-view-card .profile-view-head{flex-shrink:0}
+.profile-view-card .profile-view-body{min-height:0;overflow:auto;overscroll-behavior:contain}
+#profileCameraModal .profile-camera-body{min-height:0;overflow:auto;flex:1 1 auto}
+#profileCameraModal .profile-camera-actions{flex-shrink:0}
