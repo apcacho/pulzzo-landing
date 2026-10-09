@@ -7,6 +7,7 @@
  --ink:var(--navy);--canvas:var(--bg);--card:var(--white);
  --font:var(--bo-font);--accent:var(--aqua);--soft:var(--aqua-bg);
  --crm-accent-ink:#0B7F8B;--crm-selection-line:var(--bo-control-line);
+ --crm-board-gap:16px;--crm-board-radius:16px;--crm-card-pad:14px;
  --crm-accent-hover:var(--aqua-l);--danger:var(--red);--danger-soft:var(--red-bg);--ok:var(--green);
  color:var(--ink);background:var(--canvas);font:var(--bo-weight-body) var(--bo-size-body)/1.5 var(--font);min-width:0;
  -webkit-font-smoothing:antialiased;
@@ -90,12 +91,14 @@
 .crm-surface .notice.error{background:var(--danger-soft);border-color:#F4CACA;color:#991B1B}
 .crm-surface .capture-history>.timeline{max-height:none;overflow:visible}
 .crm-surface .timeline-row{border-color:var(--line2)}
-.crm-surface .task-board{gap:14px;padding:20px}
-.crm-surface .task-column{border-color:var(--line2);border-radius:14px}
-.crm-surface .task-column h3{background:var(--bg);border-color:var(--line2);gap:8px;padding:14px 16px}
+.crm-surface .task-board{align-items:stretch;gap:var(--crm-board-gap);padding:20px}
+.crm-surface .task-column{border-color:var(--line2);border-radius:var(--crm-board-radius)}
+.crm-surface .task-column h3{background:var(--bg);border-color:var(--line2);gap:8px;padding:12px 14px}
 .crm-surface .task-column.overdue h3{background:#FEF2F2;color:#991B1B}
 .crm-surface .task-card .task-actions button{min-height:var(--bo-control-height)}
-.crm-surface .task-card{padding:16px;border-color:var(--line2)}
+.crm-surface .task-card{padding:var(--crm-card-pad);border-color:var(--line2)}
+.crm-surface .task-column>.empty-state{padding:18px 14px}
+.crm-surface .task-column>.empty-state p{font-size:var(--bo-size-meta);color:var(--muted)}
 .crm-surface .metric-grid{gap:14px;padding:20px}
 .crm-surface .metric{border:1px solid var(--line2);border-radius:22px;padding:18px;min-height:120px;background:var(--white);box-shadow:0 10px 22px rgba(7,20,47,.04)}
 .crm-surface .metric strong{font:var(--bo-weight-number) var(--bo-size-kpi)/1.2 var(--bo-display);letter-spacing:-.05em;color:var(--ink);margin:10px 0 2px;font-variant-numeric:tabular-nums}
@@ -183,16 +186,16 @@
 /* Desktop pipeline scrolls inside its keyboard-focusable region; mobile stacks columns. */
 .crm-surface .commercial-board{margin-bottom:24px;min-width:0}
 .crm-surface .board-help{font-size:var(--bo-size-meta);color:var(--muted);margin:0 0 16px}
-.crm-surface .kanban-columns{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(240px,280px);align-items:start;gap:16px;max-width:100%;overflow-x:auto;padding-bottom:12px;overscroll-behavior-inline:contain}
-.crm-surface .kanban-column{min-width:0;padding:12px;border:1px solid var(--line2);border-radius:16px;background:var(--bg)}
+.crm-surface .kanban-columns{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(240px,280px);align-items:stretch;gap:var(--crm-board-gap);max-width:100%;overflow-x:auto;padding-bottom:12px;overscroll-behavior-inline:contain}
+.crm-surface .kanban-column{min-width:0;padding:12px;border:1px solid var(--line2);border-radius:var(--crm-board-radius);background:var(--bg)}
 .crm-surface .kanban-column>header{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:4px 2px 14px}
-.crm-surface .kanban-column h3{font-size:var(--bo-size-item);line-height:1.45;overflow-wrap:anywhere}
+.crm-surface :is(.kanban-column h3,.task-column h3,.kanban-open strong,.task-card h4){font-family:var(--bo-display);font-size:var(--bo-size-item);font-weight:var(--bo-weight-entity);line-height:1.4;letter-spacing:-.01em;overflow-wrap:anywhere;text-align:left}
 .crm-surface .kanban-column header .badge{flex-shrink:0;min-width:28px;text-align:center}
 .crm-surface .kanban-cards{display:grid;gap:12px}
-.crm-surface .kanban-card{min-width:0;padding:14px;background:var(--white);border:1px solid var(--line);border-radius:12px;box-shadow:0 4px 12px rgba(7,20,47,.025)}
+.crm-surface .kanban-card{min-width:0;padding:var(--crm-card-pad);background:var(--white);border:1px solid var(--line);border-radius:12px;box-shadow:0 4px 12px rgba(7,20,47,.025)}
 .crm-surface .kanban-card[draggable="true"]{cursor:grab}
 .crm-surface .kanban-open{display:block;width:100%;border:0;background:transparent;padding:0;text-align:left;min-height:0}
-.crm-surface .kanban-open strong{display:block;font-size:var(--bo-size-item);line-height:1.45;overflow-wrap:anywhere}
+.crm-surface .kanban-open strong{display:block}
 .crm-surface .kanban-open[aria-pressed="true"] strong{color:var(--crm-accent-ink)}
 .crm-surface .kanban-open span{display:block;color:var(--muted);font-size:var(--bo-size-meta);font-weight:var(--bo-weight-body);margin-top:4px;overflow-wrap:anywhere}
 .crm-surface .kanban-meta{display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:14px;font-size:var(--bo-size-label);color:var(--muted)}
