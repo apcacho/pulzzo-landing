@@ -23,6 +23,8 @@ Abre `http://127.0.0.1:8080/backoffice.html#crm`. El servidor escucha solo en tu
 
 La sección CRM hereda los estilos del Backoffice y se monta sin iframe. Consulta la [revisión integral de experiencia y sus límites de validación](REVISION-CRM-EXPERIENCIA-20261009.md). La vista Contactos permite alternar Lista/Kanban; el Dashboard incluye gráficos basados en eventos reales de la demo.
 
+Consulta también la [revisión operativa del CRM](REVISION-CRM-OPERACION-20261009.md): bandeja de atención, referencias verificadas, historial administrativo y archivo seguro.
+
 Revisa [reglas y límites del CRM](REGLAS-CRM-REGISTRO-ASISTIDO-DEMO.md), [integración de portales](REGLAS-INTEGRACION-PORTALES-DEMO.md), [cartera y configuración](REGLAS-CARTERA-CONFIGURACION.md) y [correo](CONEXION-GMAIL-CRM.md).
 
 El build prepara archivos locales; no publica, no configura credenciales y no activa servicios. Las pruebas visuales opcionales requieren un entorno capaz de iniciar Chromium y están separadas de las pruebas funcionales.

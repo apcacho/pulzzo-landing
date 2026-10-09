@@ -67,3 +67,14 @@ La validación visual con navegador es una etapa independiente. En este entorno 
 ## Actualización de experiencia · 9 de octubre de 2026
 
 Lista y Kanban usan el mismo store. La reunión agendada es una etapa comercial de proveedores. “Enviado a revisión” se actualiza únicamente por envío del titular: no se arrastra ni se cambia manualmente. Mover una tarjeta a captura no inicia un expediente ni aumenta el indicador de inicios. Los gráficos usan eventos auténticos; la conversión se calcula sobre altas del mismo mes enviadas en ese mes, con período UTC. Consulta `REVISION-CRM-EXPERIENCIA-20261009.md` para definiciones, evidencia y revisión visual pendiente.
+
+## Seguimiento operativo y archivo de prospectos
+
+- La bandeja de atención filtra contactos sin tarea abierta, sin intento de contacto registrado o con último intento anterior al corte elegido por el usuario. Llamadas, WhatsApp, correos y reuniones usan `contactAt`; notas y cambios administrativos no renuevan ese contacto. Los cortes de día se calculan en Ciudad de México; no hay SLA predeterminado ni alertas automáticas.
+- Estado operativo distingue ausencia de expediente, captura, envío válido pendiente de recepción y estado vinculado del backoffice. Las referencias se eligen entre registros existentes con identidad y constancia de envío verificadas; no se escriben IDs libres ni se conceden rutas financieras de administrador a un KAM.
+- Historial administrativo usa los eventos guardados de la ficha accesible. Se muestran autor, fecha, motivo y cambios permitidos; no se muestran objetos completos ni tokens. Los eventos antiguos sin valores previos se identifican como cambios de campos.
+- Solo Administración demo puede revisar coincidencias de identidad. Una coincidencia exacta inequívoca permite continuar la misma ficha sin enlazar cuentas. Casos ambiguos se dejan pendientes, con motivo; no se fusionan ni se crean duplicados. Una continuación posterior no cierra una revisión pendiente anterior.
+- Solo Administración demo puede archivar o restaurar manualmente un prospecto con motivo. Debe carecer de cuenta, expediente, invitación, operación o tareas abiertas y no tener colisiones de identidad externas. La recuperación conserva ID, origen, responsable e historial. Estas comprobaciones también rigen la transacción genérica.
+- «No interesado» no equivale a archivo. Archivar nunca cancela un alta, solicitud, crédito ni cuenta. Abandono/cancelación del onboarding y resolución de correo/teléfono compartidos requieren una definición de negocio aparte.
+
+Consulta [la revisión operativa y pruebas](REVISION-CRM-OPERACION-20261009.md). Los roles locales continúan siendo únicamente una demostración.

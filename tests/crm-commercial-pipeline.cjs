@@ -170,7 +170,7 @@ test('same-revision concurrent storage changes win over a stale commercial trans
   assert.equal(f.storage.getItem(API.STORAGE_KEY), concurrent); assert.equal(f.store.getContact(f.contact.id).stage, 'new'); assert.equal(f.store.listActivities().length, 0);
 });
 test('archived contacts cannot move or receive stage history', () => {
-  const f = fixture(); good(f.store.deleteContact(f.contact.id, 'Archivo ficticio', f.rev())); const before = f.storage.dump();
+  const f = fixture(); good(f.make('admin_lifecycle', 'admin').deleteContact(f.contact.id, 'Archivo ficticio', f.rev())); const before = f.storage.dump();
   bad(f.move('contacted'), 'contact_not_found'); assert.equal(f.storage.dump(), before);
 });
 test('legacy setStage shares the atomic follow-up path and revision overload', () => {

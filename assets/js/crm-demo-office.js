@@ -3,29 +3,146 @@
 (function(root,factory){const api=factory(root?.PulzzoDemoBridge||(typeof module==='object'&&module.exports?require('../pulzzo-demo-bridge.js'):null),root?.PulzzoPatientDemo||(typeof module==='object'&&module.exports?require('./patient-demo.js'):null));if(typeof module==='object'&&module.exports)module.exports=api;if(root){root.PulzzoCRMOffice=api;if(root.document)api.mount(root);}})(typeof window!=='undefined'?window:null,function(bridge,patientDemo){
 'use strict';
 const BO_KEY='pulzzo_backoffice_demo';
+const CRM_KEY='pulzzo_crm_assisted_demo_v1';
 const clone=x=>JSON.parse(JSON.stringify(x));
 const text=(x,max=500)=>String(x??'').trim().slice(0,max);
 const email=x=>text(x).toLowerCase();
 const phone=x=>{let n=String(x||'').replace(/\D/g,'');if(n.length===13&&n.startsWith('521'))n=n.slice(3);else if(n.length===12&&n.startsWith('52'))n=n.slice(2);return n;};
 const array=x=>Array.isArray(x)?x:[];
 function readDatabase(storage){const raw=storage.getItem(BO_KEY);if(!raw)return null;const db=JSON.parse(raw);if(!db||!Array.isArray(db.patients)||!Array.isArray(db.providers))throw Error('El backoffice local no tiene un estado válido.');return db;}
-function recordMatches(record,exp){return record?.crmIntake?.expedientId===exp.id&&record.crmIntake.contactId===exp.contactId&&record.crmIntake.accountId===exp.holderIdentity?.id;}
+function recordMatches(record,exp){return !!exp&&!!record?.crmIntake&&recordBelongsToContact(record,exp.kind,{id:exp.contactId,type:exp.kind,accountId:exp.holderIdentity?.id},[exp]);}
 function readSubmittedRecord(storage,exp){if(!exp||!exp.holderIdentity?.id)return null;const db=readDatabase(storage);if(!db)return null;const rows=(exp.kind==='patient'?db.patients:db.providers).filter(r=>recordMatches(r,exp));if(rows.length>1)throw Error('Hay vínculos ambiguos en backoffice.');if(!rows[0])return null;const r=rows[0],a=r.application||{};const available=bridge&&r.offer&&a.offerReady&&['enviada','sent','offer_sent','oferta_enviada','aceptada','accepted'].includes(String(r.offer.status||'').toLowerCase());return {id:r.id,applicationStatus:text(a.applicationStatus||r.status),offer:available?bridge.publicOffer(r.offer):null,offerFingerprint:available?bridge.fingerprint(r.offer):null,contractReady:!!a.contractReady,expiryStatus:patientDemo?patientDemo.offerExpiryStatus({offer:r.offer,offerAccepted:a.offerAccepted,contractSigned:a.contractSigned}):'unavailable',demo:true};}
-function operationalStatus(storage,contact){const id=typeof contact==='string'?contact:contact?.id;if(!id)return 'Sin expediente enviado';const db=readDatabase(storage);if(!db)return 'Backoffice todavía no inicializado';const rows=[...db.patients,...db.providers].filter(r=>r.crmIntake?.contactId===id);if(!rows.length)return 'Pendiente de importar a backoffice';if(rows.length!==1)return 'Requiere conciliación de identidades';const r=rows[0];return text(r.application?.applicationStatus||r.status||'en_revision');}
-function validateExternalReference(storage,key,id,contact){
- const db=readDatabase(storage);if(!db||!contact?.id||typeof id!=='string')return false;
- if(['creditId','requestId'].includes(key))return db.patients.filter(r=>r.id===id&&r.crmIntake?.contactId===contact.id).length===1;
+const isId=x=>typeof x==='string'&&/^[A-Za-z0-9][A-Za-z0-9_.:-]{0,179}$/.test(x)&&!['__proto__','constructor','prototype'].includes(x);
+const object=x=>!!x&&typeof x==='object'&&!Array.isArray(x);
+function localState(storage){
+ const raw=storage.getItem(CRM_KEY);if(!raw)return null;
+ const state=JSON.parse(raw);if(state?.version!==1||!object(state.contacts)||!object(state.expedients))throw Error('El CRM local no tiene un estado válido.');
+ return state;
+}
+// Resolve the current contact through the actor-scoped store on every read. A
+// caller's cached contact or guessed ID cannot widen these lookup results.
+function scopedContext(store,contactId,staffOnly){
+ if(!isId(contactId)||!store||!['admin','kam',...(staffOnly?[]:['holder'])].includes(store.actor?.role))return null;
+ try{
+  const current=store.getContact(contactId),state=store.snapshot(),contact=state.contacts?.[contactId];
+  if(!current||!contact||contact.id!==contactId||contact.deletedAt||!['patient','doctor'].includes(contact.type)||current.type!==contact.type||current.assignedKam!==contact.assignedKam)return null;
+  if(store.actor.role==='kam'&&contact.assignedKam!==store.actor.id)return null;
+  if(store.actor.role==='holder'&&(contact.holderId!==store.actor.id||contact.accountId&&contact.accountId!==store.actor.id))return null;
+  return {contact,expedients:Object.values(state.expedients||{}).filter(e=>e.contactId===contactId)};
+ }catch(_){return null;}
+}
+function contactAccount(contact){
+ const ids=[contact?.accountId,contact?.holderId].filter(Boolean);
+ return ids.length&&ids.every(id=>isId(id)&&id===ids[0])?ids[0]:null;
+}
+function recordBelongsToContact(record,kind,contact,expedients){
+ if(!record||!isId(record.id)||!contact?.id||contact.type&&contact.type!==kind)return false;
+ if(contact.accountId&&contact.holderId&&contact.accountId!==contact.holderId)return false;
+ const intake=record.crmIntake,account=contactAccount(contact),recordAccounts=[kind==='patient'?record.patientAccountId:record.doctorAccountId,intake?.accountId].filter(Boolean);
+ if(recordAccounts.some(id=>!isId(id)||id!==recordAccounts[0]))return false;
+ // An explicit conflicting contact link always wins over account similarity.
+ if(intake&&(intake.contactId!==contact.id||!isId(intake.expedientId)||!isId(intake.accountId)||!isId(intake.submissionId)||!Number.isFinite(Date.parse(intake.submittedAt))))return false;
+ if(intake?.contactId!==contact.id&&!(account&&recordAccounts[0]===account))return false;
+ if(account&&recordAccounts[0]!==account)return false;
+ if(expedients&&intake){
+  const matches=expedients.filter(e=>e.id===intake.expedientId&&e.kind===kind);
+  if(matches.length!==1)return false;
+  try{const receipt=requireSubmission(matches[0]);if(recordAccounts[0]!==receipt.accountId||intake.submissionId!==receipt.submissionId||intake.submittedAt!==receipt.submittedAt)return false;}catch(_){return false;}
+ }
+ return true;
+}
+function contactRecords(db,contact,expedients){
+ if(!db)return [];
+ const account=contactAccount(contact);
+ return [...db.patients.map(record=>({record,kind:'patient'})),...db.providers.map(record=>({record,kind:'doctor'}))].filter(({record})=>record.crmIntake?.contactId===contact.id||array(expedients).some(e=>e.id===record.crmIntake?.expedientId)||account&&[record.patientAccountId,record.doctorAccountId,record.crmIntake?.accountId].includes(account));
+}
+function uniqueContactRecord(db,contact,expedients){
+ const rows=contactRecords(db,contact,expedients);
+ return rows.length===1&&recordBelongsToContact(rows[0].record,rows[0].kind,contact,expedients)?rows[0]:null;
+}
+function localExpedientStatus(exp){
+ if(!exp)return 'Sin expediente';
+ if(exp.submittedAt||exp.submissionSnapshot||['submitted','accepted','signed'].includes(exp.status)){
+  try{requireSubmission(exp);return 'Enviado por el titular · pendiente de importar a backoffice';}
+  catch(_){return 'Envío pendiente de verificación';}
+ }
+ if(exp.holderActions?.finalConfirmation)return 'Confirmado por el titular · pendiente de envío';
+ return ({draft:exp.kind==='doctor'?'Borrador de registro':'Borrador de solicitud',invited:'Invitación preparada · pendiente del titular',claimed:'En captura por el titular',in_progress:'En captura por el titular',holder_review:'En revisión del titular',needs_correction:'Correcciones pendientes del titular',cancelled:'Expediente cancelado'})[exp.status]||'Expediente en curso';
+}
+function operationalStatus(storage,contact,store){
+ const id=typeof contact==='string'?contact:contact?.id;if(!isId(id))return 'Sin expediente';
+ let current=typeof contact==='object'?contact:{id},expedients=[],hasLocalState=false;
+ if(store){hasLocalState=true;const scope=scopedContext(store,id,false);if(!scope)return 'Estado no disponible';current=scope.contact;expedients=scope.expedients;}
+ else{
+  const state=localState(storage);if(!state)return 'Estado no disponible';
+  if(state){hasLocalState=true;current=state.contacts[id];if(!current||current.deletedAt)return 'Sin expediente';expedients=Object.values(state.expedients).filter(e=>e.contactId===id);}
+ }
+ if(expedients.length>1||expedients.some(e=>e.kind!==current.type))return 'Requiere conciliación de identidades';
+ const db=readDatabase(storage),linked=contactRecords(db,current,expedients);
+ if(linked.length){
+  if(linked.length!==1||!recordBelongsToContact(linked[0].record,linked[0].kind,current,hasLocalState?expedients:undefined))return 'Requiere conciliación de identidades';
+  const r=linked[0].record;return text(r.application?.applicationStatus||r.status||'en_revision');
+ }
+ return localExpedientStatus(expedients[0]);
+}
+function validExternalReference(db,key,id,contact,expedients){
+ if(!db||!isId(contact?.id)||!isId(id))return false;
+ const own=uniqueContactRecord(db,contact,expedients);
+ if(['creditId','requestId'].includes(key))return own?.kind==='patient'&&own.record.id===id&&db.patients.filter(r=>r.id===id).length===1;
  if(!['providerId','registrationId'].includes(key))return false;
  const providers=db.providers.filter(r=>r.id===id);if(providers.length!==1)return false;
- if(providers[0].crmIntake?.contactId===contact.id)return true;
- if(contact.type!=='patient'||key==='registrationId')return false;
- const own=db.patients.filter(r=>r.crmIntake?.contactId===contact.id);
- return own.some(r=>[...array(r.application?.procedureProviders),...array(r.offer?.financedProcedures),...array(r.demoServicingIdentity?.procedures)].some(p=>p.providerId===id));
+ if(own?.kind==='doctor'&&own.record.id===id)return true;
+ if(contact.type!=='patient'||key==='registrationId'||own?.kind!=='patient')return false;
+ const r=own.record;
+ return [...array(r.application?.procedureProviders),...array(r.offer?.financedProcedures),...array(r.demoServicingIdentity?.procedures)].some(p=>p?.providerId===id);
+}
+function validateExternalReference(storage,key,id,contact){
+ if(!isId(contact?.id))return false;
+ const state=localState(storage);if(!state)return false;
+ const current=state.contacts[contact.id];
+ if(!current||current.deletedAt)return false;
+ const expedients=state?Object.values(state.expedients).filter(e=>e.contactId===current.id):undefined;
+ if(expedients?.length>1)return false;
+ return validExternalReference(readDatabase(storage),key,id,current,expedients);
+}
+function referenceStatus(record){
+ const status=text(record.application?.applicationStatus||record.status||'en_revision',100);
+ const labels={en_revision:'En revisión',en_evaluacion:'En evaluación',aprobada:'Aprobada',aprobado:'Aprobado',rechazada:'Rechazada',rechazado:'Rechazado',perfil_en_revision:'Perfil en revisión',perfil_aprobado:'Perfil aprobado',oferta_enviada:'Oferta enviada',oferta_aceptada:'Oferta aceptada',contrato_firmado:'Contrato firmado',activo:'Activo',activa:'Activa',liquidado:'Liquidado'};
+ return labels[status]||status.replace(/_/g,' ');
+}
+function listReferenceChoices(storage,store,contactId){
+ const choices={expedientId:[],creditId:[],providerId:[],requestId:[],registrationId:[]},scope=scopedContext(store,contactId,true);if(!scope)return choices;
+ const {contact,expedients}=scope,name=text(contact.name,160),db=readDatabase(storage);
+ // A duplicate local identity must be reconciled instead of silently choosing it.
+ if(expedients.length===1){
+  const exp=expedients[0],linked=contactRecords(db,contact,expedients),own=uniqueContactRecord(db,contact,expedients);
+  const status=linked.length&&!own?'Requiere conciliación de identidades':own?.record.crmIntake?.expedientId===exp.id?referenceStatus(own.record):localExpedientStatus(exp);
+  if(isId(exp.id)&&exp.kind===contact.type)choices.expedientId.push({id:exp.id,label:(exp.kind==='doctor'?'Registro asistido':'Solicitud asistida')+' · '+name+' · '+status});
+ }
+ if(!db)return choices;
+ for(const key of ['creditId','requestId','providerId','registrationId']){
+  const rows=['creditId','requestId'].includes(key)?db.patients:db.providers;
+  for(const record of rows){
+   if(!validExternalReference(db,key,record.id,contact,expedients))continue;
+   const own=recordBelongsToContact(record,rows===db.patients?'patient':'doctor',contact,expedients);
+   const label=rows===db.patients?'Solicitud / crédito · '+name+' · '+record.id+' · '+referenceStatus(record):'Proveedor · '+text(record.profile?.name||record.name||'Proveedor vinculado',160)+' · '+record.id+(own?' · '+referenceStatus(record):'');
+   choices[key].push({id:record.id,label});
+  }
+  choices[key].sort((a,b)=>a.label.localeCompare(b.label,'es')||a.id.localeCompare(b.id));
+ }
+ return choices;
+}
+// Canonical CRM ficha only: this is not a holder invitation or financial BO link.
+// The existing route rechecks the active actor, and does not carry credentials.
+function expedienteUrl(store,contactId,expedientId){
+ const scope=scopedContext(store,contactId,true);if(!scope||!isId(expedientId)||scope.expedients.length!==1)return null;
+ const exp=scope.expedients[0];if(exp.id!==expedientId||exp.kind!==scope.contact.type)return null;
+ return 'backoffice.html#crm/'+scope.contact.type+'/contacts/'+encodeURIComponent(contactId);
 }
 function accountExists(state,kind,id){return Object.values(state?.expedients||{}).some(e=>e.kind===kind&&e.holderIdentity?.id===id&&e.holderIdentity.demo===true&&e.submissionSnapshot?.accountId===id&&e.submittedAt);}
 function requireSubmission(exp){
  const p=exp?.submissionSnapshot,identity=exp?.holderIdentity;
- if(!p||p.schema!=='pulzzo.crm.submission.v1'||p.demo!==true||!['submitted','accepted','signed'].includes(exp.status)||!exp.submittedAt||p.submittedAt!==exp.submittedAt||p.expedientId!==exp.id||p.contactId!==exp.contactId||p.accountId!==identity?.id||p.kind!==exp.kind)throw Error('El titular debe enviar primero este mismo expediente demo.');
+ if(!p||p.schema!=='pulzzo.crm.submission.v1'||p.demo!==true||!['submitted','accepted','signed'].includes(exp.status)||!exp.submittedAt||!Number.isFinite(Date.parse(exp.submittedAt))||p.submittedAt!==exp.submittedAt||p.expedientId!==exp.id||p.contactId!==exp.contactId||p.accountId!==identity?.id||p.kind!==exp.kind)throw Error('El titular debe enviar primero este mismo expediente demo.');
  if(!identity?.demo||!identity.verifiedAt||!Number.isFinite(Date.parse(identity.verifiedAt))||JSON.stringify(p.holderIdentity)!==JSON.stringify(identity))throw Error('La identidad del titular no coincide con la constancia.');
  if(!Number.isSafeInteger(p.revision)||p.revision<1||p.revision!==exp.submissionRevision||JSON.stringify(p.fields)!==JSON.stringify(exp.fields)||JSON.stringify(p.documents)!==JSON.stringify(exp.documents))throw Error('La constancia de envío no coincide con los datos bloqueados.');
  const required=exp.kind==='patient'?['otp','buroConsent','finalConfirmation']:['otp','finalConfirmation'];
@@ -159,5 +276,5 @@ function mount(w){
  doc.getElementById('loginBtn')?.addEventListener('click',refresh);doc.getElementById('loginPass')?.addEventListener('keydown',e=>{if(e.key==='Enter')refresh();});doc.getElementById('logoutBtn')?.addEventListener('click',()=>{closePreview();previewActions.replaceChildren();select.replaceChildren();fields.replaceChildren();detail.textContent='';docSelect.replaceChildren();docDetail.textContent='';box.hidden=true;});refresh();
 }
 
-return {BO_KEY,readDatabase,readSubmittedRecord,operationalStatus,validateExternalReference,accountExists,prepareImport,prepareDecision,importExpedient,mount};
+return {BO_KEY,readDatabase,readSubmittedRecord,operationalStatus,validateExternalReference,listReferenceChoices,expedienteUrl,accountExists,prepareImport,prepareDecision,importExpedient,mount};
 });

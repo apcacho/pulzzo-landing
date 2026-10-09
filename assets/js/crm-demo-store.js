@@ -72,8 +72,9 @@
       const emails = [row.email, row.correo, row.patient && row.patient.email, row.profile && row.profile.email, row.crmIntake && row.crmIntake.email].filter(Boolean).map(normalizeEmail);
       const phones = [row.phone, row.celular, row.patient && row.patient.phone, row.profile && row.profile.phone, row.contact && row.contact.registered].filter(Boolean).map(v => { try { return normalizePhone(v); } catch (_) { return ''; } });
       const id = accountId || row.patientAccountId || row.doctorAccountId || row.accountId || row.crmIntake && row.crmIntake.accountId || null;
-      if (!(mail && emails.includes(mail)) && !(phone && phones.includes(phone)) && !(input.accountId && id === input.accountId)) return;
-      matches.push({ type, source, accountId: id, recordId: row.id || null, matchedBy: mail && emails.includes(mail) ? 'email' : phone && phones.includes(phone) ? 'phone' : 'accountId', identityMismatch: !!(input.accountId && id === input.accountId && mail && emails.length && !emails.includes(mail)) });
+      const contactMatch = !!(input.contactId && row.crmIntake && row.crmIntake.contactId === input.contactId);
+      if (!(mail && emails.includes(mail)) && !(phone && phones.includes(phone)) && !(input.accountId && id === input.accountId) && !contactMatch) return;
+      matches.push({ type, source, accountId: id, recordId: row.id || null, matchedBy: mail && emails.includes(mail) ? 'email' : phone && phones.includes(phone) ? 'phone' : contactMatch ? 'contactId' : 'accountId', identityMismatch: !!(input.accountId && id === input.accountId && mail && emails.length && !emails.includes(mail)) });
     }
     inspect(readKey('pulzzo_patient'), 'patient', 'pulzzo_patient');
     inspect(readKey('pulzzo_doctor'), 'doctor', 'pulzzo_doctor');
@@ -94,6 +95,9 @@
     const getNow = () => iso(typeof options.now === 'function' ? options.now() : options.now || new Date(), 'registro');
     const randomId = typeof options.randomId === 'function' ? options.randomId : randomPart;
     let running = false;
+    // Private proof for review audit entries. The public transaction adapter cannot
+    // fabricate a review decision, even though all roles here remain a DEMO.
+    const reviewProofs = new WeakMap();
     function read() {
       let raw;
       try { raw = storage.getItem(STORAGE_KEY); } catch (_) { fail('storage_unavailable', 'No se pudo leer el almacenamiento local. Tus cambios no se guardaron.'); }
@@ -120,12 +124,56 @@
     }
     function snapshot(input) { return project(read().state, input); }
     function inspectIdentity(input) {
+      input = input || {};
       const report = findLegacyIdentity(storage, input), state = read().state, mail = normalizeEmail(input && input.email), phone = normalizePhone(input && input.phone);
       for (const c of Object.values(state.contacts)) if (mail && c.email === mail || phone && c.phone === phone) report.matches.push({ type: c.type, source: STORAGE_KEY, accountId: c.accountId || c.holderId || null, contactId: canAccess(c) ? c.id : null, matchedBy: mail && c.email === mail ? 'email' : 'phone' });
       const ids = [...new Set(report.matches.map(m => m.accountId).filter(Boolean))];
       report.existingAccountId = ids.length === 1 ? ids[0] : null;
       report.requiresReconciliation = report.requiresReconciliation || ids.length > 1 || report.matches.some(m => input.type && m.type !== input.type);
+      if (actor.role === 'kam') {
+        const allowed = report.matches.filter(m => m.source === STORAGE_KEY && m.contactId && canAccess(state.contacts[m.contactId]));
+        const restricted = report.matches.length !== allowed.length;
+        // A collision must still block creation, without turning the KAM check
+        // into a directory of other portfolios or legacy account identifiers.
+        return { matches: clone(allowed).concat(restricted ? [{ contactId: null, accountId: null, recordId: null, restricted: true }] : []), existingAccountId: ids.length === 1 && allowed.some(m => m.accountId === ids[0]) ? ids[0] : null, requiresReconciliation: report.requiresReconciliation || restricted, blocked: !!report.matches.length, requiresHolderLogin: report.matches.some(m => m.source !== STORAGE_KEY) };
+      }
       return clone(report);
+    }
+    function requireAdmin() { if (actor.role !== 'admin') fail('forbidden', 'Esta acción corresponde a un administrador DEMO.'); }
+    function identityReviewReport(input, state) {
+      requireAdmin();
+      if (!plain(input) || Object.keys(input).some(k => !['type', 'email', 'phone'].includes(k)) || !STAGES[input.type]) fail('invalid_input', 'Selecciona el tipo y los datos de contacto que deseas revisar.');
+      const email = normalizeEmail(input.email), phone = normalizePhone(input.phone);
+      if (!validEmail(email) || phone && !/^\d{7,15}$/.test(phone) || !email && !phone) fail('invalid_contact', 'Incluye un correo válido o un teléfono de 7 a 15 dígitos.');
+      const legacy = findLegacyIdentity(storage, { type: input.type, email, phone });
+      const candidates = Object.values(state.contacts).filter(c => email && c.email === email || phone && c.phone === phone);
+      const matches = legacy.matches.map(m => Object.assign({}, m, { contactId: null, archived: false }));
+      for (const c of candidates) matches.push({ type: c.type, source: STORAGE_KEY, contactId: c.id, accountId: c.accountId || c.holderId || null, recordId: null, matchedBy: email && c.email === email ? 'email' : 'phone', archived: !!c.deletedAt });
+      const candidate = candidates.length === 1 ? candidates[0] : null;
+      // Continuing this exact already-accessible record is navigation, not proof
+      // that two identities belong to one person, an account claim, or a merger.
+      const canContinue = !!candidate && !candidate.deletedAt && candidate.type === input.type && !legacy.matches.length && (!email || candidate.email === email) && (!phone || candidate.phone === phone);
+      return { matches, canContinue, continuationContactId: canContinue ? candidate.id : null, requiresReconciliation: !!matches.length && !canContinue, revision: state.revision, demo: true };
+    }
+    function inspectIdentityReview(input) { return clone(identityReviewReport(input, read().state)); }
+    function reviewIdentity(input, details, revision) {
+      return transact(revision, (draft, ctx) => {
+        requireAdmin();
+        if (!plain(details) || Object.keys(details).some(k => !['status', 'reason', 'contactId'].includes(k)) || !['pending', 'resolved'].includes(details.status)) fail('invalid_review', 'Selecciona revisión pendiente o continuar un contacto CRM existente.');
+        const reason = text(details.reason, 2000, true), report = identityReviewReport(input, draft);
+        if (details.status === 'resolved' && (!report.canContinue || details.contactId !== report.continuationContactId)) fail('identity_reconciliation_required', 'La coincidencia sigue pendiente. Sólo se puede continuar un contacto CRM activo y exacto, sin unir identidades ni sustituir cuentas.');
+        if (details.status === 'pending' && details.contactId) fail('invalid_review', 'Una revisión pendiente no selecciona ni vincula una identidad.');
+        const reviewId = ctx.id('review');
+        // No searched email/phone, matched account payload, or list of identities
+        // is copied to the audit. Null scope keeps these entries admin-only.
+        const record = audit(draft, ctx, 'identity_review_' + details.status, null, { reviewId, status: details.status, reason, requestedType: input.type, matchCount: report.matches.length, selectedContactId: details.status === 'resolved' ? report.continuationContactId : null });
+        reviewProofs.set(ctx, clone(record));
+        return { reviewId, status: record.status, contactId: record.selectedContactId, reason, matchCount: record.matchCount, createdAt: record.createdAt, actorId: record.actorId, demo: true };
+      });
+    }
+    function listIdentityReviews(filter) {
+      requireAdmin(); filter = filter || {};
+      return Object.values(read().state.audit).filter(a => ['identity_review_pending', 'identity_review_resolved'].includes(a.action) && (!filter.reviewId || a.reviewId === filter.reviewId) && (!filter.status || a.status === filter.status)).reverse().map(clone);
     }
     function canAccess(contact) {
       return !!contact && !contact.deletedAt && (actor.role === 'admin' || actor.role === 'kam' && contact.assignedKam === actor.id || actor.role === 'holder' && contact.holderId === actor.id && (!contact.accountId || contact.accountId === actor.id));
@@ -379,6 +427,28 @@
         if (actor.role === 'holder' || actor.role === 'kam' && ref.kamId !== actor.id) fail('forbidden', 'El enlace debe pertenecer al KAM que lo genera.');
       }
     }
+    function assertProspectLifecycle(state, contact) {
+      if (Object.values(state.tasks).some(t => t.contactId === contact.id && t.status === 'open')) fail('open_tasks', 'Cierra las tareas pendientes antes de archivar o restaurar el contacto.');
+      if (Object.values(state.expedients).some(e => e.contactId === contact.id) || Object.values(state.invitations).some(i => i.contactId === contact.id)) fail('open_expedient', 'El contacto tiene un expediente o invitación. Archivar o restaurar no cancela ni reinicia el registro; requiere revisión operativa.');
+      if (contact.accountId || contact.holderId || contact.accountExists) fail('account_linked', 'El contacto ya está vinculado a una cuenta; conserva su registro operativo.');
+      if (contact.stage === 'submitted' || ['creditId', 'requestId', 'registrationId', 'applicationId', 'submittedAt', 'offerAccepted', 'contractSigned'].some(k => contact[k]) || Object.values(state.activities).some(a => a.contactId === contact.id && ['creditId', 'requestId', 'registrationId'].some(k => a[k]))) fail('linked_operation', 'El contacto tiene una operación vinculada; esta acción sólo corresponde a prospectos sin cuenta ni operación.');
+      const legacy = findLegacyIdentity(storage, { type: contact.type, email: contact.email, phone: contact.phone, contactId: contact.id });
+      if (legacy.matches.length) fail('identity_reconciliation_required', 'Existe una cuenta o registro operativo coincidente. Revisa la identidad antes de archivar o restaurar; no se modificó el registro.');
+      if (typeof options.findExistingAccount === 'function' && options.findExistingAccount(clone(contact))) fail('account_linked', 'Existe una cuenta vinculada; esta acción sólo corresponde a prospectos.');
+    }
+    function assertLifecycleChange(before, after, old, contact, ctx) {
+      const restoring = !!old.deletedAt && !contact.deletedAt;
+      requireAdmin();
+      if (contact.updatedAt !== ctx.now || restoring && contact.deletedAt !== null || !restoring && contact.deletedAt !== ctx.now) fail('invalid_audit_actor', 'El archivo y la restauración conservan la fecha real de esta sesión.');
+      for (const field of new Set([...Object.keys(old), ...Object.keys(contact)])) if (!['deletedAt', 'updatedAt'].includes(field) && !equal(old[field], contact[field])) fail('archived_contact', 'Archivar o restaurar conserva el mismo contacto, identidad, origen y responsable.');
+      for (const key of MAPS) if (!['contacts', 'audit'].includes(key) && !equal(before[key], after[key])) fail('lifecycle_scope', 'Archivar o restaurar no modifica tareas, expedientes, invitaciones ni operaciones.');
+      for (const [id, record] of Object.entries(after.contacts)) if (id !== contact.id && !equal(before.contacts[id], record)) fail('lifecycle_scope', 'La acción sólo puede cambiar el contacto seleccionado.');
+      const action = restoring ? 'contact_restored' : 'contact_archived';
+      const entries = Object.values(after.audit).filter(a => !before.audit[a.id]);
+      if (entries.length !== 1 || entries[0].action !== action || entries[0].contactId !== contact.id || !text(entries[0].reason, 2000, false)) fail('audit_required', 'Archivar o restaurar requiere un motivo y su auditoría exacta.');
+      if (restoring && !Object.values(before.audit).some(a => a.action === 'contact_archived' && a.contactId === contact.id && a.createdAt === old.deletedAt && text(a.reason, 2000, false))) fail('archive_review_required', 'No se pudo verificar el archivo previo. Mantén el contacto archivado para revisión.');
+      assertProspectLifecycle(before, old);
+    }
     function assertInvariants(before, after, ctx) {
       assertState(after);
       if (after.revision !== before.revision || after.version !== before.version || after.demo !== true) fail('invalid_revision', 'La versión y la revisión las controla el almacenamiento CRM.');
@@ -396,6 +466,7 @@
         if (normalizeEmail(c.email) !== c.email || !validEmail(c.email) || normalizePhone(c.phone) !== c.phone || c.phone && !/^\d{7,15}$/.test(c.phone) || !c.email && !c.phone) fail('invalid_contact', 'El correo y teléfono deben estar normalizados.');
         text(c.name, 160, true); iso(c.createdAt); iso(c.updatedAt);
         if (!isId(c.createdBy) || c.assignedKam !== null && !isId(c.assignedKam) || !Array.isArray(c.assistingActors) || c.assistingActors.some(x => !isId(x)) || new Set(c.assistingActors).size !== c.assistingActors.length) fail('invalid_actor', 'Los participantes del contacto no son válidos.');
+        if (!old && c.deletedAt) fail('archived_contact', 'Primero crea un prospecto activo antes de archivarlo.');
         if (!old && (c.createdBy !== actor.id || c.createdAt !== ctx.now || c.updatedAt !== ctx.now)) fail('invalid_audit_actor', 'La identidad y hora de creación provienen de la sesión actual.');
         if (['no_response', 'not_interested'].includes(c.stage)) text(c.stageReason, 2000, true);
         if ((!old || old.stage !== c.stage) && c.stage === 'submitted') {
@@ -418,8 +489,8 @@
             const tracked = Object.values(after.audit).some(a => !before.audit[a.id] && a.action === 'contact_reassigned' && a.contactId === id && a.from === old.assignedKam && a.to === c.assignedKam && text(a.reason, 2000, false));
             if (!tracked) fail('audit_required', 'La reasignación requiere motivo y auditoría.');
           }
-          if (!old.deletedAt && c.deletedAt && !Object.values(after.audit).some(a => !before.audit[a.id] && a.action === 'contact_archived' && a.contactId === id && a.reason)) fail('audit_required', 'Archivar requiere motivo e historial.');
-          if (old.deletedAt && !equal(old, c)) fail('archived_contact', 'El contacto archivado conserva su identidad y su historial.');
+          if (!!old.deletedAt !== !!c.deletedAt) assertLifecycleChange(before, after, old, c, ctx);
+          else if (old.deletedAt && !equal(old, c)) fail('archived_contact', 'El contacto archivado conserva su identidad y su historial.');
         }
         for (const [index, value] of [[emails, c.email], [phones, c.phone]]) {
           if (!value) continue;
@@ -437,6 +508,15 @@
       }
       for (const key of IMMUTABLE_MAPS) for (const [id, record] of Object.entries(after[key])) if (!before[key][id]) {
         if (record.actorId !== actor.id || record.actorRole !== actor.role || record.createdAt !== ctx.now) fail('invalid_audit_actor', 'El actor y la hora de captura provienen de la sesión DEMO.');
+        if (key === 'audit' && /^identity_review_/.test(record.action || '')) {
+          requireAdmin();
+          if (!equal(reviewProofs.get(ctx), record)) fail('invalid_review', 'La revisión debe comprobar la coincidencia vigente mediante el flujo administrativo.');
+          for (const map of MAPS) if (map !== 'audit' && !equal(before[map], after[map])) fail('identity_locked', 'La revisión sólo registra la decisión de continuar o dejar pendiente; no cambia identidades.');
+        }
+        if (key === 'audit' && ['contact_archived', 'contact_restored'].includes(record.action)) {
+          const old = before.contacts[record.contactId], contact = after.contacts[record.contactId];
+          if (!old || !contact || (record.action === 'contact_archived' ? old.deletedAt || contact.deletedAt !== ctx.now : !old.deletedAt || contact.deletedAt !== null)) fail('invalid_lifecycle_audit', 'La auditoría debe corresponder al archivo o restauración real del contacto.');
+        }
         if (record.contactId && !after.contacts[record.contactId]) fail('invalid_contact_reference', 'La actividad requiere un identificador de contacto exacto.');
         if (record.contactId && !canAccess(after.contacts[record.contactId]) && !(actor.role === 'admin' || actor.role === 'kam' && before.contacts[record.contactId] && before.contacts[record.contactId].assignedKam === actor.id && after.contacts[record.contactId].deletedAt)) fail('forbidden', 'El actor no puede agregar historial a otro contacto.');
         if (key === 'events') {
@@ -586,12 +666,30 @@
     }
     function deleteContact(id, reason, revision) {
       return transact(revision, (draft, ctx) => {
-        requireStaff(); const contact = requireContact(draft, id), note = text(reason, 2000, true);
-        if (Object.values(draft.tasks).some(t => t.contactId === id && t.status === 'open')) fail('open_tasks', 'Cierra las tareas pendientes antes de archivar el contacto.');
-        if (Object.values(draft.expedients).some(e => e.contactId === id && !['submitted', 'cancelled'].includes(e.status))) fail('open_expedient', 'El contacto tiene un expediente activo; no se archivó.');
+        requireAdmin(); const contact = requireContact(draft, id), note = text(reason, 2000, true);
+        assertProspectLifecycle(draft, contact);
         contact.deletedAt = ctx.now; contact.updatedAt = ctx.now;
         audit(draft, ctx, 'contact_archived', id, { reason: note }); return contact;
       });
+    }
+    function restoreContact(id, reason, revision) {
+      return transact(revision, (draft, ctx) => {
+        requireAdmin(); const contact = draft.contacts[id], note = text(reason, 2000, true);
+        if (!contact || !contact.deletedAt) fail('archived_contact_not_found', 'No se encontró el contacto archivado.');
+        assertProspectLifecycle(draft, contact);
+        contact.deletedAt = null; contact.updatedAt = ctx.now;
+        audit(draft, ctx, 'contact_restored', id, { reason: note }); return contact;
+      });
+    }
+    function listArchivedContacts(filter) {
+      requireAdmin(); filter = filter || {};
+      const query = String(filter.query || '').trim().toLowerCase();
+      return Object.values(read().state.contacts).filter(c => c.deletedAt && (!filter.type || c.type === filter.type) && (!filter.stage || c.stage === filter.stage) && (!filter.assignedKam || c.assignedKam === filter.assignedKam) && (!query || [c.name, c.email, c.phone, c.id].some(x => String(x).toLowerCase().includes(query)))).sort((a, b) => b.deletedAt.localeCompare(a.deletedAt) || a.id.localeCompare(b.id)).map(clone);
+    }
+    function getArchivedContact(id) {
+      requireAdmin(); const contact = read().state.contacts[id];
+      if (!contact || !contact.deletedAt) fail('archived_contact_not_found', 'No se encontró el contacto archivado.');
+      return clone(contact);
     }
     function createReferral(type, revision) {
       return transact(revision, (draft, ctx) => {
@@ -692,7 +790,7 @@
     function getContact(id) { const state = read().state; return clone(requireContact(state, id)); }
     function listLinked(key, filter) {
       filter = filter || {}; const state = read().state;
-      return Object.values(state[key]).filter(item => canAccess(state.contacts[item.contactId]) && (!filter.contactId || item.contactId === filter.contactId) && (!filter.status || item.status === filter.status)).sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || '')).map(clone);
+      return Object.values(state[key]).filter(item => (canAccess(state.contacts[item.contactId]) || key === 'audit' && filter.includeArchived === true && actor.role === 'admin' && state.contacts[item.contactId] && state.contacts[item.contactId].deletedAt) && (!filter.contactId || item.contactId === filter.contactId) && (!filter.status || item.status === filter.status)).sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || '')).map(clone);
     }
     function operationalStatus(id) {
       const contact = getContact(id);
@@ -720,9 +818,9 @@
       const byKam = Array.from(kams).sort().map(kamId => { const ownIds = new Set(contacts.filter(c => (c.assignedKam || 'unassigned') === kamId).map(c => c.id)); return { kamId, newContacts: Array.from(newIds).filter(id => ownIds.has(id)).length, activities: activities.filter(e => ownIds.has(e.contactId)).length, submitted: Array.from(submitted).filter(id => ownIds.has(id)).length }; });
       return { period: { month, year }, counts: { newContacts: newIds.size, patients: contacts.filter(c => c.type === 'patient' && newIds.has(c.id)).length, doctors: contacts.filter(c => c.type === 'doctor' && newIds.has(c.id)).length, activities: activities.length, openTasks: openTasks.length, overdueTasks: openTasks.filter(t => t.dueAt < getNow()).length, submitted: submitted.size, onboardingStarted: started.size, referralContacts: contacts.filter(c => newIds.has(c.id) && ['referral', 'kam_referral', 'doctor_referral'].includes(c.originalSource)).length }, byStage, byKam, events: clone(events), currentSnapshot: { contacts: contacts.length, openTasks: openTasks.length }, demo: true };
     }
-    return Object.freeze({ actor, snapshot, transact, createContact, updateContact, getContact, listContacts, moveCommercialStage, setStage, reassignContact, deleteContact, createReferral, resolveReferral, applyReferral, createTask, updateTask, closeTask, addActivity,
+    return Object.freeze({ actor, snapshot, transact, createContact, updateContact, getContact, listContacts, moveCommercialStage, setStage, reassignContact, deleteContact, restoreContact, listArchivedContacts, getArchivedContact, createReferral, resolveReferral, applyReferral, createTask, updateTask, closeTask, addActivity,
       listTasks: filter => listLinked('tasks', filter), listActivities: filter => listLinked('activities', filter), listAudit: filter => listLinked('audit', filter), dashboard, operationalStatus,
-      canAccessContact: id => canAccess(read().state.contacts[id]), inspectIdentity, normalizeEmail, normalizePhone });
+      canAccessContact: id => canAccess(read().state.contacts[id]), inspectIdentity, inspectIdentityReview, reviewIdentity, listIdentityReviews, normalizeEmail, normalizePhone });
   }
   return Object.freeze({ STORAGE_KEY, STORE: STORAGE_KEY, VERSION, STAGES, COMMERCIAL_STAGES, SOURCES, ACTIVITY_TYPES, normalizeEmail, normalizePhone, findLegacyIdentity, createStore });
 });
