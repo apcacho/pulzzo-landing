@@ -21,13 +21,19 @@ function localState(storage){
 }
 // Resolve the current contact through the actor-scoped store on every read. A
 // caller's cached contact or guessed ID cannot widen these lookup results.
+function scopedContact(store,contactId,staffOnly,state){
+ if(!isId(contactId)||!store||!['admin','kam',...(staffOnly?[]:['holder'])].includes(store.actor?.role))return null;
+ const contact=state.contacts?.[contactId];
+ if(!contact||contact.id!==contactId||contact.deletedAt||!['patient','doctor'].includes(contact.type))return null;
+ if(store.actor.role==='kam'&&contact.assignedKam!==store.actor.id)return null;
+ if(store.actor.role==='holder'&&(contact.holderId!==store.actor.id||contact.accountId&&contact.accountId!==store.actor.id))return null;
+ return contact;
+}
 function scopedContext(store,contactId,staffOnly){
  if(!isId(contactId)||!store||!['admin','kam',...(staffOnly?[]:['holder'])].includes(store.actor?.role))return null;
  try{
-  const current=store.getContact(contactId),state=store.snapshot(),contact=state.contacts?.[contactId];
-  if(!current||!contact||contact.id!==contactId||contact.deletedAt||!['patient','doctor'].includes(contact.type)||current.type!==contact.type||current.assignedKam!==contact.assignedKam)return null;
-  if(store.actor.role==='kam'&&contact.assignedKam!==store.actor.id)return null;
-  if(store.actor.role==='holder'&&(contact.holderId!==store.actor.id||contact.accountId&&contact.accountId!==store.actor.id))return null;
+  const current=store.getContact(contactId),state=store.snapshot(),contact=scopedContact(store,contactId,staffOnly,state);
+  if(!current||!contact||current.type!==contact.type||current.assignedKam!==contact.assignedKam)return null;
   return {contact,expedients:Object.values(state.expedients||{}).filter(e=>e.contactId===contactId)};
  }catch(_){return null;}
 }
@@ -59,6 +65,70 @@ function contactRecords(db,contact,expedients){
 function uniqueContactRecord(db,contact,expedients){
  const rows=contactRecords(db,contact,expedients);
  return rows.length===1&&recordBelongsToContact(rows[0].record,rows[0].kind,contact,expedients)?rows[0]:null;
+}
+// Search-only projection for the staff task picker. Never join by display name,
+// email or phone, and never copy identifiers into CRM contacts or task records.
+function taskIdentityIndex(db){
+ const index={contacts:new Map(),expedients:new Map(),accounts:new Map(),ids:new Map()};if(!db)return index;
+ const rows=[...db.patients.map(record=>({record,kind:'patient'})),...db.providers.map(record=>({record,kind:'doctor'}))];
+ if(rows.some(({record})=>!object(record)||!isId(record.id)))throw Error('Identidad de backoffice inválida.');
+ function add(map,id,row){if(!isId(id))return;if(!map.has(id))map.set(id,new Set());map.get(id).add(row);}
+ for(const row of rows){
+  const {record}=row;add(index.ids,record.id,row);add(index.contacts,record.crmIntake?.contactId,row);add(index.expedients,record.crmIntake?.expedientId,row);
+  for(const id of [record.patientAccountId,record.doctorAccountId,record.crmIntake?.accountId])add(index.accounts,id,row);
+ }
+ return index;
+}
+function taskIdentityProjection(index,scope){
+ const empty={rfc:'',curp:''},{contact,expedients}=scope;
+ if(expedients.length>1||expedients.some(e=>e.kind!==contact.type)||[contact.accountId,contact.holderId].some(id=>id!=null&&id!==''&&!isId(id)))return empty;
+ const linked=new Set(index.contacts.get(contact.id));
+ for(const exp of expedients)for(const row of index.expedients.get(exp.id)||[])linked.add(row);
+ for(const row of index.accounts.get(contactAccount(contact))||[])linked.add(row);
+ if(linked.size!==1)return empty;
+ const {record,kind}=[...linked][0];
+ if(!recordBelongsToContact(record,kind,contact,expedients))return empty;
+ const wrongAccount=record[kind==='patient'?'doctorAccountId':'patientAccountId'];
+ if(index.ids.get(record.id)?.size!==1||wrongAccount!=null&&wrongAccount!=='')return empty;
+ // Native handoffs use application.identity; legacy BO records use patient or
+ // application. Conflicts fail closed. Clinic representatives are not the owner.
+ const sources=kind==='patient'?[record.patient,record.application,record.application?.identity]:[];
+ if((kind==='patient'?sources:[record.fiscal,record.medval]).some(source=>source!=null&&!object(source)))return empty;
+ const values=key=>kind==='patient'?sources.map(source=>source?.[key]):[key==='rfc'?record.fiscal?.rfc:record.medval?.curp];
+ function identifier(key){
+  const candidates=values(key).filter(value=>value!=null&&value!=='');
+  if(candidates.some(value=>typeof value!=='string'||value.length>80||/[\u0000-\u001f\u007f]/.test(value)))return null;
+  const nonempty=candidates.map(value=>value.trim()).filter(Boolean),canonical=nonempty.map(value=>value.toUpperCase().replace(/[\s.-]/g,''));
+  return new Set(canonical).size>1?null:nonempty[0]||'';
+ }
+ const rfc=identifier('rfc'),curp=identifier('curp');return rfc===null||curp===null?empty:{rfc,curp};
+}
+function taskContactIdentity(storage,store,contactId){
+ const empty={rfc:'',curp:''};
+ try{
+  const scope=scopedContext(store,contactId,true);if(!scope)return empty;
+  const identity=taskIdentityProjection(taskIdentityIndex(readDatabase(storage)),scope);
+  // Recheck access after the BO read as well, rather than returning a cached
+  // projection after a reassignment, archive or concurrent identity change.
+  const current=scopedContext(store,contactId,true);
+  if(!current||JSON.stringify(current)!==JSON.stringify(scope))return empty;
+  return identity;
+ }catch(_){return empty;}
+}
+// One scoped snapshot and BO index for a whole query, followed by one consistency
+// check. The batch is ephemeral: callers must not keep it across search/submit.
+function taskContactIdentities(storage,store,contactIds){
+ try{
+  if(!Array.isArray(contactIds)||!store||!['admin','kam'].includes(store.actor?.role))return {};
+  const state=store.snapshot(),version=JSON.stringify(state),actor=JSON.stringify(store.actor),byContact=new Map(),scopes=[];
+  for(const exp of Object.values(state.expedients||{})){if(!byContact.has(exp.contactId))byContact.set(exp.contactId,[]);byContact.get(exp.contactId).push(exp);}
+  for(const id of new Set(contactIds)){const contact=scopedContact(store,id,true,state);if(contact)scopes.push({contact,expedients:byContact.get(id)||[]});}
+  if(!scopes.length)return {};
+  const index=taskIdentityIndex(readDatabase(storage)),result={};
+  for(const scope of scopes)result[scope.contact.id]=taskIdentityProjection(index,scope);
+  if(JSON.stringify(store.actor)!==actor||JSON.stringify(store.snapshot())!==version)return {};
+  return result;
+ }catch(_){return {};}
 }
 function localExpedientStatus(exp){
  if(!exp)return 'Sin expediente';
@@ -276,5 +346,5 @@ function mount(w){
  doc.getElementById('loginBtn')?.addEventListener('click',refresh);doc.getElementById('loginPass')?.addEventListener('keydown',e=>{if(e.key==='Enter')refresh();});doc.getElementById('logoutBtn')?.addEventListener('click',()=>{closePreview();previewActions.replaceChildren();select.replaceChildren();fields.replaceChildren();detail.textContent='';docSelect.replaceChildren();docDetail.textContent='';box.hidden=true;});refresh();
 }
 
-return {BO_KEY,readDatabase,readSubmittedRecord,operationalStatus,validateExternalReference,listReferenceChoices,expedienteUrl,accountExists,prepareImport,prepareDecision,importExpedient,mount};
+return {BO_KEY,readDatabase,readSubmittedRecord,operationalStatus,taskContactIdentity,taskContactIdentities,validateExternalReference,listReferenceChoices,expedienteUrl,accountExists,prepareImport,prepareDecision,importExpedient,mount};
 });

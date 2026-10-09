@@ -480,7 +480,7 @@
             const trackedEvent = Object.values(after.events).some(e => !before.events[e.id] && e.type === 'contact_stage_changed' && e.contactId === id && e.from === old.stage && e.to === c.stage);
             if (!trackedAudit || !trackedEvent) fail('audit_required', 'El cambio de etapa requiere auditoría y un evento del mismo contacto.');
           }
-          for (const field of ['id', 'type', 'createdAt', 'createdBy', 'originalSource', 'referringKam']) if (!equal(old[field], c[field])) fail('immutable_attribution', 'La identidad y la atribución original no se sobrescriben.');
+          for (const field of ['id', 'type', 'createdAt', 'createdBy', 'originalSource', 'referringKam', 'demoFixtureKey']) if (!equal(old[field], c[field])) fail('immutable_attribution', 'La identidad y la atribución original no se sobrescriben.');
           if (old.assistingActors.some(x => !c.assistingActors.includes(x))) fail('immutable_history', 'No se eliminan participantes del historial.');
           const identityLocked = old.accountId || old.holderId || old.accountExists || Object.values(before.expedients).some(e => e.contactId === id && (e.holderIdentity || e.submittedAt || e.activeInvitationId));
           if (identityLocked && ['name', 'email', 'phone'].some(k => old[k] !== c[k])) fail('identity_locked', 'La identidad ya está vinculada a una cuenta o invitación. Requiere conciliación; no se sobrescribió.');
@@ -603,6 +603,36 @@
         audit(draft, ctx, 'contact_created', contact.id);
         event(draft, ctx, 'contact_created', contact);
         return contact;
+      });
+    }
+    function seedExamples(revision) {
+      return transact(revision, (draft, ctx) => {
+        requireStaff();
+        const owner=actor.role==='admin'?'kam_ana':actor.id, suffix=owner==='kam_ana'?'':owner==='kam_luis'?'+kam_luis':'+kam_'+Array.from(owner).map(c=>c.codePointAt(0).toString(16).padStart(6,'0')).join('');
+        const samples=[['patient','Mariana Flores · DEMO','mariana','manual','Confirmar dudas del registro ficticio',0],['patient','Pablo Reyes · DEMO','pablo','direct_unknown','Retomar contacto demo',-1],['doctor','Clínica Horizonte · DEMO','clinica','manual','Presentar recorrido para proveedor demo',2]];
+        const contacts=[];let created=0;
+        samples.forEach((sample,index)=>{
+          const [type,name,handle,originalSource,title,offset]=sample,key=owner+':'+handle;
+          const email=handle+'.demo'+suffix+'@example.test',phone=owner==='kam_ana'||owner==='kam_luis'?'+1202555010'+(index+1+(owner==='kam_luis'?3:0)):'';
+          const candidates=Object.values(draft.contacts).filter(c=>c.demoFixtureKey===key||c.type===type&&c.email===email&&c.phone===normalizePhone(phone)&&c.name===name);
+          if(candidates.length>1||candidates.some(c=>!canAccess(c)))fail('demo_unavailable','Los ejemplos anteriores no están disponibles en esta cartera. Crea un prospecto o consulta a Administración.');
+          let contact=candidates[0],isNew=!contact;
+          if(isNew){
+            contact=ctx.makeContact({type,name,email,phone,originalSource,assignedKam:owner});
+            if(typeof options.findExistingAccount==='function'&&options.findExistingAccount(clone(contact)))fail('demo_unavailable','No se pudieron cargar los ejemplos por un conflicto con datos existentes. No se modificó la cartera.');
+            contact.demoFixtureKey=key;draft.contacts[contact.id]=contact;created++;
+            audit(draft,ctx,'contact_created',contact.id);event(draft,ctx,'contact_created',contact);
+          }
+          // A completed, renamed or otherwise edited fixture task is never reset.
+          // Legacy partial loads without any task can safely receive their first one.
+          if(isNew||!contact.demoFixtureKey&&!Object.values(draft.tasks).some(t=>t.contactId===contact.id)){
+            const due=new Date(ctx.now);due.setUTCDate(due.getUTCDate()+offset);
+            const task={id:ctx.id('task'),contactId:contact.id,title,dueAt:due.toISOString(),status:'open',closeReason:null,createdAt:ctx.now,createdBy:actor.id,updatedAt:ctx.now,closedAt:null,closedBy:null};
+            draft.tasks[task.id]=task;audit(draft,ctx,'task_created',contact.id,{taskId:task.id});event(draft,ctx,'task_created',contact,{taskId:task.id});
+          }
+          contacts.push(contact);
+        });
+        return {contacts,created};
       });
     }
     function updateContact(id, patch, revision) {
@@ -818,7 +848,7 @@
       const byKam = Array.from(kams).sort().map(kamId => { const ownIds = new Set(contacts.filter(c => (c.assignedKam || 'unassigned') === kamId).map(c => c.id)); return { kamId, newContacts: Array.from(newIds).filter(id => ownIds.has(id)).length, activities: activities.filter(e => ownIds.has(e.contactId)).length, submitted: Array.from(submitted).filter(id => ownIds.has(id)).length }; });
       return { period: { month, year }, counts: { newContacts: newIds.size, patients: contacts.filter(c => c.type === 'patient' && newIds.has(c.id)).length, doctors: contacts.filter(c => c.type === 'doctor' && newIds.has(c.id)).length, activities: activities.length, openTasks: openTasks.length, overdueTasks: openTasks.filter(t => t.dueAt < getNow()).length, submitted: submitted.size, onboardingStarted: started.size, referralContacts: contacts.filter(c => newIds.has(c.id) && ['referral', 'kam_referral', 'doctor_referral'].includes(c.originalSource)).length }, byStage, byKam, events: clone(events), currentSnapshot: { contacts: contacts.length, openTasks: openTasks.length }, demo: true };
     }
-    return Object.freeze({ actor, snapshot, transact, createContact, updateContact, getContact, listContacts, moveCommercialStage, setStage, reassignContact, deleteContact, restoreContact, listArchivedContacts, getArchivedContact, createReferral, resolveReferral, applyReferral, createTask, updateTask, closeTask, addActivity,
+    return Object.freeze({ actor, snapshot, transact, createContact, seedExamples, updateContact, getContact, listContacts, moveCommercialStage, setStage, reassignContact, deleteContact, restoreContact, listArchivedContacts, getArchivedContact, createReferral, resolveReferral, applyReferral, createTask, updateTask, closeTask, addActivity,
       listTasks: filter => listLinked('tasks', filter), listActivities: filter => listLinked('activities', filter), listAudit: filter => listLinked('audit', filter), dashboard, operationalStatus,
       canAccessContact: id => canAccess(read().state.contacts[id]), inspectIdentity, inspectIdentityReview, reviewIdentity, listIdentityReviews, normalizeEmail, normalizePhone });
   }

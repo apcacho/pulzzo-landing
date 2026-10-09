@@ -235,3 +235,7 @@
  .crm-surface dialog{width:calc(100vw - 24px);max-height:calc(100dvh - 24px);border-radius:16px}
 }
 @media(forced-colors:active){.crm-surface select:not([multiple]):is(:not([size]),[size="0"],[size="1"]){appearance:auto;-webkit-appearance:auto;background-image:none}.crm-surface :is(.context-link,.tab,.contact-row).active{outline:1px solid Highlight}}
+
+/* Keep the compact contact placeholder above generic BO text roles. */
+.crm-surface .contact-empty-copy h2{font-size:var(--bo-size-card);font-weight:var(--bo-weight-heading);line-height:1.4}
+.crm-surface .contact-empty-copy p{font-size:var(--bo-size-meta);color:var(--muted);line-height:1.5}

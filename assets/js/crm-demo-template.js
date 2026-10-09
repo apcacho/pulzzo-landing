@@ -26,7 +26,7 @@
             <div class="directory-summary"><span id="contactCount">0 contactos</span><span>Etapa comercial</span></div>
             <div id="contactList" class="contact-list"></div>
           </section>
-          <section id="contactDetail" class="panel contact-detail" tabindex="-1" aria-label="Ficha del contacto"><div class="empty-state"><span class="empty-mark">＋</span><h2>Tu próxima conversación empieza aquí</h2><p>Selecciona un contacto o crea un prospecto para registrar su seguimiento.</p></div></section>
+          <section id="contactDetail" class="panel contact-detail" tabindex="-1" aria-label="Ficha del contacto"><div class="contact-empty"><div class="contact-empty-copy"><h2>Empieza con un prospecto</h2><p>Crea una ficha o explora el CRM con datos ficticios.</p></div></div></section>
         </div>
       </section>
       <section id="tasksView" hidden aria-label="Tareas y pendientes"><div class="panel"><div class="panel-heading"><div><h2>Agenda de seguimiento</h2><p>Fechas de referencia CDMX. Cerrar una tarea requiere un motivo.</p></div><button class="primary" type="button" id="newTask">＋ Nueva tarea</button></div><div id="taskBoard" class="task-board"></div></div></section>
