@@ -50,7 +50,7 @@ function setup() {
   h.window.PulzzoCRMOffice = Office;
   const originalGet = h.get, dialog = originalGet('dialogContent');
   let markup = '', mounted = new Map(), controls = [];
-  const dynamicIds = new Set(['taskContactSearch', 'taskContactSelect', 'taskContactClear', 'taskContactStatus']);
+  const dynamicIds = new Set(['taskContactSearch', 'taskContactSelect', 'taskContactClear', 'taskContactStatus', 'taskContactResults']);
   const originalDocumentGet = h.document.getElementById;
   h.document.getElementById = id => mounted.get(id) || (dynamicIds.has(id) ? null : originalDocumentGet(id));
   h.get = id => h.document.getElementById(id);
@@ -58,7 +58,7 @@ function setup() {
     get: () => markup,
     set(value) {
       markup = String(value); mounted = new Map(); controls = [];
-      const pattern = /<(input|select|button|p)\b([^>]*)>(?:(?!<input\b)([\s\S]*?)<\/\1>)?/g;
+      const pattern = /<(input|select|button|p|section)\b([^>]*)>(?:(?!<input\b)([\s\S]*?)<\/\1>)?/g;
       for (const match of markup.matchAll(pattern)) {
         const tag = match[1], attrs = attributes(match[2]);
         const node = new context.fixture.Element(attrs.id || '');
@@ -103,6 +103,13 @@ function setup() {
   h.type = async query => { const input = h.get('taskContactSearch'); assert.ok(input, 'Search must be mounted'); input.value = query; await input.dispatch('input'); };
   h.select = async id => { const select = h.get('taskContactSelect'); assert.ok(select); select.value = id; await select.dispatch('change'); };
   h.clear = async () => { const button = h.get('taskContactClear'); assert.ok(button); await button.dispatch('click'); };
+  h.chooseResult = async id => {
+    const results = h.get('taskContactResults');
+    const button = {getAttribute:name => name === 'data-task-contact' ? id : null, focus(){ h.document.activeElement = button; }};
+    results.contains = node => node === button;
+    results.querySelectorAll = () => [button];
+    await results.dispatch('click', {target:{closest:() => button}});
+  };
   h.optionIds = () => h.get('taskContactSelect').options.map(option => option.value).filter(Boolean);
   h.storageEvent = () => { for (const listener of h.window.listeners.storage || []) listener({key:Store.STORAGE_KEY}); };
   h.bytes = () => h.storage.getItem(Store.STORAGE_KEY);
@@ -124,6 +131,42 @@ async function rejectsWithoutWrite(h, values) {
   return result;
 }
 
+test('Horizonte search shows the actual result immediately and requires an explicit visible button selection', async () => {
+  const h = setup(), a = add(h, 'Clínica Horizonte · DEMO', {type:'doctor', email:'clinica.demo@example.test'});
+  h.app.navigate('doctor', 'tasks'); open(h);
+  for (const query of ['Hori', 'horizonte', 'HORIZONTE']) {
+    await h.type(query);
+    assert.match(h.get('taskContactResults').innerHTML, /Clínica Horizonte · DEMO/);
+    assert.match(h.get('taskContactResults').innerHTML, /clinica.demo@example.test/);
+    assert.match(h.get('taskContactResults').innerHTML, /aria-pressed="false"/);
+    assert.equal(h.get('taskContactSelect').value, '');
+  }
+  await h.chooseResult(a.id);
+  assert.equal(h.get('taskContactSelect').value, a.id);
+  assert.match(h.get('taskContactResults').innerHTML, /aria-pressed="true"/);
+  assert.match(h.get('taskContactResults').innerHTML, /Seleccionado/);
+  await h.type('no match');
+  assert.doesNotMatch(h.get('taskContactResults').innerHTML, /data-task-contact/);
+  assert.match(h.get('taskContactResults').innerHTML, /Sin coincidencias/);
+  assert.equal(h.get('taskContactSelect').value, '');
+  await h.type('horizonte'); await h.chooseResult(a.id);
+  assert.equal((await h.submitMounted()).error, '');
+  assert.equal(h.app.state.store.listTasks()[0].contactId, a.id); h.app.destroy();
+});
+
+test('Visible result buttons retain scope, escape markup and reject stale or foreign result clicks', async () => {
+  const h = setup(), a = add(h, 'Same <img src=x>'), b = add(h, 'Same <img src=x>'), owner = admin(h);
+  const foreign = add(h, 'Foreign private contact', {assignedKam:'kam_luis'}, owner);
+  open(h); await h.type('same');
+  const html = h.get('taskContactResults').innerHTML;
+  assert.match(html, /&lt;img/); assert.doesNotMatch(html, /<img/);
+  assert.ok(html.includes(a.email)); assert.ok(html.includes(b.email)); assert.ok(!html.includes(foreign.name));
+  await h.chooseResult(foreign.id); assert.equal(h.get('taskContactSelect').value, '');
+  await h.chooseResult(b.id); assert.equal(h.get('taskContactSelect').value, b.id);
+  await h.type('no match'); await h.chooseResult(b.id); assert.equal(h.get('taskContactSelect').value, '');
+  h.app.destroy();
+});
+
 test('Search normalizes case, accents, whitespace and telephone formatting without matching unrelated fields', () => {
   assert.equal(typeof UI.taskContactMatches, 'function');
   const contact = {id:'ct_private_internal', name:'José   Núñez Álvarez', email:'JOSE.NUNEZ@EXAMPLE.TEST', phone:'525512345678', rfc:'NUAJ900101AB1', curp:'NUAJ900101HDFNLN09', notes:'private note'};
@@ -139,20 +182,20 @@ test('Search normalizes case, accents, whitespace and telephone formatting witho
   assert.equal(UI.taskContactMatches(withoutIdentity, 'nuaj900101ab1'), false, 'Identity is not guessed from another contact');
 });
 
-test('New-task picker has a required blank choice and lists only active contacts of the current type and role', async () => {
+test('New-task picker requires an explicit choice and lists only active contacts of the current type and role', async () => {
   const h = setup(), mine = add(h, 'Mi contacto'), doctor = add(h, 'Médico privado', {type:'doctor'}), owner = admin(h);
   const foreign = add(h, 'Contacto de Luis', {assignedKam:'kam_luis'}, owner);
   const archived = add(h, 'Prospecto archivado'); good(owner.deleteContact(archived.id, 'Archivo ficticio', owner.snapshot().revision));
   open(h);
   const html = h.get('dialogContent').innerHTML, select = h.get('taskContactSelect');
   assert.ok(h.get('taskContactSearch')); assert.ok(h.get('taskContactClear')); assert.ok(h.get('taskContactStatus'));
-  assert.equal(select.name, 'contactId'); assert.equal(select.required, true); assert.equal(select.value, '');
+  assert.equal(select.name, 'contactId'); assert.equal(select.required, false); assert.ok(Object.hasOwn(select.attributes, 'hidden')); assert.equal(select.value, '');
   assert.equal(select.options[0].value, '', 'No eligible result may be implicitly selected');
   sameIds(h.optionIds(), [mine.id]);
   assert.doesNotMatch(html + select.innerHTML, new RegExp([foreign.name, doctor.name, archived.name].join('|')));
   assert.ok(h.get('taskContactStatus').getAttribute('aria-live') || h.get('taskContactStatus').getAttribute('role') === 'status', 'Result feedback must be announced');
   const before = h.bytes(), blank = await h.submitMounted();
-  assert.equal(blank.form.reportedInvalid, true); assert.equal(h.bytes(), before);
+  assert.match(blank.error, /Selecciona un contacto/); assert.equal(h.bytes(), before);
   await role(h, 'admin_demo'); open(h); sameIds(h.optionIds(), [mine.id, foreign.id]);
   h.app.navigate('doctor', 'tasks'); open(h); sameIds(h.optionIds(), [doctor.id]);
   h.app.destroy();
@@ -283,7 +326,7 @@ for (const transition of ['reassign', 'archive']) test('A contact ' + transition
 test('Actor/type/navigation/dismissal transitions close the picker and remove old input listeners', async () => {
   for (const transition of ['actor', 'type', 'navigation', 'back-forward', 'dismiss', 'pagehide', 'destroy']) {
     const h = setup(), a = add(h, 'Selección anterior'); open(h); await h.select(a.id);
-    const oldSearch = h.get('taskContactSearch'), oldSelect = h.get('taskContactSelect'), oldClear = h.get('taskContactClear');
+    const oldSearch = h.get('taskContactSearch'), oldSelect = h.get('taskContactSelect'), oldClear = h.get('taskContactClear'), oldResults = h.get('taskContactResults');
     if (transition === 'actor') await role(h, 'kam_luis');
     if (transition === 'type') h.app.navigate('doctor', 'tasks');
     if (transition === 'navigation') h.app.navigate('patient', 'dashboard');
@@ -292,8 +335,8 @@ test('Actor/type/navigation/dismissal transitions close the picker and remove ol
     if (transition === 'pagehide') for (const listener of h.window.listeners.pagehide || []) listener({});
     if (transition === 'destroy') h.app.destroy();
     assert.equal(h.get('editorDialog').open, false, transition); assert.equal(h.app.state.dialogHandler, null, transition);
-    for (const node of [oldSearch, oldSelect, oldClear]) assert.equal(Object.values(node.listeners).flat().length, 0, transition + ': detached picker listeners must be removed');
-    const before = h.bytes(); await oldSearch.dispatch('input'); await oldSelect.dispatch('change'); await oldClear.dispatch('click');
+    for (const node of [oldSearch, oldSelect, oldClear, oldResults]) assert.equal(Object.values(node.listeners).flat().length, 0, transition + ': detached picker listeners must be removed');
+    const before = h.bytes(); await oldSearch.dispatch('input'); await oldSelect.dispatch('change'); await oldClear.dispatch('click'); await oldResults.dispatch('click');
     await h.submit({contactId:a.id, title:'Evento tardío', dueAt:'2026-10-10T12:30'}); assert.equal(h.bytes(), before, transition);
     if (transition === 'pagehide') { open(h); await h.type('anterior'); sameIds(h.optionIds(), [a.id]); await h.select(a.id); assert.equal((await h.submitMounted()).error, '', 'A bfcache-style resume can open a working fresh picker'); }
     h.app.destroy();

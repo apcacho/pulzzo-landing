@@ -462,7 +462,7 @@
       }
       function label(c) {return c.name+' · '+[c.email,storedPhone(c.phone)].filter(Boolean).join(' · ');}
       function choices(rows,current) {return option('','Selecciona un contacto',current)+rows.map(function(c){return option(c.id,label(c),current);}).join('');}
-      var picker=task?'<label class="full">Contacto<select name="contactId" disabled>'+list.filter(function(c){return c.id===selected;}).map(function(c){return option(c.id,label(c),selected);}).join('')+'</select></label>':'<div class="full task-contact-picker"><label for="taskContactSearch">Buscar contacto</label><div class="task-contact-search"><input id="taskContactSearch" type="search" autocomplete="off" maxlength="180" placeholder="Nombre, RFC, teléfono, correo o CURP" aria-describedby="taskContactHelp taskContactStatus"><button id="taskContactClear" type="button">Limpiar</button></div><p id="taskContactHelp" class="help">Busca dentro de tu cartera de '+(state.type==='doctor'?'proveedores':'clientes')+'. RFC y CURP se consultan cuando existe un registro vinculado.</p><label for="taskContactSelect">Contacto para esta tarea</label><select id="taskContactSelect" name="contactId" required aria-describedby="taskContactStatus">'+choices(list,selected)+'</select><p id="taskContactStatus" class="help" role="status" aria-live="polite"></p></div>';
+      var picker=task?'<label class="full">Contacto<select name="contactId" disabled>'+list.filter(function(c){return c.id===selected;}).map(function(c){return option(c.id,label(c),selected);}).join('')+'</select></label>':'<div class="full task-contact-picker"><label for="taskContactSearch">Buscar contacto</label><div class="task-contact-search"><input id="taskContactSearch" type="search" autocomplete="off" maxlength="180" placeholder="Nombre, RFC, teléfono, correo o CURP" aria-describedby="taskContactHelp taskContactStatus"><button id="taskContactClear" type="button">Limpiar</button></div><p id="taskContactHelp" class="help">Busca dentro de tu cartera de '+(state.type==='doctor'?'proveedores':'clientes')+'. RFC y CURP se consultan cuando existe un registro vinculado.</p><p id="taskContactResultsLabel" class="task-contact-results-label">Contacto para esta tarea · selecciona un resultado</p><section id="taskContactResults" class="task-contact-results" aria-labelledby="taskContactResultsLabel"></section><select id="taskContactSelect" name="contactId" hidden aria-hidden="true" tabindex="-1">'+choices(list,selected)+'</select><p id="taskContactStatus" class="help" role="status" aria-live="polite"></p></div>';
       var cleanup=task?null:function(){removers.forEach(function(remove){remove();});};if(cleanup)cleanup.preserveDraft=true;
       showDialog(task?'Reprogramar tarea':'Nueva tarea','<form><div class="form-grid">'+picker+'<label class="full">Siguiente paso<input name="title" value="'+esc(task?task.title:'')+'" required maxlength="240"></label>'+field('Fecha y hora límite (hora de este dispositivo)','dueAt','datetime-local',task?localInput(task.dueAt):localInput(clock()),'required')+'</div>'+endForm(task?'Guardar nueva fecha':'Crear tarea'),function(form){
         var input={contactId:task?task.contactId:value(form,'contactId'),title:value(form,'title'),dueAt:toISO(value(form,'dueAt'))};
@@ -472,7 +472,7 @@
         resultOrThrow(task?state.store.updateTask(task.id,{title:input.title,dueAt:input.dueAt},dialogRevision()):state.store.createTask(input,dialogRevision()));closeDialog(true);notice(task?'Tarea reprogramada.':'Tarea creada.');render();
       },cleanup,ids);
       if(task)return;
-      var search=el('taskContactSearch'),select=el('taskContactSelect'),clear=el('taskContactClear'),status=el('taskContactStatus');
+      var search=el('taskContactSearch'),select=el('taskContactSelect'),clear=el('taskContactClear'),status=el('taskContactStatus'),results=el('taskContactResults');
       function refresh(reset) {
         query=search.value||'';var current=reset?'':select.value,available=contacts({}).filter(function(c){return idSet.has(c.id);}),identities=Object.create(null);
         var office=config.officeModule||win.PulzzoCRMOffice,unmatched=available.filter(function(c){return !taskContactMatches(c,query);});
@@ -480,12 +480,19 @@
         var rows=available.filter(function(c){return matches(c,identities);});
         if(!rows.some(function(c){return c.id===current;}))current='';
         select.innerHTML=choices(rows,current);select.value=current;select.disabled=!rows.length;
+        results.innerHTML=rows.length?rows.map(function(c){var chosen=c.id===current,details=[c.email,storedPhone(c.phone)].filter(Boolean).join(' · ');return '<button type="button" class="task-contact-result'+(chosen?' is-selected':'')+'" data-task-contact="'+esc(c.id)+'" aria-pressed="'+chosen+'"><span class="task-contact-result-copy"><strong>'+esc(c.name)+'</strong>'+(details?'<span class="task-contact-result-details">'+esc(details)+'</span>':'')+'</span><span class="task-contact-result-state">'+(chosen?'Seleccionado':'Seleccionar')+'</span></button>';}).join(''):'<p class="task-contact-empty">Sin coincidencias. Prueba otro dato o limpia la búsqueda.</p>';
         status.textContent=rows.length?(rows.length+' contacto'+(rows.length===1?'':'s')+' disponible'+(rows.length===1?'':'s')+'. '+(current?'Contacto seleccionado.':'Selecciona uno para continuar.')):'Sin coincidencias. Prueba otro dato o limpia la búsqueda.';
         clear.disabled=!query&&!current;
       }
       function on(node,event,handler){node.addEventListener(event,handler);removers.push(function(){if(node.removeEventListener)node.removeEventListener(event,handler);});}
       search.value='';select.value=selected;refresh(false);
       on(search,'input',function(){refresh(true);});on(select,'change',function(){refresh(false);});
+      on(results,'click',function(event){
+        if(state.busy)return;var button=event.target&&event.target.closest?event.target.closest('[data-task-contact]'):null;
+        if(!button||!results.contains(button))return;var id=button.getAttribute('data-task-contact');
+        if(!idSet.has(id))return;select.value=id;if(select.value!==id)return;refresh(false);
+        Array.from(results.querySelectorAll('[data-task-contact]')).some(function(node){if(node.getAttribute('data-task-contact')===select.value){node.focus();return true;}return false;});
+      });
       on(clear,'click',function(){search.value='';refresh(true);search.focus();});
     }
     function closeTask(id) {var t=tasks().find(function(t){return t.id===id;});if(!t)return;if(t.systemManaged){notice('La tarea se cierra únicamente cuando la fotografía se publica; cargarla como borrador no la cierra.',true);return;}showDialog('Cerrar tarea','<form><p>'+esc(t.title)+'</p><label>Motivo de cierre<textarea name="reason" required maxlength="1000" rows="3" placeholder="Qué se resolvió o por qué ya no aplica"></textarea></label>'+endForm('Cerrar tarea'),function(form){resultOrThrow(state.store.closeTask(id,value(form,'reason'),dialogRevision()));closeDialog(true);notice('Tarea cerrada con motivo.');render();},null,t.contactId);}
