@@ -12,9 +12,10 @@
     <button class="quiet" id="loadExamples" type="button">Cargar ejemplos ficticios</button>
     <button class="primary" id="newContact" type="button">＋ Nuevo prospecto</button>
   </div>
-  <label class="actor-label">Simulación CRM <select id="actorSelect" aria-describedby="demoWarning"><option value="kam_ana">Ana · KAM demo</option><option value="kam_luis">Luis · KAM demo</option><option value="admin_demo">Administración demo</option></select></label>
+  <label class="actor-label">Simulación CRM <select id="actorSelect" aria-describedby="demoWarning"><option value="kam_ana">Ana · KAM demo</option><option value="kam_luis">Luis · KAM demo</option><option value="leader_demo">Líder KAM · Solo consulta</option><option value="admin_demo">Administración demo</option></select></label>
 </div>
 <div class="demo-warning" id="demoWarning"><strong>Solo datos ficticios.</strong> Almacenamiento local sin seguridad ni autenticación real. No agregues información sensible, credenciales ni documentos reales. Cambiar de usuario simula un rol. No se envían correos.</div>
+<p id="readOnlyRoleNotice" class="role-readonly-notice" role="status" hidden>Líder KAM · Consulta de todas las carteras. Sin edición ni reasignación.</p>
 <div class="crm-content">
       <div class="workspace-bar"><nav class="tabs" aria-label="Vista del CRM"><button type="button" class="tab active" data-view="contacts" aria-pressed="true">Contactos</button><button type="button" class="tab" data-view="tasks" aria-pressed="false">Tareas</button><button type="button" class="tab" data-view="dashboard" aria-pressed="false">Dashboard</button></nav><span class="storage-label" id="storageLabel">Guardado en este navegador</span></div>
       <p class="notice" id="notice" role="status" aria-live="polite" hidden></p>
@@ -25,6 +26,8 @@
           <section id="contactDirectory" class="panel directory" aria-label="Directorio de prospectos">
             <div class="directory-summary"><span id="contactCount">0 contactos</span><span>Etapa comercial</span></div>
             <div id="contactList" class="contact-list"></div>
+            <div class="contact-pagination"><p id="contactPageStatus" role="status" aria-live="polite">0 de 0</p><label>Por página<select id="contactPageSize" aria-label="Contactos por página"><option value="25">25</option><option value="50">50</option><option value="100">100</option></select></label><div class="pagination-actions"><button id="contactPagePrev" type="button" data-action="contact-page-prev" aria-label="Página anterior">Anterior</button><button id="contactPageNext" type="button" data-action="contact-page-next" aria-label="Página siguiente">Siguiente</button></div></div>
+            <p id="contactSelectionStatus" class="contact-selection-status help" role="status" hidden></p>
           </section>
           <section id="contactDetail" class="panel contact-detail" tabindex="-1" aria-label="Ficha del contacto"><div class="contact-empty"><div class="contact-empty-copy"><h2>Empieza con un prospecto</h2><p>Crea una ficha o explora el CRM con datos ficticios.</p></div></div></section>
         </div>

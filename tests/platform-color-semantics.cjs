@@ -23,7 +23,8 @@ assert.doesNotMatch(html,/replace\('btn-primary','provider-approve'\)/,'Never in
 assert.match(html,/review-attachment \$\{index===c.attachmentIndex\?'active':''\}/);
 for(const handler of ['dispersionApplyPayment(', 'dispersionMarkProviderDispersed(', 'dispersionManageActionApply('])for(const tag of matching(handler)){assert.match(tag,/btn-primary/);assert.doesNotMatch(tag,/btn-approve|provider-approve/);}
 // Ignore only HTML class attributes and the removed presentation-only adapter.
-// The reviewed 2026-10-09 approved-fix snapshot pins handlers, storage, permissions and routing.
+// The reviewed 2026-10-11 snapshot adds three explicit CRM demo users and empty KAM/leader
+// BO capabilities; crm-role-scopes/navigation test those boundaries. All other inline behavior stays pinned.
 const sha=s=>crypto.createHash('sha256').update(s).digest('hex');
 const normalize=s=>s.replace(/class="[^"]*"/g,'class=""').replace(".replace('btn-primary','provider-approve').replace('btn-coral','btn-danger')",'');
 const behaviorHtml=require('./fixtures/restore-pre-sidebar.cjs')(html);

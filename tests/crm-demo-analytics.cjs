@@ -27,7 +27,7 @@ function fixture() {
   }
   function activity(id,contactId,contactAt,type='call',actorId='kam_ana') {s.activities[id]={id,contactId,type,contactAt,createdAt:NOW,actorId,actorRole:actorId==='admin_demo'?'admin':'kam'};event('activity_recorded',contactId,NOW,{activityId:id,contactAt});return s.activities[id];}
   function task(id,contactId,dueAt,status='open') {s.tasks[id]={id,contactId,dueAt,status};return s.tasks[id];}
-  contact('p1','patient','kam_ana','2026-10-01T00:00:00.000Z','manual');
+  contact('p1','patient','kam_ana','2026-10-01T06:00:00.000Z','manual');
   contact('p2','patient','kam_ana','2026-10-02T10:00:00.000Z','organic','application_started');
   contact('p3','patient','kam_ana','2026-09-20T10:00:00.000Z','direct');
   contact('p4','patient','kam_luis','2026-10-05T10:00:00.000Z','kam_referral');
@@ -51,9 +51,9 @@ function fixture() {
 }
 function report(f,filter={},options={}) {return Analytics.buildReport(f.s,{type:'patient',...filter},{now:NOW,actor:ANA,...options});}
 function freezeDeep(o) {Object.values(o).forEach(v=>{if(v&&typeof v==='object')freezeDeep(v);});return Object.freeze(o);}
-test('defaults select the current UTC calendar month and disclose a partial month',()=>{
+test('defaults select the current CDMX calendar month and disclose a partial month',()=>{
   const p=Analytics.periodFor({},'2026-09-30T19:30:00-05:00');
-  assert.equal(p.month,10);assert.equal(p.year,2026);assert.equal(p.timezone,'UTC');assert.equal(p.isPartial,true);assert.equal(p.startAt,'2026-10-01T00:00:00.000Z');assert.equal(p.endAt,'2026-11-01T00:00:00.000Z');
+  assert.equal(p.month,9);assert.equal(p.year,2026);assert.equal(p.timezone,'America/Mexico_City');assert.equal(p.isPartial,true);assert.equal(p.startAt,'2026-09-01T06:00:00.000Z');assert.equal(p.endAt,'2026-10-01T06:00:00.000Z');
 });
 test('invalid periods, contact types and actor scope fail closed',()=>{
   for(const f of [{month:0},{month:13},{month:2.5},{year:1999},{year:'no'}])assert.throws(()=>Analytics.periodFor(f,NOW),e=>e.code==='invalid_period');
@@ -105,8 +105,8 @@ test('an activity belongs to its actual contact month, not entry or event time',
   const octoberEvent=Object.values(f.s.events).find(e=>e.activityId==='a2');octoberEvent.contactAt=NOW;
   assert.equal(report(f).counts.activities,2,'Canonical immutable activity contactAt wins');
 });
-test('UTC range is inclusive at month start, exclusive at next start, and excludes future events',()=>{
-  const f=fixture();f.activity('boundary','p1','2026-09-30T19:00:00-05:00');f.activity('next','p1','2026-10-31T19:00:00-05:00');f.activity('future','p1','2026-10-10T12:00:00Z');f.activity('bad','p1','no');
+test('CDMX range is inclusive at month start, exclusive at next start, and excludes future events',()=>{
+  const f=fixture();f.activity('boundary','p1','2026-10-01T00:00:00-06:00');f.activity('next','p1','2026-11-01T00:00:00-06:00');f.activity('future','p1','2026-10-10T12:00:00Z');f.activity('bad','p1','no');
   assert.equal(report(f).counts.activities,3);
   assert.equal(report(f,{month:11}).counts.activities,0,'Future data cannot be shown as observed');
 });
@@ -133,8 +133,8 @@ test('reassignment uses current portfolio while activity-by-user retains its ori
   assert.equal(report(f).counts.newContacts,1);
   const r=report(f,{kamId:'kam_luis'},{actor:ADMIN});assert.equal(r.counts.activities,2);assert.equal(r.byKam.length,1);assert.equal(r.byKam[0].activities,2);assert.deepEqual(r.activityByActor.map(a=>[a.actorId,a.value]).sort(),[['kam_ana',1],['kam_luis',1]]);
 });
-test('pending task buckets are mutually exclusive and use exact UTC due timestamps',()=>{
-  const f=fixture();f.task('now','p1',NOW);f.task('end','p1','2026-10-10T00:00:00Z');f.task('invalid','p1','bad');
+test('pending task buckets are mutually exclusive and use exact due timestamps within the CDMX day',()=>{
+  const f=fixture();f.task('now','p1',NOW);f.task('end','p1','2026-10-10T06:00:00Z');f.task('invalid','p1','bad');
   const r=report(f);assert.deepEqual(r.pendingRows.map(x=>[x.key,x.value]),[['overdue',1],['today',2],['upcoming',2],['undated',1]]);assert.equal(r.pendingRows.reduce((n,x)=>n+x.value,0),r.counts.openTasks);
 });
 test('every store-supported stage has an explicit chart label, including provider meetings',()=>{
@@ -145,7 +145,7 @@ test('every store-supported stage has an explicit chart label, including provide
   }
 });
 test('current month defaults cross year boundaries and reject missing actor identifiers',()=>{
-  const p=Analytics.periodFor({},'2026-12-31T20:00:00-05:00');assert.equal(p.month,1);assert.equal(p.year,2027);
+  const p=Analytics.periodFor({},'2026-12-31T20:00:00-05:00');assert.equal(p.month,12);assert.equal(p.year,2026);const next=Analytics.periodFor({},'2027-01-01T06:00:00Z');assert.equal(next.month,1);assert.equal(next.year,2027);
   assert.throws(()=>report(fixture(),{}, {actor:{role:'kam'}}),e=>e.code==='invalid_actor');
 });
 test('zero-denominator conversion is missing, never fabricated as zero or a percentage',()=>{
@@ -166,8 +166,8 @@ test('bad creation aliases or stage-only starts cannot manufacture new cohorts',
 });
 test('semantic figures provide keyboard-accessible data, row/column headings, legends and exact denominator',()=>{
   const html=Analytics.renderDashboard(report(fixture()),{idPrefix:'fixture',kamLabels:{kam_ana:'Ana',admin_demo:'Administración'}});
-  assert.equal((html.match(/<figure /g)||[]).length,6);assert.equal((html.match(/<figcaption>/g)||[]).length,6);assert.match(html,/<details class="analytics-data"><summary>/);assert.match(html,/tabindex="0" role="region"/);assert.match(html,/<th scope="row">/);assert.match(html,/<th scope="col">/);assert.match(html,/aria-labelledby="fixture-conversion-svg-title fixture-conversion-svg-desc"/);assert.match(html,/analytics-legend/);assert.match(html,/1 de 2/);assert.match(html,/Prospectos creados en el mes/);assert.match(html,/mismo mes/);assert.match(html,/no un corte histórico/);assert.match(html,/sin aprobación comercial o clínica/);
-  assert.equal((html.match(/id="fixture-/g)||[]).length,8,'Six figure headings and one SVG title/description have unique IDs');
+  assert.equal((html.match(/<figure /g)||[]).length,6);assert.equal((html.match(/<figcaption>/g)||[]).length,6);assert.match(html,/data-analytics-view="table"[^>]+aria-pressed="false"/);assert.doesNotMatch(html,/class="analytics-data"/);assert.match(html,/tabindex="0" role="region"/);assert.match(html,/<th scope="row">/);assert.match(html,/<th scope="col">/);assert.match(html,/aria-labelledby="fixture-conversion-svg-title fixture-conversion-svg-desc"/);assert.match(html,/analytics-legend/);assert.match(html,/1 de 2/);assert.match(html,/Prospectos creados en el mes/);assert.match(html,/mismo mes/);assert.match(html,/no un corte histórico/);assert.match(html,/sin aprobación comercial o clínica/);
+  const ids=Array.from(html.matchAll(/\sid="([^"]+)"/g),m=>m[1]);assert.equal(ids.length,20);assert.equal(new Set(ids).size,ids.length,'Section headings, figures, chart panels and SVG descriptions have unique IDs');
 });
 test('all incoming labels are escaped and no executable attributes or dynamic URLs are generated',()=>{
   const r=report(fixture());r.stageRows[0].label='<img src=x onerror="bad()">';

@@ -4,12 +4,14 @@
   const section = document.getElementById('crm');
   const app = document.getElementById('appView');
   if (!section || !app) return;
-  const actorIds = ['kam_ana', 'kam_luis', 'admin_demo'];
-  let workspace = null, mounted = null, crmHash = '#patient/contacts', actorId = 'kam_ana', restoring = false;
+  const actorIds = ['kam_ana', 'kam_luis', 'admin_demo', 'leader_demo'];
+  let workspace = null, mounted = null, mountedSession = null, crmHash = '#patient/contacts', actorId = 'kam_ana', restoring = false;
   const originalSetView = window.setView;
   const originalInitApp = window.initApp;
   const originalSetSidebarOpen = window.setSidebarOpen;
-  const authorized = () => !!session && session.role === 'admin';
+  const operationalSession = () => !!session && ['admin', 'operations', 'risk', 'provider', 'readonly'].includes(session.role);
+  const crmOnly = () => !!session && ['kam', 'leader'].includes(session.role);
+  const authorized = () => !!session && (session.role === 'admin' || session.role === 'leader' && session.crmActorId === 'leader_demo' || session.role === 'kam' && ['kam_ana', 'kam_luis'].includes(session.crmActorId));
   function normalize(hash) {
     const parts = String(hash || '').replace(/^#(?:crm\/?|)/, '').split('/');
     const type = parts[0] === 'doctor' ? 'doctor' : 'patient';
@@ -23,7 +25,7 @@
     if (location.hash === hash) return;
     history[replace ? 'replaceState' : 'pushState'](null, '', hash);
   }
-  function validHost(host) { return authorized() && currentView === 'crm' && !!workspace && workspace === host; }
+  function validHost(host) { return authorized() && currentView === 'crm' && !!workspace && workspace === host && session === mountedSession; }
   function dismissCRM() {
     if (mounted) mounted.app.closeDialog(true);
   }
@@ -31,10 +33,10 @@
     const previous = mounted;
     if (previous) {
       const chosen = previous.app.state.actor.id;
-      if (actorIds.includes(chosen)) actorId = chosen;
+      if (session && session === mountedSession && session.role === 'admin' && actorIds.includes(chosen)) actorId = chosen;
     }
     const previousHost = workspace;
-    mounted = null; workspace = null;
+    mounted = null; workspace = null; mountedSession = null;
     // Invalidates pending evidence intents, revokes previews and removes every
     // per-mount listener before a new actor/session can create another surface.
     if (previous) previous.destroy();
@@ -56,11 +58,14 @@
   function mountCRM() {
     const host = document.createElement('div');
     host.id = 'crmWorkspace';
-    workspace = host;
+    workspace = host; mountedSession = session;
+    const owningSession = session;
     section.replaceChildren(host);
     try {
       mounted = window.PulzzoCRMEmbedding.mount({host, embedding:{
         actorId,
+        allowActorSwitch: session.role === 'admin',
+        isCurrent: () => validHost(host) && session === owningSession,
         readRoute:() => crmHash,
         renderHeader:header,
         writeRoute:(hash, replace) => window.PulzzoCRMBackoffice.navigate(host, hash, replace)
@@ -81,10 +86,18 @@
   }
   function showCRM(hash, replace) {
     if (!authorized()) {
+      const invalidCRMIdentity = !!session && !operationalSession();
       teardown();
-      if (session) { originalSetView('dashboard'); toast('El CRM demo está disponible desde la sesión Admin.'); }
+      if (invalidCRMIdentity) {
+        originalSetSidebarOpen(false);
+        session = null;
+        app.classList.add('hidden');
+        document.getElementById('loginView').classList.remove('hidden');
+        toast('La identidad CRM no es válida. Vuelve a elegir una sesión demo.');
+      } else if (session) { originalSetView('dashboard'); toast('Esta sesión no tiene acceso al CRM demo.'); }
       return false;
     }
+    if (workspace && mountedSession !== session) teardown();
     // Back/Forward can enter CRM while an operational BO modal is open.
     // Use existing close handlers to release focus/inert state and invalidate review work.
     let dismissedOfficeModal = false;
@@ -117,9 +130,9 @@
     }
     return true;
   }
-  navItems.splice(1, 0, {id:'crm', label:'CRM', icon:'people', roles:['admin']});
+  navItems.splice(1, 0, {id:'crm', label:'CRM', icon:'people', roles:['admin','kam','leader']});
   window.setView = function (id, options) {
-    if (id === 'crm') return showCRM(crmHash, false);
+    if (id === 'crm' || !operationalSession()) return showCRM(crmHash, false);
     const leaving = currentView === 'crm' || isCRMRoute();
     teardown();
     const result = originalSetView(id, options);
@@ -127,25 +140,26 @@
     return result;
   };
   window.initApp = function () {
+    if (crmOnly()) { actorId = session.crmActorId; currentView = 'crm'; }
     const requested = isCRMRoute() ? normalize(location.hash) : null;
     restoring = true;
     try { originalInitApp(); } finally { restoring = false; }
     const logout = document.getElementById('logoutBtn'), originalLogout = logout.onclick;
     logout.onclick = function () { teardown(); actorId = 'kam_ana'; originalLogout(); };
-    if (requested) showCRM(requested, true);
+    if (requested || crmOnly()) showCRM(requested || crmHash, true);
   };
   window.setSidebarOpen = function (open, returnFocus) {
     if (open) dismissCRM();
     return originalSetSidebarOpen(open, returnFocus);
   };
   window.PulzzoCRMBackoffice = {
-    getContext(host) { return validHost(host) ? {actorId, demo:true, section:'crm'} : null; },
+    getContext(host) { return validHost(host) ? {actorId, allowActorSwitch:session.role === 'admin', demo:true, section:'crm'} : null; },
     getApp(host) { return validHost(host) && mounted ? mounted.app : null; },
     navigate(host, hash, replace) {
       if (!validHost(host)) return false;
       crmHash = normalize(hash); header();
       const chosen = mounted && mounted.app.state.actor.id;
-      if (actorIds.includes(chosen)) actorId = chosen;
+      if (session && session === mountedSession && session.role === 'admin' && actorIds.includes(chosen)) actorId = chosen;
       if (!restoring) writeHash('#crm/' + crmHash.slice(1), !!replace);
       return true;
     },
@@ -160,13 +174,47 @@
     if (!session) return;
     restoring = true;
     try {
-      if (isCRMRoute()) showCRM(normalize(location.hash), true);
+      if (isCRMRoute() || !operationalSession()) {
+        const forced = crmOnly() && !isCRMRoute();
+        showCRM(isCRMRoute() ? normalize(location.hash) : crmHash, true);
+        if (forced) writeHash('#crm/' + crmHash.slice(1), true);
+      }
       else {
         const target = /^#bo\//.test(location.hash) ? location.hash.slice(4) : 'dashboard';
         const allowed = navItems.find(item => item.id === target && item.roles.includes(session.role));
         teardown(); originalSetView(allowed ? target : 'dashboard');
       }
     } finally { restoring = false; }
+  }
+  // Older operational entry points predate CRM-only sessions and some bypass
+  // setView. Keep those reads and routes in the operational shell; linked CRM
+  // records are exposed through the actor-scoped CRM adapters instead.
+  for (const name of ['openPatientProfile', 'openPatientProfileFromButton', 'backToPatientProfiles', 'openPatientProfileRequest', 'openPatientRequestDetail', 'openProviderProfile', 'openDashboardRecord', 'openProviderFromChart', 'openDashboardMetricDetail', 'openDashboardSlaModal', 'openDocumentReview', 'modal']) {
+    const original = window[name];
+    if (typeof original !== 'function') continue;
+    window[name] = function (...args) {
+      if (!operationalSession()) { toast('Consulta los registros vinculados desde tu cartera CRM.'); return false; }
+      return original.apply(this, args);
+    };
+  }
+  for (const bridge of [window.PulzzoBackofficeDemoBridge, window.PulzzoServicingOffice]) {
+    if (bridge) for (const name of ['getDatabase', 'getSelected', 'getProvider', 'getStorageVersion', 'patientProjection', 'doctorProjection', 'identityCandidates', 'save', 'select']) {
+      const original = bridge[name];
+      if (typeof original !== 'function') continue;
+      bridge[name] = function (...args) {
+        if (!operationalSession()) throw new Error('Esta sesión no tiene acceso al puente operativo de backoffice.');
+        return original.apply(this, args);
+      };
+    }
+  }
+  const publicationBO = window.PulzzoDoctorPublicationBO;
+  if (publicationBO) for (const name of ['render', 'badge']) {
+    const original = publicationBO[name];
+    if (typeof original !== 'function') continue;
+    publicationBO[name] = function (...args) {
+      if (!operationalSession()) return '';
+      return original.apply(this, args);
+    };
   }
   updateLoginHint();
   window.addEventListener('popstate', restoreRoute);

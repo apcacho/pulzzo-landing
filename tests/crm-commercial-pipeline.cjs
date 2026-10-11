@@ -192,7 +192,9 @@ test('only genuine expediente creation counts a start and reusing it adds no eve
 test('fabricated or replayed onboarding events cannot inflate a later reporting month', () => {
   const f = fixture(), api = Assisted.createAssisted({ store: f.store, actor: f.store.actor, now: f.now });
   bad(f.store.transact(f.rev(), (d, ctx) => ctx.append('events', { type: 'assisted_draft_created', contactId: f.contact.id, expedientId: 'exp_fake' })), 'invalid_event');
-  const exp = good(api.beginDraft({ contactId: f.contact.id }, f.rev())); f.setTime('2026-11-01T00:00:00.000Z'); const before = f.storage.dump();
+  const exp = good(api.beginDraft({ contactId: f.contact.id }, f.rev()));
+  f.setTime('2026-11-01T05:59:59.999Z'); assert.equal(f.store.dashboard().counts.onboardingStarted, 1, 'Still October in CDMX');
+  f.setTime('2026-11-01T06:00:00.000Z'); const before = f.storage.dump();
   bad(f.store.transact(f.rev(), (d, ctx) => ctx.append('events', { type: 'onboarding_started', contactId: f.contact.id, expedientId: exp.id })), 'invalid_event');
   assert.equal(f.storage.dump(), before); assert.equal(f.store.dashboard().counts.onboardingStarted, 0); assert.equal(f.store.dashboard({ year: 2026, month: 10 }).counts.onboardingStarted, 1);
 });

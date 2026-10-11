@@ -204,11 +204,13 @@
     if (!storage || typeof storage.getItem !== 'function' || typeof storage.setItem !== 'function') fail('storage_unavailable', 'El almacenamiento local no está disponible.');
     const actor = clone(options.actor || { id: 'public', role: 'public' });
     if (actor.role === 'backoffice') actor.role = 'admin';
-    if (!isId(actor.id) || !['public', 'readonly', 'kam', 'holder', 'admin'].includes(actor.role)) fail('invalid_actor', 'Selecciona una identidad DEMO válida.');
+    if (!isId(actor.id) || !['public', 'readonly', 'kam', 'holder', 'admin', 'leader'].includes(actor.role)) fail('invalid_actor', 'Selecciona una identidad DEMO válida.');
     Object.freeze(actor);
     let running = false;
     function now() { const d = new Date(typeof options.now === 'function' ? options.now() : options.now || Date.now()); if (!Number.isFinite(d.getTime())) fail('invalid_date', 'La fecha del registro no es válida.'); return d.toISOString(); }
+    function assertCurrent() { if (typeof options.isCurrent === 'function' && options.isCurrent() !== true) fail('forbidden', 'La sesión cambió. Abre de nuevo el perfil público.'); }
     function read() {
+      assertCurrent();
       let raw; try { raw = storage.getItem(STORAGE_KEY); } catch (_) { fail('storage_unavailable', 'No se pudo leer el perfil público.'); }
       if (raw === null || raw === undefined || raw === '') return { raw: raw == null ? null : raw, state: initial() };
       let state; try { state = JSON.parse(raw); } catch (_) { fail('invalid_storage', 'Los perfiles públicos locales están dañados. No se sobrescribieron.'); }
@@ -227,7 +229,7 @@
       return { providerId, accountId: accounts[0], contactId, assignedKam, eligible: p.eligible === true };
     }
     function matches(p, live) { return p.accountId === live.accountId && p.contactId === live.contactId; }
-    function allowed(live) { return ['admin', 'readonly'].includes(actor.role) || actor.role === 'kam' && live.assignedKam === actor.id || actor.role === 'holder' && live.accountId === actor.id; }
+    function allowed(live) { return ['admin', 'readonly'].includes(actor.role) || actor.role === 'leader' && !!live.contactId || actor.role === 'kam' && live.assignedKam === actor.id || actor.role === 'holder' && live.accountId === actor.id; }
     function liveFor(p, strict) {
       try { const live = resolve(p.providerId); if (!matches(p, live)) fail('identity_changed', 'La identidad del proveedor cambió; vuelve a cargar antes de continuar.'); return live; }
       catch (e) { if (strict) throw e; return null; }
@@ -239,7 +241,7 @@
       return out;
     }
     function transact(providerId, expectedRevision, fn) {
-      if (['public', 'readonly'].includes(actor.role)) fail('forbidden', 'Esta vista es de sólo lectura.');
+      if (['public', 'readonly', 'leader'].includes(actor.role)) fail('forbidden', 'Esta vista es de sólo lectura.');
       if (running) fail('reentrant_write', 'Ya hay un cambio de perfil en curso.');
       if (!Number.isSafeInteger(expectedRevision) || expectedRevision < 0) fail('revision_required', 'Vuelve a cargar el perfil antes de guardar.');
       running = true;
@@ -257,6 +259,7 @@
         if (!equal(resolve(providerId), live)) fail('identity_changed', 'La identidad o asignación del proveedor cambió durante la operación.');
         let current; try { current = storage.getItem(STORAGE_KEY); } catch (_) { fail('storage_unavailable', 'No se pudo comprobar el perfil antes de guardar.'); }
         if ((current == null ? null : current) !== before.raw) fail('stale_revision', 'El perfil cambió durante la operación. No se sobrescribieron los datos.');
+        assertCurrent();
         try { storage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (_) { fail('storage_write_failed', 'No se pudo guardar el perfil (almacenamiento lleno o no disponible). La versión anterior sigue intacta.'); }
         // Re-render failure must never turn a successful durable write into a retry.
         try { if (root && typeof root.dispatchEvent === 'function' && typeof root.CustomEvent === 'function') root.dispatchEvent(new root.CustomEvent('pulzzo:doctor-publication', { detail: { providerId, revision: state.revision } })); } catch (_) {}
@@ -324,7 +327,7 @@
       return out.sort((a, b) => a.displayName.localeCompare(b.displayName));
     }
     function photoTasks() {
-      if (!['kam', 'admin', 'readonly'].includes(actor.role)) return [];
+      if (!['kam', 'admin', 'readonly', 'leader'].includes(actor.role)) return [];
       const state = read().state, out = [];
       for (const p of Object.values(state.profiles)) {
         const live = liveFor(p, false);

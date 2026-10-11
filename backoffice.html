@@ -3983,7 +3983,7 @@
   <section class="login-card">
     <span class="eyebrow">Backoffice</span>
     <h2>Iniciar sesión</h2>
-    <p id="crmLoginHint" class="crm-entry-note" hidden>El CRM se abre dentro de Backoffice con la sesión Admin demo. Allí puedes simular las vistas de KAM y administración; no es autenticación real.</p>
+    <p id="crmLoginHint" class="crm-entry-note" hidden>Entra como KAM para trabajar tu cartera, como Líder KAM para consultar todas las carteras o como Admin para administrar. Son identidades ficticias de este navegador; no es autenticación real.</p>
     <div class="field"><label>Correo interno Pulzzo</label><input id="loginEmail" value="admin@pulzzo.mx" autocomplete="off"></div>
     <div class="field"><label>Contraseña demo</label><input id="loginPass" type="password" value="pulzzo-demo"></div>
     <button class="btn btn-primary btn-full" id="loginBtn">Iniciar sesión</button>
@@ -4042,6 +4042,9 @@ const fmtMoney=n=>Number(n||0).toLocaleString('es-MX',{style:'currency',currency
 const today=()=>toLocalISODate(new Date()); const now=()=>new Date().toLocaleString('es-MX',{dateStyle:'medium',timeStyle:'short'});
 const users=[
  {email:'admin@pulzzo.mx',name:'Admin Pulzzo',role:'admin',label:'Admin',pass:'pulzzo-demo'},
+ {email:'ana.kam@pulzzo.mx',name:'Ana · KAM demo',role:'kam',crmActorId:'kam_ana',label:'KAM · cartera de Ana',pass:'pulzzo-demo'},
+ {email:'luis.kam@pulzzo.mx',name:'Luis · KAM demo',role:'kam',crmActorId:'kam_luis',label:'KAM · cartera de Luis',pass:'pulzzo-demo'},
+ {email:'lider.kam@pulzzo.mx',name:'Líder KAM demo',role:'leader',crmActorId:'leader_demo',label:'Líder KAM · consulta global',pass:'pulzzo-demo'},
  {email:'operaciones@pulzzo.mx',name:'Operaciones Pulzzo',role:'operations',label:'Operaciones',pass:'pulzzo-demo'},
  {email:'riesgo@pulzzo.mx',name:'Riesgo Pulzzo',role:'risk',label:'Riesgo',pass:'pulzzo-demo'},
  {email:'medicos@pulzzo.mx',name:'Equipo médico Pulzzo',role:'provider',label:'Médico / clínica',pass:'pulzzo-demo'},
@@ -4077,7 +4080,9 @@ const permissions={
  operations:['patientActions','docs','notes'],
  risk:['riskActions','patientActions','notes','payload'],
  provider:['providerActions','docs','notes'],
- readonly:[]
+ readonly:[],
+ kam:[],
+ leader:[]
 };
 let session=null, currentView='dashboard', selectedPatientId='APP-PUL-1001', patientRequestMode='list', patientRequestPage=1, selectedProviderId='MED-001', providerMode='list', providerFilters={query:'',type:'',status:''}, patientTab='resumen', providerTab='resumen', patientPersonalEditMode=false, patientReferencesEditMode=false, patientProfileMode='list', selectedPatientProfileKey='', patientProfileTab='perfil', bureauDashboardTab='credit';
 const providerViewFilters={providers:providerFilters,providerRequests:{query:'',type:'',status:'',history:'pending'}};

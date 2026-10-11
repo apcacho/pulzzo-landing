@@ -91,7 +91,7 @@ function embedded(options = {}) {
   vm.runInContext(read('assets/js/crm-demo-embed.js'), context);
   let route = '#' + (options.type || 'patient') + '/contacts';
   const host = {ownerDocument:owner, attachShadow:mode => { assert.equal(mode.mode, 'open'); return shadow; }};
-  const mounted = window.PulzzoCRMEmbedding.mount({host, embedding:{actorId:options.actorId || 'kam_ana', renderHeader(){}, readRoute:() => route, writeRoute:value => { route = value; }}});
+  const mounted = window.PulzzoCRMEmbedding.mount({host, embedding:{actorId:options.actorId || 'kam_ana', allowActorSwitch:options.allowActorSwitch === true, renderHeader(){}, readRoute:() => route, writeRoute:value => { route = value; }}});
   async function dispatch(node, type = 'click', nested = false) {
     const target = nested ? {closest:selector => node.closest(selector)} : node;
     const event = {type, target, preventDefault(){}};
@@ -280,8 +280,8 @@ test('Populated but unselected or filtered views offer Ver contactos, never pret
   h.destroy();
 });
 
-test('Empty-state availability is current-type and access scoped, and role changes never expose previous samples', async () => {
-  const h = embedded(), provider = realContact(h.app.state.store, {type:'doctor'});
+test('Empty-state availability is current-type and access scoped, and authorized simulation changes never expose previous samples', async () => {
+  const h = embedded({allowActorSwitch:true}), provider = realContact(h.app.state.store, {type:'doctor'});
   h.app.render(); assert.ok(h.button('Cargar ejemplos ficticios'));
   h.app.navigate('doctor', 'contacts', null); assert.doesNotMatch(h.get('contactDetail').innerHTML, /data-action="seed"/);
   assert.ok(h.button('Ver contactos'));

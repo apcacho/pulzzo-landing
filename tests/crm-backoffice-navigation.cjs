@@ -55,7 +55,7 @@ function historyFor(window){
  window.history={state:null,pushState(state,_title,url){set(url);entries=entries.slice(0,index+1);entries.push(window.location.href);index++;this.state=state;},replaceState(state,_title,url){set(url);entries[index]=window.location.href;this.state=state;},back(){if(index>0){set(entries[--index]);window.dispatch('popstate',{state:this.state});window.dispatch('hashchange');}},forward(){if(index<entries.length-1){set(entries[++index]);window.dispatch('popstate',{state:this.state});window.dispatch('hashchange');}}};
  return {entries:()=>entries.slice(),index:()=>index,set};
 }
-function shell({width=1200,hash='',role=null}={}){
+function shell({width=1200,hash='',role=null,beforeCRM=null}={}){
  const d=dom(),{get,document}=d,listeners={},storage=new Map(),rendered=[];
  for(const id of ['appView','loginView','sidebar','sidebarShade','mobileMenu','sidebarToggle','sidebarClose','sidebarTooltip','nav','logoutBtn','pageTitle','pageSub','sideUser','sideRole','sideEmail','roleBadge','resetBtn','loginEmail','loginPass','loginBtn','demoUsers','crm','modalBackdrop','modal'])get(id);
  get('sidebarToggle').appendChild(new d.Element('span'));for(const id of ['sidebarToggle','sidebarClose','nav','logoutBtn'])get('sidebar').appendChild(get(id));
@@ -76,7 +76,7 @@ function shell({width=1200,hash='',role=null}={}){
  vm.runInContext('var modalFocusOrigin=null,modalInertState=[];let reviewContext=null,reviewNested=false;function readonlyFinancialHtml(value){return value;}function renderDocumentReview(){};',context);
  for(const name of ['readonly','modalReleaseBackground','modalSetupAccessibility','modal','closeModal','reviewRestoreOrigin','closeDocumentReview'])vm.runInContext(extract(html,name),context);
  vm.runInContext(read('assets/js/backoffice-sidebar.js'),context);
- for(const file of ['crm-demo-store.js','crm-assisted.js','crm-demo-template.js','crm-demo-embed.js','crm-demo-analytics.js','crm-demo-ui.js','backoffice-crm.js'])vm.runInContext(read('assets/js/'+file),context);
+ for(const file of ['crm-demo-store.js','crm-assisted.js','crm-demo-template.js','crm-demo-embed.js','crm-demo-analytics.js','crm-demo-ui.js','backoffice-crm.js']){if(file==='backoffice-crm.js'&&beforeCRM)beforeCRM(context);vm.runInContext(read('assets/js/'+file),context);}
  const evaluate=source=>vm.runInContext(source,context);
  const login=role=>{const user=evaluate(`users.find(u=>u.role===${JSON.stringify(role)})`);get('loginEmail').value=user.email;get('loginPass').value=user.pass;context.login();return user;};
  if(role)login(role);
@@ -117,11 +117,11 @@ test('Actual CRM Back/Forward handlers close interrupted dialogs without adding 
  h.app.handlers.newContact();const epoch=h.app.state.intentEpoch;h.get('editorDialog').dispatch('cancel');assert.equal(h.app.state.dialogHandler,null);assert.ok(h.app.state.intentEpoch>epoch);assert.deepEqual(h.history.entries(),entries);
  h.window.location.hash='#doctor/tasks/%E0%A4%A';assert.doesNotThrow(()=>h.window.dispatch('hashchange'));assert.equal(h.app.state.selected,null);assert.equal(h.app.state.view,'tasks');
 });
-test('Reviewed inline Backoffice program remains pinned after public-profile presentation hooks',()=>{
+test('Reviewed inline Backoffice program remains pinned after CRM-only demo role additions',()=>{
  const original=[...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)].map(m=>m[1]).sort((a,b)=>b.length-a.length)[0];
- assert.equal(crypto.createHash('sha256').update(original).digest('hex'),'d607801b6b9f9a5a70ef32b2c64b6c275e108d6f82d3f7042c75b6e7b1188750','Reviewed inline program changed since public-profile integration snapshot');
+ assert.equal(crypto.createHash('sha256').update(original).digest('hex'),'ec92a86173430265daa1694720f2b8054e07ea7c4938a4fe3a52ad3830bdb45a','Reviewed inline program changed since CRM role integration snapshot');
 });
-test('CRM mounts natively only for Admin, with scoped DOM and one Backoffice shell',()=>{
+test('Admin CRM mounts natively with scoped DOM and one Backoffice shell',()=>{
  const h=shell();assert.equal(h.get('crm').children.length,0);assert.equal(h.session(),null);
  h.login('admin');assert.equal(h.view(),'dashboard');assert.equal(h.get('crm').children.length,0);
  assert.equal(h.get('nav').children.filter(n=>n.dataset.id==='crm').length,1);
@@ -216,7 +216,7 @@ test('Mounted native forms preserve contact/task/assisted behavior and cancel pe
  crm.root.querySelector('[data-view="tasks"]').dispatch('click');assert.match(crm.get('taskBoard').innerHTML,/Native follow-up/);assert.match(h.window.location.hash,/#crm\/patient\/tasks/);
  crm.root.querySelector('[data-view="contacts"]').dispatch('click');crm.root.querySelector('[data-action="begin-onboarding"]').dispatch('click');assert.equal(Object.values(crm.app.state.store.snapshot().expedients).length,1);crm.app.closeDialog();
  crm.root.querySelector('[data-action="upload-document"]').dispatch('click');const pending=submit({file:[{name:'native-demo.png',type:'image/png',size:100}],label:'identity'});assert.equal(crm.app.state.busy,true);const epoch=crm.app.state.intentEpoch;
- h.navigate('patients');assert.ok(crm.app.state.intentEpoch>epoch);finishPut();await pending;assert.deepEqual(removed,['native_evidence_1']);assert.equal(Object.values(crm.app.state.store.snapshot().expedients)[0].documents.length,0);assert.equal(closed,1);assert.equal(h.window.location.hash,'#bo/patients');assert.equal(h.document.getElementById('crmWorkspace'),null);
+ h.navigate('patients');assert.ok(crm.app.state.intentEpoch>epoch);finishPut();await pending;assert.deepEqual(removed,['native_evidence_1']);assert.throws(()=>crm.app.state.store.snapshot(),error=>error.code==='forbidden');assert.equal(Object.values(JSON.parse(h.window.localStorage.getItem('pulzzo_crm_assisted_demo_v1')).expedients)[0].documents.length,0);assert.equal(closed,1);assert.equal(h.window.location.hash,'#bo/patients');assert.equal(h.document.getElementById('crmWorkspace'),null);
  h.clickNav('crm');const fresh=attachCRM(h);assert.equal(fresh.app.state.store.listContacts().length,1);assert.equal(fresh.app.state.store.listTasks().length,1);assert.equal(fresh.app.state.store.listContacts()[0].originalSource,'manual');assert.equal(h.window.localStorage.getItem('pulzzo_backoffice_demo'),null,'CRM forms do not write the Backoffice financial database');
 });
 test('Integration surface stays scoped and there are no wildcard cross-window messages or financial writes',()=>{
@@ -282,5 +282,64 @@ test('UI initialization failure can retry on a fresh host without leaked event h
  api.createApp=function(){failedRoot=h.document.getElementById('crmWorkspace').shadowRoot;throw Error('Simulated initialization failure');};
  h.clickNav('crm');assert.equal(h.document.getElementById('crmWorkspace'),null);assert.equal(failedRoot.listeners.click.length,0);
  api.createApp=createApp;h.get('crm').querySelector('button').dispatch('click');assert.ok(attachCRM(h).app);assert.equal(h.get('crm').querySelector('.crm-load-error'),null);
+});
+test('Dedicated KAM and leader logins mount only their bound CRM actor without an admin selector',()=>{
+ for(const role of ['kam','leader']){
+  const h=shell({role}),crm=attachCRM(h),expected=role==='kam'?'kam_ana':'leader_demo';
+  assert.equal(h.view(),'crm');assert.equal(crm.app.state.actor.id,expected);assert.equal(crm.app.state.actor.role,role);
+  assert.deepEqual(h.get('nav').children.map(n=>n.dataset.id),['crm']);
+  assert.equal(crm.get('actorSelect').disabled,true);assert.equal(h.window.PulzzoCRMBackoffice.getContext(crm.host).allowActorSwitch,false);
+  for(const id of ['admin_demo','kam_luis','leader_demo']){crm.get('actorSelect').value=id;crm.get('actorSelect').dispatch('change');assert.equal(crm.app.state.actor.id,expected);}
+  for(const capability of ['riskActions','patientActions','providerActions','docs','settings','payload'])assert.equal(h.evaluate('can('+JSON.stringify(capability)+')'),false);
+  for(const view of ['dashboard','patients','patientProfiles','providers','documents','portfolio','settings']){h.navigate(view);assert.equal(h.view(),'crm');assert.equal(attachCRM(h).app.state.actor.id,expected);}
+  h.window.location.hash='#bo/portfolio';h.window.dispatch('hashchange');assert.equal(h.view(),'crm');assert.match(h.window.location.hash,/^#crm\//);assert.equal(h.rendered.length,0);
+ }
+});
+test('A second login without logout replaces the old CRM session and revokes retained stores',()=>{
+ const h=shell({hash:'#crm/doctor/contacts',role:'admin'}),old=attachCRM(h);
+ old.get('actorSelect').value='admin_demo';old.get('actorSelect').dispatch('change');const oldStore=old.app.state.store;
+ old.app.handlers.newContact();assert.equal(old.get('editorDialog').open,true);
+ h.login('leader');const leader=attachCRM(h);assert.notEqual(leader.host,old.host);assert.equal(leader.app.state.actor.role,'leader');
+ assert.equal(old.get('editorDialog').open,false);assert.throws(()=>oldStore.snapshot(),error=>error.code==='forbidden');
+ assert.equal(oldStore.createContact({type:'patient',name:'Forbidden retained admin',email:'retained@example.test'},0).ok,false);
+ h.get('loginEmail').value='luis.kam@pulzzo.mx';h.get('loginPass').value='pulzzo-demo';h.context.login();
+ const luis=attachCRM(h);assert.equal(luis.app.state.actor.id,'kam_luis');assert.notEqual(luis.host,leader.host);assert.throws(()=>leader.app.state.store.snapshot(),error=>error.code==='forbidden');
+ h.get('logoutBtn').dispatch('click');assert.throws(()=>luis.app.state.store.snapshot(),error=>error.code==='forbidden');assert.equal(h.get('crm').children.length,0);
+});
+test('KAM deep links and restored history cannot expose another portfolio after reassignment',()=>{
+ const h=shell({role:'admin',hash:'#crm/patient/contacts'}),adminApp=attachCRM(h);adminApp.get('actorSelect').value='admin_demo';adminApp.get('actorSelect').dispatch('change');
+ const admin=adminApp.app.state.store,r=admin.createContact({type:'patient',name:'Luis-only demo',email:'luis-only@example.test',assignedKam:'kam_luis'},admin.snapshot().revision);assert.equal(r.ok,true);const id=r.value.id;
+ h.login('kam');const ana=attachCRM(h);ana.app.navigate('patient','contacts',id);assert.equal(ana.app.state.store.listContacts().length,0);assert.throws(()=>ana.app.state.store.getContact(id),e=>e.code==='forbidden');assert.doesNotMatch(ana.get('contactDetail').innerHTML,/Luis-only demo|luis-only@example/);
+ h.window.history.back();h.window.history.forward();assert.doesNotMatch(ana.get('contactDetail').innerHTML,/Luis-only demo|luis-only@example/);
+ h.login('leader');const leader=attachCRM(h);leader.app.navigate('patient','contacts',id);assert.equal(leader.app.state.store.getContact(id).name,'Luis-only demo');assert.match(leader.get('contactDetail').innerHTML,/Luis-only demo/);
+});
+test('Legacy operational bridges and direct entry points cannot bypass CRM-only session read scope',()=>{
+ const beforeCRM=context=>vm.runInContext(`window.bridgeReads=0;window.PulzzoBackofficeDemoBridge={getDatabase(){bridgeReads++;return {private:true};},getSelected(){bridgeReads++;return {};},save(){bridgeReads++;},select(){bridgeReads++;}};window.PulzzoServicingOffice={getDatabase(){bridgeReads++;return {};},getSelected(){bridgeReads++;return {};},getProvider(){bridgeReads++;return {};},patientProjection(){bridgeReads++;return {};},doctorProjection(){bridgeReads++;return {};},identityCandidates(){bridgeReads++;return [];},getStorageVersion(){bridgeReads++;return 'raw';}};window.PulzzoDoctorPublicationBO={render(){bridgeReads++;return 'private publication';},badge(){bridgeReads++;return 'private badge';},preview(){return 'public fields';}};window.openPatientProfile=function(){bridgeReads++;};window.backToPatientProfiles=function(){bridgeReads++;};window.openDocumentReview=function(){bridgeReads++;};`,context);
+ for(const role of ['kam','leader',null]){
+  const h=shell({role,beforeCRM});
+  for(const bridge of [h.window.PulzzoBackofficeDemoBridge,h.window.PulzzoServicingOffice])for(const method of Object.values(bridge))assert.throws(()=>method());
+  assert.equal(h.context.openPatientProfile('foreign'),false);assert.equal(h.context.backToPatientProfiles(),false);assert.equal(h.context.openDocumentReview('patient','foreign','doc'),false);
+  assert.equal(h.window.PulzzoDoctorPublicationBO.render({id:'foreign'}),'');assert.equal(h.window.PulzzoDoctorPublicationBO.badge({id:'foreign'}),'');assert.equal(h.window.PulzzoDoctorPublicationBO.preview({}),'public fields');assert.equal(h.window.bridgeReads,0);
+ }
+ for(const role of ['admin','operations','risk','provider','readonly']){const h=shell({role,beforeCRM});assert.equal(h.window.PulzzoBackofficeDemoBridge.getDatabase().private,true);assert.equal(h.window.PulzzoDoctorPublicationBO.render({}),'private publication');assert.equal(h.window.bridgeReads,2);}
+});
+test('Missing or invalid CRM identities fail closed to login without operational fallback',()=>{
+ for(const role of ['kam','leader'])for(const value of ['unknown_actor',null]){
+  const h=shell({role}),old=attachCRM(h);
+  h.evaluate('session={...session,crmActorId:'+JSON.stringify(value)+'}');
+  assert.equal(h.navigate('crm'),false);assert.equal(h.session(),null);assert.equal(h.get('appView').classList.contains('hidden'),true);assert.equal(h.get('loginView').classList.contains('hidden'),false);
+  assert.equal(h.get('crm').children.length,0);assert.equal(h.rendered.length,0);assert.throws(()=>old.app.state.store.snapshot(),e=>e.code==='forbidden');
+  h.login(role);assert.equal(h.view(),'crm');assert.equal(attachCRM(h).app.state.actor.role,role);
+ }
+});
+test('Unknown roles fail closed for direct navigation, history and operational bridge methods',()=>{
+ for(const entry of ['navigation','history']){
+  const h=shell({role:'admin',hash:'#crm'}),old=attachCRM(h),before=h.rendered.length;
+  h.evaluate("session={email:'unknown@example.test',role:'unexpected',crmActorId:'admin_demo'}");
+  if(entry==='navigation')assert.equal(h.navigate('dashboard'),false);else{h.window.location.hash='#bo/dashboard';h.window.dispatch('hashchange');}
+  assert.equal(h.session(),null);assert.equal(h.get('appView').classList.contains('hidden'),true);assert.equal(h.rendered.length,before);assert.throws(()=>old.app.state.store.snapshot(),e=>e.code==='forbidden');
+ }
+ const h=shell({role:'admin',beforeCRM:context=>vm.runInContext('window.PulzzoBackofficeDemoBridge={getDatabase:()=>({private:true})};',context)});
+ h.evaluate("session={role:'unknown'}");assert.throws(()=>h.window.PulzzoBackofficeDemoBridge.getDatabase());
 });
 (async()=>{for(const {label,fn} of cases){await fn();groups++;console.log('PASS',label);}console.log(`PASS: ${groups} CRM-in-Backoffice integration groups. Actual handler/DOM/History tests; browser geometry, rendering and assistive-technology checks are separate.`);})().catch(error=>{console.error(error);process.exitCode=1;});

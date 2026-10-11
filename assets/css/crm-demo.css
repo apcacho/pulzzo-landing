@@ -49,3 +49,16 @@ dialog{border:1px solid var(--line);border-radius:12px;width:min(560px,calc(100v
 .task-contact-result-state{font-size:12px;font-weight:650;flex:none}.task-contact-results .task-contact-result.is-selected{border-color:#1a6d5a;background:#edf8f3}.task-contact-result.is-selected .task-contact-result-state{color:#155745}
 .task-contact-results .task-contact-result:focus-visible{outline:3px solid #245ba6;outline-offset:1px}.task-contact-empty{margin:0;padding:12px;font-size:14px;color:var(--muted)}
 @media(max-width:620px){.task-contact-results{max-height:240px}.task-contact-results .task-contact-result{gap:8px;padding:10px}.task-contact-result-state{font-size:11px}}
+
+/* Bounded portfolio views: each page and initial stage batch stays small. */
+.contact-pagination{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;border-top:1px solid var(--line,#e5e7eb);font-size:12px}
+.contact-pagination p{flex:1 1 100%;margin:0;color:var(--muted,#68716d)}
+.contact-pagination label{display:flex;align-items:center;gap:8px;white-space:nowrap;font-size:12px}
+.contact-pagination select{width:auto;min-width:64px;min-height:34px;padding:5px 22px 5px 8px}
+.pagination-actions{display:flex;gap:6px}
+.pagination-actions button{min-height:34px;padding:6px 10px;font-size:12px}
+.contact-selection-status{padding:0 14px 10px;margin:0}
+.kanban-page-status{margin:8px 0;color:var(--muted,#68716d);font-size:11px;text-align:center}
+.kanban-load-more,.task-contact-more{width:100%;min-height:36px;font-size:12px}
+.role-readonly-notice{margin:10px 0;padding:10px 14px;border:1px solid var(--line,#e5e7eb);border-radius:10px;background:var(--surface,#fff);font-size:12px;color:var(--muted,#68716d)}
+.task-contact-more[hidden],.role-readonly-notice[hidden],.contact-selection-status[hidden]{display:none}

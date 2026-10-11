@@ -219,7 +219,34 @@
   function createEvidenceStore(options) {
     options=options || {};
     var factory=Object.prototype.hasOwnProperty.call(options,'indexedDB') ? options.indexedDB : (typeof globalThis !== 'undefined' ? globalThis.indexedDB : null);
-    var now=options.now || function(){return new Date();}, randomId=options.randomId || randomIdentifier, opening=null;
+    var now=options.now || function(){return new Date();}, randomId=options.randomId || randomIdentifier, opening=null, epoch=0, closed=false;
+    // The unscoped adapter is retained for the holder/backoffice integration. CRM
+    // mounts supply their actual store, never an actor supplied by upload metadata.
+    var scoped=Object.prototype.hasOwnProperty.call(options,'store'), store=options.store, actor=null, isCurrent=options.isCurrent;
+    if(scoped){
+      if(!store || !store.actor || typeof store.getContact!=='function' || typeof store.canAccessContact!=='function' || !['admin','kam','leader','holder'].includes(store.actor.role))throw problem('INVALID_SCOPE','No se pudo verificar la identidad de esta vista CRM.');
+      actor={id:cleanId(store.actor.id,'actor'),role:store.actor.role};
+    }
+    function sessionGuard(write, contact) {
+      var started=epoch;
+      return function(){
+        var current=true;
+        try{if(typeof isCurrent==='function')current=isCurrent()===true;}catch(ignore){current=false;}
+        if(started!==epoch || scoped && closed || !current)throw problem('ACCESS_REVOKED','La sesión o la vista cambió. Abre de nuevo la evidencia desde el contacto.');
+        if(!scoped)return;
+        if(!store.actor || store.actor.id!==actor.id || store.actor.role!==actor.role)throw problem('ACCESS_REVOKED','La identidad de esta vista CRM cambió.');
+        if(write && !['admin','kam','holder'].includes(actor.role))throw problem('FORBIDDEN','Esta identidad sólo puede consultar evidencias DEMO.');
+        var id=typeof contact==='function' ? contact() : contact;
+        if(id && !canReadContact(id))throw problem('FORBIDDEN','Esta identidad DEMO no tiene acceso al contacto activo de la evidencia.');
+      };
+    }
+    function canReadContact(id) {
+      if(!scoped)return true;
+      try{
+        var contact=store.getContact(id);
+        return !!contact && contact.id===id && !contact.deletedAt && store.canAccessContact(id)===true;
+      }catch(ignore){return false;}
+    }
     function openDatabase() {
       if (opening) return opening;
       if (!factory || typeof factory.open !== 'function') return Promise.reject(problem('STORAGE_UNAVAILABLE','Este navegador no permite guardar evidencias DEMO con IndexedDB.'));
@@ -246,8 +273,9 @@
       pending.catch(function(){if(opening===pending)opening=null;});
       return pending;
     }
-    async function transact(mode, work) {
+    async function transact(mode, work, guard) {
       var db=await openDatabase();
+      if(guard)guard();
       return new Promise(function(resolve,reject){
         var tx, value, failure=null;
         try { tx=db.transaction(['metadata','files'],mode); } catch(error){reject(storageProblem(error));return;}
@@ -257,7 +285,7 @@
         }
         function request(req, success){
           req.onerror=function(){abort(req.error);};
-          req.onsuccess=function(){try{success(req.result);}catch(error){abort(error);}};
+          req.onsuccess=function(){try{if(guard)guard();success(req.result);if(guard)guard();}catch(error){abort(error);}};
         }
         tx.oncomplete=function(){if(failure)reject(failure);else resolve(value);};
         tx.onabort=function(){reject(failure || storageProblem(tx.error));};
@@ -265,18 +293,47 @@
         try{work(tx.objectStore('metadata'),tx.objectStore('files'),request,function(next){value=next;},abort);}catch(error){abort(error);}
       });
     }
+    async function discardOwnUpload(meta) {
+      // A put may commit just before a logout/reassignment is observed. Cleanup is
+      // bounded to this operation's newly-added row, and never uses public remove
+      // (which correctly denies a revoked actor). A collision never reaches here.
+      await transact('readwrite',function(metadata,files,request){
+        request(metadata.get(meta.id),function(row){
+          if(!row || JSON.stringify(metadataOnly(row))!==JSON.stringify(meta))return;
+          request(files.delete(meta.id),function(){});
+          request(metadata.delete(meta.id),function(){});
+        });
+      });
+    }
+    async function restoreOwnRemoval(meta, record) {
+      // If revocation wins the completion race, restore only the rows this
+      // operation removed. Never overwrite a newer row with a reused identifier.
+      await transact('readwrite',function(metadata,files,request){
+        request(metadata.get(meta.id),function(currentMeta){
+          request(files.get(meta.id),function(currentFile){
+            if(currentMeta || currentFile)return;
+            if(record)request(files.add(record),function(){});
+            request(metadata.add(meta),function(){});
+          });
+        });
+      });
+    }
     return Object.freeze({
       put:async function(file, details){
         details=details || {};
-        var actorId=cleanId(details.actorId,'actor'),contactId=cleanId(details.contactId,'contacto'),activityId=cleanId(details.activityId,'actividad',true),documentType=cleanId(details.documentType,'tipo de documento',true);
+        var contactId=cleanId(details.contactId,'contacto'),guard=sessionGuard(true,contactId);
+        guard();
+        var actorId=scoped ? actor.id : cleanId(details.actorId,'actor'),activityId=cleanId(details.activityId,'actividad',true),documentType=cleanId(details.documentType,'tipo de documento',true);
+        if(scoped && details.actorId!==undefined && cleanId(details.actorId,'actor')!==actor.id)throw problem('FORBIDDEN','La autoría de la evidencia debe coincidir con la identidad actual.');
         var mimeType=await validateFile(file), instant=new Date(now());
+        guard();
         if(!Number.isFinite(instant.getTime()))throw problem('INVALID_METADATA','No se pudo determinar la hora de carga.');
         var id=cleanId(randomId(),'evidencia');
         var name=String(file.name || 'evidencia').replace(/[\u0000-\u001f\u007f]/g,'').slice(0,180) || 'evidencia';
         var meta=metadataOnly({id:id,name:name,mimeType:mimeType,size:file.size,uploadedAt:instant.toISOString(),actorId:actorId,contactId:contactId,activityId:activityId,documentType:documentType});
         // Store a Blob with the verified MIME type, never a data URL or base64 string.
         var blob=file.slice(0,file.size,mimeType);
-        return transact('readwrite',function(metadata,files,request,set){
+        var saved=await transact('readwrite',function(metadata,files,request,set){
           request(metadata.getAll(),function(rows){
             var total=rows.reduce(function(sum,row){if(!Number.isSafeInteger(row.size)||row.size<0)throw problem('STORAGE_CORRUPT','Los metadatos locales de evidencia están dañados.');return sum+row.size;},0);
             if(rows.length>=MAX_FILES)throw problem('FILE_COUNT_LIMIT','El DEMO permite hasta 200 evidencias en este navegador.');
@@ -284,40 +341,66 @@
             request(files.add({id:id,blob:blob}),function(){});
             request(metadata.add(meta),function(){set(meta);});
           });
-        });
+        },guard);
+        try{guard();}catch(error){
+          try{await discardOwnUpload(meta);}catch(cleanup){error.cleanupError=storageProblem(cleanup);error.message+=' No se pudo limpiar el archivo local huérfano.';}
+          throw error;
+        }
+        return saved;
       },
       get:async function(id){
         id=cleanId(id,'evidencia');
-        return transact('readonly',function(metadata,files,request,set){
+        var contactId=null,guard=sessionGuard(false,function(){return contactId;});
+        guard();
+        var saved=await transact('readonly',function(metadata,files,request,set){
           request(metadata.get(id),function(meta){
             if(!meta){set(null);return;}
+            contactId=cleanId(meta.contactId,'contacto');guard();
             request(files.get(id),function(record){
               if(!record || !record.blob || typeof record.blob.arrayBuffer!=='function' || record.blob.size!==meta.size || meta.size<=0 || meta.size>MAX_FILE_BYTES || !TYPES[meta.mimeType] || record.blob.type!==meta.mimeType)throw problem('STORAGE_CORRUPT','No se encontró el archivo completo de esta evidencia DEMO.');
               set(Object.freeze(Object.assign({},metadataOnly(meta),{blob:record.blob})));
             });
           });
-        });
+        },guard);
+        guard();return saved;
       },
       remove:async function(id){
         id=cleanId(id,'evidencia');
-        return transact('readwrite',function(metadata,files,request,set){
+        var contactId=null,removedMeta=null,removedFile=null,guard=sessionGuard(true,function(){return contactId;});
+        guard();
+        var removed=await transact('readwrite',function(metadata,files,request,set){
           request(metadata.get(id),function(meta){
-            request(files.delete(id),function(){});
-            request(metadata.delete(id),function(){set(Boolean(meta));});
+            // Unknown rows grant no authority to delete a possibly orphaned blob.
+            if(!meta && scoped){set(false);return;}
+            if(meta){contactId=cleanId(meta.contactId,'contacto');guard();}
+            function erase(){
+              request(files.delete(id),function(){});
+              request(metadata.delete(id),function(){set(Boolean(meta));});
+            }
+            if(scoped){removedMeta=meta;request(files.get(id),function(record){removedFile=record;erase();});}
+            else erase();
           });
-        });
+        },guard);
+        try{guard();}catch(error){
+          if(removed && removedMeta)try{await restoreOwnRemoval(removedMeta,removedFile);}catch(rollback){error.cleanupError=storageProblem(rollback);error.message+=' No se pudo restaurar el archivo local.';}
+          throw error;
+        }
+        return removed;
       },
       list:async function(filters){
         filters=filters || {};
-        var fields=['contactId','activityId','actorId'];
-        fields.forEach(function(key){if(filters[key]!==undefined)cleanId(filters[key],key);});
-        return transact('readonly',function(metadata,files,request,set){
+        var fields=['contactId','activityId','actorId'],query={};
+        fields.forEach(function(key){if(filters[key]!==undefined)query[key]=cleanId(filters[key],key);});
+        var guard=sessionGuard(false,query.contactId);guard();
+        function visible(row){return canReadContact(row.contactId) && fields.every(function(key){return query[key]===undefined || row[key]===query[key];});}
+        var rows=await transact('readonly',function(metadata,files,request,set){
           request(metadata.getAll(),function(rows){
-            set(rows.filter(function(row){return fields.every(function(key){return filters[key]===undefined || row[key]===filters[key];});}).sort(function(a,b){return a.uploadedAt.localeCompare(b.uploadedAt)||a.id.localeCompare(b.id);}).map(metadataOnly));
+            set(rows.filter(visible).sort(function(a,b){return a.uploadedAt.localeCompare(b.uploadedAt)||a.id.localeCompare(b.id);}).map(metadataOnly));
           });
-        });
+        },guard);
+        guard();return rows.filter(visible);
       },
-      close:async function(){if(opening){var db=await opening;db.close();opening=null;}}
+      close:async function(){epoch++;if(scoped)closed=true;if(opening){var db=await opening;db.close();opening=null;}}
     });
   }
   return Object.freeze({createEvidenceStore:createEvidenceStore,validateBlob:validateFile,MAX_FILE_BYTES:MAX_FILE_BYTES,MAX_TOTAL_BYTES:MAX_TOTAL_BYTES,MAX_FILES:MAX_FILES,DB_NAME:DB_NAME,SUPPORTED_MIME_TYPES:Object.freeze(Object.keys(TYPES))});

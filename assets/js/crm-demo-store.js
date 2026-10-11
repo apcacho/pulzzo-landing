@@ -47,6 +47,12 @@
     if (!value || !Number.isFinite(date.getTime())) fail('invalid_date', 'Revisa la fecha de ' + (label || 'registro') + '.');
     return date.toISOString();
   }
+  function businessMonth(value) {
+    const date = new Date(value); if (!Number.isFinite(date.getTime())) return null;
+    const parts = new Intl.DateTimeFormat('en-GB', { timeZone: 'America/Mexico_City', year: 'numeric', month: '2-digit' }).formatToParts(date);
+    const year = Number(parts.find(p => p.type === 'year').value), month = Number(parts.find(p => p.type === 'month').value);
+    return { year, month };
+  }
   function isId(value) { return typeof value === 'string' && /^[A-Za-z0-9][A-Za-z0-9_.:-]{0,179}$/.test(value) && !['__proto__', 'constructor', 'prototype'].includes(value); }
   function validEmail(email) { return email === '' || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && email.length <= 254; }
   function initialState() { return { version: VERSION, revision: 0, demo: true, createdAt: null, updatedAt: null, contacts: {}, expedients: {}, invitations: {}, referrals: {}, tasks: {}, activities: {}, audit: {}, events: {} }; }
@@ -91,14 +97,16 @@
     if (!storage && root) { try { storage = root.localStorage; } catch (_) {} }
     if (!storage || typeof storage.getItem !== 'function' || typeof storage.setItem !== 'function') fail('storage_unavailable', 'El almacenamiento local no está disponible.');
     const actor = Object.freeze(clone(options.actor || {}));
-    if (!isId(actor.id) || !['kam', 'admin', 'holder'].includes(actor.role)) fail('invalid_actor', 'Selecciona una identidad DEMO válida.');
+    if (!isId(actor.id) || !['kam', 'admin', 'leader', 'holder'].includes(actor.role)) fail('invalid_actor', 'Selecciona una identidad DEMO válida.');
     const getNow = () => iso(typeof options.now === 'function' ? options.now() : options.now || new Date(), 'registro');
     const randomId = typeof options.randomId === 'function' ? options.randomId : randomPart;
     let running = false;
     // Private proof for review audit entries. The public transaction adapter cannot
     // fabricate a review decision, even though all roles here remain a DEMO.
     const reviewProofs = new WeakMap();
+    function assertCurrent() { if (typeof options.isCurrent === 'function' && options.isCurrent() !== true) fail('forbidden', 'La sesión CRM cambió. Abre de nuevo la vista con tu rol actual.'); }
     function read() {
+      assertCurrent();
       let raw;
       try { raw = storage.getItem(STORAGE_KEY); } catch (_) { fail('storage_unavailable', 'No se pudo leer el almacenamiento local. Tus cambios no se guardaron.'); }
       if (raw === null || raw === undefined || raw === '') return { raw: raw == null ? null : raw, state: initialState() };
@@ -110,7 +118,7 @@
     // shares the CRM task surfaces without creating another mutable source of truth.
     // A photo upload is never evidence that the photo was published.
     function publicPhotoTasks(state) {
-      if (!['admin', 'kam'].includes(actor.role) || !Object.values(state.contacts).some(c => c.type === 'doctor' && canAccess(c))) return {};
+      if (!['admin', 'kam', 'leader'].includes(actor.role) || !Object.values(state.contacts).some(c => c.type === 'doctor' && canAccess(c))) return {};
       let rows;
       try {
         if (typeof options.getPublicPhotoTasks === 'function') rows = options.getPublicPhotoTasks();
@@ -142,8 +150,8 @@
       return result;
     }
     function taskRecords(state) { return Object.assign({}, state.tasks, publicPhotoTasks(state)); }
-    function project(state, input) {
-      if (actor.role === 'admin') { const result = clone(state); result.tasks = clone(taskRecords(state)); return result; }
+    function project(state, input, persistedOnly) {
+      if (actor.role === 'admin') { const result = clone(state); result.tasks = clone(persistedOnly ? state.tasks : taskRecords(state)); return result; }
       const result = clone(state), allowed = new Set(Object.values(state.contacts).filter(c => canAccess(c)).map(c => c.id));
       let tokenInvitation = null, tokenExpedient = null;
       if (actor.role === 'holder' && input && input.invitationToken) {
@@ -152,11 +160,14 @@
         const exp = invitation && state.expedients[invitation.expedientId];
         if (exp && invitation.status === 'pending' && invitation.expiresAt > getNow() && exp.activeInvitationId === invitation.id && !exp.holderIdentity) tokenExpedient = { id: exp.id, contactId: exp.contactId, kind: exp.kind, activeInvitationId: exp.activeInvitationId, holderIdentity: null };
       }
-      for (const key of MAPS) result[key] = Object.fromEntries(Object.entries(state[key]).filter(([, record]) => key === 'contacts' ? allowed.has(record.id) : key === 'referrals' ? actor.role === 'kam' && record.kamId === actor.id : allowed.has(record.contactId)).map(([id, record]) => [id, clone(record)]));
+      for (const key of MAPS) result[key] = Object.fromEntries(Object.entries(state[key]).filter(([, record]) => key === 'contacts' ? allowed.has(record.id) : key === 'referrals' ? actor.role === 'leader' || actor.role === 'kam' && record.kamId === actor.id : allowed.has(record.contactId)).map(([id, record]) => [id, clone(record)]));
       // A presented expired/revoked token can report its state, without exposing its dossier.
       if (tokenInvitation) result.invitations[tokenInvitation.id] = clone(tokenInvitation);
       if (tokenExpedient && !result.expedients[tokenExpedient.id]) result.expedients[tokenExpedient.id] = tokenExpedient;
-      Object.assign(result.tasks, publicPhotoTasks(state));
+      if (actor.role === 'leader') {
+        for (const key of ['invitations', 'referrals']) for (const record of Object.values(result[key])) delete record.token;
+      }
+      if (!persistedOnly) Object.assign(result.tasks, publicPhotoTasks(state));
       return result;
     }
     function snapshot(input) { return project(read().state, input); }
@@ -167,7 +178,7 @@
       const ids = [...new Set(report.matches.map(m => m.accountId).filter(Boolean))];
       report.existingAccountId = ids.length === 1 ? ids[0] : null;
       report.requiresReconciliation = report.requiresReconciliation || ids.length > 1 || report.matches.some(m => input.type && m.type !== input.type);
-      if (actor.role === 'kam') {
+      if (['kam', 'leader'].includes(actor.role)) {
         const allowed = report.matches.filter(m => m.source === STORAGE_KEY && m.contactId && canAccess(state.contacts[m.contactId]));
         const restricted = report.matches.length !== allowed.length;
         // A collision must still block creation, without turning the KAM check
@@ -213,7 +224,7 @@
       return Object.values(read().state.audit).filter(a => ['identity_review_pending', 'identity_review_resolved'].includes(a.action) && (!filter.reviewId || a.reviewId === filter.reviewId) && (!filter.status || a.status === filter.status)).reverse().map(clone);
     }
     function canAccess(contact) {
-      return !!contact && !contact.deletedAt && (actor.role === 'admin' || actor.role === 'kam' && contact.assignedKam === actor.id || actor.role === 'holder' && contact.holderId === actor.id && (!contact.accountId || contact.accountId === actor.id));
+      return !!contact && !contact.deletedAt && (['admin', 'leader'].includes(actor.role) || actor.role === 'kam' && contact.assignedKam === actor.id || actor.role === 'holder' && contact.holderId === actor.id && (!contact.accountId || contact.accountId === actor.id));
     }
     function requireContact(state, id) {
       const contact = state.contacts[id];
@@ -599,6 +610,7 @@
       let base;
       let entered = false;
       try {
+        if (actor.role === 'leader') fail('forbidden', 'El líder KAM tiene acceso de consulta. No puede modificar registros ni iniciar acciones del titular.');
         if (running) fail('transaction_busy', 'Hay otra operación CRM en curso.');
         base = read();
         if (!Number.isSafeInteger(expectedRevision)) fail('revision_required', 'Actualiza el registro antes de guardar.');
@@ -618,6 +630,7 @@
         let current;
         try { current = storage.getItem(STORAGE_KEY); } catch (_) { fail('storage_unavailable', 'No se pudo comprobar el almacenamiento local.'); }
         if ((current == null ? null : current) !== base.raw) fail('stale_revision', 'Los datos cambiaron mientras se guardaban. Actualiza antes de continuar.');
+        assertCurrent();
         const safeValue = clone(value);
         if (equal(base.state, draft)) return { ok: true, value: safeValue, revision: draft.revision, state: project(draft) };
         draft.revision = base.state.revision + 1;
@@ -631,6 +644,35 @@
         try { revision = read().state.revision; } catch (_) {}
         return { ok: false, code: e.code || 'transaction_failed', error: e.message || 'No se pudo guardar la operación CRM.', revision };
       } finally { if (entered) running = false; }
+    }
+    // Public extension callbacks for a KAM receive only their current portfolio.
+    // Merge the visible delta into the private full draft, then run the same global
+    // collision, identity, holder and append-only checks used by domain methods.
+    function scopedTransact(expectedRevision, fn) {
+      if (actor.role !== 'kam' || typeof fn !== 'function') return transact(expectedRevision, fn);
+      return transact(expectedRevision, (draft, ctx) => {
+        const visible = project(draft, null, true), before = clone(visible);
+        for (const key of MAPS) visible[key] = new Proxy(visible[key], { get(target, id, receiver) {
+          if (typeof id === 'string' && !has(target, id) && has(draft[key], id)) fail('forbidden', 'El registro no está disponible en esta cartera.');
+          return Reflect.get(target, id, receiver);
+        } });
+        const scopedContext = Object.freeze(Object.assign({}, ctx, {
+          append: (key, record) => append(visible, key, record, ctx),
+          canAccessContact: id => canAccess(visible.contacts[id])
+        }));
+        const result = fn(visible, scopedContext);
+        if (result && typeof result.then === 'function') fail('async_transaction', 'La operación local debe ser síncrona.');
+        for (const key of new Set([...Object.keys(before), ...Object.keys(visible)])) {
+          if (!MAPS.includes(key)) { if (!equal(before[key], visible[key])) fail('protected_state', 'No se permite modificar los metadatos del almacén CRM.'); continue; }
+          if (!plain(visible[key])) fail('invalid_storage', 'La colección CRM no es válida.');
+          for (const id of Object.keys(before[key])) if (!has(visible[key], id)) delete draft[key][id];
+          for (const [id, record] of Object.entries(visible[key])) {
+            if (!has(before[key], id) && has(draft[key], id)) fail('forbidden', 'El identificador pertenece a un registro fuera de esta cartera.');
+            if (!equal(before[key][id], record)) draft[key][id] = clone(record);
+          }
+        }
+        return result;
+      });
     }
     function createContact(input, revision) {
       return transact(revision, (draft, ctx) => {
@@ -770,7 +812,7 @@
       });
     }
     function resolveReferral(token, type) {
-      try { const state = read().state; return { ok: true, value: clone(referralFor(state, token, type)), revision: state.revision }; }
+      try { const state = read().state, referral = referralFor(state, token, type); if (actor.role === 'kam' && referral.kamId !== actor.id) fail('forbidden', 'El enlace corresponde a otra cartera KAM.'); const value = clone(referral); if (actor.role === 'leader') delete value.token; return { ok: true, value, revision: state.revision }; }
       catch (e) { return { ok: false, code: e.code || 'invalid_referral', error: e.message }; }
     }
     function applyReferral(id, token, revision) {
@@ -867,13 +909,17 @@
       return typeof status === 'string' ? { status, label: status, source: 'backoffice', readOnly: true } : Object.assign({}, clone(status || { status: 'not_linked' }), { source: 'backoffice', readOnly: true });
     }
     function dashboard(filter) {
-      filter = filter || {}; const state = read().state, date = new Date(getNow());
-      const year = filter.year == null ? date.getUTCFullYear() : Number(filter.year), month = filter.month == null ? date.getUTCMonth() + 1 : Number(filter.month);
+      filter = filter || {}; const state = read().state, date = new Date(getNow()), currentPeriod = businessMonth(date);
+      const year = filter.year == null ? currentPeriod.year : Number(filter.year), month = filter.month == null ? currentPeriod.month : Number(filter.month);
       if (!Number.isInteger(year) || year < 2000 || year > 9999 || !Number.isInteger(month) || month < 1 || month > 12) fail('invalid_period', 'Selecciona un mes y año válidos.');
       if (actor.role === 'kam' && filter.kamId && filter.kamId !== actor.id) fail('forbidden', 'Un KAM sólo puede consultar su cartera DEMO.');
       const contacts = Object.values(state.contacts).filter(c => canAccess(c) && (!filter.type || c.type === filter.type) && (!filter.kamId || c.assignedKam === filter.kamId));
-      const ids = new Set(contacts.map(c => c.id)), period = year + '-' + String(month).padStart(2, '0');
-      const events = Object.values(state.events).filter(e => ids.has(e.contactId) && String(e.type === 'activity_recorded' ? e.contactAt || state.activities[e.activityId] && state.activities[e.activityId].contactAt || e.createdAt : e.createdAt).slice(0, 7) === period);
+      const ids = new Set(contacts.map(c => c.id));
+      const events = Object.values(state.events).filter(e => {
+        const at = e.type === 'activity_recorded' ? e.contactAt || state.activities[e.activityId] && state.activities[e.activityId].contactAt || e.createdAt : e.createdAt;
+        const period = businessMonth(at);
+        return ids.has(e.contactId) && period && period.year === year && period.month === month && Date.parse(at) <= date.getTime();
+      });
       const createdEvents = events.filter(e => ['contact_created', 'self_service_created'].includes(e.type));
       const newIds = new Set(createdEvents.map(e => e.contactId));
       const activities = events.filter(e => e.type === 'activity_recorded');
@@ -886,7 +932,7 @@
       const byKam = Array.from(kams).sort().map(kamId => { const ownIds = new Set(contacts.filter(c => (c.assignedKam || 'unassigned') === kamId).map(c => c.id)); return { kamId, newContacts: Array.from(newIds).filter(id => ownIds.has(id)).length, activities: activities.filter(e => ownIds.has(e.contactId)).length, submitted: Array.from(submitted).filter(id => ownIds.has(id)).length }; });
       return { period: { month, year }, counts: { newContacts: newIds.size, patients: contacts.filter(c => c.type === 'patient' && newIds.has(c.id)).length, doctors: contacts.filter(c => c.type === 'doctor' && newIds.has(c.id)).length, activities: activities.length, openTasks: openTasks.length, overdueTasks: openTasks.filter(t => t.dueAt && t.dueAt < getNow()).length, submitted: submitted.size, onboardingStarted: started.size, referralContacts: contacts.filter(c => newIds.has(c.id) && ['referral', 'kam_referral', 'doctor_referral'].includes(c.originalSource)).length }, byStage, byKam, events: clone(events), currentSnapshot: { contacts: contacts.length, openTasks: openTasks.length }, demo: true };
     }
-    return Object.freeze({ actor, snapshot, transact, createContact, seedExamples, updateContact, getContact, listContacts, moveCommercialStage, setStage, reassignContact, deleteContact, restoreContact, listArchivedContacts, getArchivedContact, createReferral, resolveReferral, applyReferral, createTask, updateTask, closeTask, addActivity,
+    return Object.freeze({ actor, snapshot, transact: scopedTransact, createContact, seedExamples, updateContact, getContact, listContacts, moveCommercialStage, setStage, reassignContact, deleteContact, restoreContact, listArchivedContacts, getArchivedContact, createReferral, resolveReferral, applyReferral, createTask, updateTask, closeTask, addActivity,
       listTasks: filter => listLinked('tasks', filter), listActivities: filter => listLinked('activities', filter), listAudit: filter => listLinked('audit', filter), dashboard, operationalStatus,
       canAccessContact: id => canAccess(read().state.contacts[id]), inspectIdentity, inspectIdentityReview, reviewIdentity, listIdentityReviews, normalizeEmail, normalizePhone });
   }

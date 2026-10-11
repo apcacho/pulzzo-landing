@@ -54,7 +54,8 @@ async function seed(page) {
     good(store.createTask({ contactId: first.id, title: 'Confirmar disponibilidad de la persona ficticia', dueAt: due }, rev()));
     const app = window.PulzzoCRMBackoffice.getApp(document.getElementById('crmWorkspace'));
     app.navigate('patient', 'contacts', first.id);
-    return { first: first.id, second: second.id, doctor: doctor.id, year: now.getUTCFullYear(), month: now.getUTCMonth() + 1 };
+    const period = window.PulzzoCRMAnalytics.periodFor({}, now);
+    return { first: first.id, second: second.id, doctor: doctor.id, year: period.year, month: period.month };
   });
 }
 
@@ -68,14 +69,21 @@ async function verifyDashboard(page, crm, fixtures, width) {
   const cards = await crm.locator('.analytics-metrics .metric strong').allTextContents();
   assert.deepEqual(cards.map(Number), [2, 1, 0, 0], 'Known fictional patient fixtures drive exact KPIs');
   const stageFigure = crm.locator('figure:has(#crm-dashboard-stage)');
-  await stageFigure.locator('summary').click();
-  const stageRows = await stageFigure.locator('tbody tr').evaluateAll(rows => rows.map(row => [row.querySelector('th').textContent.trim(), Number(row.querySelector('td').textContent)]));
   const chartRows = await stageFigure.locator('.analytics-bar-row').evaluateAll(rows => rows.map(row => [row.querySelector('.analytics-bar-label span').textContent.trim(), Number(row.querySelector('strong').textContent)]));
-  assert.deepEqual(chartRows, stageRows, 'Chart and accessible table use identical stage data');
+  const tableToggle = stageFigure.locator('[data-analytics-view="table"]');
+  await tableToggle.focus(); await page.keyboard.press('Enter');
+  assert.equal(await stageFigure.locator('[data-analytics-panel="graph"]').isVisible(), false);
+  assert.equal(await stageFigure.locator('[data-analytics-panel="table"]').isVisible(), true);
+  assert.equal(await tableToggle.getAttribute('aria-pressed'), 'true');
+  const stageRows = await stageFigure.locator('tbody tr').evaluateAll(rows => rows.map(row => [row.querySelector('th').textContent.trim(), Number(row.querySelector('td').textContent)]));
+  assert.deepEqual(chartRows, stageRows.filter(row => row[1] > 0), 'Graph shows only occupied stages; accessible table retains every stage');
+  await stageFigure.locator('[data-analytics-view="graph"]').click();
+  assert.equal(await stageFigure.locator('[data-analytics-panel="graph"]').isVisible(), true);
+  assert.equal(await stageFigure.locator('[data-analytics-panel="table"]').isVisible(), false);
   assert.equal(stageRows.reduce((sum, row) => sum + row[1], 0), 2);
   assert.equal(stageRows.find(row => row[0] === 'Contactado')[1], 1);
   const originFigure = crm.locator('figure:has(#crm-dashboard-origin)');
-  await originFigure.locator('summary').click();
+  await originFigure.locator('[data-analytics-view="table"]').click();
   assert.deepEqual((await originFigure.locator('tbody tr td:first-of-type').allTextContents()).map(Number).sort(), [1, 1]);
   const conversion = crm.locator('figure:has(#crm-dashboard-conversion)');
   assert.match(await conversion.locator('svg title').textContent(), /0\s*%/);

@@ -118,47 +118,67 @@
 .crm-surface .form-grid{gap:16px;grid-template-columns:repeat(2,minmax(0,1fr))}
 .crm-surface .form-actions{border-top:1px solid var(--line2);padding-top:18px;margin-top:20px}
 .crm-surface .app-footer{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding:20px 0 0;margin-top:20px;border-color:var(--line2);background:transparent;font-size:var(--bo-size-meta);text-align:left}
-/* Data charts use the existing Dashboard cards, type and semantic colors. */
+/* Compact analytics retain the shared Dashboard tokens and one visible chart view. */
 .crm-surface{--crm-chart-aqua:var(--aqua);--crm-chart-navy:var(--navy);--crm-chart-coral:var(--coral);--crm-chart-track:var(--line2)}
-.crm-surface .analytics-heading{padding:20px 20px 0;color:var(--muted);font-size:var(--bo-size-meta)}
+.crm-surface .analytics-heading{padding:16px 20px 0;color:var(--muted);font-size:var(--bo-size-meta);display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px 16px}
 .crm-surface .analytics-heading p{font-size:var(--bo-size-meta)}
-.crm-surface .analytics-period{font-weight:var(--bo-weight-entity);color:var(--ink);margin-bottom:4px}
-.crm-surface :is(.analytics-grid,.analytics-bottom-grid){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;padding:0 20px 20px}
-.crm-surface .analytics-card{min-width:0;margin:0;padding:20px;border:1px solid var(--line2);border-radius:16px;background:var(--white)}
-.crm-surface .analytics-card figcaption{margin-bottom:20px}
-.crm-surface .analytics-card figcaption h3{font-size:var(--bo-size-item);margin-bottom:6px}
+.crm-surface .analytics-period{font-weight:var(--bo-weight-entity);color:var(--ink)}
+.crm-surface .metric-grid.analytics-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;padding:12px 20px 20px}
+.crm-surface .analytics-metrics .metric{min-width:0;min-height:0;padding:14px 16px;border-radius:12px;box-shadow:none}
+.crm-surface .analytics-metrics .metric strong{margin:6px 0 2px;font-size:clamp(24px,3vw,32px);letter-spacing:-.035em;overflow-wrap:anywhere}
+.crm-surface .analytics-metrics .metric small{display:block;font-size:var(--bo-size-label);line-height:1.4;overflow-wrap:anywhere}
+.crm-surface .analytics-section-heading{display:flex;align-items:baseline;justify-content:space-between;gap:6px 16px;flex-wrap:wrap;padding:0 20px 10px}
+.crm-surface .analytics-section-heading h3{font-size:var(--bo-size-item)}
+.crm-surface .analytics-section-heading p{font-size:var(--bo-size-meta);color:var(--muted)}
+.crm-surface :is(.analytics-grid,.analytics-bottom-grid){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start;gap:14px;padding:0 20px 20px}
+.crm-surface .analytics-monthly-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.crm-surface .analytics-bottom-grid{grid-template-columns:minmax(0,1fr)}
+.crm-surface .analytics-card{min-width:0;margin:0;padding:16px;border:1px solid var(--line2);border-radius:12px;background:var(--white);align-self:start}
+.crm-surface .analytics-card figcaption{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:14px}
+.crm-surface .analytics-card figcaption>div:first-child{flex:1 1 150px;min-width:0}
+.crm-surface .analytics-card figcaption h4{font-size:var(--bo-size-item);margin-bottom:4px}
 .crm-surface .analytics-card figcaption p{color:var(--muted);font-size:var(--bo-size-meta)}
-.crm-surface .analytics-bars{list-style:none;padding:0;margin:0;display:grid;gap:14px}
+.crm-surface .analytics-view-switch{display:flex;gap:0;flex:none;border:1px solid var(--line);border-radius:var(--bo-control-radius);overflow:hidden}
+.crm-surface .analytics-view-switch button{border:0;border-radius:0;min-height:32px;padding:5px 9px;font-size:var(--bo-size-label);background:var(--white)}
+.crm-surface .analytics-view-switch button[aria-pressed="true"]{background:var(--soft);color:var(--bo-control-ink);box-shadow:inset 0 -2px var(--accent)}
+.crm-surface [data-analytics-panel][hidden]{display:none!important}
+.crm-surface .analytics-bars{list-style:none;padding:0 4px 0 0;margin:0;display:grid;gap:10px;max-height:232px;overflow:auto;scrollbar-gutter:stable;overscroll-behavior:contain}
 .crm-surface .analytics-bar-row{min-width:0}
-.crm-surface .analytics-bar-label{display:flex;justify-content:space-between;gap:14px;margin-bottom:6px;font-size:var(--bo-size-meta)}
+.crm-surface .analytics-bar-label{display:flex;justify-content:space-between;gap:12px;margin-bottom:4px;font-size:var(--bo-size-meta)}
 .crm-surface .analytics-bar-label>span{overflow-wrap:anywhere;min-width:0}
 .crm-surface .analytics-bar-label strong{flex-shrink:0;font-variant-numeric:tabular-nums}
 .crm-surface .analytics-bar{display:block;width:100%;height:9px;border-radius:4px;overflow:hidden}
-.crm-surface :is(.analytics-scale,.analytics-definition){color:var(--muted);font-size:var(--bo-size-meta);margin-top:16px}
-.crm-surface .analytics-data{margin-top:18px;border-top:1px solid var(--line2);padding-top:12px}
-.crm-surface .analytics-data summary{font-size:var(--bo-size-meta);cursor:pointer;color:var(--crm-accent-ink);padding:6px 0}
-.crm-surface .analytics-table-scroll{max-width:100%;overflow:auto;margin-top:12px;border-radius:8px}
-.crm-surface .analytics-table-scroll table{margin:0;min-width:260px}
-.crm-surface .analytics-table-scroll caption{text-align:left;color:var(--muted);padding:8px 12px;font-size:var(--bo-size-label)}
-.crm-surface .analytics-table-scroll :is(th,td){padding:10px;font-size:var(--bo-size-meta);white-space:normal}
-.crm-surface .analytics-kam-table{min-width:480px!important}
-.crm-surface .analytics-conversion-layout{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
-.crm-surface .analytics-donut{position:relative;flex:0 0 144px;width:144px;height:144px}
+.crm-surface :is(.analytics-scale,.analytics-definition){color:var(--muted);font-size:var(--bo-size-label);line-height:1.5;margin-top:10px}
+.crm-surface .analytics-table-scroll{max-width:100%;max-height:280px;overflow:auto;overscroll-behavior:contain;margin-top:0;border-radius:8px}
+.crm-surface .analytics-table-scroll table{margin:0;min-width:200px}
+.crm-surface .analytics-table-scroll caption{text-align:left;color:var(--muted);padding:6px 8px;font-size:var(--bo-size-label)}
+.crm-surface .analytics-table-scroll :is(th,td){padding:8px;font-size:var(--bo-size-meta);white-space:normal}
+.crm-surface .analytics-table-scroll thead th{position:sticky;top:0;z-index:1;background:var(--bg)}
+.crm-surface .analytics-kam-table{min-width:600px!important}
+.crm-surface .analytics-conversion-layout{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.crm-surface .analytics-donut{position:relative;flex:0 0 112px;width:112px;height:112px}
 .crm-surface .analytics-donut svg{display:block;max-width:100%;height:100%}
-.crm-surface .analytics-donut-value{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:var(--bo-weight-number) 26px/1 var(--bo-display);font-variant-numeric:tabular-nums}
-.crm-surface .analytics-conversion-copy{flex:1 1 160px;min-width:0;font-size:var(--bo-size-meta)}
+.crm-surface .analytics-donut-value{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:var(--bo-weight-number) 23px/1 var(--bo-display);font-variant-numeric:tabular-nums}
+.crm-surface .analytics-conversion-copy{flex:1 1 130px;min-width:0;font-size:var(--bo-size-meta)}
 .crm-surface .analytics-conversion-copy p{font-size:var(--bo-size-meta)}
-.crm-surface .analytics-legend{display:grid;gap:10px;list-style:none;padding:0;margin:16px 0 0;font-size:var(--bo-size-meta);color:var(--muted)}
+.crm-surface .analytics-legend{display:grid;gap:6px;list-style:none;padding:0;margin:10px 0 0;font-size:var(--bo-size-label);color:var(--muted)}
 .crm-surface .analytics-legend li{display:flex;align-items:center;gap:8px}
-.crm-surface .analytics-legend-dot{display:inline-block;flex:0 0 10px;width:10px;height:10px;border-radius:3px;background:var(--crm-chart-track)}
+.crm-surface .analytics-legend-dot{display:inline-block;flex:0 0 8px;width:8px;height:8px;border-radius:2px;background:var(--crm-chart-track)}
 .crm-surface .analytics-legend-dot.aqua{background:var(--crm-chart-aqua)}
-.crm-surface .analytics-empty{padding:24px 12px;text-align:center;color:var(--muted);display:grid;gap:10px;min-height:110px;align-content:center}
+.crm-surface .analytics-empty{padding:14px 8px;text-align:center;color:var(--muted);display:grid;gap:6px;min-height:0;align-content:start}
 .crm-surface .analytics-empty p{font-size:var(--bo-size-meta)}
-.crm-surface .analytics-empty>span{font-size:28px;color:var(--line)}
+.crm-surface .analytics-empty>span{font-size:24px;color:var(--line)}
 .crm-surface .analytics-empty-portfolio{margin:0 20px 20px;background:var(--bg);border-radius:12px}
 .crm-surface .analytics-empty-portfolio h3{text-align:center}
 .crm-surface .analytics-period-empty{margin:0 20px 20px;color:var(--muted);font-size:var(--bo-size-meta)}
-.crm-surface .analytics-method{margin:0 20px 20px}
+.crm-surface .analytics-method{margin:0 20px 20px;border-top:1px solid var(--line2);padding-top:12px;color:var(--muted);font-size:var(--bo-size-meta)}
+.crm-surface .analytics-method summary{cursor:pointer;color:var(--crm-accent-ink);min-height:32px;padding:6px 0}
+.crm-surface .analytics-method p{font-size:var(--bo-size-meta);margin-top:8px}
+/* Result text is left-aligned despite the shared centered-button rule above. */
+.crm-surface .task-contact-results .task-contact-result{display:flex;justify-content:space-between;align-items:center;text-align:left}
+.crm-surface .task-contact-results .task-contact-result-copy{display:grid;flex:1 1 auto;min-width:0;justify-items:start;text-align:left}
+.crm-surface .task-contact-results .task-contact-result-state{flex:0 0 auto;margin-left:auto;text-align:right}
+@media(max-width:1100px){.crm-surface .metric-grid.analytics-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.crm-surface .analytics-monthly-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 /* Filters own the full CRM width, independent of the narrow list rail. */
 .crm-surface .contact-controls{margin-bottom:20px}
 .crm-surface .directory-filters label{min-width:0}
@@ -212,7 +232,13 @@
  .crm-surface :is(input,select,textarea){font-size:16px}
  .crm-surface .directory-filters{grid-template-columns:minmax(0,1fr)}
  .crm-surface :is(.analytics-grid,.analytics-bottom-grid){grid-template-columns:minmax(0,1fr);padding:0 16px 16px;gap:16px}
- .crm-surface .analytics-card{padding:16px}
+ .crm-surface .analytics-card{padding:14px}
+ .crm-surface .analytics-section-heading{padding:0 16px 10px}
+ .crm-surface .analytics-heading{padding:16px 16px 0}
+ .crm-surface .metric-grid.analytics-metrics{padding:12px 16px 16px;gap:10px}
+ .crm-surface .analytics-metrics .metric{padding:12px}
+ .crm-surface .analytics-view-switch button{min-height:44px}
+ .crm-surface .analytics-monthly-grid{grid-template-columns:minmax(0,1fr)}
  .crm-surface .kanban-columns{grid-auto-flow:row;grid-auto-columns:auto;grid-template-columns:minmax(0,1fr);overflow-x:visible;padding-bottom:0}
  .crm-surface .contact-workspace,.crm-surface .dashboard-split,.crm-surface .task-board{grid-template-columns:minmax(0,1fr)}
  .crm-toolbar{align-items:stretch}.crm-contexts{flex:1 0 100%}.crm-contexts .context-link{flex:1;min-width:0}

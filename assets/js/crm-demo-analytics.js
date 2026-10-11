@@ -1,5 +1,5 @@
 /* Pulzzo CRM DEMO analytics: pure, read-only calculations over a projected snapshot.
- * Calendar periods are UTC. Historical events are scoped to the CURRENT active
+ * Calendar periods use America/Mexico_City. Historical events are scoped to the CURRENT active
  * portfolio; these reports are not historical ownership or approval reports.
  */
 (function (root, factory) {
@@ -19,9 +19,12 @@
   var STARTED = ['onboarding_started','expedient_created','assisted_draft_created','self_service_created'];
   var SUBMITTED = ['holder_submitted','onboarding_submitted','expedient_submitted'];
   var ACTIVITY_TYPES = ['call','whatsapp','email','meeting','note','other'];
+  var CONTACT_CHANNELS = ['call','whatsapp','email','meeting'];
+  var BUSINESS_ZONE = 'America/Mexico_City';
+  var calendar = new Intl.DateTimeFormat('en-GB',{timeZone:BUSINESS_ZONE,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'});
   function esc(value) { return String(value == null ? '' : value).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
   function rows(map) { return map && typeof map === 'object' ? Object.values(map).filter(function(r){return r && typeof r === 'object';}) : []; }
-  function stamp(value) { if (value === null || value === undefined || value === '') return NaN; return new Date(value).getTime(); }
+  function stamp(value) { if (value === null || value === undefined || value === '' || typeof value === 'string' && !/(?:Z|[+-]\d{2}:\d{2})$/i.test(value)) return NaN; return new Date(value).getTime(); }
   function error(code,message) { var e = new Error(message); e.code = code; throw e; }
   function safeId(value) { return String(value || 'crm-analytics').replace(/[^a-zA-Z0-9_-]/g,'-').slice(0,100); }
   function count(value) { return Number.isFinite(Number(value)) && Number(value) > 0 ? Math.floor(Number(value)) : 0; }
@@ -29,15 +32,30 @@
   function rate(n,d) { return d ? n/d*100 : null; }
   function percent(value) { return value == null ? 'Sin base' : Number(value).toLocaleString('es-MX',{maximumFractionDigits:1})+' %'; }
   function owner(contact) { return contact.assignedKam || 'unassigned'; }
+  function calendarParts(value) {
+    var parts={}; calendar.formatToParts(new Date(value)).forEach(function(part){if(part.type!=='literal')parts[part.type]=Number(part.value);}); return parts;
+  }
+  function calendarMidnight(year,month,day) {
+    // Resolve a CDMX calendar date to its instant, rather than assuming a fixed
+    // offset. The IANA zone also covers historical daylight-saving months.
+    var target=Date.UTC(year,month-1,day), instant=target;
+    for(var i=0;i<4;i++) {
+      var p=calendarParts(instant), represented=Date.UTC(p.year,p.month-1,p.day,p.hour,p.minute,p.second), delta=target-represented;
+      if(!delta)return instant;
+      instant+=delta;
+    }
+    error('invalid_date','No se pudo resolver la fecha de Ciudad de México.');
+  }
   function periodFor(filter,now) {
     filter = filter || {};
-    var date = new Date(now == null ? new Date() : now), instant = date.getTime();
+    var instant=now==null?Date.now():stamp(now);
     if (!Number.isFinite(instant)) error('invalid_date','No se pudo determinar la fecha actual.');
-    var month = filter.month == null || filter.month === '' ? date.getUTCMonth()+1 : Number(filter.month);
-    var year = filter.year == null || filter.year === '' ? date.getUTCFullYear() : Number(filter.year);
+    var date=new Date(instant), current=calendarParts(instant);
+    var month = filter.month == null || filter.month === '' ? current.month : Number(filter.month);
+    var year = filter.year == null || filter.year === '' ? current.year : Number(filter.year);
     if (!Number.isInteger(month) || month < 1 || month > 12 || !Number.isInteger(year) || year < 2000 || year > 9999) error('invalid_period','Selecciona un mes y año válidos.');
-    var start = Date.UTC(year,month-1,1), end = Date.UTC(year,month,1);
-    return {month:month,year:year,label:MONTHS[month-1]+' '+year,startAt:new Date(start).toISOString(),endAt:new Date(end).toISOString(),timezone:'UTC',asOf:date.toISOString(),isPartial:instant>=start && instant<end};
+    var start = calendarMidnight(year,month,1), end = calendarMidnight(year,month+1,1);
+    return {month:month,year:year,label:MONTHS[month-1]+' '+year,startAt:new Date(start).toISOString(),endAt:new Date(end).toISOString(),timezone:BUSINESS_ZONE,asOf:date.toISOString(),isPartial:instant>=start && instant<end};
   }
   function buildReport(snapshot,filter,options) {
     snapshot = snapshot || {}; filter = filter || {}; options = options || {};
@@ -45,13 +63,13 @@
     var period = periodFor(filter,now), nowMs = stamp(period.asOf), startMs = stamp(period.startAt), endMs = stamp(period.endAt);
     var actor = options.actor, type = filter.type || null, kamId = filter.kamId || null;
     if (type && !Object.prototype.hasOwnProperty.call(STAGES,type)) error('invalid_type','Selecciona clientes o proveedores.');
-    if (actor && (typeof actor.id !== 'string' || !actor.id || !['admin','kam','holder'].includes(actor.role))) error('invalid_actor','No se pudo verificar la identidad DEMO.');
+    if (!actor || typeof actor.id !== 'string' || !actor.id.trim() || !['admin','leader','kam','holder'].includes(actor.role)) error('invalid_actor','No se pudo verificar la identidad DEMO.');
     if (actor && actor.role === 'kam' && kamId && kamId !== actor.id) error('forbidden','Un KAM sólo puede consultar su cartera DEMO.');
     function inPeriod(value) {var n=stamp(value); return Number.isFinite(n) && n>=startMs && n<endMs && n<=nowMs;}
     function canRead(c) {
       if (!c.id || c.deletedAt || !Object.prototype.hasOwnProperty.call(STAGES,c.type)) return false;
       if (type && c.type !== type || kamId && owner(c) !== kamId) return false;
-      if (!actor || actor.role === 'admin') return true;
+      if (actor.role === 'admin' || actor.role === 'leader') return true;
       if (actor.role === 'kam') return c.assignedKam === actor.id;
       return c.holderId === actor.id && (!c.accountId || c.accountId === actor.id);
     }
@@ -79,7 +97,7 @@
       seenActivities.add(a.id); return true;
     });
     var currentTasks = rows(snapshot.tasks).filter(function(t){return contactMap.has(t.contactId) && t.status === 'open';});
-    var todayEnd = Date.UTC(new Date(nowMs).getUTCFullYear(),new Date(nowMs).getUTCMonth(),new Date(nowMs).getUTCDate()+1);
+    var today=calendarParts(nowMs), todayEnd=calendarMidnight(today.year,today.month,today.day+1);
     function taskBucket(t) {var due=stamp(t.dueAt); return !Number.isFinite(due)?'undated':due<nowMs?'overdue':due<todayEnd?'today':'upcoming';}
     var taskCounts = {overdue:0,today:0,upcoming:0,undated:0};
     currentTasks.forEach(function(t){taskCounts[taskBucket(t)]++;});
@@ -103,49 +121,62 @@
     return {
       schema:'pulzzo.crm.analytics.v1',demo:true,period:period,scope:{type:type,kamId:actor&&actor.role==='kam'?actor.id:kamId,currentAssignment:true,activeContactsOnly:true},
       counts:{newContacts:newIds.size,patients:contacts.filter(function(c){return c.type==='patient'&&newIds.has(c.id);}).length,doctors:contacts.filter(function(c){return c.type==='doctor'&&newIds.has(c.id);}).length,activities:activities.length,onboardingStarted:startedIds.size,submitted:submittedIds.size,openTasks:currentTasks.length,overdueTasks:taskCounts.overdue,referralContacts:contacts.filter(function(c){return newIds.has(c.id)&&['referral','kam_referral','doctor_referral'].includes(c.originalSource);}).length},
+      activitySummary:{contactAttempts:activities.filter(function(a){return CONTACT_CHANNELS.includes(a.type);}).length,notes:activities.filter(function(a){return a.type==='note';}).length,other:activities.filter(function(a){return a.type==='other';}).length},
       currentSnapshot:{contacts:contacts.length,openTasks:currentTasks.length},byStage:byStage,stageRows:stageRows,originRows:originRows,byKam:byKam,activityByActor:activityByActor,
       conversion:{numerator:cohortSubmitted,denominator:newIds.size,rate:rate(cohortSubmitted,newIds.size),started:cohortStarted,denominatorLabel:'Prospectos creados en el mes',numeratorLabel:'De esos prospectos, enviados por el titular en el mismo mes'},
-      pendingRows:[{key:'overdue',label:'Vencidas a esta hora',value:taskCounts.overdue},{key:'today',label:'Por vencer hoy (UTC)',value:taskCounts.today},{key:'upcoming',label:'Próximas',value:taskCounts.upcoming},{key:'undated',label:'Sin fecha válida',value:taskCounts.undated}].filter(function(r){return r.key!=='undated'||r.value>0;}),
+      pendingRows:[{key:'overdue',label:'Vencidas a esta hora',value:taskCounts.overdue},{key:'today',label:'Por vencer hoy (CDMX)',value:taskCounts.today},{key:'upcoming',label:'Próximas',value:taskCounts.upcoming},{key:'undated',label:'Sin fecha válida',value:taskCounts.undated}].filter(function(r){return r.key!=='undated'||r.value>0;}),
       empty:contacts.length===0,periodEmpty:newIds.size===0&&activities.length===0&&startedIds.size===0&&submittedIds.size===0
     };
   }
-  function table(caption,headings,data) {
-    return '<details class="analytics-data"><summary>Ver datos de '+esc(caption.toLowerCase())+'</summary><div class="analytics-table-scroll" tabindex="0" role="region" aria-label="'+esc(caption)+'"><table><caption>'+esc(caption)+'</caption><thead><tr>'+headings.map(function(h){return '<th scope="col">'+esc(h)+'</th>';}).join('')+'</tr></thead><tbody>'+data.map(function(row){return '<tr>'+row.map(function(cell,i){return i?'<td>'+esc(cell)+'</td>':'<th scope="row">'+esc(cell)+'</th>';}).join('')+'</tr>';}).join('')+'</tbody></table></div></details>';
+  function table(caption,headings,data,className) {
+    return '<div class="analytics-table-scroll" tabindex="0" role="region" aria-label="'+esc(caption)+'"><table'+(className?' class="'+esc(className)+'"':'')+'><caption>'+esc(caption)+'</caption><thead><tr>'+headings.map(function(h){return '<th scope="col">'+esc(h)+'</th>';}).join('')+'</tr></thead><tbody>'+data.map(function(row){return '<tr>'+row.map(function(cell,i){return i?'<td>'+esc(cell)+'</td>':'<th scope="row">'+esc(cell)+'</th>';}).join('')+'</tr>';}).join('')+(data.length?'':'<tr><td colspan="'+headings.length+'">Sin registros para esta selección.</td></tr>')+'</tbody></table></div>';
   }
   function emptyChart(text) { return '<div class="analytics-empty"><span aria-hidden="true">○</span><p>'+esc(text)+'</p></div>'; }
   function barChart(data,options) {
     options=options||{}; var total=data.reduce(function(n,r){return n+count(r.value);},0), max=Math.max(0,...data.map(function(r){return count(r.value);}));
     if(!total)return emptyChart(options.empty || 'Sin registros para esta selección.');
     var color=options.tone==='navy'?'var(--crm-chart-navy, #07142F)':options.tone==='coral'?'var(--crm-chart-coral, #FF8A5B)':'var(--crm-chart-aqua, #20C7D4)';
-    return '<ol class="analytics-bars" aria-label="'+esc(options.label || 'Gráfica de conteos')+'">'+data.map(function(row){
+    return '<ol class="analytics-bars" tabindex="0" aria-label="'+esc(options.label || 'Gráfica de conteos')+'">'+data.map(function(row){
       var v=count(row.value),width=max?v/max*100:0;
       return '<li class="analytics-bar-row"><div class="analytics-bar-label"><span>'+esc(row.label)+'</span><strong>'+v+'</strong></div><svg class="analytics-bar" viewBox="0 0 100 9" preserveAspectRatio="none" height="9" width="100%" aria-hidden="true" focusable="false"><rect x="0" y="0" width="100" height="9" rx="2" fill="var(--crm-chart-track, #EAF0F6)"/><rect x="0" y="0" width="'+numeric(width)+'" height="9" rx="2" fill="'+color+'"/></svg></li>';
     }).join('')+'</ol><p class="analytics-scale">Escala desde 0 hasta '+max+' '+esc(options.unit || 'contactos')+'.</p>';
   }
-  function figure(id,title,subtitle,content) {return '<figure class="analytics-card" aria-labelledby="'+id+'"><figcaption><h3 id="'+id+'">'+esc(title)+'</h3><p>'+esc(subtitle)+'</p></figcaption>'+content+'</figure>';}
+  function figure(id,title,subtitle,graph,data,footnote) {
+    var switcher=data?'<div class="analytics-view-switch" role="group" aria-label="Vista de '+esc(title.toLowerCase())+'">'+['graph','table'].map(function(view){return '<button type="button" data-analytics-view="'+view+'" data-analytics-card="'+id+'" aria-controls="'+id+'-'+view+'" aria-pressed="'+(view==='graph')+'">'+(view==='graph'?'Gráfica':'Tabla')+'</button>';}).join('')+'</div>':'';
+    return '<figure class="analytics-card" data-analytics-figure="'+id+'" aria-labelledby="'+id+'"><figcaption><div><h4 id="'+id+'">'+esc(title)+'</h4><p>'+esc(subtitle)+'</p></div>'+switcher+'</figcaption>'+(data?'<div id="'+id+'-graph" data-analytics-panel="graph">'+graph+'</div><div id="'+id+'-table" data-analytics-panel="table" hidden>'+data+'</div>':graph)+(footnote?'<p class="analytics-definition">'+footnote+'</p>':'')+'</figure>';
+  }
+  function selectView(container,trigger) {
+    if(!container || !trigger || typeof trigger.closest!=='function' || typeof container.contains!=='function' || !container.contains(trigger))return false;
+    var view=trigger.getAttribute('data-analytics-view'),card=trigger.closest('[data-analytics-figure]');
+    if(!['graph','table'].includes(view) || !card || !container.contains(card) || trigger.getAttribute('data-analytics-card')!==card.getAttribute('data-analytics-figure'))return false;
+    card.querySelectorAll('[data-analytics-view]').forEach(function(button){button.setAttribute('aria-pressed',String(button.getAttribute('data-analytics-view')===view));});
+    card.querySelectorAll('[data-analytics-panel]').forEach(function(panel){panel.hidden=panel.getAttribute('data-analytics-panel')!==view;});
+    return true;
+  }
   function renderDashboard(report,options) {
     options=options||{}; var prefix=safeId(options.idPrefix), labels=options.kamLabels||{}, p=report.period, c=report.counts, cv=report.conversion;
     function labelKam(id) {return id==='unassigned'?'Sin responsable':id==='unknown_actor'?'Usuario sin identificar':Object.prototype.hasOwnProperty.call(labels,id)?labels[id]:id;}
-    var periodLabel=p.label+(p.isPartial?' · en curso':'')+' · UTC';
-    var metricData=[['Nuevos prospectos',c.newContacts,'Altas únicas del mes'],['Actividades registradas',c.activities,'Por fecha real de contacto'],['Onboardings iniciados',c.onboardingStarted,'Expedientes reales creados'],['Enviados a revisión',c.submitted,'Envíos únicos del titular']];
-    var html='<div class="analytics-heading"><p class="analytics-period">'+esc(periodLabel)+'</p><p>Resultados de la cartera activa seleccionada.</p></div><div class="metric-grid analytics-metrics">'+metricData.map(function(m){return '<article class="metric"><span>'+esc(m[0])+'</span><strong>'+count(m[1])+'</strong><small>'+esc(m[2])+'</small></article>';}).join('')+'</div>';
+    var periodLabel=p.label+(p.isPartial?' · en curso':'')+' · CDMX';
+    var metricData=[['Nuevos prospectos',c.newContacts,'Altas únicas del mes'],['Actividades registradas',c.activities,'Incluye notas; no sólo intentos de contacto'],['Onboardings iniciados',c.onboardingStarted,'Expedientes reales creados'],['Enviados a revisión',c.submitted,'Envíos únicos del titular']];
+    var html='<div class="analytics-heading"><p class="analytics-period">'+esc(periodLabel)+'</p><p>Resultados del mes · cartera activa seleccionada</p></div><div class="metric-grid analytics-metrics">'+metricData.map(function(m){return '<article class="metric"><span>'+esc(m[0])+'</span><strong>'+count(m[1])+'</strong><small>'+esc(m[2])+'</small></article>';}).join('')+'</div>';
     if(report.empty)html+='<div class="analytics-empty analytics-empty-portfolio"><h3>Aún no hay contactos en esta cartera</h3><p>Los gráficos aparecerán con los registros que crees o recibas. No se incluyen resultados de ejemplo.</p></div>';
     else if(report.periodEmpty)html+='<p class="analytics-period-empty">No hay actividad ni altas registradas en '+esc(p.label)+'. La cartera y los pendientes actuales se muestran por separado.</p>';
-    html+='<div class="analytics-grid">';
-    html+=figure(prefix+'-stage','Cartera actual por etapa',report.currentSnapshot.contacts+' contactos activos · estado actual',barChart(report.stageRows,{label:'Cartera actual por etapa',empty:'Aún no hay contactos activos.',tone:'aqua'})+table('Cartera actual por etapa',['Etapa','Contactos'],report.stageRows.map(function(r){return [r.label,r.value];})));
-    html+=figure(prefix+'-origin','Origen de nuevos prospectos','Altas de '+p.label+' · origen original conservado',barChart(report.originRows,{label:'Origen de nuevos prospectos',empty:'Sin nuevos prospectos en este mes.',tone:'navy'})+(report.originRows.length?table('Origen de nuevos prospectos',['Origen','Contactos','Del total de altas'],report.originRows.map(function(r){return [r.label,r.value,percent(r.share)];})):''));
+    html+='<section class="analytics-section" aria-labelledby="'+prefix+'-current"><div class="analytics-section-heading"><h3 id="'+prefix+'-current">Cartera y pendientes actuales</h3><p>Estado de hoy; independiente del mes seleccionado</p></div><div class="analytics-grid analytics-current-grid">';
+    html+=figure(prefix+'-stage','Cartera actual por etapa',report.currentSnapshot.contacts+' contactos activos · estado actual',barChart(report.stageRows.filter(function(r){return r.value>0;}),{label:'Cartera actual por etapa',empty:'Aún no hay contactos activos.',tone:'aqua'}),table('Cartera actual por etapa',['Etapa','Contactos'],report.stageRows.map(function(r){return [r.label,r.value];})),'La gráfica muestra etapas con contactos; la tabla incluye todas las etapas.');
+    html+=figure(prefix+'-pending','Pendientes actuales',c.openTasks+' tareas abiertas · todos los meses',barChart(report.pendingRows,{label:'Pendientes actuales',empty:'No hay tareas abiertas en esta cartera.',tone:'coral',unit:'tareas'}),table('Pendientes actuales',['Vencimiento','Tareas'],report.pendingRows.map(function(r){return [r.label,r.value];})),'Vencimientos según la hora de Ciudad de México.');
+    html+='</div></section><section class="analytics-section" aria-labelledby="'+prefix+'-monthly"><div class="analytics-section-heading"><h3 id="'+prefix+'-monthly">Actividad del mes</h3><p>'+esc(periodLabel)+'</p></div><div class="analytics-grid analytics-monthly-grid">';
+    html+=figure(prefix+'-origin','Origen de nuevos prospectos','Altas del mes · origen original conservado',barChart(report.originRows,{label:'Origen de nuevos prospectos',empty:'Sin nuevos prospectos en este mes.',tone:'navy'}),table('Origen de nuevos prospectos',['Origen','Contactos','Del total de altas'],report.originRows.map(function(r){return [r.label,r.value,percent(r.share)];})));
     var ring='';
-    if(cv.denominator){var progress=Math.min(100,Math.max(0,cv.rate));ring='<div class="analytics-conversion-layout"><div class="analytics-donut"><svg viewBox="0 0 120 120" width="144" height="144" role="img" aria-labelledby="'+prefix+'-conversion-svg-title '+prefix+'-conversion-svg-desc"><title id="'+prefix+'-conversion-svg-title">Conversión de altas del mes: '+esc(percent(cv.rate))+'</title><desc id="'+prefix+'-conversion-svg-desc">'+count(cv.numerator)+' de '+count(cv.denominator)+' prospectos nuevos enviados por su titular en el mismo mes.</desc><circle cx="60" cy="60" r="47" fill="none" stroke="var(--crm-chart-track, #EAF0F6)" stroke-width="12"/><circle cx="60" cy="60" r="47" fill="none" stroke="var(--crm-chart-aqua, #20C7D4)" stroke-width="12" pathLength="100" stroke-dasharray="'+numeric(progress)+' '+numeric(100-progress)+'" transform="rotate(-90 60 60)"/></svg><strong class="analytics-donut-value" aria-hidden="true">'+esc(percent(cv.rate))+'</strong></div><div class="analytics-conversion-copy"><p><strong>'+count(cv.numerator)+' de '+count(cv.denominator)+'</strong> prospectos nuevos enviados a revisión</p><ul class="analytics-legend"><li><span class="analytics-legend-dot aqua" aria-hidden="true"></span>'+count(cv.numerator)+' enviados en el mes</li><li><span class="analytics-legend-dot neutral" aria-hidden="true"></span>'+count(cv.denominator-cv.numerator)+' sin envío en el mismo mes</li></ul></div></div>';}else ring=emptyChart('Sin altas en este mes. La conversión no tiene denominador.');
-    ring+='<p class="analytics-definition"><strong>Base:</strong> '+esc(cv.denominatorLabel)+'. <strong>Conversión:</strong> '+esc(cv.numeratorLabel)+'. Un cambio manual de etapa no cuenta como envío.</p>'+table('Conversión de altas del mes',['Medida','Valor'],[[cv.denominatorLabel,cv.denominator],[cv.numeratorLabel,cv.numerator],['Tasa de conversión',percent(cv.rate)]]);
-    html+=figure(prefix+'-conversion','Conversión de altas del mes','Misma cohorte y mismo mes · no es una tasa de aprobación',ring);
-    var actorRows=report.activityByActor.map(function(a){return {key:a.actorId,label:labelKam(a.actorId),value:a.value};});
-    html+=figure(prefix+'-activity','Actividad por usuario','Quién registró la actividad · fecha real de contacto',barChart(actorRows,{label:'Actividad por usuario',empty:'Sin actividades de seguimiento en este mes.',tone:'coral',unit:'actividades'})+(actorRows.length?table('Actividad por usuario',['Usuario','Actividades'],actorRows.map(function(r){return [r.label,r.value];})):''));
-    html+='</div><div class="analytics-bottom-grid">';
-    html+=figure(prefix+'-pending','Pendientes actuales',c.openTasks+' tareas abiertas · todos los meses',barChart(report.pendingRows,{label:'Pendientes actuales',empty:'No hay tareas abiertas en esta cartera.',tone:'coral',unit:'tareas'})+table('Pendientes actuales',['Vencimiento','Tareas'],report.pendingRows.map(function(r){return [r.label,r.value];})));
-    var ownership=report.byKam.length?'<div class="analytics-table-scroll" tabindex="0" role="region" aria-label="Cartera por responsable actual"><table class="analytics-kam-table"><caption>Cartera por responsable actual</caption><thead><tr><th scope="col">Responsable</th><th scope="col">Contactos</th><th scope="col">Altas del mes</th><th scope="col">Enviados del mes</th><th scope="col">Pendientes actuales</th><th scope="col">Vencidas</th></tr></thead><tbody>'+report.byKam.map(function(k){return '<tr><th scope="row">'+esc(labelKam(k.kamId))+'</th><td>'+count(k.contacts)+'</td><td>'+count(k.newContacts)+'</td><td>'+count(k.submitted)+'</td><td>'+count(k.openTasks)+'</td><td>'+count(k.overdueTasks)+'</td></tr>';}).join('')+'</tbody></table></div>':emptyChart('Sin responsables con cartera en esta selección.');
-    html+=figure(prefix+'-kam','Seguimiento por responsable','Asignación actual de la cartera seleccionada',ownership);
-    html+='</div><p class="dashboard-note analytics-method">Período: '+esc(periodLabel)+'. Altas, inicios y envíos se cuentan una vez por contacto con registros vinculados; actividades por su fecha real, sin cambios de etapa. Origen y conversión usan sólo altas del mes. Los envíos del indicador superior pueden incluir contactos de meses anteriores. Etapas, responsables y tareas muestran el estado actual, no un corte histórico. Sólo se incluyen contactos activos y accesibles. Enviado significa enviado a revisión, sin aprobación comercial o clínica.</p>';
+    if(cv.denominator){var progress=Math.min(100,Math.max(0,cv.rate));ring='<div class="analytics-conversion-layout"><div class="analytics-donut"><svg viewBox="0 0 120 120" width="112" height="112" role="img" aria-labelledby="'+prefix+'-conversion-svg-title '+prefix+'-conversion-svg-desc"><title id="'+prefix+'-conversion-svg-title">Conversión de altas del mes: '+esc(percent(cv.rate))+'</title><desc id="'+prefix+'-conversion-svg-desc">'+count(cv.numerator)+' de '+count(cv.denominator)+' prospectos nuevos enviados por su titular en el mismo mes.</desc><circle cx="60" cy="60" r="47" fill="none" stroke="var(--crm-chart-track, #EAF0F6)" stroke-width="12"/><circle cx="60" cy="60" r="47" fill="none" stroke="var(--crm-chart-aqua, #20C7D4)" stroke-width="12" pathLength="100" stroke-dasharray="'+numeric(progress)+' '+numeric(100-progress)+'" transform="rotate(-90 60 60)"/></svg><strong class="analytics-donut-value" aria-hidden="true">'+esc(percent(cv.rate))+'</strong></div><div class="analytics-conversion-copy"><p><strong>'+count(cv.numerator)+' de '+count(cv.denominator)+'</strong> prospectos nuevos enviados a revisión</p><ul class="analytics-legend"><li><span class="analytics-legend-dot aqua" aria-hidden="true"></span>'+count(cv.numerator)+' enviados en el mes</li><li><span class="analytics-legend-dot neutral" aria-hidden="true"></span>'+count(cv.denominator-cv.numerator)+' sin envío en el mismo mes</li></ul></div></div>';}else ring=emptyChart('Sin altas en este mes. La conversión no tiene denominador.');
+    var conversionDefinition='<strong>Base:</strong> '+esc(cv.denominatorLabel)+'. <strong>Conversión:</strong> '+esc(cv.numeratorLabel)+'. Un cambio manual de etapa no cuenta como envío.';
+    html+=figure(prefix+'-conversion','Conversión de altas del mes','Misma cohorte y mes · no es aprobación',ring,table('Conversión de altas del mes',['Medida','Valor'],[[cv.denominatorLabel,cv.denominator],[cv.numeratorLabel,cv.numerator],['Tasa de conversión',percent(cv.rate)]]),conversionDefinition);
+    var actorRows=report.activityByActor.map(function(a){return {key:a.actorId,label:labelKam(a.actorId),value:a.value};}), composition=report.activitySummary;
+    html+=figure(prefix+'-activity','Actividad por usuario','Quién registró la actividad · fecha real registrada',barChart(actorRows,{label:'Actividad por usuario',empty:'Sin actividades registradas en este mes.',tone:'coral',unit:'actividades'}),table('Actividad por usuario',['Usuario','Actividades'],actorRows.map(function(r){return [r.label,r.value];})),count(composition.contactAttempts)+(composition.contactAttempts===1?' intento de contacto · ':' intentos de contacto · ')+count(composition.notes)+(composition.notes===1?' nota · ':' notas · ')+count(composition.other)+(composition.other===1?' otra actividad. ':' otras actividades. ')+'Las notas no son intentos de contacto.');
+    html+='</div></section><div class="analytics-bottom-grid">';
+    var ownership=report.byKam.length?table('Cartera por responsable actual',['Responsable','Contactos actuales','Altas del mes','Enviados del mes','Pendientes actuales','Vencidas'],report.byKam.map(function(k){return [labelKam(k.kamId),count(k.contacts),count(k.newContacts),count(k.submitted),count(k.openTasks),count(k.overdueTasks)];}),'analytics-kam-table'):emptyChart('Sin responsables con cartera en esta selección.');
+    html+=figure(prefix+'-kam','Seguimiento por responsable','Asignación actual · columnas mensuales identificadas',ownership);
+    html+='</div><details class="analytics-method"><summary>Cómo se calculan los indicadores</summary><p>Período: '+esc(periodLabel)+'. Altas, inicios y envíos se cuentan una vez por contacto con registros vinculados; actividades por su fecha real, incluidas notas y otras actividades, sin cambios de etapa. Origen y conversión usan sólo altas del mes. Los envíos del indicador superior pueden incluir contactos de meses anteriores. Etapas, responsables y tareas muestran el estado actual, no un corte histórico. Sólo se incluyen contactos activos y accesibles. Enviado significa enviado a revisión, sin aprobación comercial o clínica.</p></details>';
     return html;
   }
-  return Object.freeze({buildReport:buildReport,renderDashboard:renderDashboard,renderBarChart:barChart,periodFor:periodFor,escapeHtml:esc});
+  return Object.freeze({buildReport:buildReport,renderDashboard:renderDashboard,renderBarChart:barChart,periodFor:periodFor,selectView:selectView,escapeHtml:esc});
 });

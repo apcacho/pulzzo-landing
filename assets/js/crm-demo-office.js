@@ -22,7 +22,7 @@ function localState(storage){
 // Resolve the current contact through the actor-scoped store on every read. A
 // caller's cached contact or guessed ID cannot widen these lookup results.
 function scopedContact(store,contactId,staffOnly,state){
- if(!isId(contactId)||!store||!['admin','kam',...(staffOnly?[]:['holder'])].includes(store.actor?.role))return null;
+ if(!isId(contactId)||!store||!['admin','kam','leader',...(staffOnly?[]:['holder'])].includes(store.actor?.role))return null;
  const contact=state.contacts?.[contactId];
  if(!contact||contact.id!==contactId||contact.deletedAt||!['patient','doctor'].includes(contact.type))return null;
  if(store.actor.role==='kam'&&contact.assignedKam!==store.actor.id)return null;
@@ -30,7 +30,7 @@ function scopedContact(store,contactId,staffOnly,state){
  return contact;
 }
 function scopedContext(store,contactId,staffOnly){
- if(!isId(contactId)||!store||!['admin','kam',...(staffOnly?[]:['holder'])].includes(store.actor?.role))return null;
+ if(!isId(contactId)||!store||!['admin','kam','leader',...(staffOnly?[]:['holder'])].includes(store.actor?.role))return null;
  try{
   const current=store.getContact(contactId),state=store.snapshot(),contact=scopedContact(store,contactId,staffOnly,state);
   if(!current||!contact||current.type!==contact.type||current.assignedKam!==contact.assignedKam)return null;
@@ -119,7 +119,7 @@ function taskContactIdentity(storage,store,contactId){
 // check. The batch is ephemeral: callers must not keep it across search/submit.
 function taskContactIdentities(storage,store,contactIds){
  try{
-  if(!Array.isArray(contactIds)||!store||!['admin','kam'].includes(store.actor?.role))return {};
+  if(!Array.isArray(contactIds)||!store||!['admin','kam','leader'].includes(store.actor?.role))return {};
   const state=store.snapshot(),version=JSON.stringify(state),actor=JSON.stringify(store.actor),byContact=new Map(),scopes=[];
   for(const exp of Object.values(state.expedients||{})){if(!byContact.has(exp.contactId))byContact.set(exp.contactId,[]);byContact.get(exp.contactId).push(exp);}
   for(const id of new Set(contactIds)){const contact=scopedContact(store,id,true,state);if(contact)scopes.push({contact,expedients:byContact.get(id)||[]});}

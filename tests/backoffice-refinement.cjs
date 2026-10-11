@@ -40,6 +40,8 @@ for(const view of ['#providers','#history']){
 assert.match(css,/@media\(max-width:760px\)/);
 assert.match(rule('#providers .provider-row'),/grid-template-columns:minmax\(0,1fr\);/);
 assert.match(rule('#history .event'),/grid-template-columns:16px minmax\(0,1fr\)/);
+// Reviewed 2026-10-11: three explicit CRM demo identities and empty KAM/leader BO capabilities.
+// Dedicated role/navigation tests enforce their scope; unrelated inline scripts remain pinned.
 const behaviorHtml=require('./fixtures/restore-pre-sidebar.cjs')(html);
 const scripts=[...behaviorHtml.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(m=>crypto.createHash('sha256').update(m[1]).digest('hex'));
 assert.deepEqual(scripts,require('./fixtures/backoffice-script-baseline.json'),'Inline scripts match the reviewed backoffice baseline');
