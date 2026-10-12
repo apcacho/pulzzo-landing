@@ -145,10 +145,10 @@ test('view switching is exclusive, repeatable, isolated to its card and rejects 
   first.buttons[0].attrs['data-analytics-view'] = 'invalid'; assert.equal(Analytics.selectView(container, first.buttons[0]), false);
   first.buttons[0].attrs['data-analytics-view'] = 'table'; first.buttons[0].attrs['data-analytics-card'] = 'wrong'; assert.equal(Analytics.selectView(container, first.buttons[0]), false);
 });
-test('compact CSS avoids stretched empty cards and overrides picker text without centering normal buttons differently', () => {
+test('composed CSS aligns dashboard cards and overrides picker text without centering normal buttons differently', () => {
   const css = fs.readFileSync(path.resolve(__dirname, '../assets/css/crm-demo-embed.css'), 'utf8');
   assert.match(css, /\.analytics-metrics \.metric\{[^}]*min-height:0;[^}]*padding:14px 16px/);
-  assert.match(css, /:is\(\.analytics-grid,\.analytics-bottom-grid\)\{[^}]*align-items:start/);
+  assert.match(css, /:is\(\.analytics-grid,\.analytics-bottom-grid\)\{[^}]*align-items:stretch/);
   assert.match(css, /\.analytics-empty\{[^}]*min-height:0/);
   assert.match(css, /\[data-analytics-panel\]\[hidden\]\{display:none!important\}/);
   assert.match(css, /\.task-contact-results \.task-contact-result\{[^}]*justify-content:space-between;[^}]*text-align:left/);
