@@ -16,8 +16,7 @@
     return true;
   }
   // KAM assistance never lands on the personal location step: it starts at the first step the KAM can capture.
-  function resumeView(state,requested,options){const assistant=!!(options&&options.assistant),value=String(requested||'').replace(/^#/,'');if(steps.includes(value)&&!(assistant&&value==='geolocalizacion'&&!requestedExplicitly(options)))return value;const flags=['geoDone','procedureDone','estimateDone','identityDone','incomeDone','documentsDone','referencesSaved'];const first=flags.findIndex((key,index)=>!(assistant&&index===0)&&!state[key]);return steps[first<0?steps.length-1:first];}
-  function requestedExplicitly(options){return !!(options&&options.explicit);}
+  function resumeView(state,requested,options){const assistant=!!(options&&options.assistant),value=String(requested||'').replace(/^#/,'');if(steps.includes(value)&&!(assistant&&value==='geolocalizacion'))return value;const flags=['geoDone','procedureDone','estimateDone','identityDone','incomeDone','documentsDone','referencesSaved'];const first=flags.findIndex((key,index)=>!(assistant&&index===0)&&!state[key]);return steps[first<0?steps.length-1:first];}
   function open(win){
     let ctx=null;
     try{

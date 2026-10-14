@@ -2602,7 +2602,7 @@ function saveState(options={}){
 }
 window.addEventListener('storage',event=>{if(isSharedPatientCapture() || event.key===null || ['pulzzo_application','pulzzo_patient','pulzzo_verified'].includes(event.key)){try{assertApplicationFresh();}catch(error){/* The notice blocks stale saves; reload is explicit. */}}});
 window.addEventListener('pageshow',()=>{try{assertApplicationFresh();}catch(error){}});
-function showView(name){if(isSharedPatientCapture()){name=window.PulzzoPatientOnboarding.resumeView(state,name,{assistant:!!getPatientPortalContext().isAssistant});if(name!==state.lastView)invalidateSharedPatientUploads();}else name=PulzzoPatientDemo.patientSubmitted(state)?'portal':PulzzoPatientDemo.resumeView(state,name); state.lastView=name; persistApplicationState(); history.replaceState(null,'','#'+name); document.querySelectorAll('.module').forEach(v=>v.classList.remove('active'));const view=document.getElementById('view-'+name); if(view) view.classList.add('active'); const appWrap=document.querySelector('.app-wrap'); if(appWrap) appWrap.classList.toggle('portal-mode',name==='portal'); document.body.classList.toggle('portal-profile-mode',name==='portal'); updateTimeline(name); if(name==='geolocalizacion') updateGeoUI(); if(name==='estimacion') renderEstimate(); if(name==='identidad'){showIdentitySubstep(state.identitySubstep||'docs');restoreSharedPatientIdentityPreviews();} if(name==='documentos') updateDocumentsView(); if(name==='autorizacion') initAuthUI(); if(name==='portal') renderPortal(); window.scrollTo(0,0)}
+function showView(name){if(isSharedPatientCapture()){name=window.PulzzoPatientOnboarding.resumeView(state,name);if(name!==state.lastView)invalidateSharedPatientUploads();}else name=PulzzoPatientDemo.patientSubmitted(state)?'portal':PulzzoPatientDemo.resumeView(state,name); state.lastView=name; persistApplicationState(); history.replaceState(null,'','#'+name); document.querySelectorAll('.module').forEach(v=>v.classList.remove('active'));const view=document.getElementById('view-'+name); if(view) view.classList.add('active'); const appWrap=document.querySelector('.app-wrap'); if(appWrap) appWrap.classList.toggle('portal-mode',name==='portal'); document.body.classList.toggle('portal-profile-mode',name==='portal'); updateTimeline(name); if(name==='geolocalizacion') updateGeoUI(); if(name==='estimacion') renderEstimate(); if(name==='identidad'){showIdentitySubstep(state.identitySubstep||'docs');restoreSharedPatientIdentityPreviews();} if(name==='documentos') updateDocumentsView(); if(name==='autorizacion') initAuthUI(); if(name==='portal') renderPortal(); window.scrollTo(0,0)}
 function cardStatus(done,active){return done?'ready':active?'active':'locked'}
 function cardLabel(done,active){return done?'Listo':active?'Pendiente':'Bloqueado'}
 function renderChecklist(){const items=[
@@ -6173,7 +6173,7 @@ function initializeSharedPatientCapture(){
 }
 
 function initializePulzzoFlow(){
-  if(isSharedPatientCapture()){initializeSharedPatientCapture();showView(window.location.hash||state.lastView);checkSharedPatientDocuments();return;}
+  if(isSharedPatientCapture()){initializeSharedPatientCapture();const initialView=window.location.hash||state.lastView;showView(getPatientPortalContext().isAssistant?window.PulzzoPatientOnboarding.resumeView(state,initialView,{assistant:true}):initialView);checkSharedPatientDocuments();return;}
   initGeoEvents(); initAuthEvents();
   if(state.documentsDone && !state.creditAuthConfirmed && !requiresBureauNip()) reuseValidBureauAuthorization();
   prepareBackendPayload();

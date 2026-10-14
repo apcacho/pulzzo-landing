@@ -78,7 +78,7 @@ for(const holder of [false,true]){
   assert.deepEqual(area.children,originalActions.get(key),'native controls, spacer and status remain in original order');
   const camera=h.cameras.find(button=>button.dataset.doc===key),restricted=key!=='proofAddress';
   assert.equal(camera.hidden,false,'restricted native camera remains visible');assert.equal(camera.disabled,restricted&&!holder);
-  if(restricted){assert.equal(h.nodes.get(key+'Input').disabled,!holder);assert.equal(h.nodes.get(key+'Status').textContent,'Pendiente de completar por el cliente');}
+  if(restricted){assert.equal(h.nodes.get(key+'Input').disabled,!holder);assert.equal(h.nodes.get(key+'Status').textContent,holder?'Pendiente':'Pendiente: lo hace el paciente');}
  }
  assert.doesNotMatch(extract('initializeSharedPatientCapture'),/Adjuntar archivo ficticio|area\.prepend|selfieCopy/,'adapter must not insert a different button or change native selfie instructions');
  assert.equal(h.nodes.get('preSubmitReferences').parent,h.auth,'references stay in original authorization section');

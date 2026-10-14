@@ -13,16 +13,16 @@
    "previous": "const copy=document.getElementById('geoStatusText');if(copy)copy.textContent='Pendiente del titular. Puedes continuar con las demás tareas.';}"
   },
   {
-   "approved": "function showView(name){if(isSharedPatientCapture()){name=window.PulzzoPatientOnboarding.resumeView(state,name,{assistant:!!getPatientPortalContext().isAssistant});",
-   "previous": "function showView(name){if(isSharedPatientCapture()){name=window.PulzzoPatientOnboarding.resumeView(state,name);"
-  },
-  {
    "approved": "{id:'geolocalizacion',icon:'📍',title:'Ubicación',desc: hasValidGeo()?'Ubicación autorizada':(isSharedPatientCapture()&&getPatientPortalContext().isAssistant?'Pendiente: lo hace el paciente':'Activa tu ubicación para iniciar'),",
    "previous": "{id:'geolocalizacion',icon:'📍',title:'Ubicación',desc: hasValidGeo()?'Ubicación autorizada':'Activa tu ubicación para iniciar',"
   },
   {
    "approved": "{id:'identidad',icon:'🪪',title:'Identidad y domicilio',desc:isSharedPatientCapture()&&getPatientPortalContext().isAssistant?'INE y selfie: pendiente, lo hace el paciente · comprobante de domicilio':'INE, selfie y comprobante de domicilio',",
    "previous": "{id:'identidad',icon:'🪪',title:'Identidad y domicilio',desc:'INE, selfie y comprobante de domicilio',"
+  },
+  {
+   "approved": "if(isSharedPatientCapture()){initializeSharedPatientCapture();const initialView=window.location.hash||state.lastView;showView(getPatientPortalContext().isAssistant?window.PulzzoPatientOnboarding.resumeView(state,initialView,{assistant:true}):initialView);checkSharedPatientDocuments();return;}",
+   "previous": "if(isSharedPatientCapture()){initializeSharedPatientCapture();showView(window.location.hash||state.lastView);checkSharedPatientDocuments();return;}"
   }
  ],
  "backoffice.html": [
