@@ -8,7 +8,7 @@ function toast(t){var n=document.getElementById('toast');n.textContent=t;n.class
 function error(out){toast(out.error || 'No se pudo guardar.');if(out.code==='STALE_REVISION'||out.code==='stale_revision'||out.code==='STALE')toast('Otra pestaña cambió el expediente. Recarga y revisa antes de guardar.');return false;}
 function armSessionExpiry(){clearTimeout(armSessionExpiry.timer);if(!sessionExpiresAt)return;armSessionExpiry.timer=setTimeout(function(){if(!sessionExpiresAt||Date.now()<sessionExpiresAt)return;sessionStorage.removeItem(sessionKey);if(window.PulzzoCRMOnboarding)sessionStorage.removeItem(PulzzoCRMOnboarding.CONTEXT_KEY);sessionExpiresAt=null;expId=null;existingLogin=true;challenge=null;proof=null;connect({id:uid(),role:'holder'});auth('Tu sesión demo se cerró tras 30 minutos sin actividad. Verifica tu correo para continuar donde te quedaste.');},Math.max(0,sessionExpiresAt-Date.now()));}
 var HOLDER_IDLE_MS=30*60*1000;function touchSession(){if(!sessionExpiresAt||Date.now()>=sessionExpiresAt||!expId)return;if(Date.now()-(touchSession.last||0)<15000)return;touchSession.last=Date.now();sessionExpiresAt=Date.now()+HOLDER_IDLE_MS;saveSession();}
-['input','change','click','keydown','touchstart'].forEach(function(type){document.addEventListener(type,touchSession,{capture:true,passive:true});});
+if(typeof document!=='undefined'&&typeof document.addEventListener==='function')['input','change','click','keydown','touchstart'].forEach(function(type){document.addEventListener(type,touchSession,{capture:true,passive:true});});
 function saveSession(){armSessionExpiry();try{sessionStorage.setItem(sessionKey,JSON.stringify({actor:actor,expId:expId,demo:true,expiresAt:sessionExpiresAt,entryToken:entryToken||null}));}catch(e){toast('No se pudo conservar la sesión demo. No cierres esta pestaña.');}}
 function theme(){document.body.classList.toggle('doctor',kind==='doctor');document.title='Tu expediente '+(kind==='doctor'?'profesional':'paciente')+' · Pulzzo demo';}
 function invitationUnavailable(out){
@@ -95,7 +95,7 @@ function init(){sessionExpiresAt=null;if(!window.PulzzoCRMStore||!window.PulzzoC
  // record just because this tab previously held a same-kind demo session.
  var mayResume=!params.has('record')&&(!!token||(!existingLogin&&params.get('mode')!=='self'&&!params.has('ref')));
  var saved=mayResume?JSON.parse(sessionStorage.getItem(sessionKey)||'null'):null;
- if(saved&&saved.demo&&saved.expId&&saved.actor&&saved.actor.role==='holder'&&Number.isFinite(saved.expiresAt)&&saved.expiresAt>Date.now()&&saved.expiresAt<=Date.now()+600000){
+ if(saved&&saved.demo&&saved.expId&&saved.actor&&saved.actor.role==='holder'&&Number.isFinite(saved.expiresAt)&&saved.expiresAt>Date.now()&&saved.expiresAt<=Date.now()+HOLDER_IDLE_MS+60000){
   if(!token&&params.get('review')==='1'&&saved.entryToken)entryToken=saved.entryToken;
   sessionExpiresAt=saved.expiresAt;armSessionExpiry();connect(saved.actor);var s=store.snapshot(),exp=s.expedients[saved.expId],inv=token&&Object.values(s.invitations).find(function(i){return i.token===token;});
   if(exp&&exp.holderIdentity&&exp.holderIdentity.id===saved.actor.id&&(!token?(params.get('review')==='1'||exp.kind===kind):(entryToken?exp.entryLink&&exp.entryLink.token===entryToken&&exp.entryLink.status==='active'&&api.resolveEntryLink(entryToken).ok:inv&&inv.expedientId===exp.id))){expId=exp.id;render();return;}

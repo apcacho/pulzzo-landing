@@ -1,0 +1,34 @@
+{
+ "solicitud-paciente.html": [
+  {
+   "approved": "if(status){status.textContent=complete?'Listo':(getPatientPortalContext().isHolder?'Pendiente':'Pendiente: lo hace el paciente');",
+   "previous": "if(status){status.textContent=complete?'Listo':'Pendiente de completar por el cliente';"
+  },
+  {
+   "approved": "if(blocked){button.setAttribute('aria-describedby',button.dataset.doc+'Status');button.title='Pendiente: lo hace el paciente';}",
+   "previous": "if(blocked){button.setAttribute('aria-describedby',button.dataset.doc+'Status');button.title='Pendiente de completar por el cliente';}"
+  },
+  {
+   "approved": "const copy=document.getElementById('geoStatusText');if(copy)copy.textContent=hasValidGeo()?'Ubicación autorizada por el paciente desde su dispositivo.':'Pendiente: lo hace el paciente desde su dispositivo. Puedes continuar con las demás tareas.';}",
+   "previous": "const copy=document.getElementById('geoStatusText');if(copy)copy.textContent='Pendiente del titular. Puedes continuar con las demás tareas.';}"
+  },
+  {
+   "approved": "function showView(name){if(isSharedPatientCapture()){name=window.PulzzoPatientOnboarding.resumeView(state,name,{assistant:!!getPatientPortalContext().isAssistant});",
+   "previous": "function showView(name){if(isSharedPatientCapture()){name=window.PulzzoPatientOnboarding.resumeView(state,name);"
+  },
+  {
+   "approved": "{id:'geolocalizacion',icon:'📍',title:'Ubicación',desc: hasValidGeo()?'Ubicación autorizada':(isSharedPatientCapture()&&getPatientPortalContext().isAssistant?'Pendiente: lo hace el paciente':'Activa tu ubicación para iniciar'),",
+   "previous": "{id:'geolocalizacion',icon:'📍',title:'Ubicación',desc: hasValidGeo()?'Ubicación autorizada':'Activa tu ubicación para iniciar',"
+  },
+  {
+   "approved": "{id:'identidad',icon:'🪪',title:'Identidad y domicilio',desc:isSharedPatientCapture()&&getPatientPortalContext().isAssistant?'INE y selfie: pendiente, lo hace el paciente · comprobante de domicilio':'INE, selfie y comprobante de domicilio',",
+   "previous": "{id:'identidad',icon:'🪪',title:'Identidad y domicilio',desc:'INE, selfie y comprobante de domicilio',"
+  }
+ ],
+ "backoffice.html": [
+  {
+   "approved": "  const diff=Math.round((to-from)/86400000);\n  // v36: a 0-day period accrues 0 days (never a silent 30). Inverted dates stop the\n  // calculation instead of being charged or silently recalculated.\n  if(!Number.isFinite(diff)){const error=new Error('Fechas del periodo no válidas: no se calculó interés.');error.code='INVALID_PERIOD_DATES';throw error;}\n  if(diff<0){const error=new Error('El periodo tiene fechas invertidas ('+dispersionDateOnly(from)+' → '+dispersionDateOnly(to)+'). Revisa el calendario; no se calculó interés.');error.code='NEGATIVE_PERIOD_DAYS';throw error;}\n  return diff;\n}",
+   "previous": "  const diff=Math.round((to-from)/86400000);\n  return diff>0?diff:30;\n}"
+  }
+ ]
+}

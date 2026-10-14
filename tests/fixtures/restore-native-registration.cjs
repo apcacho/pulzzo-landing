@@ -4,6 +4,8 @@
 // unrelated program-byte baselines intact; unrecognized edits still fail.
 const assert=require('node:assert/strict'),changes=require('./native-registration-reviewed-changes.json');
 module.exports=(file,source)=>{
+ // v36 reviewed changes (REVISION-INICIAL.md / CAMBIOS-v36.md) are reversed first, exactly once each.
+ for(const {approved,previous} of require('./v36-reviewed-changes.json')[file]||[]){if(source.split(approved).length===2){source=source.replace(approved,previous);continue;}assert.equal(source.split(previous).length,2,'exact reviewed v36 patch: '+file);}
  if(file==='registro-doctor.html')for(const {approved,previous} of require('./visual-fiscal-v33-reviewed-changes.json')){assert.equal(source.split(approved).length,2,'exact Safari-observed fiscal grid restoration');source=source.replace(approved,previous);}
  if(file==='registro-doctor.html')for(const {approved,previous} of require('./visual-mac-v31-reviewed-changes.json')){assert.equal(source.split(approved).length,2,'exact Safari-observed copy/layout restoration');source=source.replace(approved,previous);}
  if(file==='solicitud-paciente.html'){
