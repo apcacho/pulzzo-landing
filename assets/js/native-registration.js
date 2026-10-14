@@ -22,7 +22,7 @@ function verify(){
  const fail=e=>{message.className='toast err';message.textContent=e.message;};
  try{
  draft=JSON.parse(root.sessionStorage.getItem(KEY)||'null');
- if(!draft||draft.version!==1||!['doctor','patient'].includes(draft.kind)||!Number.isFinite(draft.createdAt)||Date.now()-draft.createdAt>1800000||draft.createdAt>Date.now())throw Error('Vuelve al formulario inicial para iniciar una verificación nueva.');
+ if(!draft||draft.version!==1||!['doctor','patient'].includes(draft.kind)||!Number.isFinite(draft.createdAt)||draft.createdAt>Date.now()+60000)throw Error('Vuelve al formulario inicial para iniciar una verificación nueva.');
  const receipt=draft.verified;
  actor=receipt&&receipt.expiresAt>Date.now()?receipt.actor:{id:'holder_demo_'+root.crypto.randomUUID(),role:'holder',email:draft.email};
  store=root.PulzzoCRMStore.createStore({storage:root.localStorage,actor});api=root.PulzzoCRMAssisted.createAssisted({store,actor});
@@ -45,7 +45,7 @@ function verify(){
  const s=store.snapshot();
  const exp=draft.entry?take(api.openEntryLink(draft.entry,{email:draft.email,phone:draft.phone,proofToken:proof.proofToken},s.revision)):draft.invite?take(api.claim(draft.invite,{email:draft.email,phone:draft.phone,proofToken:proof.proofToken},s.revision)):take(api.createSelfService({kind:draft.kind,name:draft.name,email:draft.email,phone:draft.phone,proofToken:proof.proofToken,referralToken:draft.ref||undefined},s.revision));
  registeredExp=exp;
- draft.verified={actor,expId:exp.id,expiresAt:Date.now()+600000};root.sessionStorage.setItem(KEY,JSON.stringify(draft));
+ draft.verified={actor,expId:exp.id,expiresAt:Date.now()+30*60*1000};root.sessionStorage.setItem(KEY,JSON.stringify(draft));
  }
  const exp=take(api.getExpedient(registeredExp.id)).expedient;button.disabled=true;
  if(!exp.initialRegistration){
@@ -59,11 +59,26 @@ function verify(){
  take(api.saveOnboarding(exp.id,{records},store.snapshot().revision));
  take(api.completeInitialRegistration(exp.id,store.snapshot().revision));
  }
- root.sessionStorage.setItem(root.PulzzoCRMOnboarding.HOLDER_KEY,JSON.stringify({actor,expId:exp.id,demo:true,expiresAt:Date.now()+600000,entryToken:draft.entry||null}));
+ root.sessionStorage.setItem(root.PulzzoCRMOnboarding.HOLDER_KEY,JSON.stringify({actor,expId:exp.id,demo:true,expiresAt:Date.now()+(root.PulzzoCRMOnboarding.HOLDER_IDLE||30*60*1000),entryToken:draft.entry||null}));
  const route=root.PulzzoCRMOnboarding.start({actor,expId:exp.id,kind:draft.kind,returnUrl:'asistido-demo.html?review=1'});
- completed=true;root.sessionStorage.removeItem(KEY);root.location.href=route.url;
+ completed=true;root.sessionStorage.removeItem(KEY);clearProgress();root.location.href=route.url;
  }catch(e){fail(e);button.disabled=false;}
  });
 }
-root.PulzzoNativeRegistration={stage,verify,KEY};
+// Partial initial registration: every typed field is kept locally without time limit
+// (never passwords, files, consents or other checkboxes) and restored on return with the same link.
+const PROGRESS='pulzzo_native_registration_progress_v1';
+function progressKey(kind){const p=new URLSearchParams(root.location.search);return PROGRESS+':'+kind+':'+(p.get('entry')||p.get('invite')||'self');}
+function autosave(){
+ const doc=root.document;if(!doc)return;const kind=doc.getElementById('correo_med')?'doctor':doc.getElementById('register-demo-btn')?'patient':null;if(!kind)return;
+ const form=(kind==='doctor'?doc.getElementById('correo_med'):doc.getElementById('register-demo-btn')).closest('form');if(!form)return;
+ const key=progressKey(kind),skip=el=>!el.id||['password','file','checkbox','radio','hidden','submit','button'].includes(el.type)||el.readOnly;
+ let saved={};try{saved=JSON.parse(root.localStorage.getItem(key)||'{}')||{};}catch(_){saved={};}
+ form.querySelectorAll('input,select,textarea').forEach(el=>{if(skip(el))return;if(typeof saved[el.id]==='string'&&!el.value){el.value=saved[el.id];el.dispatchEvent(new Event('input',{bubbles:true}));}});
+ const persist=event=>{const el=event.target;if(!el||!form.contains(el)||skip(el))return;saved[el.id]=String(el.value||'').slice(0,500);try{root.localStorage.setItem(key,JSON.stringify(saved));}catch(_){}};
+ form.addEventListener('input',persist);form.addEventListener('change',persist);
+}
+function clearProgress(){try{Object.keys(root.localStorage).filter(k=>k.indexOf(PROGRESS+':')===0).forEach(k=>root.localStorage.removeItem(k));}catch(_){}}
+if(root.document){if(root.document.readyState==='loading')root.document.addEventListener('DOMContentLoaded',autosave);else autosave();}
+root.PulzzoNativeRegistration={stage,verify,KEY,autosave,PROGRESS};
 })(window);

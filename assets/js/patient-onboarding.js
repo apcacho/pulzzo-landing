@@ -15,7 +15,9 @@
     if(!mime.test(file.type||''))throw Error('Usa PDF, PNG, JPEG, WebP, WebM o MP4 ficticios.');
     return true;
   }
-  function resumeView(state,requested){const value=String(requested||'').replace(/^#/,'');if(steps.includes(value))return value;const flags=['geoDone','procedureDone','estimateDone','identityDone','incomeDone','documentsDone','referencesSaved'];const first=flags.findIndex(key=>!state[key]);return steps[first<0?steps.length-1:first];}
+  // KAM assistance never lands on the personal location step: it starts at the first step the KAM can capture.
+  function resumeView(state,requested,options){const assistant=!!(options&&options.assistant),value=String(requested||'').replace(/^#/,'');if(steps.includes(value)&&!(assistant&&value==='geolocalizacion'&&!requestedExplicitly(options)))return value;const flags=['geoDone','procedureDone','estimateDone','identityDone','incomeDone','documentsDone','referencesSaved'];const first=flags.findIndex((key,index)=>!(assistant&&index===0)&&!state[key]);return steps[first<0?steps.length-1:first];}
+  function requestedExplicitly(options){return !!(options&&options.explicit);}
   function open(win){
     let ctx=null;
     try{

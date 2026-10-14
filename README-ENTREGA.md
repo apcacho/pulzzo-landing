@@ -11,7 +11,7 @@ Pruebas focalizadas: `node tests/crm-assistance-feedback.cjs` y `node tests/crm-
 ## Cambios incluidos
 - Fuente completa v35: evidencia PDF durable, visor Safari, onboarding compartido y correcciones previas.
 - v35: diagnóstico honesto de FILE_READ_FAILED identifica documento legado ilegible; conserva referencia y pide recarga. Regresión de persistencia y preservación.
-- Login posterior a v35: el aviso de revisión se había insertado accidentalmente dentro de una cadena JavaScript durante empaquetado. Se coloca antes del cierre FINAL de body. Scripts inline idénticos a los de la fuente canónica, sin cambios funcionales de login. Estas dos páginas incluyen ya el aviso corregido.
+- Login posterior a v35: el aviso de revisión se había insertado accidentalmente dentro de una cadena JavaScript durante empaquetado. Corrección (v36): las páginas de login (login-paciente.html, login-doctor.html) NO llevan leyenda de revisión; se dejaron sin aviso a propósito y sus scripts inline compilan (node --check). La afirmación anterior de que «incluyen ya el aviso corregido» era incorrecta.
 - Asistencia posterior a v35: si falta registro inicial del titular, el rechazo antes quedaba detrás de la ficha modal. Ahora muestra razón y enlace estable del mismo expediente en un diálogo visible; otros errores se muestran explícitamente. Fuente assets/js/crm-demo-ui.js; regresión tests/crm-assistance-feedback.cjs.
 
 ## Reglas que deben mantenerse

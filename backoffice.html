@@ -8414,7 +8414,11 @@ function dispersionPeriodDays(fromDate,toDate){
   const from=parseLocalDate(fromDate)||getTodayLocalMX();
   const to=parseLocalDate(toDate)||getTodayLocalMX();
   const diff=Math.round((to-from)/86400000);
-  return diff>0?diff:30;
+  // v36: a 0-day period accrues 0 days (never a silent 30). Inverted dates stop the
+  // calculation instead of being charged or silently recalculated.
+  if(!Number.isFinite(diff)){const error=new Error('Fechas del periodo no válidas: no se calculó interés.');error.code='INVALID_PERIOD_DATES';throw error;}
+  if(diff<0){const error=new Error('El periodo tiene fechas invertidas ('+dispersionDateOnly(from)+' → '+dispersionDateOnly(to)+'). Revisa el calendario; no se calculó interés.');error.code='NEGATIVE_PERIOD_DAYS';throw error;}
+  return diff;
 }
 function dispersionPeriodsPerYearForFrequency(terms){
   return terms?.paymentFrequency==='biweekly'?24:12;

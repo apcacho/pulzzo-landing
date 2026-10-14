@@ -2102,7 +2102,7 @@ function syncSharedPersonalIdentityStatus(){
   if(!isSharedPatientCapture())return;
   ['ineFront','ineBack','selfieVideo'].forEach(key=>{
     const complete=patientIdentityFileComplete(key),status=document.getElementById(key+'Status');
-    if(status){status.textContent=complete?'Listo':'Pendiente de completar por el cliente';status.classList.toggle('ready',complete);}
+    if(status){status.textContent=complete?'Listo':(getPatientPortalContext().isHolder?'Pendiente':'Pendiente: lo hace el paciente');status.classList.toggle('ready',complete);}
     document.querySelector('[data-doc="'+key+'"]')?.classList.toggle('ready',complete);
   });
 }
@@ -2602,13 +2602,13 @@ function saveState(options={}){
 }
 window.addEventListener('storage',event=>{if(isSharedPatientCapture() || event.key===null || ['pulzzo_application','pulzzo_patient','pulzzo_verified'].includes(event.key)){try{assertApplicationFresh();}catch(error){/* The notice blocks stale saves; reload is explicit. */}}});
 window.addEventListener('pageshow',()=>{try{assertApplicationFresh();}catch(error){}});
-function showView(name){if(isSharedPatientCapture()){name=window.PulzzoPatientOnboarding.resumeView(state,name);if(name!==state.lastView)invalidateSharedPatientUploads();}else name=PulzzoPatientDemo.patientSubmitted(state)?'portal':PulzzoPatientDemo.resumeView(state,name); state.lastView=name; persistApplicationState(); history.replaceState(null,'','#'+name); document.querySelectorAll('.module').forEach(v=>v.classList.remove('active'));const view=document.getElementById('view-'+name); if(view) view.classList.add('active'); const appWrap=document.querySelector('.app-wrap'); if(appWrap) appWrap.classList.toggle('portal-mode',name==='portal'); document.body.classList.toggle('portal-profile-mode',name==='portal'); updateTimeline(name); if(name==='geolocalizacion') updateGeoUI(); if(name==='estimacion') renderEstimate(); if(name==='identidad'){showIdentitySubstep(state.identitySubstep||'docs');restoreSharedPatientIdentityPreviews();} if(name==='documentos') updateDocumentsView(); if(name==='autorizacion') initAuthUI(); if(name==='portal') renderPortal(); window.scrollTo(0,0)}
+function showView(name){if(isSharedPatientCapture()){name=window.PulzzoPatientOnboarding.resumeView(state,name,{assistant:!!getPatientPortalContext().isAssistant});if(name!==state.lastView)invalidateSharedPatientUploads();}else name=PulzzoPatientDemo.patientSubmitted(state)?'portal':PulzzoPatientDemo.resumeView(state,name); state.lastView=name; persistApplicationState(); history.replaceState(null,'','#'+name); document.querySelectorAll('.module').forEach(v=>v.classList.remove('active'));const view=document.getElementById('view-'+name); if(view) view.classList.add('active'); const appWrap=document.querySelector('.app-wrap'); if(appWrap) appWrap.classList.toggle('portal-mode',name==='portal'); document.body.classList.toggle('portal-profile-mode',name==='portal'); updateTimeline(name); if(name==='geolocalizacion') updateGeoUI(); if(name==='estimacion') renderEstimate(); if(name==='identidad'){showIdentitySubstep(state.identitySubstep||'docs');restoreSharedPatientIdentityPreviews();} if(name==='documentos') updateDocumentsView(); if(name==='autorizacion') initAuthUI(); if(name==='portal') renderPortal(); window.scrollTo(0,0)}
 function cardStatus(done,active){return done?'ready':active?'active':'locked'}
 function cardLabel(done,active){return done?'Listo':active?'Pendiente':'Bloqueado'}
 function renderChecklist(){const items=[
-  {id:'geolocalizacion',icon:'📍',title:'Ubicación',desc: hasValidGeo()?'Ubicación autorizada':'Activa tu ubicación para iniciar',done:hasValidGeo(),active:true,view:'geolocalizacion'},
+  {id:'geolocalizacion',icon:'📍',title:'Ubicación',desc: hasValidGeo()?'Ubicación autorizada':(isSharedPatientCapture()&&getPatientPortalContext().isAssistant?'Pendiente: lo hace el paciente':'Activa tu ubicación para iniciar'),done:hasValidGeo(),active:true,view:'geolocalizacion'},
   {id:'procedimiento',icon:'🩺',title:'Procedimiento médico',desc: state.procedureDone?'Estimación preliminar guardada':'Especialidad, monto, fecha y doctor',done:state.procedureDone,active:true,view:'procedimiento'},
-  {id:'identidad',icon:'🪪',title:'Identidad y domicilio',desc:'INE, selfie y comprobante de domicilio',done:!!state.identityDone,active:true,view:'identidad'},
+  {id:'identidad',icon:'🪪',title:'Identidad y domicilio',desc:isSharedPatientCapture()&&getPatientPortalContext().isAssistant?'INE y selfie: pendiente, lo hace el paciente · comprobante de domicilio':'INE, selfie y comprobante de domicilio',done:!!state.identityDone,active:true,view:'identidad'},
   {id:'ingresos',icon:'💳',title:'Ingresos',desc:'Tipo de ingreso y capacidad de pago',done:!!state.incomeDone,active:true,view:'ingresos'},
   {id:'documentos',icon:'📄',title:'Documentos',desc:'Archivos según tu perfil',done:!!state.documentsDone,active:!!state.incomeDone,view:'documentos'},
   {id:'autorizacion',icon:'🔐',title:'Autorización crediticia',desc:requiresBureauNip()?'NIP y consentimiento electrónico':'Autorización vigente',done:!!state.creditAuthConfirmed || !requiresBureauNip(),active:!!state.documentsDone && requiresBureauNip(),view:'autorizacion'}
@@ -6152,14 +6152,14 @@ function initializeSharedPatientCapture(){
   document.querySelectorAll('.camera-open').forEach(button=>{
     const blocked=!canCapturePatientIdentity(button.dataset.doc);
     button.disabled=blocked;
-    if(blocked){button.setAttribute('aria-describedby',button.dataset.doc+'Status');button.title='Pendiente de completar por el cliente';}
+    if(blocked){button.setAttribute('aria-describedby',button.dataset.doc+'Status');button.title='Pendiente: lo hace el paciente';}
   });
   document.querySelectorAll('#view-identidad input[type="file"],#view-documentos input[type="file"]').forEach(input=>{
     input.accept=input.id==='selfieVideoInput'?'video/webm,video/mp4':'application/pdf,image/png,image/jpeg,image/webp';
     if(['ineFrontInput','ineBackInput','selfieVideoInput'].includes(input.id))input.disabled=!context.isHolder;
   });
   initGeoEvents();
-  if(context.isAssistant){const request=document.getElementById('requestGeoBtn');if(request){request.disabled=true;request.title='Solo el titular puede autorizar la ubicación desde su dispositivo.';}const copy=document.getElementById('geoStatusText');if(copy)copy.textContent='Pendiente del titular. Puedes continuar con las demás tareas.';}
+  if(context.isAssistant){const request=document.getElementById('requestGeoBtn');if(request){request.disabled=true;request.title='Solo el titular puede autorizar la ubicación desde su dispositivo.';}const copy=document.getElementById('geoStatusText');if(copy)copy.textContent=hasValidGeo()?'Ubicación autorizada por el paciente desde su dispositivo.':'Pendiente: lo hace el paciente desde su dispositivo. Puedes continuar con las demás tareas.';}
   syncSharedPersonalIdentityStatus();
   initAuthUI();initAuthEvents();
   const draft=state.formDraftValues||{};Object.entries(draft).forEach(([id,value])=>{const input=document.getElementById(id);if(input&&input.closest?.('#view-procedimiento,#view-identidad,#view-ingresos,#preSubmitReferences')&&!['file','password','checkbox','radio'].includes(input.type))input.value=value;});

@@ -8,7 +8,8 @@
   if(root)root.PulzzoCRMOnboarding=api;
 })(typeof window!=='undefined'?window:typeof globalThis!=='undefined'?globalThis:null,function(root,Store,Assisted){
   'use strict';
-  var CONTEXT_KEY='pulzzo_crm_onboarding_context_v1',STAFF_KEY='pulzzo_crm_onboarding_staff_v1',HOLDER_KEY='pulzzo_crm_holder_demo_session',TTL=8*60*60*1000;
+  var CONTEXT_KEY='pulzzo_crm_onboarding_context_v1',STAFF_KEY='pulzzo_crm_onboarding_staff_v1',HOLDER_KEY='pulzzo_crm_holder_demo_session',TTL=8*60*60*1000,HOLDER_IDLE=30*60*1000,HOLDER_MAX=12*60*60*1000;
+  // Holder session: closes after 30 minutes WITHOUT activity (sliding expiresAt), bounded by a 12 h context.
   function copy(v){return v===undefined?undefined:JSON.parse(JSON.stringify(v));}
   function same(a,b){return JSON.stringify(a)===JSON.stringify(b);}
   function object(v){return !!v&&typeof v==='object'&&!Array.isArray(v);}
@@ -76,18 +77,21 @@
       });
     return progressed?'#perfil-medico':'#datos-medicos';
   }
+  // Extends the holder session by 30 minutes from now; never revives an expired one.
+  function touchHolderSession(options){options=options||{};try{var session=options.sessionStorage||root&&root.sessionStorage,saved=parse(session.getItem(HOLDER_KEY)),now=milliseconds(options);if(!saved||saved.demo!==true||!Number.isFinite(saved.expiresAt)||saved.expiresAt<=now)return false;saved.expiresAt=now+HOLDER_IDLE;session.setItem(HOLDER_KEY,JSON.stringify(saved));return true;}catch(_){return false;}}
+  function watchHolderActivity(win){if(!win||!win.document||watchHolderActivity.bound)return;watchHolderActivity.bound=true;var last=0;var touch=function(){var t=Date.now();if(t-last<15000)return;last=t;touchHolderSession({sessionStorage:win.sessionStorage});};['input','change','click','keydown','touchstart','scroll'].forEach(function(type){win.document.addEventListener(type,touch,{capture:true,passive:true});});}
   function start(options){
     options=options||{};var disk=storages(options),actor=copy(options.actor);if(!validActor(actor))fail('FORBIDDEN','Solo el KAM asignado, administrador o titular puede abrir la captura.');
     var sessionIdentity,mode=actor.role==='holder'?'holder':'assisted';
     if(mode==='holder'){
-      sessionIdentity=parse(disk.session.getItem(HOLDER_KEY));if(!sessionIdentity||sessionIdentity.demo!==true||!Number.isFinite(sessionIdentity.expiresAt)||sessionIdentity.expiresAt<=milliseconds(options)||sessionIdentity.expiresAt>milliseconds(options)+600000||sessionIdentity.expId!==options.expId||!sessionIdentity.actor||sessionIdentity.actor.id!==actor.id||sessionIdentity.actor.role!=='holder')fail('HOLDER_REQUIRED','Primero verifica y abre la sesión demo del titular.');
+      sessionIdentity=parse(disk.session.getItem(HOLDER_KEY));if(!sessionIdentity||sessionIdentity.demo!==true||!Number.isFinite(sessionIdentity.expiresAt)||sessionIdentity.expiresAt<=milliseconds(options)||sessionIdentity.expiresAt>milliseconds(options)+HOLDER_IDLE+60000||sessionIdentity.expId!==options.expId||!sessionIdentity.actor||sessionIdentity.actor.id!==actor.id||sessionIdentity.actor.role!=='holder')fail('HOLDER_REQUIRED','Primero verifica y abre la sesión demo del titular.');
     }else sessionIdentity=setStaffSession({sessionStorage:disk.session,actor:actor});
     var store=Store.createStore({storage:disk.storage,actor:actor}),api=Assisted.createAssisted({store:store,actor:actor}),exp=take(api.getExpedient(options.expId)).expedient,contact=store.getContact(exp.contactId);
     if(mode==='assisted'&&store.canEditContact&&!store.canEditContact(exp.contactId))fail('FORBIDDEN','Tu permiso vigente no permite capturar esta ficha.');
     if(mode==='assisted'&&(!exp.holderIdentity||!exp.initialRegistration))fail('INITIAL_REGISTRATION_REQUIRED','El titular aún no completa su registro inicial. Comparte su enlace para que se registre antes de ayudarle en su expediente.');
     if(options.kind&&options.kind!==exp.kind)fail('INVALID_KIND','El formulario no corresponde al expediente.');
     var timestamp=milliseconds(options);if(!Number.isFinite(timestamp))fail('INVALID_SESSION','La fecha de sesión no es válida.');
-    var context={version:1,demo:true,mode:mode,actor:{id:actor.id,role:actor.role},expId:exp.id,kind:exp.kind,contactId:exp.contactId,staffNonce:mode==='assisted'?sessionIdentity.nonce:null,nonce:random(),createdAt:timestamp,expiresAt:mode==='holder'?Math.min(timestamp+10*60*1000,sessionIdentity.expiresAt):timestamp+TTL,returnUrl:safeReturn(options.returnUrl,actor.role)};
+    var context={version:1,demo:true,mode:mode,actor:{id:actor.id,role:actor.role},expId:exp.id,kind:exp.kind,contactId:exp.contactId,staffNonce:mode==='assisted'?sessionIdentity.nonce:null,nonce:random(),createdAt:timestamp,expiresAt:mode==='holder'?timestamp+HOLDER_MAX:timestamp+TTL,returnUrl:safeReturn(options.returnUrl,actor.role)};
     disk.session.setItem(CONTEXT_KEY,JSON.stringify(context));
     try{
       var connection=actorConnection(options,context,disk.storage,disk.session);
@@ -98,10 +102,11 @@
   function open(options){
     options=options||{};var location=options.location||root&&root.location||{},params=new URLSearchParams(location.search||'');if(!params.has('crmExp')&&!params.has('crmMode'))return null;
     var disk=storages(options),context=parse(disk.session.getItem(CONTEXT_KEY));
-    if(!context||!Number.isFinite(context.createdAt)||!Number.isFinite(context.expiresAt)||(context.mode==='holder'?context.expiresAt<=context.createdAt||context.expiresAt>context.createdAt+10*60*1000:context.expiresAt!==context.createdAt+TTL)||context.createdAt>milliseconds(options)+60000||typeof context.nonce!=='string'||!context.nonce||context.version!==1||context.demo!==true||!validActor(context.actor)||context.expId!==params.get('crmExp')||context.mode!==params.get('crmMode')||context.mode!==(context.actor.role==='holder'?'holder':'assisted')||options.kind&&context.kind!==options.kind)fail('INVALID_SESSION','Este enlace requiere la sesión que abrió el expediente. Regresa al CRM o verifica tu invitación.');
+    if(!context||!Number.isFinite(context.createdAt)||!Number.isFinite(context.expiresAt)||(context.mode==='holder'?context.expiresAt!==context.createdAt+HOLDER_MAX:context.expiresAt!==context.createdAt+TTL)||context.createdAt>milliseconds(options)+60000||typeof context.nonce!=='string'||!context.nonce||context.version!==1||context.demo!==true||!validActor(context.actor)||context.expId!==params.get('crmExp')||context.mode!==params.get('crmMode')||context.mode!==(context.actor.role==='holder'?'holder':'assisted')||options.kind&&context.kind!==options.kind)fail('INVALID_SESSION','Este enlace requiere la sesión que abrió el expediente. Regresa al CRM o verifica tu invitación.');
     var connection=actorConnection(Object.assign({},options,{bindLocation:true}),context,disk.storage,disk.session);if(!connection.current())fail('SESSION_EXPIRED','La sesión cambió o venció. Vuelve a abrir el expediente.');
     var exp=take(connection.api.getExpedient(context.expId)).expedient,contact=connection.store.getContact(exp.contactId);if(exp.kind!==context.kind||exp.contactId!==context.contactId)fail('IDENTITY_LOCK','La sesión no pertenece a este expediente.');
     if(context.mode==='assisted'&&!exp.initialRegistration)fail('INITIAL_REGISTRATION_REQUIRED','El titular debe completar primero su registro inicial.');
+    if(context.mode==='holder'&&!options.storage&&root&&root.document)watchHolderActivity(root);
     var revision=connection.store.snapshot().revision,cached=exp,transient=Object.create(null),pending=Object.create(null);
     function assertFresh(){if(!connection.current())fail('SESSION_EXPIRED','La sesión cambió o venció. Vuelve a abrir el expediente.');var fresh=take(connection.api.getExpedient(context.expId)).expedient;if(connection.store.snapshot().revision!==revision)fail('STALE_REVISION','Otra ventana cambió el expediente. Recarga para revisar antes de guardar.');cached=fresh;return true;}
     function records(){assertFresh();return cached.onboarding&&cached.onboarding.records||seedRecords(cached,contact);}
@@ -163,7 +168,7 @@
   async function validateDocuments(options){
     options=options||{};var disk=storages(options),actor=options.actor;if(!validActor(actor)||actor.role!=='holder')fail('HOLDER_REQUIRED','El titular debe verificar personalmente los archivos de su expediente.');
     var raw=disk.session.getItem(HOLDER_KEY),session=parse(raw);if(!session||session.demo!==true||!session.actor||session.actor.id!==actor.id||session.actor.role!=='holder'||session.expId!==options.expId)fail('HOLDER_REQUIRED','Abre la sesión del titular de este expediente.');
-    function current(){return disk.session.getItem(HOLDER_KEY)===raw&&(!options.isCurrent||options.isCurrent()===true);}
+    function current(){var live;try{live=parse(disk.session.getItem(HOLDER_KEY));}catch(_){return false;}return !!live&&same(Object.assign({},live,{expiresAt:0}),Object.assign({},session,{expiresAt:0}))&&live.expiresAt>milliseconds(options)&&(!options.isCurrent||options.isCurrent()===true);}
     var store=Store.createStore({storage:disk.storage,actor:actor,isCurrent:current}),module=options.evidenceModule||root&&root.PulzzoCRMEvidence;if(!module&&typeof require==='function')module=require('./crm-demo-evidence.js');
     var evidence=options.evidenceStore||module&&module.createEvidenceStore(Object.assign({},options.evidenceOptions||{},{store:store,isCurrent:current})),api=Assisted.createAssisted({store:store,actor:actor,evidenceStore:evidence}),result=take(api.getExpedient(options.expId)),revision=store.snapshot().revision,list=Assisted.onboardingDocumentDescriptors(result.expedient.kind,result.expedient.onboarding&&result.expedient.onboarding.records||{});
     if(options.revision!==undefined&&options.revision!==revision)fail('STALE_REVISION','El expediente cambió antes de revisar sus archivos.');
@@ -176,5 +181,5 @@
     if(exp&&!exp.holderIdentity)missing.push('Verificación personal del titular');if(exp&&exp.kind==='patient'&&!actions.buroConsent)missing.push('Autorización de Buró del titular');if(on&&!actions.legalConsent)missing.push('Términos y privacidad del titular');if(exp&&!actions.finalConfirmation)missing.push('Confirmación personal del titular');
     return {started:!!on,fieldCount:Object.values(fields).filter(function(v){return v!==null&&v!==''&&v!==false&&(!Array.isArray(v)||v.length);}).length,documentCount:exp?(exp.documents||[]).length:0,lastUpdated:on&&on.updatedAt||exp&&exp.updatedAt||null,submitted:!!(exp&&exp.submittedAt),missing:missing};
   }
-  return {doctorCaptureHash:doctorCaptureHash,validateDocuments:validateDocuments,getOnboardingDocument:Assisted&&Assisted.getOnboardingDocument,CONTEXT_KEY:CONTEXT_KEY,STAFF_KEY:STAFF_KEY,HOLDER_KEY:HOLDER_KEY,TTL:TTL,start:start,open:open,setStaffSession:setStaffSession,clearStaffSession:clearStaffSession,summary:summary,seedRecords:seedRecords,patientMissing:Assisted&&Assisted.patientMissing,doctorMissing:Assisted&&Assisted.doctorMissing};
+  return {doctorCaptureHash:doctorCaptureHash,validateDocuments:validateDocuments,getOnboardingDocument:Assisted&&Assisted.getOnboardingDocument,CONTEXT_KEY:CONTEXT_KEY,STAFF_KEY:STAFF_KEY,HOLDER_KEY:HOLDER_KEY,TTL:TTL,HOLDER_IDLE:HOLDER_IDLE,HOLDER_MAX:HOLDER_MAX,touchHolderSession:touchHolderSession,start:start,open:open,setStaffSession:setStaffSession,clearStaffSession:clearStaffSession,summary:summary,seedRecords:seedRecords,patientMissing:Assisted&&Assisted.patientMissing,doctorMissing:Assisted&&Assisted.doctorMissing};
 });
