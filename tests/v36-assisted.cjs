@@ -46,6 +46,11 @@ const ok=r=>{assert.equal(r.ok,true,r.error);return r.value;};
   const before=ok(kam.recordBureauNip?{ok:true,value:true}:{ok:false,error:'missing'});assert.ok(before);
   const early=kam.recordBureauNip(exp.id,{nip:'123456'},kamStore.snapshot().revision);assert.equal(early.ok,false);
   require('./fixtures/registered-expedient.cjs')({storage:disk,staff:kamActor,expId:exp.id,holder,now:()=>new Date('2026-10-14T12:00:00Z')});
+  if(kind==='doctor'){const same=kamStore.getContact(c.id);assert.equal(same.name,'Phone fixture');assert.equal((same.nameHistory||[]).length,0,'same name: no spurious history');}
+  else {const named=kamStore.getContact(c.id),hist=named.nameHistory||[];assert.notEqual(named.name,'Phone fixture','client-typed name becomes official');assert.ok(named.name.length>1);
+   assert.equal(hist.at(-1).name,'Phone fixture');assert.equal(hist.at(-1).label,'nombre capturado por KAM');
+   assert.ok(Object.values(kamStore.snapshot().audit).some(e=>e.type==='holder_name_saved'&&e.previousName==='Phone fixture'&&e.label==='nombre capturado por KAM'));
+   console.log('PASS',kind,'registered name replaces KAM name; previous kept as «nombre capturado por KAM» ->',named.name);}
   const r=kam.recordBureauNip(exp.id,{nip:'123456'},kamStore.snapshot().revision);
   if(kind==='doctor'){assert.equal(r.ok,false);assert.match(r.error,/corresponde al paciente/);}
   else{
