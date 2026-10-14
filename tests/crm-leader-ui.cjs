@@ -16,7 +16,7 @@ const good=result=>{assert.equal(result.ok,true,result.error);return result.valu
 const mutations=['new-prospect','edit-contact','change-stage','move-card','reassign','activity','new-task','new-profile-task','close-task','edit-task','begin-onboarding','edit-onboarding','invite-holder','upload-document','refresh-corrections','edit-correction','refresh-document-corrections','upload-document-correction','referral','seed','edit-public-profile','identity-review','archive-contact','restore-contact'];
 const handlers=['newContact','seedExamples','activityEditor','taskEditor','closeTask','changeStage','moveCard','reassign','beginOnboarding','onboardingEditor','inviteHolder','publicProfileEditor','refreshCorrections','editCorrection','refreshDocumentCorrections','uploadDocumentCorrection','uploadDocument','archiveContact','restoreContact','identityReview','myPhone'];
 function embedding(actorId, allowActorSwitch=false){let hash='#patient/contacts',current=true;return {actorId,allowActorSwitch,readRoute:()=>hash,writeRoute:value=>{hash=value;},isCurrent:()=>current,expire:()=>{current=false;}};}
-function add(h, owner, name){const admin=Store.createStore({storage:h.storage,actor:{id:'fixture_admin',role:'admin'},now:()=>new Date('2026-10-09T12:00:00Z')});return good(admin.createContact({type:'patient',name,email:name+'@example.test',assignedKam:owner,originalSource:'manual'},admin.snapshot().revision));}
+function add(h, owner, name){const admin=Store.createStore({storage:h.storage,actor:{id:'fixture_admin',role:'admin'},now:()=>new Date('2026-10-09T12:00:00Z')});return good(admin.createContact({phone:(globalThis.__pzPhone=(globalThis.__pzPhone||100000)+1,'5500'+globalThis.__pzPhone),type:'patient',name,email:name+'@example.test',assignedKam:owner,originalSource:'manual'},admin.snapshot().revision));}
 const tests=[];const test=(name,run)=>tests.push({name,run});
 test('Leader sees both portfolios, task/history details and nondraggable cards, with no mutation affordances',async()=>{
   const h=setup({embedding:embedding('leader_demo')});const a=add(h,'kam_ana','ana_fictional'),b=add(h,'kam_luis','luis_fictional');
@@ -49,7 +49,7 @@ test('Embedded KAM and leader cannot escalate by forging the actor selector, inc
     const e=embedding(actor),h=setup({embedding:e});assert.equal(h.get('actorSelect').disabled,true);
     assert.ok(!h.get('actorSelect').innerHTML.includes('value="admin_demo"'));
     for(const target of ['admin_demo','leader_demo','kam_ana','kam_luis']){h.get('actorSelect').value=target;await h.get('actorSelect').dispatch('change');assert.equal(h.app.state.actor.id,actor);assert.equal(h.get('actorSelect').value,actor);}
-    if(actor!=='leader_demo'){h.app.handlers.newContact();const result=await h.submit({name:'Created by '+actor,email:actor+'@example.test',phone:'',type:'patient',originalSource:'manual'});assert.equal(result.error,'');assert.equal(h.get('actorSelect').disabled,true);assert.equal(h.app.state.store.listContacts()[0].assignedKam,actor);}
+    if(actor!=='leader_demo'){h.app.handlers.newContact();const result=await h.submit({name:'Created by '+actor,email:actor+'@example.test',phone:(globalThis.__pzPhone=(globalThis.__pzPhone||100000)+1,'5500'+globalThis.__pzPhone),type:'patient',originalSource:'manual'});assert.equal(result.error,'');assert.equal(h.get('actorSelect').disabled,true);assert.equal(h.app.state.store.listContacts()[0].assignedKam,actor);}
     h.app.destroy();
   }
 });
@@ -62,7 +62,7 @@ test('Admin-authorized simulation can select leader, and previous KAM store obje
 test('Expired shell session blocks retained UI handlers and scoped stores before a stale save',async()=>{
   const e=embedding('kam_ana'),h=setup({embedding:e});const c=add(h,'kam_ana','expiry_fictional');h.app.navigate('patient','contacts',c.id);h.app.handlers.newContact(c);
   const before=h.storage.getItem(Store.STORAGE_KEY),oldStore=h.app.state.store;e.expire();
-  await h.submit({name:'Stale edit',email:c.email,phone:''});assert.equal(h.storage.getItem(Store.STORAGE_KEY),before);assert.match(h.get('notice').textContent,/sesión cambió/);
+  await h.submit({name:'Stale edit',email:c.email,phone:(globalThis.__pzPhone=(globalThis.__pzPhone||100000)+1,'5500'+globalThis.__pzPhone)});assert.equal(h.storage.getItem(Store.STORAGE_KEY),before);assert.match(h.get('notice').textContent,/sesión cambió/);
   assert.throws(()=>oldStore.listContacts(),/acceso|sesión|sesion|vigente/i);h.app.destroy();
 });
 (async()=>{for(const {name,run} of tests){await run();console.log('PASS: '+name);}console.log('PASS: '+tests.length+' leader/embedded-role UI guard groups. Browser rendering remains unverified.');})().catch(error=>{console.error(error);process.exitCode=1;});

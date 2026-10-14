@@ -16,7 +16,7 @@ function fixture() {
   const ana=make('kam_ana','kam'), luis=make('kam_luis','kam'), admin=make('admin_demo','admin'), leader=make('leader_demo','leader');
   good(admin.setIntakeRouting({mode:'admin',kamIds:[],leaderCanAssign:false},'Strict read-only policy fixture',admin.snapshot().revision));
   const revision=()=>admin.snapshot().revision;
-  const create=(store,type,suffix)=>good(store.createContact({type,name:'Demo '+suffix,email:suffix+'@example.test'},revision()));
+  const create=(store,type,suffix)=>good(store.createContact({phone:(globalThis.__pzPhone=(globalThis.__pzPhone||100000)+1,'5500'+globalThis.__pzPhone),type,name:'Demo '+suffix,email:suffix+'@example.test'},revision()));
   const first=create(ana,'patient','ana'), second=create(luis,'doctor','luis');
   const taskA=good(ana.createTask({contactId:first.id,title:'Ana task',dueAt:'2026-10-12T12:00:00Z'},revision()));
   const taskB=good(luis.createTask({contactId:second.id,title:'Luis task',dueAt:'2026-10-12T12:00:00Z'},revision()));
@@ -79,7 +79,7 @@ test('scoped callback writes retain all hidden records and enforce global collis
   assert.deepEqual(after.contacts[f.second.id],before.contacts[f.second.id]);
   for(const key of ['expedients','tasks','activities','audit','events','referrals'])for(const [id,row]of Object.entries(before[key]))assert.deepEqual(after[key][id],row);
   const raw=f.storage.dump();
-  assert.equal(f.ana.transact(f.revision(),(state,ctx)=>{const c=ctx.makeContact({type:'doctor',name:'Collision',email:f.second.email});state.contacts[c.id]=c;}).code,'duplicate_contact');
+  assert.equal(f.ana.transact(f.revision(),(state,ctx)=>{const c=ctx.makeContact({type:'doctor',name:'Collision',email:f.second.email,phone:'5500999001'});state.contacts[c.id]=c;}).code,'duplicate_contact');
   denied(f.ana.transact(f.revision(),state=>{state.contacts[f.second.id]={...state.contacts[f.first.id],id:f.second.id};}));
   assert.equal(f.ana.transact(f.revision(),state=>{delete state.tasks[f.taskA.id];}).code,'deletion_forbidden');
   assert.equal(f.ana.transact(f.revision(),state=>{Object.values(state.activities)[0].summary='rewrite';}).code,'immutable_history');
@@ -138,7 +138,7 @@ test('linked record identity and reference adapters allow leader read only throu
 });
 test('leader public-profile access is CRM-linked, read-only and never reviewer or holder authority',()=>{
   const f=fixture(),providers={ONE:{id:'ONE',accountId:'holder_one',contactId:f.first.id,assignedKam:'kam_ana',eligible:true},TWO:{id:'TWO',accountId:'holder_two',contactId:f.second.id,assignedKam:'kam_luis',eligible:true},LEGACY:{id:'LEGACY',accountId:'holder_legacy',contactId:null,assignedKam:null,eligible:true}};
-  const fields={displayName:'Doctor ficticio',specialty:'Demo',city:'Ciudad',state:'Estado',bio:'',phone:'',whatsapp:'',website:'',services:[],links:{},photo:null};
+  const fields={displayName:'Doctor ficticio',specialty:'Demo',city:'Ciudad',state:'Estado',bio:'',phone:(globalThis.__pzPhone=(globalThis.__pzPhone||100000)+1,'5500'+globalThis.__pzPhone),whatsapp:'',website:'',services:[],links:{},photo:null};
   const make=(actor,extra={})=>Publication.createStore({storage:f.storage,actor,resolveProvider:id=>providers[id],now:f.now,...extra});
   const admin=make(f.admin.actor),leader=make(f.leader.actor);
   for(const id of Object.keys(providers))admin.saveDraft(id,fields,admin.snapshot().revision);

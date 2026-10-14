@@ -17,12 +17,12 @@ const ids = html => [...html.matchAll(/data-id="([^"]+)"/g)].map(match => match[
 const results = h => [...h.get('taskContactResults').innerHTML.matchAll(/data-task-contact="([^"]+)"/g)].map(match => match[1]);
 const good = result => {assert.equal(result.ok, true, result.error);return result.value;};
 function seed(h, total) {
-  const sample = good(h.app.state.store.createContact({type:'patient',name:'Fictional scale seed',email:'seed@example.test',originalSource:'manual'}, h.app.state.store.snapshot().revision));
+  const sample = good(h.app.state.store.createContact({phone:(globalThis.__pzPhone=(globalThis.__pzPhone||100000)+1,'5500'+globalThis.__pzPhone),type:'patient',name:'Fictional scale seed',email:'seed@example.test',originalSource:'manual'}, h.app.state.store.snapshot().revision));
   const raw = JSON.parse(h.storage.getItem(Store.STORAGE_KEY)), stages = Object.keys(UI.STAGES.patient);
   raw.contacts = {}; raw.events = {}; raw.audit = {}; raw.tasks = {}; raw.activities = {};
   for (let i = 0; i < total; i++) {
     const id = 'scale_' + String(i).padStart(5, '0');
-    raw.contacts[id] = {...sample,id,name:'Fictional contact ' + String(i).padStart(5,'0'),email:'scale.' + i + '@example.test',stage:stages[i % stages.length],stageReason:['no_response','not_interested'].includes(stages[i % stages.length])?'Fictional closed-stage reason':null};
+    raw.contacts[id] = {...sample,id,name:'Fictional contact ' + String(i).padStart(5,'0'),email:'scale.' + i + '@example.test',phone:'55'+String(10000000+i),stage:stages[i % stages.length],stageReason:['no_response','not_interested'].includes(stages[i % stages.length])?'Fictional closed-stage reason':null};
     if (i % 10 === 0) {
       const taskId='task_'+id, activityId='activity_'+id;
       raw.tasks[taskId]={id:taskId,contactId:id,title:'Fictional follow-up '+i,status:'open',dueAt:'2026-10-15T12:00:00Z',createdAt:sample.createdAt};

@@ -17,7 +17,7 @@ function test(name,fn){scheduled.push({name,fn});}
 function storage(entries=[]){const data=new Map(entries);return {data,getItem:k=>data.get(k)??null,setItem:(k,v)=>data.set(k,String(v)),removeItem:k=>data.delete(k)};}
 function expFixture(){
  const identity={id:'HOLDER-REVIEW',email:'holder@example.test',verifiedAt:'2026-10-09T01:00:00.000Z',demo:true};
- const fields={fullName:'Fictitious Review',email:identity.email,phone:'5500000000',requestedAmount:20000,termMonths:12,monthlyIncome:10000,procedure:'Demo'};
+ const fields={fullName:'Fictitious Review',email:identity.email,phone:(globalThis.__pzPhone=(globalThis.__pzPhone||100000)+1,'5500'+globalThis.__pzPhone),requestedAmount:20000,termMonths:12,monthlyIncome:10000,procedure:'Demo'};
  const documents=[{label:'identity',fileName:'demo.pdf',demo:true}],actions=Object.fromEntries(['otp','buroConsent','finalConfirmation'].map(k=>[k,{actorId:identity.id,actorRole:'holder',confirmed:true,demo:true,at:'2026-10-09T01:05:00.000Z'}]));
  const e={id:'EXP-REVIEW',contactId:'CONTACT-REVIEW',kind:'patient',status:'submitted',createdAt:'2026-10-09T01:00:00.000Z',submittedAt:'2026-10-09T01:10:00.000Z',submissionRevision:1,fields,documents,holderIdentity:identity,holderActions:actions};
  e.submissionSnapshot={schema:'pulzzo.crm.submission.v1',demo:true,revision:1,submissionId:'SUB-REVIEW',expedientId:e.id,contactId:e.contactId,accountId:identity.id,holderIdentity:clone(identity),holderActions:clone(actions),kind:e.kind,submittedAt:e.submittedAt,holderConfirmation:clone(actions.finalConfirmation),fields:clone(fields),documents:clone(documents),provenance:{originalSource:'referral',referringKam:'KAM-A'}};return e;

@@ -18,22 +18,23 @@ const cases=[];
 const test=(name,run)=>cases.push({name,run});
 const tick=()=>new Promise(resolve=>setImmediate(resolve));
 async function role(h,id){h.get('actorSelect').value=id;await h.get('actorSelect').dispatch('change');}
-async function add(h,kind='patient',values={}){h.app.navigate(kind,'contacts');h.app.handlers.newContact();const result=await h.submit({name:'Prospecto ficticio',phone:'5512345678',...values});assert.equal(result.error,'');return h.app.state.store.listContacts({type:kind}).at(-1);}
+async function add(h,kind='patient',values={}){h.app.navigate(kind,'contacts');h.app.handlers.newContact();const result=await h.submit({name:'Prospecto ficticio',phone:(globalThis.__pzPhone=(globalThis.__pzPhone||100000)+1,'5500'+globalThis.__pzPhone),email:'prospecto'+(globalThis.__pzPhone)+'@example.test',...values});assert.equal(result.error,'');return h.app.state.store.listContacts({type:kind}).at(-1);}
 function invitation(h,c,ttlMinutes=60){h.app.navigate(c.type,'contacts',c.id);const exp=good(h.app.state.assisted.beginDraft({contactId:c.id,kind:c.type},h.app.state.store.snapshot().revision));const inv=good(h.app.state.assisted.invite(exp.id,{email:c.email,ttlMinutes},h.app.state.store.snapshot().revision));h.app.render();return {exp,inv};}
 
 test('New prospect only requires a name and phone OR email; optional source stays unknown and owner follows role',async()=>{
  const h=setup();h.app.handlers.newContact();const html=h.get('dialogContent').innerHTML;
- assert.match(html,/Teléfono o correo/);assert.match(html,/Con uno de los dos es suficiente/);
+ assert.match(html,/Teléfono y correo/);assert.match(html,/Ambos son obligatorios/);
  assert.doesNotMatch(html,/name="type"|Origen inicial|Captura manual|name="assignedKam"/);
  assert.match(html,/<details class="details-form prospect-options"><summary>Más datos \(opcional\)/);
  assert.match(html,/<option value="unknown" selected>No lo sé/);
- let result=await h.submit({name:'Falta contacto'});assert.match(result.error,/teléfono o un correo/);
- result=await h.submit({name:'Solo teléfono',phone:'55 1234 5678'});assert.equal(result.error,'');
- let contact=h.app.state.store.listContacts()[0];assert.equal(contact.assignedKam,'kam_ana');assert.equal(contact.originalSource,'unknown');assert.equal(contact.captureMechanism,'crm_manual');assert.equal(contact.email,'');
- h.app.handlers.newContact();result=await h.submit({name:'Solo correo',email:'solo@example.test'});assert.equal(result.error,'');
- assert.equal(h.app.state.store.listContacts().find(c=>c.email==='solo@example.test').phone,'');
+ // v36: phone AND email are both mandatory.
+ let result=await h.submit({name:'Falta contacto'});assert.match(result.error,/Teléfono y correo son obligatorios/);
+ result=await h.submit({name:'Solo teléfono',phone:'55 1234 5678'});assert.match(result.error,/Teléfono y correo son obligatorios/);
+ result=await h.submit({name:'Solo correo',email:'solo@example.test'});assert.match(result.error,/Teléfono y correo son obligatorios/);
+ result=await h.submit({name:'Ambos',phone:'55 1234 5678',email:'ambos@example.test'});assert.equal(result.error,'');
+ let contact=h.app.state.store.listContacts()[0];assert.equal(contact.assignedKam,'kam_ana');assert.equal(contact.originalSource,'unknown');assert.equal(contact.captureMechanism,'crm_manual');assert.equal(contact.email,'ambos@example.test');assert.equal(contact.phone,'5512345678');
  await role(h,'admin_demo');h.app.handlers.newContact();assert.match(h.get('dialogContent').innerHTML,/Asignar responsable/);
- result=await h.submit({name:'Admin responsable',email:'admin@example.test'});assert.equal(result.error,'');contact=h.app.state.store.listContacts().find(c=>c.email==='admin@example.test');assert.equal(contact.assignedKam,'admin_demo');assert.equal(contact.originalSource,'unknown');
+ result=await h.submit({name:'Admin responsable',email:'admin@example.test',phone:'5500999003'});assert.equal(result.error,'');contact=h.app.state.store.listContacts().find(c=>c.email==='admin@example.test');assert.equal(contact.assignedKam,'admin_demo');assert.equal(contact.originalSource,'unknown');
  await role(h,'leader_demo');h.app.handlers.newContact();assert.equal(h.get('editorDialog').open,false);assert.match(h.get('notice').textContent,/consulta/);h.app.destroy();
 });
 

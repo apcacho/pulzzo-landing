@@ -43,7 +43,7 @@ function verify(){
  if(!registeredExp){
  const proof=take(api.verifyDemoCode(challenge.challengeId,code.value));
  const s=store.snapshot();
- const exp=draft.entry?take(api.openEntryLink(draft.entry,{email:draft.email,proofToken:proof.proofToken},s.revision)):draft.invite?take(api.claim(draft.invite,{email:draft.email,proofToken:proof.proofToken},s.revision)):take(api.createSelfService({kind:draft.kind,name:draft.name,email:draft.email,phone:draft.phone,proofToken:proof.proofToken,referralToken:draft.ref||undefined},s.revision));
+ const exp=draft.entry?take(api.openEntryLink(draft.entry,{email:draft.email,phone:draft.phone,proofToken:proof.proofToken},s.revision)):draft.invite?take(api.claim(draft.invite,{email:draft.email,phone:draft.phone,proofToken:proof.proofToken},s.revision)):take(api.createSelfService({kind:draft.kind,name:draft.name,email:draft.email,phone:draft.phone,proofToken:proof.proofToken,referralToken:draft.ref||undefined},s.revision));
  registeredExp=exp;
  draft.verified={actor,expId:exp.id,expiresAt:Date.now()+600000};root.sessionStorage.setItem(KEY,JSON.stringify(draft));
  }

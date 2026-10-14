@@ -296,7 +296,7 @@
       const type = input.type || input.kind;
       if (!STAGES[type]) fail('invalid_type', 'Selecciona paciente o doctor.');
       const email = normalizeEmail(input.email), phone = normalizePhone(input.phone);
-      if (!validEmail(email) || phone && !/^\d{7,15}$/.test(phone) || !email && !phone) fail('invalid_contact', 'Incluye un correo válido o un teléfono de 7 a 15 dígitos.');
+      if (!email || !validEmail(email) || !phone || !/^\d{7,15}$/.test(phone)) fail('invalid_contact', 'Correo y teléfono son obligatorios: captura un correo válido y un teléfono de 7 a 15 dígitos.');
       let originalSource = input.originalSource || (actor.role === 'holder' ? 'unknown' : 'manual');
       let referringKam = null;
       if (input.referralToken) { const ref = referralFor(draft, input.referralToken, type); originalSource = 'kam_referral'; referringKam = ref.kamId; }
@@ -671,7 +671,7 @@
           if (old.assistingActors.some(x => !c.assistingActors.includes(x))) fail('immutable_history', 'No se eliminan participantes del historial.');
           if(!old.email&&c.email){const match=findLegacyIdentity(storage,{email:c.email,type:c.type});if(match.matches.length)fail('identity_reconciliation_required','El correo existe en otro portal; concilia la identidad antes de vincularlo.');}
           const identityLocked = old.accountId || old.holderId || old.accountExists || Object.values(before.expedients).some(e => e.contactId === id && (e.holderIdentity || e.submittedAt || e.activeInvitationId));
-          if (identityLocked && ['name', 'email', 'phone'].some(k => old[k] !== c[k])) fail('identity_locked', 'La identidad ya está vinculada a una cuenta o invitación. Requiere conciliación; no se sobrescribió.');
+          if (identityLocked && ['name', 'email', 'phone'].some(k => old[k] !== c[k] && !(k === 'phone' && actor.role === 'holder' && /^\d{7,15}$/.test(String(c.phone || '')) && sameWriteClaim(before, after, id, ctx.now)))) fail('identity_locked', 'La identidad ya está vinculada a una cuenta o invitación. Requiere conciliación; no se sobrescribió.');
           if (old.assignedKam !== c.assignedKam) {
             if (centralStaff?!assignmentProofs.has(after)||!staffAccess.can(staffSession,'crmAssign',old):actor.role !== 'admin' && !(actor.role==='leader'&&assignmentProofs.has(after)&&intakeConfig(before.intakeRouting).leaderCanAssign)) fail('forbidden', 'La reasignación requiere autorización vigente de Administración.');
             const tracked = Object.values(after.audit).some(a => !before.audit[a.id] && a.action === 'contact_reassigned' && a.contactId === id && a.from === old.assignedKam && a.to === c.assignedKam && text(a.reason, 2000, false));
@@ -902,6 +902,8 @@
         return contact;
       });
     }
+    // Clearly fictitious demo numbers (55 0000 0xxx) used only by sample fixtures.
+    function demoFixturePhone(owner,index){let hash=0;for(const ch of String(owner))hash=(hash*31+ch.codePointAt(0))%300;return '5500000'+String(100+hash*3+index).padStart(3,'0').slice(-3);}
     function seedExamples(revision) {
       return transact(revision, (draft, ctx) => {
         requireStaff();
@@ -910,10 +912,12 @@
         const contacts=[];let created=0;
         samples.forEach((sample,index)=>{
           const [type,name,handle,originalSource,title,offset]=sample,key=owner+':'+handle;
-          const email=handle+'.demo'+suffix+'@example.test',phone=owner==='kam_ana'||owner==='kam_luis'?'+1202555010'+(index+1+(owner==='kam_luis'?3:0)):'';
+          const email=handle+'.demo'+suffix+'@example.test',phone=owner==='kam_ana'||owner==='kam_luis'?'+1202555010'+(index+1+(owner==='kam_luis'?3:0)):demoFixturePhone(owner,index);
           const candidates=Object.values(draft.contacts).filter(c=>c.demoFixtureKey===key||c.type===type&&c.email===email&&c.phone===normalizePhone(phone)&&c.name===name);
           if(candidates.length>1||candidates.some(c=>!canAccess(c)))fail('demo_unavailable','Los ejemplos anteriores no están disponibles en esta cartera. Crea un prospecto o consulta a Administración.');
           let contact=candidates[0],isNew=!contact;
+          // Demo fixtures only: a legacy fixture saved without phone receives its clearly fictitious demo number.
+          if(contact&&contact.demoFixtureKey===key&&!contact.phone){contact.phone=normalizePhone(phone);contact.updatedAt=ctx.now;audit(draft,ctx,'contact_updated',contact.id,{changedFields:['phone'],reason:'Teléfono ficticio de ejemplo DEMO'});}
           if(isNew){
             contact=ctx.makeContact({type,name,email,phone,originalSource,assignedKam:owner});
             if(typeof options.findExistingAccount==='function'&&options.findExistingAccount(clone(contact)))fail('demo_unavailable','No se pudieron cargar los ejemplos por un conflicto con datos existentes. No se modificó la cartera.');
@@ -941,6 +945,8 @@
         if (has(patch, 'name')) contact.name = text(patch.name, 160, true);
         if (has(patch, 'email')) contact.email = normalizeEmail(patch.email);
         if (has(patch, 'phone')) contact.phone = normalizePhone(patch.phone);
+        if (has(patch, 'email') && (!contact.email || !validEmail(contact.email))) fail('invalid_contact', 'El correo es obligatorio y debe ser válido.');
+        if (has(patch, 'phone') && (!contact.phone || !/^\d{7,15}$/.test(contact.phone))) fail('invalid_contact', 'El teléfono es obligatorio: captura de 7 a 15 dígitos.');
         if (has(patch, 'notes')) contact.notes = text(patch.notes, 6000, false);
         if (equal(before, contact)) return contact;
         // A failed attempt to assist may already have created an empty draft.

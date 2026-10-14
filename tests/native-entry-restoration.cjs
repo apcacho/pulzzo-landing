@@ -10,7 +10,7 @@ function registration(kind,clinic=false,disk=memory(),interrupt=false){
  const w={location:{search:'',href:''},crypto:require('node:crypto').webcrypto,localStorage:disk,sessionStorage:session,document:{getElementById:id=>nodes[id]},PulzzoCRMStore:Store,PulzzoCRMAssisted:Assisted,PulzzoCRMOnboarding:{...Context,start:options=>{if(interruptNext){interruptNext=false;throw Error('Interrupción simulada');}return Context.start({...options,storage:disk,sessionStorage:session});}}};
  vm.runInNewContext(fs.readFileSync('assets/js/native-registration.js','utf8'),{window:w,URLSearchParams,Date,JSON,Error,Number,String});
  const profile={name:clinic?'Clínica Ficticia':'Doctor Ficticio',email:kind+(clinic?'clinic':'')+'@example.test',accountType:clinic?'clinica':'doctor',state:'Ciudad de México',city:'Benito Juárez',prefix:'Dr.',establishmentType:clinic?'Clínica':''};
- w.PulzzoNativeRegistration.stage(kind,{name:profile.name,email:profile.email,phone:'5500000000',initial:{profile,procedures:['Consulta ficticia']},specialties:['Cardiología'],nameParts:{first:'Paciente',second:'Segundo',paternal:'Demo',maternal:'Ficticio'}});
+ w.PulzzoNativeRegistration.stage(kind,{name:profile.name,email:profile.email,phone:(globalThis.__pzPhone=(globalThis.__pzPhone||100000)+1,'5500'+globalThis.__pzPhone),initial:{profile,procedures:['Consulta ficticia']},specialties:['Cardiología'],nameParts:{first:'Paciente',second:'Segundo',paternal:'Demo',maternal:'Ficticio'}});
  const saved=session.getItem(w.PulzzoNativeRegistration.KEY);assert.ok(saved);assert.doesNotMatch(saved,/password|consent|pass_med/);assert.equal(disk.dump(),'[]');
  assert.match(w.location.href,kind==='doctor'?/verificacion-doctor/:/verificacion-cuenta/);
  w.location.search='?native=1';w.PulzzoNativeRegistration.verify();assert.equal(nodes['verify-btn'].disabled,false,nodes.message.textContent);
@@ -43,7 +43,7 @@ function registration(kind,clinic=false,disk=memory(),interrupt=false){
  }
  for(const kind of ['doctor','patient'])registration(kind,false,memory(),true);
  const disk=memory(),session=memory(),actor={id:'kam',role:'kam'},store=Store.createStore({storage:disk,actor}),api=Assisted.createAssisted({store,actor});
- const c=ok(store.createContact({name:'No registrado',type:'doctor',email:'pending@example.test',phone:'5500000000',assignedKam:'kam'},store.snapshot().revision)),draft=ok(api.beginDraft({contactId:c.id,kind:'doctor'},store.snapshot().revision));
+ const c=ok(store.createContact({name:'No registrado',type:'doctor',email:'pending@example.test',phone:(globalThis.__pzPhone=(globalThis.__pzPhone||100000)+1,'5500'+globalThis.__pzPhone),assignedKam:'kam'},store.snapshot().revision)),draft=ok(api.beginDraft({contactId:c.id,kind:'doctor'},store.snapshot().revision));
  assert.throws(()=>Context.start({storage:disk,sessionStorage:session,actor,expId:draft.id,kind:'doctor'}),/registro inicial/);
  assert.equal(api.completeInitialRegistration(draft.id,store.snapshot().revision).ok,false);
  // Real binary service over a deterministic IndexedDB test double; not browser pixels.

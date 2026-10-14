@@ -66,7 +66,7 @@ test('expired, changed-revision and missing-revision invitation copies cannot ap
 });
 test('all identifiers are exact and generic login links do not create invitation copy history', () => {
   const f = fixture(), inv = f.invite();
-  const other = ok(f.admin.store.createContact({ type: 'patient', name: 'Otra Persona', email: 'other@example.test', assignedKam: f.staff.id }, f.rev()));
+  const other = ok(f.admin.store.createContact({phone:(globalThis.__pzPhone=(globalThis.__pzPhone||100000)+1,'5500'+globalThis.__pzPhone), type: 'patient', name: 'Otra Persona', email: 'other@example.test', assignedKam: f.staff.id }, f.rev()));
   const otherExp = ok(f.kam.api.beginDraft({ contactId: other.id }, f.rev()));
   const before = f.disk.dump();
   denied(f.kam.api.recordInvitationCopy(f.exp.id, { contactId: other.id, invitationId: inv.id }, f.rev()), 'INVITE_MISMATCH');
@@ -164,7 +164,7 @@ test('stale, failed-persistence and cross-record access copies preserve all hist
   let before = f.disk.dump(); denied(f.kam.api.recordAccessLinkCopy(f.exp.id, input, captured), 'stale_revision'); assert.equal(f.disk.dump(), before);
   f.disk.fail = true; denied(f.kam.api.recordAccessLinkCopy(f.exp.id, input, f.rev()), 'storage_write_failed'); assert.equal(f.disk.dump(), before); f.disk.fail = false;
   ok(f.kam.api.recordAccessLinkCopy(f.exp.id, input, f.rev()));
-  const other = ok(f.admin.store.createContact({ type: 'patient', name: 'Otro cliente', email: 'second@example.test', assignedKam: f.staff.id }, f.rev()));
+  const other = ok(f.admin.store.createContact({phone:(globalThis.__pzPhone=(globalThis.__pzPhone||100000)+1,'5500'+globalThis.__pzPhone), type: 'patient', name: 'Otro cliente', email: 'second@example.test', assignedKam: f.staff.id }, f.rev()));
   const otherExp = ok(f.kam.api.beginDraft({ contactId: other.id }, f.rev())), otherInvite = ok(f.kam.api.invite(otherExp.id, { email: other.email }, f.rev())), h = f.make({ id: 'holder_second', role: 'holder' });
   const challenge = ok(h.api.requestDemoVerification({ token: otherInvite.token, email: other.email })), proof = ok(h.api.verifyDemoCode(challenge.challengeId, challenge.demoCode));
   ok(h.api.claim(otherInvite.token, { email: other.email, proofToken: proof.proofToken }, f.rev()));

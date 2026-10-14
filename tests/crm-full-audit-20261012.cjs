@@ -11,7 +11,7 @@ const {shell,attachCRM}=fixtures('crm-backoffice-navigation.cjs','(async()=>{','
 const {setup}=fixtures('crm-demo-ui.cjs','(async()=>{','setup');
 const good=r=>{assert.equal(r.ok,true,r.error);return r.value;};
 const tests=[];function test(name,run){tests.push({name,run});}
-function add(h){return good(h.app.state.store.createContact({type:'patient',name:'Fictional audit contact',email:'crm.audit@example.test',originalSource:'manual'},h.app.state.store.snapshot().revision));}
+function add(h){return good(h.app.state.store.createContact({phone:(globalThis.__pzPhone=(globalThis.__pzPhone||100000)+1,'5500'+globalThis.__pzPhone),type:'patient',name:'Fictional audit contact',email:'crm.audit@example.test',originalSource:'manual'},h.app.state.store.snapshot().revision));}
 function admin(h){return Store.createStore({storage:h.storage,actor:{id:'admin_audit',role:'admin'},now:()=>new Date('2026-10-09T12:00:00Z')});}
 
 test('Mutable presentation fields cannot impersonate a different central CRM identity',async()=>{
@@ -31,7 +31,7 @@ test('A directory administrator downgrade revokes all old CRM reads and writes',
   assert.equal(child.app.state.actor.role,'admin');assert.equal(child.get('actorSelect').disabled,true);
   staff.updateUser(session,'operations_demo',{roles:['admin','operations']},staff.getVersion());
   staff.updateUser(session,'admin_demo',{roles:['leader']},staff.getVersion());
-  assert.throws(()=>child.app.state.store.snapshot());assert.equal(child.app.state.store.createContact({type:'patient',name:'Revoked',email:'revoked@example.test'},0).ok,false);
+  assert.throws(()=>child.app.state.store.snapshot());assert.equal(child.app.state.store.createContact({phone:(globalThis.__pzPhone=(globalThis.__pzPhone||100000)+1,'5500'+globalThis.__pzPhone),type:'patient',name:'Revoked',email:'revoked@example.test'},0).ok,false);
 });
 test('Second dialog and immediate-write actions cannot replace or mutate an active asynchronous save',async()=>{
   let release,puts=0,removes=0;

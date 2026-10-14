@@ -306,14 +306,14 @@ test('A second login without logout replaces the old CRM session and revokes ret
  old.app.handlers.newContact();assert.equal(old.get('editorDialog').open,true);
  await h.login('leader');const leader=attachCRM(h);assert.notEqual(leader.host,old.host);assert.equal(leader.app.state.actor.role,'leader');
  assert.equal(old.get('editorDialog').open,false);assert.throws(()=>oldStore.snapshot(),error=>error.code==='forbidden');
- assert.equal(oldStore.createContact({type:'patient',name:'Forbidden retained admin',email:'retained@example.test'},0).ok,false);
+ assert.equal(oldStore.createContact({phone:(globalThis.__pzPhone=(globalThis.__pzPhone||100000)+1,'5500'+globalThis.__pzPhone),type:'patient',name:'Forbidden retained admin',email:'retained@example.test'},0).ok,false);
  h.get('loginEmail').value='luis.kam@pulzzo.mx';h.get('loginPass').value='pulzzo-demo';await h.context.login();
  const luis=attachCRM(h);assert.equal(luis.app.state.actor.id,'kam_luis');assert.notEqual(luis.host,leader.host);assert.throws(()=>leader.app.state.store.snapshot(),error=>error.code==='forbidden');
  h.get('logoutBtn').dispatch('click');assert.throws(()=>luis.app.state.store.snapshot(),error=>error.code==='forbidden');assert.equal(h.get('crm').children.length,0);
 });
 test('KAM deep links and restored history cannot expose another portfolio after reassignment',async()=>{
  const h=await shell({role:'admin',hash:'#crm/patient/contacts'}),adminApp=attachCRM(h);adminApp.get('actorSelect').value='admin_demo';adminApp.get('actorSelect').dispatch('change');
- const admin=adminApp.app.state.store,r=admin.createContact({type:'patient',name:'Luis-only demo',email:'luis-only@example.test',assignedKam:'kam_luis'},admin.snapshot().revision);assert.equal(r.ok,true);const id=r.value.id;
+ const admin=adminApp.app.state.store,r=admin.createContact({phone:(globalThis.__pzPhone=(globalThis.__pzPhone||100000)+1,'5500'+globalThis.__pzPhone),type:'patient',name:'Luis-only demo',email:'luis-only@example.test',assignedKam:'kam_luis'},admin.snapshot().revision);assert.equal(r.ok,true);const id=r.value.id;
  await h.login('kam');const ana=attachCRM(h);ana.app.navigate('patient','contacts',id);assert.equal(ana.app.state.store.listContacts().length,0);assert.throws(()=>ana.app.state.store.getContact(id),e=>e.code==='forbidden');assert.doesNotMatch(ana.get('contactDetail').innerHTML,/Luis-only demo|luis-only@example/);
  h.window.history.back();h.window.history.forward();assert.doesNotMatch(ana.get('contactDetail').innerHTML,/Luis-only demo|luis-only@example/);
  await h.login('leader');const leader=attachCRM(h);leader.app.navigate('patient','contacts',id);assert.equal(leader.app.state.store.getContact(id).name,'Luis-only demo');assert.match(leader.get('contactDetail').innerHTML,/Luis-only demo/);

@@ -6,7 +6,7 @@ const ctx=vm.createContext({require:createRequire(fixture),__dirname,console,Blo
 vm.runInContext(source.slice(0,source.indexOf('(async()=>{')).replace('window,document,storage,storeModule:Store','window,document,storage,staffAccess:options.staffAccess,storeModule:Store')+'\nglobalThis.fixture={setup};',ctx,{filename:fixture});
 const ok=r=>{assert.equal(r.ok,true,r.error);return r.value;};
 async function actor(h,id){h.get('actorSelect').value=id;await h.get('actorSelect').dispatch('change');}
-function add(h,owner,name='Cliente ficticio'){return ok(h.app.state.store.createContact({type:'patient',name,email:name.replace(/ /g,'')+'@example.test',assignedKam:owner},h.app.state.store.snapshot().revision));}
+function add(h,owner,name='Cliente ficticio'){return ok(h.app.state.store.createContact({phone:(globalThis.__pzPhone=(globalThis.__pzPhone||100000)+1,'5500'+globalThis.__pzPhone),type:'patient',name,email:name.replace(/ /g,'')+'@example.test',assignedKam:owner},h.app.state.store.snapshot().revision));}
 const values={title:'Llamar al cliente',dueAt:'2026-10-15T12:30'};
 (async()=>{
  const h=ctx.fixture.setup();await actor(h,'admin_demo');const c=add(h,'kam_ana'),other=add(h,'kam_luis','Otro cliente');h.app.navigate('patient','contacts',c.id);
@@ -25,7 +25,7 @@ const values={title:'Llamar al cliente',dueAt:'2026-10-15T12:30'};
  const Staff=require('../assets/js/staff-access.js'),Store=require('../assets/js/crm-demo-store.js');
  const map=new Map(),storage={getItem:k=>map.get(k)??null,setItem:(k,v)=>map.set(k,String(v)),removeItem:k=>map.delete(k)},staff=Staff.createStore({storage});
  let session=staff.loginDemo('admin@pulzzo.mx','pulzzo-demo'),admin=Store.createStore({storage,staffAccess:staff,staffSession:session,actor:{id:'admin_demo',role:'admin'}});
- const centralAdd=owner=>ok(admin.createContact({type:'patient',name:owner,email:owner+'@example.test',assignedKam:owner},admin.snapshot().revision)),own=centralAdd('kam_ana'),foreign=centralAdd('kam_luis');
+ const centralAdd=owner=>ok(admin.createContact({phone:(globalThis.__pzPhone=(globalThis.__pzPhone||100000)+1,'5500'+globalThis.__pzPhone),type:'patient',name:owner,email:owner+'@example.test',assignedKam:owner},admin.snapshot().revision)),own=centralAdd('kam_ana'),foreign=centralAdd('kam_luis');
  staff.updateUser(session,'kam_ana',{roles:['leader','kam','operations']},staff.getVersion());
  session=staff.loginDemo('ana.kam@pulzzo.mx','pulzzo-demo');const central=ctx.fixture.setup({storage,staffAccess:staff});central.app.navigate('patient','contacts',foreign.id);assert.doesNotMatch(central.get('contactDetail').innerHTML,/data-action="new-profile-task"/);await central.click('new-profile-task');assert.equal(central.get('editorDialog').open,false);
  central.app.navigate('patient','contacts',own.id);await central.click('new-profile-task');assert.equal(central.get('editorDialog').open,true);assert.equal((await central.submit(values)).error,'');assert.equal(central.app.state.store.listTasks({contactId:own.id}).length,1);

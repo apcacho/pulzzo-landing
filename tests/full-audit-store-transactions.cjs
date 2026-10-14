@@ -8,7 +8,7 @@ function fixture() {
  const storage={getItem:k=>values.get(k)??null,setItem:(k,v)=>values.set(k,String(v))};
  const make=actor=>S.createStore({storage,actor,now:()=>time,randomId:()=>String(++n)});
  const store=make({id:'kam_a',role:'kam'}), admin=make({id:'admin_a',role:'admin'});
- const contact=store.createContact({type:'patient',name:'Fictitious audit',email:'audit@example.test'},0).value;
+ const contact=store.createContact({phone:(globalThis.__pzPhone=(globalThis.__pzPhone||100000)+1,'5500'+globalThis.__pzPhone),type:'patient',name:'Fictitious audit',email:'audit@example.test'},0).value;
  const task=store.createTask({contactId:contact.id,title:'Demo task',dueAt:'2026-10-13'},store.snapshot().revision).value;
  return {storage,store,admin,contact,task,rev:()=>store.snapshot().revision,setTime:t=>time=t};
 }

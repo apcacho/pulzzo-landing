@@ -13,7 +13,7 @@ const {setup,good,modalUrl}=scope.fixture;
    const tag=h.get('dialogContent').innerHTML.match(/<button[^>]*data-share-focus[^>]*>/);
    return tag?{focus(){focused=tag[0].match(/data-action="([^"]+)"/)[1];}}:null;
   };
-  if(state==='missing-email')good(store.updateContact(h.contact.id,{email:''},h.snapshot().revision));
+  if(state==='missing-email'){/* v36: email is mandatory for new edits; emulate a legacy ficha saved before the rule. */const key=Object.keys(h.window.localStorage.data||{}).find(k=>/crm/i.test(k))||null;const S=require(require('node:path').join(__dirname,'..','assets','js','crm-demo-store.js'));const raw=JSON.parse(h.window.localStorage.getItem(S.STORAGE_KEY));raw.state?raw.state.contacts[h.contact.id].email='':raw.contacts[h.contact.id].email='';h.window.localStorage.setItem(S.STORAGE_KEY,JSON.stringify(raw));}
   else if(state==='legacy'||state==='legacy-revoked'){
    const exp=good(api.beginDraft({contactId:h.contact.id,kind},h.snapshot().revision));
    const inv=good(api.invite(exp.id,{email:h.contact.email},h.snapshot().revision));

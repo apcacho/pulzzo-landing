@@ -6,7 +6,7 @@ const setup=fs.readFileSync(fixturePath,'utf8').split("test('full form seeds")[0
 const runtime={require:require('node:module').createRequire(fixturePath),__dirname,console,Buffer,URL,URLSearchParams,Blob};
 vm.createContext(runtime);vm.runInContext(setup+'\nglobalThis.makeFixture=fixture;',runtime);
 const f=runtime.makeFixture(),ctx=f.open(),app=JSON.parse(ctx.storage.getItem('pulzzo_application'));
-const references=[{name:'Demo <img src=x onerror="bad()">',phone:'5500000011',relationship:'Amigo & colega'},{name:'Dos',phone:'5500000022',relationship:'Hermano'}];
+const references=[{name:'Demo <img src=x onerror="bad()">',phone:(globalThis.__pzPhone=(globalThis.__pzPhone||100000)+1,'5500'+globalThis.__pzPhone),relationship:'Amigo & colega'},{name:'Dos',phone:(globalThis.__pzPhone=(globalThis.__pzPhone||100000)+1,'5500'+globalThis.__pzPhone),relationship:'Hermano'}];
 app.references=references;app.referencesSaved=true;
 ctx.storage.setItem('pulzzo_application',JSON.stringify(app));
 assert.deepEqual(JSON.parse(f.open().storage.getItem('pulzzo_application')).references,references,'reopen retains every nested value');

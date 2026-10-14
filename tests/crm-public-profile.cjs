@@ -45,7 +45,7 @@ const cases=[];const test=(name,run)=>cases.push({name,run});
 
 test('Prospect form requires contact basics with optional human source and role-aware assignment',async()=>{
  const h=sandbox.fixture.setup();h.app.handlers.newContact();let html=h.get('dialogContent').innerHTML;
- assert.match(html,/<legend>Teléfono o correo<\/legend>/);assert.match(html,/Con uno de los dos es suficiente/);
+ assert.match(html,/<legend>Teléfono y correo<\/legend>/);assert.match(html,/Ambos son obligatorios/);
  assert.match(html,/<input name="phone"[^>]+aria-describedby="prospectContactHelp prospectPhoneHelp"/);
  assert.match(html,/<details class="details-form prospect-options"><summary>Más datos \(opcional\)/);
  assert.match(html,/<option value="unknown" selected>/);assert.doesNotMatch(html,/name="assignedKam"|name="referringKam"|name="type"|Captura manual/);h.app.closeDialog();

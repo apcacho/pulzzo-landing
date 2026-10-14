@@ -25,7 +25,7 @@ assert.match(embeddedCSS,/button:disabled\{[^}]*box-shadow:none/);
 
 const ok=r=>{assert.equal(r.ok,true,r.error);return r.value;};let n=0;
 async function actor(h,id){h.get('actorSelect').value=id;await h.get('actorSelect').dispatch('change');}
-function add(h,owner='kam_ana'){return ok(h.app.state.store.createContact({type:'patient',name:'Cliente '+(++n),email:'client'+n+'@example.test',assignedKam:owner},h.app.state.store.snapshot().revision));}
+function add(h,owner='kam_ana'){return ok(h.app.state.store.createContact({phone:(globalThis.__pzPhone=(globalThis.__pzPhone||100000)+1,'5500'+globalThis.__pzPhone),type:'patient',name:'Cliente '+(++n),email:'client'+n+'@example.test',assignedKam:owner},h.app.state.store.snapshot().revision));}
 function task(h,c,title){return ok(h.app.state.store.createTask({contactId:c.id,title,dueAt:'2026-10-15T18:00:00Z'},h.app.state.store.snapshot().revision));}
 function bytes(h){return h.storage.getItem(Store.STORAGE_KEY);}
 (async()=>{
