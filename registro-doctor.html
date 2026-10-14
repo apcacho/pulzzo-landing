@@ -2584,6 +2584,8 @@ window.PulzzoSharedDoctorOnboarding?.prepareBasic(function(state){
     }
     if(accountType==='clinica') return {label:'Hola,',name:name||'equipo médico'};
     const safePrefix=prefix || 'Dr.';
+    // v36: no duplicar el prefijo cuando el nombre ya lo trae («Dr. …», «Dra. …»).
+    if(/^(dr|dra|doctor|doctora)\.?(\s|$)/i.test(name)) return {label:'Hola,',name};
     return {label:'Hola,',name:`${safePrefix} ${name||'doctor'}`};
   }
   function profileGreeting(s){

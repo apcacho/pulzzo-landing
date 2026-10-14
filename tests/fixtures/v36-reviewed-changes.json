@@ -30,5 +30,11 @@
    "approved": "  const diff=Math.round((to-from)/86400000);\n  // v36: a 0-day period accrues 0 days (never a silent 30). Inverted dates stop the\n  // calculation instead of being charged or silently recalculated.\n  if(!Number.isFinite(diff)){const error=new Error('Fechas del periodo no válidas: no se calculó interés.');error.code='INVALID_PERIOD_DATES';throw error;}\n  if(diff<0){const error=new Error('El periodo tiene fechas invertidas ('+dispersionDateOnly(from)+' → '+dispersionDateOnly(to)+'). Revisa el calendario; no se calculó interés.');error.code='NEGATIVE_PERIOD_DAYS';throw error;}\n  return diff;\n}",
    "previous": "  const diff=Math.round((to-from)/86400000);\n  return diff>0?diff:30;\n}"
   }
+ ],
+ "registro-doctor.html": [
+  {
+   "approved": "    const safePrefix=prefix || 'Dr.';\n    // v36: no duplicar el prefijo cuando el nombre ya lo trae («Dr. …», «Dra. …»).\n    if(/^(dr|dra|doctor|doctora)\\.?(\\s|$)/i.test(name)) return {label:'Hola,',name};\n",
+   "previous": "    const safePrefix=prefix || 'Dr.';\n"
+  }
  ]
 }
