@@ -16,3 +16,9 @@ Rama `grok/asistido-20261014` (base: rama `baseline`, commit 346ed13). No se hiz
 7. `dispersionPeriodDays`: con 0 días devuelve 0. Con días negativos o fechas inválidas se detiene (`NEGATIVE_PERIOD_DAYS` / `INVALID_PERIOD_DATES`). Test nuevo: `tests/dispersion-period-days.cjs`.
 
 Tests nuevos: `tests/v36-assisted.cjs`, `tests/dispersion-period-days.cjs`. Fixture: `tests/fixtures/v36-reviewed-changes.json`.
+
+8. Nombre oficial (b034d5c):
+   - El nombre que el cliente escribe en su registro inicial pasa a ser el nombre oficial en el saludo y en la ficha CRM.
+   - El nombre anterior se guarda en `nameHistory` con la etiqueta «nombre capturado por KAM»; además se registra el evento `holder_name_saved`.
+   - La regla de identidad en `crm-demo-store.js` admite solo este cambio exacto, solo cuando lo hace el titular.
+   - Test en `tests/v36-assisted.cjs`.

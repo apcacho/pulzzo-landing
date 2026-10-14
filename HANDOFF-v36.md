@@ -52,3 +52,18 @@
 ## Pendientes / observaciones
 - El saludo usa el nombre de la ficha CRM, no el que el cliente escribe en el registro. ¿Debe actualizarse?
 - crm-contact-simplification ya fallaba en baseline.
+
+## Publicación (2026-10-14, 1 p.m. CDMX)
+- Rama local `grok/asistido-20261014`, commit b034d5c, con historial propio (no relacionado con el remoto).
+- Push a apcacho/pulzzo-landing: BLOQUEADO.
+  - En el entorno, `gh` no tiene sesión iniciada y no hay credenciales de git.
+  - El conector de GitHub solo crea ramas desde un SHA que ya existe en el remoto; no puede subir un historial propio.
+  - Para hacerlo se necesita una de dos cosas: `gh auth login` en la caja, o un push manual desde la máquina del usuario.
+  - Comando: `git push origin grok/asistido-20261014` (sin --force).
+- GitHub Pages: no se publicó.
+  - El repo ya tiene Pages habilitado (`has_pages: true`), con una configuración actual que no se cambió.
+  - Además, no hay credenciales para publicar.
+- Auditoría del árbol (465 archivos): no están los 4 documentos excluidos ni `node_modules`.
+  - No se encontraron tokens ni llaves: solo hay referencias a endpoints OAuth en `server/google.mjs`, sin secretos.
+  - Las imágenes son activos de marca (logo, favicon, hero, OG).
+  - No hay expedientes reales.
