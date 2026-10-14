@@ -10,7 +10,8 @@
     <button class="quiet" id="identityReviewButton" type="button" data-action="identity-review" hidden>Revisar identidad</button>
     <button class="quiet" id="crmSettings" type="button" data-action="crm-settings" hidden>Configuración del CRM</button>
     <button class="quiet" id="unassignedContacts" type="button" data-action="show-unassigned" hidden>Sin asignar</button>
-    <button class="quiet" id="inviteNewClient" type="button" data-action="referral">Invitar a un cliente nuevo</button>
+    <button class="quiet" id="inviteNewClient" type="button" data-action="referral">Mis enlaces de referido</button>
+    <button class="quiet" id="referralAdmin" type="button" data-action="referral-admin" hidden>Enlaces de referido</button>
     <button class="quiet" id="phoneSettings" type="button">MyPhone</button>
     <button class="quiet" id="loadExamples" type="button">Cargar ejemplos ficticios</button>
     <button class="primary" id="newContact" type="button">＋ Nuevo prospecto</button>
