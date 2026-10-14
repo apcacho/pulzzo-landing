@@ -16,7 +16,7 @@
     patient: {new: 'Nuevo prospecto', contacted: 'Contactado', interested: 'Interesado', application_started: 'Solicitud en captura', submitted: 'Enviado a revisión', no_response: 'Sin respuesta', not_interested: 'No interesado'},
     doctor: {new: 'Nuevo prospecto', contacted_demo: 'Contactado / demo', meeting_scheduled: 'Reunión agendada', interested: 'Interesado', registration_started: 'Registro en captura', submitted: 'Enviado a revisión', no_response: 'Sin respuesta', not_interested: 'No interesado'}
   };
-  var SOURCES = {unknown:'Desconocido',direct:'Directo',organic:'Orgánico declarado',campaign:'Campaña declarada',kam_referral:'Referido por KAM',doctor_referral:'Referido por médico',manual:'Captura manual',direct_unknown:'Directo / desconocido',referral:'Enlace de referido'};
+  var SOURCES = {unknown:'Desconocido',direct:'Directo',organic:'Orgánico',campaign:'Campaña declarada',kam_referral:'Referido por KAM',doctor_referral:'Referido por médico',manual:'Captura manual',direct_unknown:'Directo / desconocido',referral:'Enlace de referido'};
   var OUTCOMES = {reached: 'Contacto logrado', no_response: 'Sin respuesta', not_interested: 'No interesado', follow_up: 'Requiere seguimiento', other: 'Otro resultado'};
   var CHANNELS = {call: 'Llamada', whatsapp: 'WhatsApp', email: 'Correo manual', meeting: 'Reunión', note: 'Nota', other: 'Otro'};
   var CONTACT_PAGE_SIZES = [25,50,100], CONTACT_BATCH = 20;
