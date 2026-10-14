@@ -74,11 +74,12 @@ function autosave(){
  const form=(kind==='doctor'?doc.getElementById('correo_med'):doc.getElementById('register-demo-btn')).closest('form');if(!form)return;
  const key=progressKey(kind),skip=el=>!el.id||['password','file','checkbox','radio','hidden','submit','button'].includes(el.type)||el.readOnly;
  let saved={};try{saved=JSON.parse(root.localStorage.getItem(key)||'{}')||{};}catch(_){saved={};}
- form.querySelectorAll('input,select,textarea').forEach(el=>{if(skip(el))return;if(typeof saved[el.id]==='string'&&!el.value){el.value=saved[el.id];el.dispatchEvent(new Event('input',{bubbles:true}));}});
+ form.querySelectorAll('input,select,textarea').forEach(el=>{if(skip(el))return;if(typeof saved[el.id]==='string'&&el.value!==saved[el.id]){el.value=saved[el.id];el.dispatchEvent(new Event('input',{bubbles:true}));}});
  const persist=event=>{const el=event.target;if(!el||!form.contains(el)||skip(el))return;saved[el.id]=String(el.value||'').slice(0,500);try{root.localStorage.setItem(key,JSON.stringify(saved));}catch(_){}};
  form.addEventListener('input',persist);form.addEventListener('change',persist);
 }
 function clearProgress(){try{Object.keys(root.localStorage).filter(k=>k.indexOf(PROGRESS+':')===0).forEach(k=>root.localStorage.removeItem(k));}catch(_){}}
-if(root.document){if(root.document.readyState==='loading')root.document.addEventListener('DOMContentLoaded',autosave);else autosave();}
+// Runs after the page's own demo defaults so the person's typed values win.
+if(root.document&&root.addEventListener){if(root.document.readyState==='complete')setTimeout(autosave,0);else root.addEventListener('load',()=>setTimeout(autosave,0));}
 root.PulzzoNativeRegistration={stage,verify,KEY,autosave,PROGRESS};
 })(window);
