@@ -6,6 +6,7 @@ const take=out=>{if(!out?.ok)throw Error(out?.error||'No se pudo abrir el regist
 function stage(kind,data){
  const p=new URLSearchParams(root.location.search), email=String(data.email||'').trim().toLowerCase();
  if(!['doctor','patient'].includes(kind)||!email||!String(data.name||'').trim()||!String(data.phone||'').trim())throw Error('Completa los datos iniciales.');
+ if(kind==='doctor'){const p=data.initial?.profile||{},missing=[];if(!['doctor','clinica'].includes(p.accountType))missing.push('tipo de cuenta');if(!String(p.state||'').trim())missing.push('estado');if(!String(p.city||'').trim())missing.push('municipio');if(!Array.isArray(data.specialties)||!data.specialties.length)missing.push('al menos una especialidad');if(missing.length)throw Error('Para continuar completa: '+missing.join(', ')+'.');}
  // Explicit allowlist: never serialize FormData, passwords, terms or permissions.
  const draft={version:1,kind,name:data.name,email,phone:data.phone,createdAt:Date.now(),ref:p.get('ref'),entry:p.get('entry'),invite:p.get('invite')};
  if(kind==='patient')draft.nameParts={first:data.nameParts.first,second:data.nameParts.second,paternal:data.nameParts.paternal,maternal:data.nameParts.maternal};

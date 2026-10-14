@@ -11,7 +11,7 @@ const ok=r=>{assert.equal(r.ok,true,r.error);return r.value;};
  const c=ok(store.createContact({type:kind,name:'Assistance fixture',email:kind+'@example.test',phone:'5512345678'},store.snapshot().revision));
  app.navigate(kind,'contacts',c.id);await h.click('open-profile',c.id);await h.click('begin-onboarding');
  assert.equal(h.get('editorDialog').open,true,'reason appears above profile dialog');
- assert.match(h.get('dialogContent').innerHTML,/titular aún no completa su registro inicial/);
+ assert.match(h.get('dialogContent').innerHTML,/Primero el cliente debe registrarse|Completar su registro inicial/);
  assert.match(h.get('dialogContent').innerHTML,/asistido-demo.html#entry=/);
  let exp=Object.values(store.snapshot().expedients)[0];const expId=exp.id,token=exp.entryLink.token;
  assert.equal(exp.holderIdentity,null);assert.ok(!exp.initialRegistration);
