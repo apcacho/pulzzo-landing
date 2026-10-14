@@ -341,8 +341,14 @@
         if(input.entryToken){var entry=entryRecord(s,input.entryToken);kind=entry.kind;var intended=entry.entryEmail||(s.contacts[entry.contactId]||{}).email;if(mail!==intended)fail('WRONG_IDENTITY','Este correo no corresponde al titular del enlace.');}
         if (input.token) { var inv=invitation(s,input.token); kind=expFor(s,inv.expedientId).kind; if (mail!==inv.intendedEmail) fail('WRONG_IDENTITY','Este correo no corresponde al destinatario de la invitación.'); }
         if (kind!=='patient' && kind!=='doctor') fail('INVALID_KIND','Tipo de registro inválido.');
-        existing=knownIdentity(s,mail,kind);
-        if (existing && (input.mode!=='existing_login' || actor.id!==existing)) fail('EXISTING_LOGIN_REQUIRED','Este correo ya tiene cuenta. Usa la conexión demo explícita de esa cuenta; no se creará otra.');
+        var phoneDigits=input.phone==null||String(input.phone).trim()===''?'':(store.normalizePhone?store.normalizePhone(input.phone):String(input.phone).replace(/\D/g,''));
+        if(purpose==='self'&&input.mode!=='existing_login'){
+          if(phoneDigits&&!/^\d{7,15}$/.test(phoneDigits))fail('INVALID_PHONE','Captura un celular de 7 a 15 dígitos.');
+          var dup=selfDuplicate(mail,phoneDigits,kind);
+          if(dup){noteDuplicate(mail,phoneDigits,kind);fail(dup,DUPLICATE_MESSAGES[dup]);}
+          try{existing=knownIdentity(s,mail,kind);}catch(e){if(e.code==='IDENTITY_RECONCILIATION'){noteDuplicate(mail,'',kind);fail('IDENTITY_RECONCILIATION',DUPLICATE_MESSAGES.IDENTITY_RECONCILIATION);}throw e;}
+        } else existing=knownIdentity(s,mail,kind);
+        if (existing && (input.mode!=='existing_login' || actor.id!==existing)) fail('EXISTING_LOGIN_REQUIRED','Ya tienes una cuenta con este correo. Inicia sesión para continuar.');
         if (!existing && input.mode==='existing_login') fail('ACCOUNT_NOT_FOUND','No hay una cuenta demo existente con ese correo.');
         var challengeId=randomId('challenge'),code=String(Math.floor(100000 + Math.random()*900000));
         challenges[challengeId]={actorId:actor.id,email:mail,purpose:purpose,token:input.entryToken || input.token || null,mode:existing?'existing_login':'new_account',code:code,expiresAt:new Date(Date.parse(now())+10*60000).toISOString(),attempts:0};
@@ -393,9 +399,23 @@
       var out=transact(revision,function(s,ctx){if(actor.role!=='holder')fail('HOLDER_REQUIRED','La invitación solo puede abrirla el titular.');var inv=invitation(s,token),exp=expFor(s,inv.expedientId),c=contactFor(s,exp);if(email(input.email)!==inv.intendedEmail)fail('WRONG_IDENTITY','El correo no corresponde al destinatario.');proof=consumeProof(input.proofToken,input.email,'invite',token);var existing=knownIdentity(s,inv.intendedEmail,exp.kind);if(existing && (proof.mode!=='existing_login' || existing!==actor.id))fail('EXISTING_LOGIN_REQUIRED','Debes conectar la cuenta demo existente.');inv.status='consumed';inv.consumedAt=ctx.now;inv.consumedBy=actor.id;inv.claimedBy=actor.id;exp.holderIdentity={id:actor.id,email:inv.intendedEmail,verifiedAt:proof.verifiedAt,demo:true};exp.status='claimed';exp.updatedAt=ctx.now;c.holderId=actor.id;c.accountId=actor.id;c.accountExists=true;c.updatedAt=ctx.now;holderPhone(c,input&&input.phone,ctx,exp);record(ctx,'holder_claimed',exp,{invitationId:inv.id,identityVerification:'local_demo'});return exp;});
       if(out.ok && proof)proof.used=true;return out;
     }
+    // v36: one follow-up task for the responsable of every new self-service registration (organic or referral).
+    function registrationTask(ctx,s,c){var due=new Date(Date.parse(ctx.now)+24*3600000).toISOString(),title=('Contactar a '+(c.name||'nuevo cliente')+' · nuevo registro'+(c.assignedKam?'':' · Falta asignar responsable')).slice(0,300);
+      var task={id:ctx.id('task'),contactId:c.id,kind:'registration_followup',title:title,dueAt:due,status:'open',closeReason:null,createdAt:ctx.now,createdBy:actor.id,updatedAt:ctx.now,closedAt:null,closedBy:null,demo:true};
+      s.tasks[task.id]=task;ctx.append('audit',{action:'task_created',contactId:c.id,taskId:task.id,reason:'registration_followup'});return task;}
+    // v36: plain-Spanish duplicate answers, checked BEFORE the code; the existing contact's responsable gets one alert.
+    var DUPLICATE_MESSAGES={EXISTING_ACCOUNT_EMAIL:'Ya tienes una cuenta con este correo. Inicia sesión para continuar.',EXISTING_ACCOUNT_PHONE:'Ya tienes una cuenta con este celular. Inicia sesión para continuar.',EXISTING_CONTACT:'Ya tienes un registro con este correo o celular. Tu asesor PULZZO te enviará tu enlace personal para continuar.',IDENTITY_RECONCILIATION:'Este correo ya está registrado con otro tipo de cuenta (paciente o médico). Inicia sesión con esa cuenta o escríbenos para revisarlo.'};
+    function noteDuplicate(mail,phone,kind){try{if(store.noteDuplicateRegistration)store.noteDuplicateRegistration({email:mail,phone:phone,type:kind},store.snapshot().revision);}catch(ignore){}}
+    function selfDuplicate(mail,phone,kind){
+      if(!store.inspectIdentity)return null;
+      var same=function(m){return m.type===kind;},byMail=(store.inspectIdentity({email:mail,type:kind}).matches||[]).filter(same),byPhone=phone?(store.inspectIdentity({phone:phone,type:kind}).matches||[]).filter(same):[];
+      if(byMail.length)return byMail.some(function(m){return m.accountId;})?'EXISTING_ACCOUNT_EMAIL':'EXISTING_CONTACT';
+      if(byPhone.length)return byPhone.some(function(m){return m.accountId;})?'EXISTING_ACCOUNT_PHONE':'EXISTING_CONTACT';
+      return null;
+    }
     function createSelfService(input,revision) {
       var proof;
-      var out=transact(revision,function(s,ctx){if(actor.role!=='holder')fail('HOLDER_REQUIRED','El registro independiente corresponde al titular.');var mail=email(input.email),kind=input.kind || 'patient';proof=consumeProof(input.proofToken,mail,'self',null);var duplicate=Object.values(s.contacts).find(function(c){return !c.deletedAt&&c.type===kind&&email(c.email)===mail;});if(duplicate)fail('EXISTING_CONTACT','Este correo ya tiene un contacto. Continúa el expediente existente con una invitación o una sesión demo; no se creará otro.');var c=ctx.makeContact({type:kind,name:input.name,email:mail,phone:input.phone,originalSource:'organic',referralToken:input.referralToken || undefined});c.holderId=actor.id;c.accountId=actor.id;c.accountExists=true;s.contacts[c.id]=c;var identity={id:actor.id,email:mail,verifiedAt:proof.verifiedAt,demo:true},exp=baseExp(ctx,c,kind,identity);s.expedients[exp.id]=exp;advanceStage(ctx,c,kind==='doctor'?'registration_started':'application_started');record(ctx,'self_service_created',exp,{identityVerification:'local_demo'});return exp;});if(out.ok&&proof)proof.used=true;return out;
+      var out=transact(revision,function(s,ctx){if(actor.role!=='holder')fail('HOLDER_REQUIRED','El registro independiente corresponde al titular.');var mail=email(input.email),kind=input.kind || 'patient';proof=consumeProof(input.proofToken,mail,'self',null);var duplicate=Object.values(s.contacts).find(function(c){return !c.deletedAt&&c.type===kind&&email(c.email)===mail;});if(duplicate)fail('EXISTING_CONTACT','Este correo ya tiene un contacto. Continúa el expediente existente con una invitación o una sesión demo; no se creará otro.');var c=ctx.makeContact({type:kind,name:input.name,email:mail,phone:input.phone,originalSource:'organic',referralToken:input.referralToken || undefined});c.holderId=actor.id;c.accountId=actor.id;c.accountExists=true;s.contacts[c.id]=c;var identity={id:actor.id,email:mail,verifiedAt:proof.verifiedAt,demo:true},exp=baseExp(ctx,c,kind,identity);s.expedients[exp.id]=exp;advanceStage(ctx,c,kind==='doctor'?'registration_started':'application_started');record(ctx,'self_service_created',exp,{identityVerification:'local_demo'});registrationTask(ctx,s,c);return exp;});if(out.ok&&proof)proof.used=true;return out;
     }
     function completeInitialRegistration(expId,revision){return transact(revision,function(s,ctx){
       var exp=expFor(s,expId);holder(exp);var state=fullState(exp),contact=contactFor(s,exp);

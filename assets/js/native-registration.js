@@ -2,7 +2,8 @@
  * Passwords and personal confirmations are never copied into the draft. */
 (function(root){'use strict';
 const KEY='pulzzo_native_registration_v1';
-const take=out=>{if(!out?.ok)throw Error(out?.error||'No se pudo abrir el registro.');return out.value;};
+const take=out=>{if(!out?.ok){const e=Error(out?.error||'No se pudo abrir el registro.');e.code=out?.code;throw e;}return out.value;};
+const LOGIN_CODES=['EXISTING_ACCOUNT_EMAIL','EXISTING_ACCOUNT_PHONE','EXISTING_LOGIN_REQUIRED','IDENTITY_RECONCILIATION'];
 function stage(kind,data){
  const p=new URLSearchParams(root.location.search), email=String(data.email||'').trim().toLowerCase();
  if(!['doctor','patient'].includes(kind)||!email||!String(data.name||'').trim()||!String(data.phone||'').trim())throw Error('Completa los datos iniciales.');
@@ -20,7 +21,10 @@ function verify(){
  let draft,store,api,actor,challenge,completed=false,registeredExp=null,pageActive=true,restored=false;
  root.addEventListener?.('pagehide',()=>{pageActive=false;});
  root.addEventListener?.('pageshow',event=>{if(event.persisted&&!pageActive&&!restored){restored=true;verify();}});
- const fail=e=>{message.className='toast err';message.textContent=e.message;};
+ const fail=e=>{message.className='toast err';message.textContent=e.message;
+  // v36: duplicate registration → plain message plus a direct «Iniciar sesión» button to the right portal.
+  if(LOGIN_CODES.includes(e&&e.code)&&typeof root.document.createElement==='function'&&message.appendChild){const login=root.document.createElement('a');login.className='btn btn-primary';login.dataset.duplicateLogin=draft&&draft.kind||'';const portal=e.code==='IDENTITY_RECONCILIATION'?(draft&&draft.kind==='doctor'?'patient':'doctor'):(draft&&draft.kind);login.href=portal==='doctor'?'login-doctor.html':'login-paciente.html';login.textContent='Iniciar sesión';login.style.marginTop='10px';login.style.display='inline-flex';message.appendChild(root.document.createElement('br'));message.appendChild(login);}
+ };
  try{
  draft=JSON.parse(root.sessionStorage.getItem(KEY)||'null');
  if(!draft||draft.version!==1||!['doctor','patient'].includes(draft.kind)||!Number.isFinite(draft.createdAt)||draft.createdAt>Date.now()+60000)throw Error('Vuelve al formulario inicial para iniciar una verificación nueva.');
@@ -32,7 +36,7 @@ function verify(){
  if(actor.role!=='holder'||registeredExp.kind!==draft.kind||registeredExp.holderIdentity?.id!==actor.id||registeredExp.holderIdentity?.email!==draft.email)throw Error('Vuelve a abrir el acceso de tu expediente.');
  root.document.getElementById('verify-copy').textContent='El acceso demo ya fue verificado. Continúa para terminar de guardar tus datos iniciales.';code.disabled=true;button.disabled=false;button.textContent='Continuar registro';
  }else{
- challenge=take(api.requestDemoVerification({email:draft.email,kind:draft.kind,entryToken:draft.entry||undefined,token:draft.invite||undefined,mode:'new_account'}));
+ challenge=take(api.requestDemoVerification({email:draft.email,phone:draft.phone,kind:draft.kind,entryToken:draft.entry||undefined,token:draft.invite||undefined,mode:'new_account'}));
  root.document.getElementById('verify-copy').textContent='Simulación local para '+draft.email+'. Código de ejemplo: '+challenge.demoCode+'. No se envió correo; no acredita identidad real.';
  code.disabled=false;button.disabled=false;
  }

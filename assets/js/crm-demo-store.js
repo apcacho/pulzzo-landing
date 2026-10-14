@@ -19,6 +19,7 @@
   });
   // System stages remain readable, but may only be reached by their domain flow.
   const COMMERCIAL_STAGES = Object.freeze(Object.fromEntries(Object.entries(STAGES).map(([type, stages]) => [type, Object.freeze(stages.filter(stage => stage !== 'submitted'))])));
+  const REGISTRATION_TASKS = Object.freeze(['registration_followup', 'duplicate_registration']);
   const SOURCES = Object.freeze(['unknown', 'direct', 'organic', 'campaign', 'kam_referral', 'doctor_referral', 'manual', 'direct_unknown', 'referral']);
   const ACTIVITY_TYPES = Object.freeze(['call', 'whatsapp', 'email', 'meeting', 'note', 'stage_change', 'other']);
   const plain = value => !!value && typeof value === 'object' && !Array.isArray(value) && (Object.getPrototypeOf(value) === Object.prototype || Object.getPrototypeOf(value) === null);
@@ -464,6 +465,19 @@
       const actual=(record.documents||[]).filter(d=>d.onboardingPath);
       if(actual.length!==projection.documents.length||projection.documents.some(d=>!actual.some(a=>Object.keys(d).every(k=>equal(a[k],d[k])))))fail('onboarding_projection','Los documentos deben conservar exactamente su vínculo al formulario completo.');
     }
+    // v36: a holder may only add the follow-up task of its own new self-service registration,
+    // or the single open alert of a repeated registration attempt on an existing contact.
+    function holderRegistrationTask(before, after, old, task) {
+      if (!plain(task) || !REGISTRATION_TASKS.includes(task.kind) || task.status !== 'open' || task.systemManaged) return false;
+      const contact = after.contacts[task.contactId];
+      if (!contact || contact.deletedAt) return false;
+      if (task.kind === 'registration_followup') return !old && !before.contacts[task.contactId] && contact.holderId === actor.id && contact.accountId === actor.id && contact.captureMechanism === 'self_service' && Object.values(after.tasks).filter(t => t.kind === 'registration_followup' && t.contactId === task.contactId).length === 1;
+      if (!equal(before.contacts[task.contactId], contact)) return false;
+      if (Object.values(after.tasks).filter(t => t.kind === 'duplicate_registration' && t.contactId === task.contactId && t.status === 'open').length !== 1) return false;
+      if (!old) return task.attempts === 1;
+      const changed = Object.keys(Object.assign({}, old, task)).filter(k => !equal(old[k], task[k]));
+      return old.status === 'open' && changed.every(k => ['attempts', 'lastAttemptAt', 'lastMatchedBy', 'updatedAt'].includes(k)) && task.attempts === (old.attempts || 1) + 1;
+    }
     function assertAuthorization(before, after, ctx) {
       if(centralStaff){
         const capability=assignmentProofs.has(after)?'crmAssign':'crmEdit';
@@ -495,7 +509,7 @@
         if (old && old.contactId !== record.contactId) fail('identity_locked', 'Un registro no puede trasladarse a otra identidad.');
         if (!centralStaff&&actor.role === 'kam' && (previous || contact).assignedKam !== actor.id) fail('forbidden', 'El expediente no está asignado a este KAM.');
         if (actor.role === 'holder') {
-          if (key === 'tasks') fail('forbidden', 'Las tareas CRM corresponden al equipo KAM.');
+          if (key === 'tasks') { if (!holderRegistrationTask(before, after, old, record)) fail('forbidden', 'Las tareas CRM corresponden al equipo KAM.'); continue; }
           const claim = sameWriteClaim(before, after, record.contactId, ctx.now);
           if (!claim && !(contact.holderId === actor.id && contact.accountId === actor.id)) fail('forbidden', 'El titular no tiene acceso al expediente.');
           if (key === 'invitations' && !claim) fail('forbidden', 'El titular sólo puede aceptar su invitación vigente.');
@@ -682,7 +696,8 @@
           if (!!old.deletedAt !== !!c.deletedAt) assertLifecycleChange(before, after, old, c, ctx);
           else if (old.deletedAt && !equal(old, c)) fail('archived_contact', 'El contacto archivado conserva su identidad y su historial.');
         }
-        for (const [index, value] of [[emails, c.email], [phones, c.phone]]) {
+        // v36: the same phone may exist once per type (patient vs doctor); it is flagged for review on both fichas.
+        for (const [index, value] of [[emails, c.email], [phones, c.phone ? c.type + ':' + c.phone : c.phone]]) {
           if (!value) continue;
           if (has(index, value) && index[value] !== id) {
             const other = after.contacts[index[value]];
@@ -766,7 +781,7 @@
           // Standalone legacy demos support caller-defined actor IDs; integrated
           // sessions always require the current active directory assignment.
           const legacyOwnActor = !staffAccess && owner === actor.id && ['kam', 'admin'].includes(actor.role);
-          if (!owner || !(validAssignment(owner) || legacyOwnActor)) fail('task_owner_required', 'Asigna un responsable antes de crear una tarea');
+          if (!(REGISTRATION_TASKS.includes(task.kind) && actor.role === 'holder') && (!owner || !(validAssignment(owner) || legacyOwnActor))) fail('task_owner_required', 'Asigna un responsable antes de crear una tarea');
         }
         if (old && (old.createdAt !== task.createdAt || old.createdBy !== task.createdBy || old.status === 'closed' && !equal(old, task))) fail('immutable_history', 'Una tarea cerrada y sus datos de creación son inmutables.');
         if (!equal(old, task)) {
@@ -785,6 +800,8 @@
         if (!STAGES[ref.type] || !isId(ref.kamId) || !isId(ref.token)) fail('invalid_referral', 'El enlace DEMO no es válido.');
         const old = before.referrals[id];
         if (old && ['token', 'kamId', 'type', 'createdAt'].some(k => old[k] !== ref[k])) fail('immutable_attribution', 'Un enlace no puede cambiar de KAM ni de tipo.');
+        if (old && old.active === false && !equal(old, ref)) fail('immutable_history', 'Un enlace revocado no se reactiva; genera uno nuevo.');
+        if (old && old.active !== false && ref.active === false && (!['admin', 'leader'].includes(actor.role) || ref.revokedBy !== actor.id || ref.revokedAt !== ctx.now || !Object.values(after.audit).some(a => !before.audit[a.id] && a.action === 'referral_revoked' && a.referralId === id))) fail('audit_required', 'Revocar un enlace requiere Administración o líder, motivo y auditoría.');
       }
       for (const [id, invitation] of Object.entries(after.invitations)) {
         const old = before.invitations[id], exp = after.expedients[invitation.expedientId];
@@ -1040,6 +1057,48 @@
       if (!contact || !contact.deletedAt) fail('archived_contact_not_found', 'No se encontró el contacto archivado.');
       return clone(contact);
     }
+    // v36: repeated registration with an existing email/phone. Creates or bumps ONE open alert task
+    // for the existing contact's responsable. Returns nothing about the contact (no data leak).
+    function noteDuplicateRegistration(input, revision) {
+      return transact(revision, (draft, ctx) => {
+        if (actor.role !== 'holder') fail('holder_required', 'El aviso de registro repetido corresponde al titular.');
+        const mail = normalizeEmail(input && input.email), phone = normalizePhone(input && input.phone), type = input && input.type;
+        if (!STAGES[type]) fail('invalid_type', 'Tipo de registro inválido.');
+        const sameType = Object.values(draft.contacts).filter(c => !c.deletedAt && c.type === type && (mail && c.email === mail || phone && c.phone === phone));
+        const targets = sameType.length ? sameType : Object.values(draft.contacts).filter(c => !c.deletedAt && mail && c.email === mail);
+        for (const c of targets.slice(0, 2)) {
+          const by = mail && c.email === mail ? 'correo' : 'celular';
+          const open = Object.values(draft.tasks).find(t => t.kind === 'duplicate_registration' && t.contactId === c.id && t.status === 'open');
+          if (open) { open.attempts = (open.attempts || 1) + 1; open.lastAttemptAt = ctx.now; open.lastMatchedBy = by; open.updatedAt = ctx.now; audit(draft, ctx, 'task_updated', c.id, { taskId: open.id }); continue; }
+          const task = { id: ctx.id('task'), contactId: c.id, kind: 'duplicate_registration', title: text(((c.name || 'El contacto') + ' intentó registrarse de nuevo' + (c.assignedKam ? '' : ' · Asigna un responsable')).slice(0, 300), 300, true), dueAt: ctx.now, status: 'open', closeReason: null, createdAt: ctx.now, createdBy: actor.id, updatedAt: ctx.now, closedAt: null, closedBy: null, attempts: 1, lastAttemptAt: ctx.now, lastMatchedBy: by, demo: true };
+          draft.tasks[task.id] = task; audit(draft, ctx, 'task_created', c.id, { taskId: task.id, reason: 'duplicate_registration', matchedBy: by }); event(draft, ctx, 'duplicate_registration_attempt', c, { taskId: task.id, matchedBy: by });
+        }
+        return { noted: targets.length > 0 };
+      });
+    }
+    // v36: true when the same phone also belongs to a contact of the other type (review flag on both fichas).
+    function sharedPhoneAcrossTypes(contactId) {
+      const state = read().state, c = state.contacts[contactId];
+      if (!c || !c.phone || !canAccess(c)) return false;
+      return Object.values(state.contacts).some(o => o.id !== c.id && !o.deletedAt && o.phone === c.phone && o.type !== c.type);
+    }
+    // v36: referral links. One reusable link per KAM and type, no expiry; admin/leader may revoke with a reason.
+    function listReferrals(filter) {
+      const state = read().state; filter = filter || {};
+      if (!['admin', 'leader', 'kam'].includes(actor.role)) fail('forbidden', 'Solo el equipo PULZZO consulta enlaces de referido.');
+      return Object.values(state.referrals).filter(r => actor.role !== 'kam' ? true : r.kamId === actor.id).filter(r => !filter.type || r.type === filter.type).map(r => { const v = clone(r); v.kamActive = !staffAccess || eligibleKamIds().includes(r.kamId); if (actor.role === 'leader' && v.kamId !== actor.id) delete v.token; return v; });
+    }
+    function revokeReferral(id, reason, revision) {
+      return transact(revision, (draft, ctx) => {
+        if (!['admin', 'leader'].includes(actor.role)) fail('forbidden', 'Solo Administración o el líder pueden revocar un enlace de referido.');
+        const ref = draft.referrals[id]; if (!ref) fail('not_found', 'No existe el enlace.');
+        if (ref.active === false) fail('already_revoked', 'El enlace ya estaba revocado.');
+        const why = text(reason, 500, true);
+        ref.active = false; ref.revokedAt = ctx.now; ref.revokedBy = actor.id; ref.revokeReason = why;
+        audit(draft, ctx, 'referral_revoked', null, { referralId: ref.id, kamId: ref.kamId, contactType: ref.type, reason: why });
+        return clone(ref);
+      });
+    }
     function createReferral(type, revision) {
       return transact(revision, (draft, ctx) => {
         requireStaff(); const kamId = plain(type) ? type.kamId : actor.id, kind = plain(type) ? type.type : type;
@@ -1172,6 +1231,7 @@
       return { period: { month, year }, counts: { newContacts: newIds.size, patients: contacts.filter(c => c.type === 'patient' && newIds.has(c.id)).length, doctors: contacts.filter(c => c.type === 'doctor' && newIds.has(c.id)).length, activities: activities.length, openTasks: openTasks.length, overdueTasks: openTasks.filter(t => t.dueAt && t.dueAt < getNow()).length, submitted: submitted.size, onboardingStarted: started.size, referralContacts: contacts.filter(c => newIds.has(c.id) && ['referral', 'kam_referral', 'doctor_referral'].includes(c.originalSource)).length }, byStage, byKam, events: clone(events), currentSnapshot: { contacts: contacts.length, openTasks: openTasks.length }, demo: true };
     }
     return Object.freeze({ actor, snapshot, getIntakeRouting, setIntakeRouting, listIntakeRoutingHistory, reassignContacts, transact: scopedTransact, createContact, seedExamples, updateContact, getContact, listContacts, moveCommercialStage, setStage, reassignContact, deleteContact, restoreContact, listArchivedContacts, getArchivedContact, createReferral, resolveReferral, applyReferral, createTask, updateTask, closeTask, addActivity,
+      noteDuplicateRegistration, sharedPhoneAcrossTypes, listReferrals, revokeReferral,
       listTasks: filter => listLinked('tasks', filter), listActivities: filter => listLinked('activities', filter), listAudit: filter => listLinked('audit', filter), dashboard, operationalStatus,
       canWriteCRM:()=>{assertCurrent();return centralStaff?staffAllows('canWrite'):['admin','kam'].includes(actor.role);}, canAccessContact: id => canAccess(read().state.contacts[id]), canEditContact:id=>{const c=read().state.contacts[id];return !!c&&(centralStaff?staffAccess.can(staffSession,'crmEdit',c):['admin','kam'].includes(actor.role)&&canAccess(c));}, inspectIdentity, inspectIdentityReview, reviewIdentity, listIdentityReviews, normalizeEmail, normalizePhone });
   }
