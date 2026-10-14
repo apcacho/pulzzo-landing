@@ -1,0 +1,51 @@
+'use strict';
+// Source/cascade contracts only. No browser rendering or measured geometry claim.
+const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
+const root=path.resolve(__dirname,'..');
+const css=fs.readFileSync(path.join(root,'assets/css/backoffice-refinement.css'),'utf8');
+const html=fs.readFileSync(path.join(root,'backoffice.html'),'utf8');
+const control=css.split('/* BACKOFFICE CONTROL ROLES')[1];
+const layer=control.slice(control.indexOf('@layer backoffice-controls'),control.indexOf('/* Responsive tokens'));
+assert.match(control,/--bo-control-height:36px;\s*--bo-field-height:38px;/);
+assert.match(control,/--bo-control-radius:8px;/);
+assert.doesNotMatch(layer,/display:inline-flex!important/,'Control layout cannot reveal hidden buttons or desktop hamburger');
+assert.match(html,/\.hidden\{display:none!important\}/);
+assert.match(html,/\.mobile-menu\{display:none\}/);
+assert.match(html,/@media\(max-width:820px\)\{[^@]*\.mobile-menu\{display:inline-flex\}/,'Original drawer breakpoint retained');
+assert.match(control,/\.topbar\{display:grid!important;grid-template-columns:minmax\(0,1fr\) auto/,'Flexible heading column starts at the left content edge; actions use their own column');
+assert.match(control,/\.topbar>div:not\(\.top-actions\)\{grid-column:1;grid-row:1;min-width:0;text-align:left;overflow-wrap:anywhere\}/);
+assert.match(control,/@media\(max-width:820px\)[\s\S]*grid-template-columns:44px minmax\(0,1fr\)[\s\S]*\.topbar>div:not\(\.top-actions\)\{grid-column:2\}[\s\S]*\.top-actions\{grid-column:1 \/ -1;grid-row:2\}/,'Mobile actions get a separate row, preserving title and menu');
+assert.match(control,/\.top-actions\{grid-column:2;grid-row:1;justify-content:flex-end;min-width:0\}/,'Desktop actions stay right-aligned');
+assert.doesNotMatch(control,/minmax\(156px,1fr\)|text-align:center;overflow-wrap:anywhere/,'No balanced spacer or centered heading remains');
+assert.match(control,/padding:12px 30px!important/,'Desktop header uses the content inset');
+assert.match(control,/padding:12px 16px!important/,'Mobile header uses the content inset');
+assert.doesNotMatch(control,/\.card[^{}]*\{[^{}]*text-align:center/,'Card headings are unchanged');
+assert.match(control,/min-height:var\(--bo-field-height\)!important;height:var\(--bo-field-height\)!important;box-sizing:border-box!important;border-radius:var\(--bo-control-radius\)!important/,'Legacy 46px filters are overridden');
+assert.match(control,/select:not\(\[multiple\]\)/);
+assert.doesNotMatch(layer,/padding-right:/,'Inset select chevron clearance is preserved');
+assert.match(css,/padding-right:44px!important/);
+assert.match(control,/\.patient-profile-view-btn\{min-width:0!important;width:auto!important\}/);
+assert.match(control,/outline-offset:-2px!important/,'Keyboard ring overlays the border, with no separated halo');
+assert.doesNotMatch(control,/outline-offset:2px!important/);
+assert.match(control,/:focus\{border-color:var\(--bo-control-focus\)!important;outline:none!important;box-shadow:none!important\}/);
+assert.match(control,/\}\s*\/\* Responsive tokens[^]*@media\(max-width:820px\),\(pointer:coarse\)\{\s*body.backoffice-typography\{--bo-control-height:44px;--bo-field-height:44px\}\s*\}\s*$/,'Touch tokens are outside the layer to beat unlayered desktop defaults');
+assert.doesNotMatch(layer,/--bo-control-height:44px/);
+// Arithmetic consistency of authored CSS values, not computed browser geometry.
+const touch=control.match(/@media\(max-width:(\d+)px\),\(pointer:coarse\)\{\s*body.backoffice-typography\{--bo-control-height:(\d+)px;--bo-field-height:(\d+)px/);
+const typography=css.match(/@media\(max-width:(\d+)px\)\{[^}]*\}\s*\/\*[^]*?body.backoffice-typography :where\(input,select,textarea\)\{font-size:(\d+)px!important\}/);
+assert.ok(touch);assert.ok(typography);
+const drawer=html.match(/@media\(max-width:(\d+)px\)\{[^@]*\.mobile-menu\{display:inline-flex\}/);
+assert.ok(drawer);
+const desktopField=+control.match(/--bo-field-height:(\d+)px/)[1];
+const desktopText=+css.match(/--bo-size-body:(\d+)px/)[1];
+const lineHeight=+css.match(/:where\(input,select,textarea\)\{[^}]*line-height:([\d.]+)!important/)[1];
+const top=+control.match(/padding-top:(\d+)px!important/)[1];
+const bottom=+control.match(/padding-bottom:(\d+)px!important/)[1];
+for(const width of [320,768,769,800,820,821,1440])for(const coarse of [false,true]){
+ const mobileControl=width<=+touch[1]||coarse;
+ const field=mobileControl?+touch[3]:desktopField;
+ const text=width<=+typography[1]?+typography[2]:desktopText;
+ assert.ok(field-top-bottom-2>=text*lineHeight,`Authored field line box fits at ${width}px, coarse=${coarse}`);
+ if(width<=+drawer[1])assert.ok(mobileControl&&+touch[2]>=44,'Mobile drawer widths retain 44px targets');
+}
+console.log('PASS: compact desktop fields/actions, visibility-safe display, left-aligned responsive topbar, single inset focus and unlayered touch-scale contracts. Browser QA remains unrun.');

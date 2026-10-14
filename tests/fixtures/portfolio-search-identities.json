@@ -1,0 +1,35 @@
+[
+  {
+    "id": "RECORD-A",
+    "code": "APP-PUL-4101",
+    "fullName": "José Ángel Muñoz",
+    "phone": "+52 (55) 1234-5678",
+    "rfc": "MUAJ-900101 AB7",
+    "curp": "MUAJ 900101-HDFNNN 09",
+    "email": "Jose.Munoz+cartera@demo.test",
+    "capital": 100,
+    "received": 21
+  },
+  {
+    "id": "RECORD-B",
+    "code": "APP-PUL-4202",
+    "fullName": "Lucía Rivera",
+    "phone": "81 8765 4321",
+    "rfc": "RILL910202CD8",
+    "curp": "RILL910202MNLRVC08",
+    "email": "lucia.rivera@demo.test",
+    "capital": 200,
+    "received": 42
+  },
+  {
+    "id": "RECORD-C",
+    "code": "APP-PUL-4303",
+    "fullName": "Mateo Torres",
+    "phone": "33 9988 7766",
+    "rfc": "TOMM920303EF9",
+    "curp": "TOMM920303HJCRRT07",
+    "email": "mateo.torres@demo.test",
+    "capital": 300,
+    "received": 63
+  }
+]

@@ -1,0 +1,22 @@
+[
+  {
+    "approved": "if(copy) copy.textContent='Gestiona tu perfil y cirugías, conecta y financia en un solo lugar.';",
+    "previous": "if(copy) copy.textContent=sharedContext?'Completa el registro médico: datos, documentos, fiscal y banco, y procedimientos. Cada cambio se guarda en el mismo expediente.':'Gestiona tu perfil y cirugías, conecta y financia en un solo lugar.';"
+  },
+  {
+    "approved": "<strong>Foto pendiente</strong><p>Elige una opción para completar tu foto de perfil médico. Podrás actualizarla después.</p>",
+    "previous": "<strong>Foto opcional</strong><p>Puedes continuar sin foto. El directorio usará un avatar hasta que elijas agregar una.</p>"
+  },
+  {
+    "approved": "      p.innerHTML=`<h2 class=\"profile-section-title\">Documentos</h2><p class=\"profile-section-copy\">Resumen documental de tu cuenta médica. Las correcciones se hacen aquí mismo y solo sobre el documento solicitado por Pulzzo.</p><div class=\"profile-list\">${profileDocsHtml}</div>${renderProfileOnboardingFields(s)}<p class=\"profile-card-note\">${sharedContext?'Demo local: PDF, PNG, JPEG o WebP. Hasta 5 MiB por archivo y 25 MiB en total.':'Los archivos guardados son metadatos de demostración.'}</p>`;",
+    "previous": "      p.innerHTML=`<h2 class=\"profile-section-title\">Documentos</h2><p class=\"profile-section-copy\">Resumen documental de tu cuenta médica. ${sharedContext?'Archivos ficticios guardados en el expediente compartido. PDF, PNG, JPEG o WebP, Hasta 5 MiB por archivo y 25 MiB de evidencia local en este navegador.':'Los archivos guardados son metadatos de demostración.'}</p>${renderProfileOnboardingFields(s)}<div class=\"profile-list\">${profileDocsHtml}</div>`;"
+  },
+  {
+    "approved": "Datos para pagos y validación bancaria. Si Pulzzo solicita una corrección, solo se habilitará el campo o archivo indicado.",
+    "previous": "Datos de demostración para pagos y validación bancaria. ${s.submitted?'La edición de datos enviados requiere revisión.':'Se guardan automáticamente en este navegador. Usa solo datos ficticios.'}"
+  },
+  {
+    "approved": "<section class=\"profile-data-card\"><h3 class=\"profile-subsection-title\">Datos de incorporación</h3><p class=\"profile-section-copy\">${locked?",
+    "previous": "<section class=\"profile-data-card\"><h3>Datos de incorporación</h3><p>${locked?"
+  }
+]

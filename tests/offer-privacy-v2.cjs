@@ -1,0 +1,30 @@
+'use strict';
+const assert=require('node:assert/strict'),crypto=require('node:crypto'),b=require('../assets/pulzzo-demo-bridge.js');
+const offer={status:'enviada',approvedAmount:12345.67,termMonths:12,monthlyPayment:1171.68,paymentFrequency:'biweekly',paymentDays:[15,'last_day'],providerBaseAmount:9000,providerExtraAmount:42,commercialSpread:3000,pulzzoCommercialFee:3000,internalSecret:'SECRET',providerDispersions:[{amount:9000}],financedProcedures:[{id:'P1',approvedCost:12345.67,providerName:'Doctor',providerPayout:9000,internalSecret:'SECRET'}],disbursementSchedulePolicyVersion:1,contractedSchedule:{version:1,startDate:'2026-10-08',regularPayment:1171.68,dueDates:['2026-11-15'],secret:'SECRET'}};
+const record={id:'CASE',patientAccountId:'ACCOUNT',demoBridge:{sourceApplicationId:'APP'},application:{offerReady:true},offer};
+const reply=b.makeReply(record);
+assert.doesNotMatch(JSON.stringify(reply),/SECRET|providerBaseAmount|providerExtraAmount|commercialSpread|pulzzoCommercialFee|providerPayout|providerDispersions/);
+assert.match(reply.offerFingerprint,/^v2:[a-f0-9]{64}$/);
+assert.deepEqual(reply.offer.paymentDays,[15,'last_day']);
+assert.equal(reply.offer.contractedSchedule.regularPayment,1171.68);
+assert.deepEqual(reply.offer.contractedSchedule.dueDates,['2026-11-15']);
+assert.equal(b.fingerprint({...offer,providerBaseAmount:2}),b.fingerprint(offer));
+assert.notEqual(b.fingerprint({...offer,monthlyPayment:2}),b.fingerprint(offer));
+assert.notEqual(b.fingerprint({...offer,contractedSchedule:{...offer.contractedSchedule,dueDates:['2026-11-16']}}),b.fingerprint(offer));
+const canonical=x=>Array.isArray(x)?x.map(canonical):x&&typeof x==='object'?Object.fromEntries(Object.keys(x).sort().map(k=>[k,canonical(x[k])])):x;
+const terms=b.publicOffer(offer);delete terms.status;
+assert.equal(b.fingerprint(offer),'v2:'+crypto.createHash('sha256').update(JSON.stringify(canonical(terms))).digest('hex'));
+const state={applicationId:'APP',demoBridgeCaseId:'CASE',patientAccountId:'ACCOUNT'};b.applyReply(state,reply);assert.deepEqual(state.offer,b.publicOffer(offer));
+const malicious=structuredClone(reply);malicious.offer.providerBaseAmount=999;assert.throws(()=>b.applyReply(state,malicious),/traspaso cambió/);
+// Accepted legacy remains byte-for-byte unchanged; only safe v2 identity travels out.
+const legacyTerms=structuredClone(offer);delete legacyTerms.status;
+const legacy={...state,applicationSubmitted:true,procedure:{amount:12345.67},offerAccepted:true,offer:structuredClone(offer),demoBridgeOfferFingerprint:JSON.stringify(canonical(legacyTerms))};
+const before=JSON.stringify(legacy.offer),old=legacy.demoBridgeOfferFingerprint;b.applyReply(legacy,reply);
+assert.equal(JSON.stringify(legacy.offer),before);assert.equal(legacy.demoBridgeOfferFingerprint,old);
+const handoff=b.makeHandoff(legacy,{patientAccountId:'ACCOUNT'});assert.equal(handoff.offerFingerprint,b.fingerprint(offer));assert.doesNotMatch(handoff.offerFingerprint,/SECRET|providerBase/);b.importHandoff({patients:[record]},handoff);assert.equal(record.application.offerAccepted,true);
+assert.throws(()=>b.applyReply(legacy,{...reply,offer:{...reply.offer,monthlyPayment:999},offerFingerprint:b.fingerprint({...reply.offer,monthlyPayment:999})}),/aceptada o firmada/);
+console.log('PASS: positive patient-offer whitelist, nested-field privacy, opaque verified v2 SHA-256, quote-date binding, legacy accepted snapshot preservation and outbound identity compatibility.');
+
+const conflicting=structuredClone(handoff);conflicting.outcome.paymentFrequency='Quincenal';conflicting.outcome.preferredPaymentDay='5 y 20';const original=JSON.stringify(record);assert.throws(()=>b.importHandoff({patients:[record]},conflicting),/oferta actualizada/);assert.equal(JSON.stringify(record),original);
+conflicting.outcome.preferredPaymentDay='15 y último día del mes';b.importHandoff({patients:[record]},conflicting);
+console.log('PASS: return handoff blocks calendar-day conflicts before mutation and accepts an equivalent quoted calendar.');

@@ -1,0 +1,25 @@
+/* Shared flat surface contract. Also bundled inside the CRM ShadowRoot.
+   Elevation is communicated with borders and spacing, never shadows. */
+:root,:host{
+ --ui-surface-shadow:none;
+ --ui-surface-radius:12px;
+ --ui-surface-border:#DCE4ED;
+ --ui-surface-canvas:#F8FAFC;
+ --ui-surface-white:#FFF;
+ --ui-focus-ink:#14263D;
+ --ui-patient-accent:#20C7D4;
+ --ui-provider-accent:#FF8A5B;
+ --ui-patient-tint:#EAF9FA;
+ --ui-provider-tint:#FFF1E9;
+}
+/* A real outline survives native outline:0 rules and forced-colors mode.
+   This first declared layer outranks legacy important resets without selector stacks. */
+@layer ui-flat-accessibility{
+ :is(button,a,input,select,textarea,summary,[tabindex]):focus-visible{
+  outline:2px solid var(--ui-focus-ink,#14263D)!important;
+  outline-offset:2px!important;
+ }
+ @media(forced-colors:active){
+  :is(button,a,input,select,textarea,summary,[tabindex]):focus-visible{outline-color:Highlight!important}
+ }
+}

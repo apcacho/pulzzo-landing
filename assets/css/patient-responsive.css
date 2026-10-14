@@ -1,0 +1,5 @@
+/* Tablet identity actions must have room for two capture buttons and status. */
+@media(min-width:761px) and (max-width:900px){#view-identidad .identity-flow{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:760px){.field input,.field select,.field textarea{font-size:16px!important}}
+.auth-detail-toggle{max-width:100%;white-space:normal;overflow-wrap:anywhere}
+@media(max-width:760px){.docs-secure-field input,.reference-grid input,.reference-grid select,.procedure-provider-field input,.procedure-cost-row input{font-size:16px!important}}

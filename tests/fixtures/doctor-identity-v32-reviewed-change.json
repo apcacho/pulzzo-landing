@@ -1,0 +1,4 @@
+{
+  "previous": "const profileUploadAction=(id,label='Subir documento',index=null)=>{const btnClass=",
+  "approved": "const profileUploadAction=(id,label='Subir documento',index=null)=>{if(sharedContext&&!sharedContext.isHolder&&['official_id','clinic_rep_ine'].includes(id))return '<button class=\"profile-btn profile-btn-coral ui-action-primary\" type=\"button\" disabled title=\"La identificación debe cargarla personalmente el titular o representante desde su sesión.\">Carga personal del titular</button>';const btnClass="
+}

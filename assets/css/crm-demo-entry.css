@@ -1,0 +1,2 @@
+/* Explicit route into the unified demo, without changing legacy form handlers. */
+.crm-demo-entry{font-size:12px;line-height:1.5;border:1px solid #dce6ee;border-radius:8px;padding:10px 12px;background:#f8fafc;color:#53647b;text-align:left;overflow-wrap:anywhere}.crm-demo-entry a{color:#176f9e;font-weight:650;text-decoration:underline;text-underline-offset:3px}.ui-doctor .crm-demo-entry a{color:#a64e26}.crm-demo-entry a:focus-visible{outline:3px solid #123f63;outline-offset:3px}

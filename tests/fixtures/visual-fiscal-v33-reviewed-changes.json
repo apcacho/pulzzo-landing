@@ -1,0 +1,6 @@
+[
+  {
+    "previous": "<div class=\"profile-edit-grid\">${profileDataField('fiscal.titular'",
+    "approved": "<div class=\"profile-edit-grid profile-fiscal-grid\">${profileDataField('fiscal.titular'"
+  }
+]

@@ -1,0 +1,37 @@
+PASS 122 inline scripts parse; local asset references exist.
+PASS all280 published runtime files match exact bytes; bundle checked against canonical CSS/source.
+PASS patient visible prerequisite/link, stable expediente, registered holder continues to native route
+PASS doctor visible prerequisite/link, stable expediente, registered holder continues to native route
+PASS patient kam: exact .html route opens, saves and resumes the same expediente
+PASS patient kam: exact clean route opens, saves and resumes the same expediente
+PASS patient admin: exact .html route opens, saves and resumes the same expediente
+PASS patient admin: exact clean route opens, saves and resumes the same expediente
+PASS patient holder: exact .html route opens, saves and resumes the same expediente
+PASS patient holder: exact clean route opens, saves and resumes the same expediente
+PASS doctor kam: exact .html route opens, saves and resumes the same expediente
+PASS doctor kam: exact clean route opens, saves and resumes the same expediente
+PASS doctor admin: exact .html route opens, saves and resumes the same expediente
+PASS doctor admin: exact clean route opens, saves and resumes the same expediente
+PASS doctor holder: exact .html route opens, saves and resumes the same expediente
+PASS doctor holder: exact clean route opens, saves and resumes the same expediente
+PASS patient: actual CRM continuation and page bootstrap at .html deployment path
+PASS patient: actual CRM continuation and page bootstrap at clean deployment path
+PASS doctor: actual CRM continuation and page bootstrap at .html deployment path
+PASS doctor: actual CRM continuation and page bootstrap at clean deployment path
+PASS patient kam: actual registration gateway redirects from .html path without legacy writes
+PASS patient kam: actual registration gateway redirects from clean path without legacy writes
+PASS patient holder: actual registration gateway redirects from .html path without legacy writes
+PASS patient holder: actual registration gateway redirects from clean path without legacy writes
+PASS patient kam: invalid session recovery returns to its own access flow
+PASS patient holder: invalid session recovery returns to its own access flow
+PASS patient: unrelated, other-kind, malformed and absent paths fail closed
+PASS patient: clean path retains exact query scope, identity, nonce and expiration checks
+PASS patient: old context cannot replay after reopening; clean path does not bypass reassignment or stale revisions
+PASS patient: clean holder path retains exact owner, expediente and logout scope
+PASS patient: changing a live clean path to another page invalidates the already-open adapter
+PASS doctor: unrelated, other-kind, malformed and absent paths fail closed
+PASS doctor: clean path retains exact query scope, identity, nonce and expiration checks
+PASS doctor: old context cannot replay after reopening; clean path does not bypass reassignment or stale revisions
+PASS doctor: clean holder path retains exact owner, expediente and logout scope
+PASS doctor: changing a live clean path to another page invalidates the already-open adapter
+PASS: 32 full-path onboarding routing and session regressions; VM execution only, no browser/network.

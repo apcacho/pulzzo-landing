@@ -1,0 +1,13 @@
+/* Operational queues share the backoffice typography and native select treatment. */
+.operational-filters{display:flex;flex-wrap:wrap;gap:12px;margin:0 0 18px}
+.operational-filter{display:flex;flex-direction:column;gap:6px;min-width:180px;max-width:100%;color:var(--muted)}
+.operational-filter select,.operational-filter input{min-height:44px;width:100%;border:1px solid var(--line2);border-radius:10px;padding:10px 12px;background:#fff;color:var(--text)}
+.operational-meta{display:block;color:var(--muted);margin-top:5px;overflow-wrap:anywhere}
+.operational-actions{display:flex;flex-wrap:wrap;gap:6px;min-width:180px}
+#corrections .table td,#offers .table td{white-space:normal;overflow-wrap:anywhere}
+.operational-history-card{padding:18px;border:1px solid var(--line2);border-radius:14px;margin-bottom:12px;background:#fff;overflow-wrap:anywhere}
+.operational-history-card dl{display:grid;grid-template-columns:minmax(100px,1fr) 2fr;gap:6px;margin:12px 0}
+.operational-history-card dd{margin:0}
+.operational-pagination{display:flex;gap:12px;align-items:center;margin:16px 0;flex-wrap:wrap}
+@media(max-width:600px){.operational-filter{width:100%;min-width:0}.operational-filters{gap:10px}.operational-history-card dl{grid-template-columns:1fr}.operational-history-card{padding:14px}}
+
