@@ -1,5 +1,5 @@
 # PULZZO v36 asistido (2026-10-14). Cambios
-Rama `grok/asistido-20261014` (base: rama `baseline`, commit 346ed13). No se hizo push ni deploy.
+Rama `grok/asistido-20261014` (remota: https://github.com/apcacho/pulzzo-landing/tree/grok/asistido-20261014) (base: rama `baseline`, commit 346ed13). No se hizo push ni deploy.
 
 1. Diálogo previo «Primero el cliente debe registrarse»: explica qué falta, da un enlace copiable e incluye una nota de mismo navegador. Archivo: `assets/js/crm-demo-ui.js`.
 2. Teléfono y correo obligatorios en contactos CRM. El teléfono del registro pasa a la ficha (evento `holder_phone_saved`). Los teléfonos ficticios `5500000xxx` solo están en los datos semilla. Archivos: `crm-demo-store.js`, `crm-assisted.js`, `native-registration.js`, `crm-demo-ui.js`.

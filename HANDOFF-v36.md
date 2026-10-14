@@ -67,3 +67,15 @@
   - No se encontraron tokens ni llaves: solo hay referencias a endpoints OAuth en `server/google.mjs`, sin secretos.
   - Las imágenes son activos de marca (logo, favicon, hero, OG).
   - No hay expedientes reales.
+
+## Publicación: actualización (2026-10-14, 1:45 p.m. CDMX)
+- Push realizado (rama nueva, sin --force): https://github.com/apcacho/pulzzo-landing/tree/grok/asistido-20261014
+  - Primer push: commit 1a01eaf. Esta actualización de documentos se subió encima como fast-forward.
+  - Las demás ramas no cambiaron: main 291d043, feature/crm-assisted-demo-20261009 9171ab6, fix/demo-flows-20261007 291d043, backup/demo-v22-20261008 91eb749.
+- Auditoría previa al push sobre exactamente lo que se subió (465 archivos y todo el historial de la rama): sin los 4 documentos excluidos, sin node_modules, sin tokens ni llaves privadas, sin expedientes reales.
+- GitHub Pages: ya está en uso. El API muestra source main:/, build legacy, https://apcacho.github.io/pulzzo-landing/. NO se cambió. Demo pública de v36: no publicada.
+- Opciones para publicar la demo (requieren decisión del usuario):
+  - (a) Cambiar la fuente de Pages a la rama grok/asistido-20261014. Reemplaza la landing actual.
+  - (b) Repo aparte (p. ej. pulzzo-demo-v36) con su propio Pages. Requiere un token con acceso a ese repo.
+  - (c) Pages con GitHub Actions. También cambia la configuración actual.
+  - (d) Hosting estático externo (Netlify, Cloudflare Pages).
