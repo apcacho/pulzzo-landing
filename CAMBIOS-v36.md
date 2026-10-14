@@ -22,3 +22,35 @@ Tests nuevos: `tests/v36-assisted.cjs`, `tests/dispersion-period-days.cjs`. Fixt
    - El nombre anterior se guarda en `nameHistory` con la etiqueta «nombre capturado por KAM»; además se registra el evento `holder_name_saved`.
    - La regla de identidad en `crm-demo-store.js` admite solo este cambio exacto, solo cuando lo hace el titular.
    - Test en `tests/v36-assisted.cjs`.
+
+## v36b · Registro → CRM (2026-10-14)
+1. **Origen orgánico.** El registro propio sin enlace guarda `originalSource:'organic'` y la ficha muestra «Orgánico». No se agregó la pregunta «¿cómo nos conociste?». Archivos: `crm-assisted.js` (createSelfService) y `crm-demo-ui.js` (etiqueta).
+2. **Tarea automática por registro nuevo** (orgánico o referido):
+   - Se crea UNA tarea «Contactar a {nombre} · nuevo registro» para el responsable, con vencimiento a 24 h. Las fechas se muestran en CDMX.
+   - Si no hay responsable, el título agrega «· Falta asignar responsable».
+   - Se ve en la ficha y en el módulo Tareas, y no se duplica al reingresar.
+   - Archivos: `crm-assisted.js` (`registrationTask`) y `crm-demo-store.js` (`holderRegistrationTask`: el titular solo puede crear esta tarea en la misma escritura de su alta).
+   - El responsable sigue la configuración del CRM (admin / líder / turnos).
+3. **Solicitudes «En captura»:**
+   - Solicitudes de pacientes y Solicitudes de doctores y clínicas muestran los registros desde el alta, en el bloque «Solicitudes/Altas en captura». Cada fila trae «En captura», los pendientes y documentos, y el enlace a la ficha CRM; es el mismo expediente.
+   - «Evaluar» y «Generar oferta / Aprobar alta» quedan deshabilitados hasta el envío.
+   - Los expedientes enviados se incorporan automáticamente, de forma idempotente. El botón «Importar expediente seleccionado» de Altas CRM sigue funcionando; si el expediente ya existía, responde «ya estaba importado».
+   - Archivo: `crm-demo-office.js`.
+4. **Enlaces de referido:**
+   - Cada KAM tiene 2 enlaces permanentes y reutilizables: pacientes, y doctores/clínicas. No caducan.
+   - Botón «Mis enlaces de referido»: muestra ambos, con copiar y vista del cliente. Ojo: el botón ya existía como «Invitar a un cliente nuevo»; el hallazgo de la revisión previa de que «no había botón» era un error mío de prueba.
+   - Administración y el líder tienen el botón «Enlaces de referido», que lista todos y permite revocar con motivo. La revocación queda en el historial (`referral_revoked`) y no se puede reactivar.
+   - El enlace se desactiva si el KAM queda inactivo (regla existente).
+   - Archivos: `crm-demo-store.js` (`listReferrals`, `revokeReferral`, reglas), `crm-demo-ui.js`, `crm-demo-template.js`, `crm-demo.html`.
+5. **Duplicados:**
+   - Los mensajes son claros: «Ya tienes una cuenta con este correo/celular. Inicia sesión para continuar.», con botón «Iniciar sesión» al portal correcto.
+   - El celular se revisa ANTES de pedir el código.
+   - Se crea UNA alerta «{nombre} intentó registrarse de nuevo» para el responsable de la ficha existente. Si ya hay una abierta, solo suma intentos.
+   - El mismo celular entre paciente y doctor se permite, y ambas fichas muestran «Revisar: este celular también está en un registro de …». Dentro del mismo tipo sigue bloqueado.
+   - Archivos: `crm-assisted.js`, `crm-demo-store.js` (`noteDuplicateRegistration`, `sharedPhoneAcrossTypes`, índice de celular por tipo), `native-registration.js`, `crm-demo-ui.js`.
+6. **Bugs:**
+   - «Hola, Dr. Dr.» (`registro-doctor.html`, profileGreetingParts).
+   - El menú móvil «Solicitar financiamiento» ahora lleva a `registro-paciente.html` (`index.html`).
+   - Insignia «v36 · revisión incompleta» (`index.html`, `backoffice.html`) y `VERSION.json`.
+   - El «Aviso de privacidad» del pie SÍ es visible en escritorio: el enlace oculto era el del modal cerrado, así que no se cambió CSS.
+7. Tests: nuevo `tests/v36-registro-crm.cjs`. Se ajustaron `crm-assisted`, `crm-intake-routing`, `crm-intake-owner-routing` y `crm-organic-signup`, y se agregó una inversa en `tests/fixtures/v36-reviewed-changes.json` para `registro-doctor.html`.

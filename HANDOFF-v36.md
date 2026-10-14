@@ -79,3 +79,22 @@
   - (b) Repo aparte (p. ej. pulzzo-demo-v36) con su propio Pages. Requiere un token con acceso a ese repo.
   - (c) Pages con GitHub Actions. También cambia la configuración actual.
   - (d) Hosting estático externo (Netlify, Cloudflare Pages).
+
+## v36b · Decisiones del usuario: registro → CRM (implementadas)
+1. Registro sin enlace: origen «Orgánico» (`organic`). Sin campo «¿cómo nos conociste?».
+2. Responsable según la configuración del CRM (admin / líder / turnos entre KAMs activos). Cada registro nuevo crea UNA tarea «Contactar a {nombre} · nuevo registro» que vence en 24 h (CDMX). Sin responsable, la tarea lo indica. No se duplica.
+3. Los registros aparecen en Solicitudes de pacientes / doctores y clínicas desde el alta como «En captura», con su avance; es el mismo expediente. La evaluación y la oferta se habilitan solo tras el envío. La importación manual de Altas CRM se conserva y es inofensiva.
+4. Dos enlaces de referido por KAM, reutilizables y sin caducidad. Se desactivan si el KAM queda inactivo o si Administración o el líder los revocan (con historial).
+5. Duplicados: mensaje claro con «Iniciar sesión», celular revisado antes del código y alerta deduplicada al responsable. Mismo celular entre paciente y doctor: permitido y marcado para revisión en ambas fichas; en el mismo tipo, bloqueado.
+6. Bugs corregidos: «Dr. Dr.», menú móvil, insignia v36.
+
+## Pendiente para la fase con backend
+- No existen la recuperación de contraseña ni el cambio de celular: la demo no tiene autenticación real.
+- Decisión: el celular solo lo cambia el equipo PULZZO, con validación de identidad.
+
+## Dudas de negocio abiertas (registro → CRM)
+- La alerta de registro repetido vence «ahora» (sale como vencida). ¿Debe tener otro plazo?
+- Correo existente en OTRO tipo (paciente ↔ doctor): sigue bloqueado con mensaje claro y alerta. ¿Debe permitirse como con el celular?
+- Correo o celular de una ficha creada por un KAM SIN cuenta: el mensaje dice «Tu asesor PULZZO te enviará tu enlace personal» y se crea la alerta. ¿Es el texto correcto?
+- Enlace de referido revocado: hoy el registro se detiene con error. ¿Debe seguir como registro orgánico?
+- Incorporación automática de enviados: ocurre cuando alguien con permiso abre el backoffice. ¿Basta así para la demo?
