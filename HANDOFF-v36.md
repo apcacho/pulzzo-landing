@@ -180,3 +180,6 @@ Cambio mínimo sobre el directorio existente (`staff-access.js`): los «roles» 
 
 ## v36j — 2026-10-15 01:09 CDMX
 Sidebar fijo (backoffice-sidebar.css, ≥821px), tarjetas en captura (crm-demo-office.js/crm-office.css), títulos sin duplicar (backoffice.html, backoffice-portfolio.js, backoffice-configuration.js). Tests 128/129 (crm-contact-simplification preexistente). Capturas: pulzzo-work-out/browser-v36j/. Pendiente: eliminación de grupos (pregunta abierta).
+
+## v36k — 2026-10-15 01:45 CDMX
+CRM inline: configCrmPage/configCrmSave/configOpenCrmPage/configOpenCrmRedistribute en backoffice-configuration.js (store CRM propio vía PulzzoCRMStore.createStore con la sesión del directorio). Productos: configProductsPage + CONFIG_CREDIT_LIMITS_EXAMPLE + configOfferLimitCheck (listener/MutationObserver, sin tocar el script inline). Sidebar: backoffice-sidebar.css (#nav con scroll propio). intakeSettings (modal) sigue como respaldo solo si no existe configOpenCrmPage. Capturas: pulzzo-work-out/browser-v36k/.

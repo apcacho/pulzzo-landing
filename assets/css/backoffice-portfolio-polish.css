@@ -832,3 +832,31 @@ body.portfolio-payment-open{overflow:hidden;overscroll-behavior:none}
 @media(max-width:900px){#settings :is(.cfg-policy,.cfg-pending),#settings .cfg-version-panel{padding:16px}#settings .cfg-rules-head .btn{width:100%}}
 /* v36j: the top-level storage note keeps its card padding (the nested review note rule above zeroed it). */
 #settings>.cfg-impact-note{padding:14px 16px}
+/* v36k: Configuración > CRM inline page and «Valores por defecto y límites del crédito» cards. */
+#settings .crmcfg,#settings .cfg-products{display:grid;gap:16px}
+#settings .crmcfg-card{justify-items:stretch}
+#settings .crmcfg-card h3{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+#settings .crmcfg-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+#settings .crmcfg-option{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line2,#E5EBF2);border-radius:12px;padding:12px 14px;cursor:pointer;background:#fff}
+#settings .crmcfg-option:has(input:checked){border-color:var(--teal,#14B8C4);background:#F0FDFF}
+#settings .crmcfg-option input{margin-top:3px;accent-color:var(--teal,#14B8C4)}
+#settings .crmcfg-option span{display:grid;gap:4px}
+#settings .crmcfg-option small{color:var(--muted,#64748B);font-size:13px;line-height:1.4}
+#settings .crmcfg-example{margin:0;padding:10px 12px;border-radius:10px;background:#F8FAFC;color:var(--ink,#0F172A);font-size:14px;line-height:1.45}
+#settings .crmcfg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+#settings .crmcfg-grid .field,#settings .crmcfg-card>.field{display:grid;gap:6px}
+#settings .crmcfg-card textarea{width:100%;min-height:64px}
+#settings .crmcfg-switches{display:grid;gap:10px}
+#settings .crmcfg-rule p{margin:0}
+#settings .crmcfg-rule .btn{justify-self:start}
+#settings .crmcfg-actions{display:flex;justify-content:flex-start}
+#settings .crmcfg-history summary{cursor:pointer;font-weight:600}
+#settings .crmcfg-history ul{margin:10px 0 0;padding-left:18px;display:grid;gap:8px}
+#settings .crmcfg-msg{margin:0;padding:10px 14px;border-radius:10px;background:#ECFDF5;color:#065F46}
+#settings .crmcfg-msg.is-error{background:#FEF2F2;color:#991B1B}
+#settings .cfg-prod-card{border:1px solid var(--line2,#E5EBF2);border-radius:16px;padding:22px;background:#fff}
+#settings .cfg-prod-card h3{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0}
+#settings .cfg-prod-card dd small{color:var(--muted,#64748B);font-size:12px;margin-left:4px}
+#settings .cfg-prod-card.is-disabled{opacity:.6;background:#F8FAFC}
+.offer-limit-warning{margin:10px 0;padding:10px 14px;border:1px solid #FCD34D;border-radius:10px;background:#FFFBEB;color:#92400E;font-size:14px}
+.offer-limit-warning[hidden]{display:none}

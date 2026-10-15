@@ -119,3 +119,11 @@ Tests nuevos: `tests/v36-assisted.cjs`, `tests/dispersion-period-days.cjs`. Fixt
 - Títulos duplicados retirados: Cartera y Configuración (queda subtítulo); Pacientes → "Directorio de pacientes"; Doctores y clínicas → "Directorio de doctores y clínicas"; Solicitudes de doctores → "Bandeja de solicitudes".
 - Glitch: nota "Demo local" de Configuración recupera su padding.
 - Hashes inline re-pinneados; backoffice-typography ajustado (Configuración sin h2 duplicado).
+
+## v36k — 2026-10-15 01:45 CDMX
+- Sidebar: logo y «Backoffice operativo» fijos arriba, usuario/cerrar sesión fijos abajo; solo la lista de secciones hace scroll (escritorio y móvil).
+- Configuración > CRM: página en línea (sin modal) con 3 tarjetas con ejemplo (quién recibe registros sin KAM; KAMs en turnos con switches; switch «el líder puede asignar» que guarda el mismo booleano), responsables de Administración/líder, motivo obligatorio, historial, y tarjeta de solo lectura «Cuando un KAM deja de estar disponible». Se quitó «Configuración del CRM» de la barra del CRM (también en crm-demo.html); la acción crm-settings abre la nueva página.
+- Productos → «Valores por defecto y límites del crédito»: tarjetas «Cómo arranca cada oferta», «Límites» (ejemplo, por definir), «Comisiones e IVA» (mismo texto y lógica), «Seguros · próximamente» (deshabilitada). Versionado igual; cada tarjeta abre su panel de versión.
+- Oferta: aviso no bloqueante «Fuera de límites: requiere Administración» (tasa, plazo, monto) con los límites de ejemplo.
+- Brechas: (1) al desactivar un KAM sus clientes existentes NO se reasignan automáticamente (solo los registros nuevos con enlace revocado/KAM inactivo siguen la regla y quedan en historial); (2) la frecuencia de pago no se puede cambiar en la oferta (viene de la solicitud o del valor por defecto); (3) los límites no existían: son valores de ejemplo, no validados.
+- Tests: nuevo tests/v36k-config.cjs; configuration-polish ajustado (6 pestañas, tarjetas).

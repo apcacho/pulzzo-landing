@@ -38,3 +38,8 @@
   body:has(#appView:not(.hidden))>:is(#demo-servicing-panel,#pulzzo-demo-handoff,#crm-intake-panel){margin-left:298px !important}
   body:has(#appView.sidebar-collapsed:not(.hidden))>:is(#demo-servicing-panel,#pulzzo-demo-handoff,#crm-intake-panel){margin-left:96px !important}
 }
+/* v36k: logo + "Backoffice operativo" stay pinned at the top of the menu (and the user card at the
+   bottom); only the nav list scrolls inside the sidebar. Applies to the desktop rail and the mobile drawer. */
+#appView>#sidebar{overflow:hidden}
+#appView>#sidebar>.side-brand,#appView>#sidebar>.internal-pill,#appView>#sidebar>.side-footer{flex:0 0 auto}
+#appView>#sidebar>#nav{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.25) transparent}

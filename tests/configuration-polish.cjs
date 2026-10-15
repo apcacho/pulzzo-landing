@@ -104,7 +104,8 @@ test('Readonly users have no enabled editor or save path',()=>{
  const r=runtime();r.run("session=testStaffSession('readonly')");for(const tab of ['product','tax','payments','extensions']){r.mount(tab);assert.match(r.el('settings').innerHTML,/Solo el administrador/);for(const node of r.elements.values())if(['input','select'].includes(node.tagName))assert.equal(node.disabled,true,node.id);r.run('configShowPreview();configSubmit()');assert.equal(appStorageSize(r.storage),0);assert.doesNotMatch(r.el('settings').innerHTML,/onclick="configSubmit/);}
 });
 test('All eight sections distinguish editable, fixed and pending capabilities',()=>{
- const r=runtime();r.mount('product');assert.equal((r.el('settings').innerHTML.match(/onclick="configSelectTab/g)||[]).length,8);assert.match(r.el('settings').innerHTML,/Editable por administrador/);assert.match(r.el('settings').innerHTML,/Reglas vigentes · solo consulta/);
+ const r=runtime();// v36k (2026-10-15): «Valores por defecto y límites del crédito» shows product+tax as cards on one page (no sub-tabs: 6 tab buttons).
+ r.mount('product');assert.equal((r.el('settings').innerHTML.match(/onclick="configSelectTab/g)||[]).length,6);assert.match(r.el('settings').innerHTML,/Editable por administrador/);assert.match(r.el('settings').innerHTML,/Cómo arranca cada oferta/);assert.match(r.el('settings').innerHTML,/Comisiones e IVA/);r.mount('payments');assert.match(r.el('settings').innerHTML,/Reglas vigentes · solo consulta/);
  for(const tab of ['collections','disbursement','history']){r.mount(tab);assert.doesNotMatch(r.el('settings').innerHTML,/onclick="configSubmit\(\)"/);}
  r.mount('collections');assert.match(r.el('settings').innerHTML,/Pendiente · no disponible en esta demo/);assert.match(r.el('settings').innerHTML,/No se envían comunicaciones/);
  r.mount('tax');assert.match(r.el('settings').innerHTML,/IVA fijo 16%/);assert.match(r.el('settings').innerHTML,/18-A pendiente/);
