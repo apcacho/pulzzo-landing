@@ -19,7 +19,8 @@
   });
   // System stages remain readable, but may only be reached by their domain flow.
   const COMMERCIAL_STAGES = Object.freeze(Object.fromEntries(Object.entries(STAGES).map(([type, stages]) => [type, Object.freeze(stages.filter(stage => stage !== 'submitted'))])));
-  const REGISTRATION_TASKS = Object.freeze(['registration_followup', 'duplicate_registration']);
+  const REGISTRATION_TASKS = Object.freeze(['registration_followup', 'duplicate_registration', 'cross_type_request', 'client_entered']);
+  const TYPE_LABEL = Object.freeze({ patient: 'paciente', doctor: 'doctor' });
   const SOURCES = Object.freeze(['unknown', 'direct', 'organic', 'campaign', 'kam_referral', 'doctor_referral', 'manual', 'direct_unknown', 'referral']);
   const ACTIVITY_TYPES = Object.freeze(['call', 'whatsapp', 'email', 'meeting', 'note', 'stage_change', 'other']);
   const plain = value => !!value && typeof value === 'object' && !Array.isArray(value) && (Object.getPrototypeOf(value) === Object.prototype || Object.getPrototypeOf(value) === null);
@@ -147,6 +148,7 @@
     // Private proof for review audit entries. The public transaction adapter cannot
     // fabricate a review decision, even though all roles here remain a DEMO.
     const reviewProofs = new WeakMap();
+    const holderClaimProofs = new WeakMap(), crossTypeProofs = new WeakSet(), crossTypeAction = Object.freeze({});
     const intakeProofs = new WeakMap(), assignmentProofs = new WeakSet(), leaderAssignment = Object.freeze({}),configAction=Object.freeze({});
     function intakeProof(draft){let proof=intakeProofs.get(draft);if(!proof){proof={allocations:[],config:null};intakeProofs.set(draft,proof);}return proof;}
 
@@ -303,7 +305,10 @@
       if (input.referralToken) { const ref = referralFor(draft, input.referralToken, type); originalSource = 'kam_referral'; referringKam = ref.kamId; }
       else if (['referral', 'kam_referral'].includes(originalSource) || input.referringKam) fail('invalid_referral', 'El origen referido requiere un token DEMO válido.');
       if (!SOURCES.includes(originalSource)) fail('invalid_source', 'El origen del contacto no es válido.');
+      // v36c: same person enabled for the other type from its CRM ficha → new record linked to it, never a merged identity.
+      const crossLinks = input.crossTypeLink === true ? Object.values(draft.contacts).filter(o => !o.deletedAt && o.type !== type && (o.email === email || o.phone === phone) && o.crossTypeAccess && o.crossTypeAccess[type] && o.crossTypeAccess[type].enabled === true).map(o => o.id) : [];
       const legacy = findLegacyIdentity(storage, { type, email, phone, accountId: actor.role === 'holder' ? actor.id : null });
+      if (crossLinks.length) legacy.matches = legacy.matches.filter(m => m.type === type);
       if (legacy.matches.length) fail('existing_account_requires_login', 'Esta identidad ya existe en un portal o backoffice. Concilia el registro y usa el acceso explícito del titular; no se creó un duplicado.');
       if(centralStaff&&staffContext.writeScope==='own'&&!eligibleKamIds().includes(actor.id)&&!(staffSession.roles||[]).includes('admin'))fail('kam_role_required','Para crear contactos propios, Administración debe agregar el rol KAM a esta cuenta.');
       if(actor.role==='holder'&&input.assignedKam)fail('forbidden','El titular no puede elegir una asignación comercial.');
@@ -321,6 +326,7 @@
         intakeRecipientRole, intakeRoutingMode, originalSource, captureMechanism: input.captureMechanism || (actor.role === 'holder' ? 'self_service' : 'crm_manual'), referringKam, assignedKam: assignedKam || null, assistingActors: actor.role === 'kam' ? [actor.id] : [],
         createdAt: ctx.now, updatedAt: ctx.now, createdBy: actor.id, deletedAt: null,
         holderId: null, accountId: null, accountExists: false, notes: text(input.notes || '', 6000, false) };
+      if (crossLinks.length) contact.linkedContactIds = crossLinks;
       intakeProof(draft).allocations.push({id:contact.id,assignedKam:contact.assignedKam,intakeRecipientRole,intakeRoutingMode});
       return contact;
     }
@@ -472,18 +478,28 @@
       const contact = after.contacts[task.contactId];
       if (!contact || contact.deletedAt) return false;
       if (task.kind === 'registration_followup') return !old && !before.contacts[task.contactId] && contact.holderId === actor.id && contact.accountId === actor.id && contact.captureMechanism === 'self_service' && Object.values(after.tasks).filter(t => t.kind === 'registration_followup' && t.contactId === task.contactId).length === 1;
+      if (task.kind === 'client_entered') return !old && validSelfClaim(before, after, task.contactId) && Object.values(after.tasks).filter(t => t.kind === 'client_entered' && t.contactId === task.contactId && !before.tasks[t.id]).length === 1;
       if (!equal(before.contacts[task.contactId], contact)) return false;
-      if (Object.values(after.tasks).filter(t => t.kind === 'duplicate_registration' && t.contactId === task.contactId && t.status === 'open').length !== 1) return false;
+      if (task.kind === 'cross_type_request' && !STAGES[task.requestedType]) return false;
+      if (Object.values(after.tasks).filter(t => t.kind === task.kind && t.contactId === task.contactId && t.status === 'open' && (t.kind !== 'cross_type_request' || t.requestedType === task.requestedType)).length !== 1) return false;
       if (!old) return task.attempts === 1;
       const changed = Object.keys(Object.assign({}, old, task)).filter(k => !equal(old[k], task[k]));
       return old.status === 'open' && changed.every(k => ['attempts', 'lastAttemptAt', 'lastMatchedBy', 'updatedAt'].includes(k)) && task.attempts === (old.attempts || 1) + 1;
+    }
+    // v36c: a KAM-created contact without an account may be claimed by the client who verified the same email or phone.
+    function validSelfClaim(before, after, id) {
+      if (actor.role !== 'holder' || holderClaimProofs.get(after) !== id) return false;
+      const old = before.contacts[id], c = after.contacts[id];
+      if (!old || !c || old.deletedAt || old.holderId || old.accountId || old.accountExists || old.type !== c.type) return false;
+      if (c.holderId !== actor.id || c.accountId !== actor.id || c.accountExists !== true || !(old.email === c.email || old.phone === c.phone)) return false;
+      return Object.values(after.audit).some(a => !before.audit[a.id] && a.action === 'kam_contact_self_claimed' && a.contactId === id);
     }
     function assertAuthorization(before, after, ctx) {
       if(centralStaff){
         const capability=assignmentProofs.has(after)?'crmAssign':'crmEdit';
         for(const map of ['contacts','tasks','activities','expedients','invitations','audit','events'])for(const [id,row] of Object.entries(after[map])){
           if(equal(before[map][id],row))continue;const contactId=map==='contacts'?id:row.contactId;if(!contactId)continue;
-          const contact=before.contacts[contactId]||after.contacts[contactId];if(!contact||!staffAccess.can(staffSession,capability,contact))fail('forbidden','El permiso vigente no permite modificar esta ficha.');
+          const contact=before.contacts[contactId]||after.contacts[contactId];if(!contact||!(staffAccess.can(staffSession,capability,contact)||crossTypeProofs.has(after)&&staffAccess.can(staffSession,'crmAssign',contact)))fail('forbidden','El permiso vigente no permite modificar esta ficha.');
         }
       }
 
@@ -495,10 +511,10 @@
           const claim = sameWriteClaim(before, after, id, ctx.now);
           const own = old && old.holderId === actor.id && old.accountId === actor.id;
           const selfService = !old && contact.holderId === actor.id && contact.accountId === actor.id && contact.accountExists === true && Object.values(after.expedients).some(e => e.contactId === id && holderOwnsExp(e, after));
-          if (!claim && !own && !selfService) fail('forbidden', 'El titular no tiene acceso a este contacto.');
-          if (old && ['assignedKam', 'deletedAt', 'type', 'originalSource', 'referringKam'].some(k => !equal(old[k], contact[k]))) fail('forbidden', 'El titular no puede cambiar la asignación o la atribución comercial.');
+          if (!claim && !own && !selfService && !validSelfClaim(before, after, id)) fail('forbidden', 'El titular no tiene acceso a este contacto.');
+          if (old && ['assignedKam', 'deletedAt', 'type', 'originalSource', 'referringKam', 'crossTypeAccess', 'crossTypeHistory', 'linkedContactIds'].some(k => !equal(old[k], contact[k]))) fail('forbidden', 'El titular no puede cambiar la asignación o la atribución comercial.');
         }
-        if (old && ['holderId', 'accountId', 'accountExists'].some(k => !equal(old[k], contact[k])) && !(actor.role === 'holder' && sameWriteClaim(before, after, id, ctx.now))) fail('identity_locked', 'La cuenta sólo se vincula con una invitación aceptada por su titular.');
+        if (old && ['holderId', 'accountId', 'accountExists'].some(k => !equal(old[k], contact[k])) && !(actor.role === 'holder' && (sameWriteClaim(before, after, id, ctx.now) || validSelfClaim(before, after, id)))) fail('identity_locked', 'La cuenta sólo se vincula con una invitación aceptada por su titular.');
         if (!old && actor.role !== 'holder' && (contact.holderId || contact.accountId || contact.accountExists)) fail('identity_locked', 'Un contacto CRM no concede acceso a una cuenta.');
       }
       for (const key of ['tasks', 'activities', 'expedients', 'invitations']) for (const [id, record] of Object.entries(after[key])) {
@@ -687,7 +703,11 @@
           // v36: at initial registration the holder's typed name becomes official; the KAM name stays in nameHistory.
           const holderNameAdoption = (o, n, cid) => actor.role === 'holder' && o.holderId === actor.id && o.accountId === actor.id && typeof n.name === 'string' && n.name.trim().length > 0 && n.name.length <= 160 && Array.isArray(n.nameHistory) && n.nameHistory.length === (o.nameHistory || []).length + 1 && equal(n.nameHistory.slice(0, -1), o.nameHistory || []) && n.nameHistory.at(-1).name === (o.name || '') && n.nameHistory.at(-1).label === 'nombre capturado por KAM' && Object.values(after.events).some(e => !before.events[e.id] && e.type === 'holder_name_saved' && e.contactId === cid);
           const identityLocked = old.accountId || old.holderId || old.accountExists || Object.values(before.expedients).some(e => e.contactId === id && (e.holderIdentity || e.submittedAt || e.activeInvitationId));
-          if (identityLocked && ['name', 'email', 'phone'].some(k => old[k] !== c[k] && !(k === 'phone' && actor.role === 'holder' && /^\d{7,15}$/.test(String(c.phone || '')) && sameWriteClaim(before, after, id, ctx.now)) && !(k === 'name' && holderNameAdoption(old, c, id)))) fail('identity_locked', 'La identidad ya está vinculada a una cuenta o invitación. Requiere conciliación; no se sobrescribió.');
+          if (identityLocked && ['name', 'email', 'phone'].some(k => old[k] !== c[k] && !(k === 'phone' && actor.role === 'holder' && /^\d{7,15}$/.test(String(c.phone || '')) && sameWriteClaim(before, after, id, ctx.now)) && !(k === 'name' && holderNameAdoption(old, c, id)) && !(['email', 'phone'].includes(k) && validSelfClaim(before, after, id) && Array.isArray(c[k + 'History']) && c[k + 'History'].length === (old[k + 'History'] || []).length + 1 && c[k + 'History'].at(-1)[k] === old[k]))) fail('identity_locked', 'La identidad ya está vinculada a una cuenta o invitación. Requiere conciliación; no se sobrescribió.');
+          if (!equal(old.crossTypeAccess, c.crossTypeAccess) || !equal(old.crossTypeHistory, c.crossTypeHistory)) {
+            if (!crossTypeProofs.has(after) || actor.role === 'holder' || !Object.values(after.audit).some(a => !before.audit[a.id] && a.action === 'cross_type_access_changed' && a.contactId === id)) fail('forbidden', 'La habilitación entre tipos se registra sólo desde la ficha CRM con su historial.');
+          }
+          if (!equal(old.linkedContactIds, c.linkedContactIds)) fail('identity_locked', 'El vínculo entre tipos se fija al crear el registro.');
           if (old.assignedKam !== c.assignedKam) {
             if (centralStaff?!assignmentProofs.has(after)||!staffAccess.can(staffSession,'crmAssign',old):actor.role !== 'admin' && !(actor.role==='leader'&&assignmentProofs.has(after)&&intakeConfig(before.intakeRouting).leaderCanAssign)) fail('forbidden', 'La reasignación requiere autorización vigente de Administración.');
             const tracked = Object.values(after.audit).some(a => !before.audit[a.id] && a.action === 'contact_reassigned' && a.contactId === id && a.from === old.assignedKam && a.to === c.assignedKam && text(a.reason, 2000, false));
@@ -697,7 +717,7 @@
           else if (old.deletedAt && !equal(old, c)) fail('archived_contact', 'El contacto archivado conserva su identidad y su historial.');
         }
         // v36: the same phone may exist once per type (patient vs doctor); it is flagged for review on both fichas.
-        for (const [index, value] of [[emails, c.email], [phones, c.phone ? c.type + ':' + c.phone : c.phone]]) {
+        for (const [index, value] of [[emails, c.email ? c.type + ':' + c.email : c.email], [phones, c.phone ? c.type + ':' + c.phone : c.phone]]) {
           if (!value) continue;
           if (has(index, value) && index[value] !== id) {
             const other = after.contacts[index[value]];
@@ -711,6 +731,10 @@
           accounts[accountId] = id;
         }
       }
+      // v36c: the same email/phone in patient and doctor requires the ficha toggle and a link on the new record.
+      const crossPairs = state => { const out = new Set(), list = Object.values(state.contacts).filter(x => !x.deletedAt); for (const a of list) if (a.type === 'patient') for (const d of list) if (d.type === 'doctor' && (a.email && a.email === d.email || a.phone && a.phone === d.phone)) out.add(a.id + '|' + d.id); return out; };
+      const beforePairs = crossPairs(before), crossLinked = (n, o) => (n.linkedContactIds || []).includes(o.id) && !!(o.crossTypeAccess && o.crossTypeAccess[n.type] && o.crossTypeAccess[n.type].enabled === true);
+      for (const pair of crossPairs(after)) if (!beforePairs.has(pair)) { const [pa, da] = pair.split('|').map(x => after.contacts[x]); if (!crossLinked(pa, da) && !crossLinked(da, pa)) fail('identity_reconciliation_required', 'La identidad ya existe en otro tipo de registro. Requiere habilitarla desde la ficha CRM.'); }
       for (const key of IMMUTABLE_MAPS) for (const [id, record] of Object.entries(after[key])) if (!before[key][id]) {
         if (record.actorId !== actor.id || record.actorRole !== actor.role || record.createdAt !== ctx.now) fail('invalid_audit_actor', 'El actor y la hora de captura provienen de la sesión DEMO.');
         if (key === 'audit' && /^identity_review_/.test(record.action || '')) {
@@ -753,7 +777,7 @@
           }
         }
         if (record.contactId && !after.contacts[record.contactId]) fail('invalid_contact_reference', 'La actividad requiere un identificador de contacto exacto.');
-        const holderAlert = actor.role === 'holder' && record.taskId && after.tasks[record.taskId] && after.tasks[record.taskId].kind === 'duplicate_registration' && after.tasks[record.taskId].contactId === record.contactId && (['task_created', 'task_updated'].includes(record.action) || record.type === 'duplicate_registration_attempt');
+        const holderAlert = actor.role === 'holder' && record.taskId && after.tasks[record.taskId] && ['duplicate_registration', 'cross_type_request'].includes(after.tasks[record.taskId].kind) && after.tasks[record.taskId].contactId === record.contactId && (['task_created', 'task_updated'].includes(record.action) || ['duplicate_registration_attempt', 'cross_type_registration_attempt'].includes(record.type));
         if (record.contactId && !holderAlert && !canAccess(after.contacts[record.contactId]) && !(centralStaff&&assignmentProofs.has(after)&&before.contacts[record.contactId]&&staffAccess.can(staffSession,'crmAssign',before.contacts[record.contactId])&&['contact_reassigned'].includes(record.action||record.type)||actor.role === 'admin' || actor.role === 'kam' && before.contacts[record.contactId] && before.contacts[record.contactId].assignedKam === actor.id && after.contacts[record.contactId].deletedAt)) fail('forbidden', 'El actor no puede agregar historial a otro contacto.');
         if (key === 'events') {
           if (['contact_created', 'self_service_created'].includes(record.type) && before.contacts[record.contactId]) fail('invalid_event', 'Un evento de alta requiere un contacto nuevo.');
@@ -821,10 +845,10 @@
       let base;
       let entered = false;
       try {
-        if (actor.role === 'leader' && permission!==leaderAssignment&&!(centralStaff&&staffAllows('canWrite'))) fail('forbidden', 'El líder KAM tiene acceso de consulta. No puede modificar registros ni iniciar acciones del titular.');
+        if (actor.role === 'leader' && permission!==leaderAssignment&&permission!==crossTypeAction&&!(centralStaff&&staffAllows('canWrite'))) fail('forbidden', 'El líder KAM tiene acceso de consulta. No puede modificar registros ni iniciar acciones del titular.');
         if (running) fail('transaction_busy', 'Hay otra operación CRM en curso.');
         base = read();
-        if(centralStaff&&!staffAllows(permission===configAction?'canConfigure':permission===leaderAssignment?'canAssign':'canWrite'))fail('forbidden','Tu acceso vigente no permite esta operación CRM.');
+        if(centralStaff&&(permission===crossTypeAction?!(staffAllows('canWrite')||staffAllows('canAssign')):!staffAllows(permission===configAction?'canConfigure':permission===leaderAssignment?'canAssign':'canWrite')))fail('forbidden','Tu acceso vigente no permite esta operación CRM.');
         if((centralStaff?(staffSession.roles||[]).includes('leader'):actor.role==='leader')&&permission===leaderAssignment&&!intakeConfig(base.state.intakeRouting).leaderCanAssign)fail('forbidden','La asignación por líderes está deshabilitada en Configuración CRM.');
         if (!Number.isSafeInteger(expectedRevision)) fail('revision_required', 'Actualiza el registro antes de guardar.');
         if (expectedRevision !== base.state.revision) fail('stale_revision', 'Los datos cambiaron en otra vista. Actualiza antes de guardar; no se aplicaron tus cambios.');
@@ -833,12 +857,15 @@
         const directoryRevision=staffAccess?staffAccess.getVersion():null;
         const draft = clone(base.state), ctx = { actor, now: getNow() };
         if(permission===leaderAssignment)assignmentProofs.add(draft);
+        if(permission===crossTypeAction)crossTypeProofs.add(draft);
         const reservedIds = new Set();
         ctx.id = prefix => { for (let n = 0; n < 20; n++) { const id = uniqueId(prefix, draft); if (!reservedIds.has(id)) { reservedIds.add(id); return id; } } fail('id_collision', 'No se pudo generar un identificador nuevo.'); };
         ctx.append = (key, record) => append(draft, key, record, ctx);
         ctx.canAccessContact = id => canAccess(draft.contacts[id]);
         ctx.canEditContact = id => centralStaff?staffAccess.can(staffSession,'crmEdit',draft.contacts[id]):['admin','kam'].includes(actor.role)&&canAccess(draft.contacts[id]);
         ctx.makeContact = input => makeContact(input, draft, ctx);
+        // v36c: a holder marks the single KAM-created contact it claims by verified email/phone in this write.
+        ctx.markSelfClaim = id => { if (actor.role !== 'holder' || holderClaimProofs.has(draft)) fail('forbidden', 'Reclamo no permitido.'); holderClaimProofs.set(draft, id); };
         const value = fn(draft, Object.freeze(ctx));
         if (value && typeof value.then === 'function') fail('async_transaction', 'La operación local debe ser síncrona.');
         for(const exp of Object.values(draft.expedients)){const c=draft.contacts[exp.contactId];if(exp.entryLink&&exp.entryLink.status==='active'&&c&&(c.stage==='not_interested'||c.deletedAt)){exp.entryLink.status='revoked';exp.entryLink.revokedAt=ctx.now;exp.entryLink.reason=c.deletedAt?'archived':'not_interested';}}
@@ -1063,19 +1090,69 @@
     function noteDuplicateRegistration(input, revision) {
       return transact(revision, (draft, ctx) => {
         if (actor.role !== 'holder') fail('holder_required', 'El aviso de registro repetido corresponde al titular.');
-        const mail = normalizeEmail(input && input.email), phone = normalizePhone(input && input.phone), type = input && input.type;
+        const mail = normalizeEmail(input && input.email), phone = normalizePhone(input && input.phone), type = input && input.type, cross = !!(input && input.crossType);
         if (!STAGES[type]) fail('invalid_type', 'Tipo de registro inválido.');
-        const sameType = Object.values(draft.contacts).filter(c => !c.deletedAt && c.type === type && (mail && c.email === mail || phone && c.phone === phone));
-        const targets = sameType.length ? sameType : Object.values(draft.contacts).filter(c => !c.deletedAt && mail && c.email === mail);
+        const matches = c => !c.deletedAt && (mail && c.email === mail || phone && c.phone === phone);
+        const targets = cross ? Object.values(draft.contacts).filter(c => matches(c) && c.type !== type) : Object.values(draft.contacts).filter(c => matches(c) && c.type === type);
+        const kind = cross ? 'cross_type_request' : 'duplicate_registration', due = new Date(Date.parse(ctx.now) + 24 * 3600000).toISOString();
         for (const c of targets.slice(0, 2)) {
           const by = mail && c.email === mail ? 'correo' : 'celular';
-          const open = Object.values(draft.tasks).find(t => t.kind === 'duplicate_registration' && t.contactId === c.id && t.status === 'open');
+          const open = Object.values(draft.tasks).find(t => t.kind === kind && t.contactId === c.id && t.status === 'open' && (!cross || t.requestedType === type));
           if (open) { open.attempts = (open.attempts || 1) + 1; open.lastAttemptAt = ctx.now; open.lastMatchedBy = by; open.updatedAt = ctx.now; audit(draft, ctx, 'task_updated', c.id, { taskId: open.id }); continue; }
-          const task = { id: ctx.id('task'), contactId: c.id, kind: 'duplicate_registration', title: text(((c.name || 'El contacto') + ' intentó registrarse de nuevo' + (c.assignedKam ? '' : ' · Asigna un responsable')).slice(0, 300), 300, true), dueAt: ctx.now, status: 'open', closeReason: null, createdAt: ctx.now, createdBy: actor.id, updatedAt: ctx.now, closedAt: null, closedBy: null, attempts: 1, lastAttemptAt: ctx.now, lastMatchedBy: by, demo: true };
-          draft.tasks[task.id] = task; audit(draft, ctx, 'task_created', c.id, { taskId: task.id, reason: 'duplicate_registration', matchedBy: by }); event(draft, ctx, 'duplicate_registration_attempt', c, { taskId: task.id, matchedBy: by });
+          const title = cross ? (c.name || 'El contacto') + ' quiere registrarse también como ' + TYPE_LABEL[type] + ' · revisa «Habilitar también como ' + TYPE_LABEL[type] + '»' : (c.name || 'El contacto') + ' intentó registrarse de nuevo';
+          const task = { id: ctx.id('task'), contactId: c.id, kind, title: text((title + (c.assignedKam ? '' : ' · Asigna un responsable')).slice(0, 300), 300, true), dueAt: due, status: 'open', closeReason: null, createdAt: ctx.now, createdBy: actor.id, updatedAt: ctx.now, closedAt: null, closedBy: null, attempts: 1, lastAttemptAt: ctx.now, lastMatchedBy: by, demo: true };
+          if (cross) task.requestedType = type;
+          draft.tasks[task.id] = task; audit(draft, ctx, 'task_created', c.id, { taskId: task.id, reason: kind, matchedBy: by }); event(draft, ctx, cross ? 'cross_type_registration_attempt' : 'duplicate_registration_attempt', c, { taskId: task.id, matchedBy: by });
         }
         return { noted: targets.length > 0 };
       });
+    }
+    // v36c: «Habilitar también como paciente/doctor» on the CRM ficha. Responsable KAM, leader or admin; history keeps who, when and motivo.
+    // Toggling also closes the open cross-type request task as done, with the resolution (enabled/rejected).
+    function setCrossTypeAccess(contactId, type, enabled, reason, revision) {
+      return transact(revision, (draft, ctx) => {
+        if (!['admin', 'leader', 'kam'].includes(actor.role)) fail('forbidden', 'Sólo el equipo PULZZO cambia esta habilitación.'); const c = requireContact(draft, contactId);
+        if (!STAGES[type] || type === c.type) fail('invalid_type', 'Selecciona el otro tipo de registro.');
+        if (!centralStaff && !(actor.role === 'admin' || actor.role === 'leader' || actor.role === 'kam' && c.assignedKam === actor.id)) fail('forbidden', 'Sólo el KAM responsable, el líder o Administración pueden cambiarlo.');
+        if (centralStaff && !(staffAccess.can(staffSession, 'crmEdit', c) || staffAccess.can(staffSession, 'crmAssign', c))) fail('forbidden', 'Sólo el KAM responsable, el líder o Administración pueden cambiarlo.');
+        const on = enabled === true, why = reason == null || String(reason).trim() === '' ? null : text(reason, 500, true);
+        const current = c.crossTypeAccess && c.crossTypeAccess[type];
+        const openTasks = Object.values(draft.tasks).filter(t => t.kind === 'cross_type_request' && t.contactId === c.id && t.status === 'open' && t.requestedType === type);
+        if (!!(current && current.enabled) === on && !openTasks.length) return clone(c);
+        c.crossTypeAccess = Object.assign({}, c.crossTypeAccess || {}, { [type]: { enabled: on, changedAt: ctx.now, changedBy: actor.id, reason: why } });
+        c.crossTypeHistory = (c.crossTypeHistory || []).concat([{ type, enabled: on, at: ctx.now, by: actor.id, byRole: actor.role, reason: why }]);
+        c.updatedAt = ctx.now;
+        audit(draft, ctx, 'cross_type_access_changed', c.id, { contactType: type, enabled: on, reason: why });
+        event(draft, ctx, 'cross_type_access_changed', c, { contactType: type, enabled: on });
+        for (const t of openTasks) {
+          t.status = 'closed'; t.closedAt = ctx.now; t.closedBy = actor.id; t.updatedAt = ctx.now; t.resolution = on ? 'enabled' : 'rejected';
+          t.closeReason = text((on ? 'Hecha: habilitado también como ' : 'Hecha: rechazado registro como ') + TYPE_LABEL[type] + ' desde la ficha CRM' + (why ? ' · ' + why : ''), 2000, true);
+          audit(draft, ctx, 'task_closed', c.id, { taskId: t.id, reason: t.closeReason, resolution: t.resolution, auto: 'cross_type_toggle' }); event(draft, ctx, 'task_closed', c, { taskId: t.id, resolution: t.resolution });
+        }
+        return clone(c);
+      }, crossTypeAction);
+    }
+    // v36c: what a self-registration may do when its email/phone already exists in the other type (no ids leaked to the holder).
+    function crossTypeEligibility(input) {
+      const state = read().state, mail = normalizeEmail(input && input.email), phone = normalizePhone(input && input.phone), type = input && input.type;
+      const others = Object.values(state.contacts).filter(c => !c.deletedAt && STAGES[type] && c.type !== type && (mail && c.email === mail || phone && c.phone === phone));
+      if (!others.length) return { match: false, allowed: false };
+      const matchedBy = others.some(c => mail && c.email === mail) ? 'email' : 'phone';
+      return { match: true, matchedBy, otherType: others[0].type, allowed: others.every(c => c.crossTypeAccess && c.crossTypeAccess[type] && c.crossTypeAccess[type].enabled === true) };
+    }
+    // v36c: state of a referral token at registration (active, revoked or KAM inactive) and the advisor of a matching KAM-created contact.
+    function referralStatus(token, type) {
+      const r = Object.values(read().state.referrals).find(x => x.token === token);
+      if (!r || r.type !== type) return { status: 'invalid' };
+      const status = r.active === false ? 'revoked' : staffAccess && !eligibleKamIds().includes(r.kamId) ? 'kam_inactive' : 'active';
+      return { status, referralId: r.id, kamId: r.kamId };
+    }
+    function advisorFor(input) {
+      const state = read().state, mail = normalizeEmail(input && input.email), phone = normalizePhone(input && input.phone), type = input && input.type;
+      const c = Object.values(state.contacts).find(x => !x.deletedAt && x.type === type && !x.holderId && !x.accountId && !x.accountExists && (mail && x.email === mail || phone && x.phone === phone));
+      if (!c) return null;
+      let name = null; try { const row = staffAccess && staffAccess.getIntakeKamRoster().find(k => k.id === c.assignedKam); name = row ? row.name : null; } catch (_) { name = null; }
+      return { kamId: c.assignedKam || null, kamName: name };
     }
     // v36: true when the same phone also belongs to a contact of the other type (review flag on both fichas).
     function sharedPhoneAcrossTypes(contactId) {
@@ -1232,7 +1309,7 @@
       return { period: { month, year }, counts: { newContacts: newIds.size, patients: contacts.filter(c => c.type === 'patient' && newIds.has(c.id)).length, doctors: contacts.filter(c => c.type === 'doctor' && newIds.has(c.id)).length, activities: activities.length, openTasks: openTasks.length, overdueTasks: openTasks.filter(t => t.dueAt && t.dueAt < getNow()).length, submitted: submitted.size, onboardingStarted: started.size, referralContacts: contacts.filter(c => newIds.has(c.id) && ['referral', 'kam_referral', 'doctor_referral'].includes(c.originalSource)).length }, byStage, byKam, events: clone(events), currentSnapshot: { contacts: contacts.length, openTasks: openTasks.length }, demo: true };
     }
     return Object.freeze({ actor, snapshot, getIntakeRouting, setIntakeRouting, listIntakeRoutingHistory, reassignContacts, transact: scopedTransact, createContact, seedExamples, updateContact, getContact, listContacts, moveCommercialStage, setStage, reassignContact, deleteContact, restoreContact, listArchivedContacts, getArchivedContact, createReferral, resolveReferral, applyReferral, createTask, updateTask, closeTask, addActivity,
-      noteDuplicateRegistration, sharedPhoneAcrossTypes, listReferrals, revokeReferral,
+      noteDuplicateRegistration, setCrossTypeAccess, crossTypeEligibility, referralStatus, advisorFor, sharedPhoneAcrossTypes, listReferrals, revokeReferral,
       listTasks: filter => listLinked('tasks', filter), listActivities: filter => listLinked('activities', filter), listAudit: filter => listLinked('audit', filter), dashboard, operationalStatus,
       canWriteCRM:()=>{assertCurrent();return centralStaff?staffAllows('canWrite'):['admin','kam'].includes(actor.role);}, canAccessContact: id => canAccess(read().state.contacts[id]), canEditContact:id=>{const c=read().state.contacts[id];return !!c&&(centralStaff?staffAccess.can(staffSession,'crmEdit',c):['admin','kam'].includes(actor.role)&&canAccess(c));}, inspectIdentity, inspectIdentityReview, reviewIdentity, listIdentityReviews, normalizeEmail, normalizePhone });
   }

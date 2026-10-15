@@ -16,20 +16,18 @@ const admin={id:'admin_demo',role:'admin'},ana={id:'kam_ana',role:'kam'};
  const tasks=s.listTasks({}).filter(x=>x.contactId===c.id);assert.equal(tasks.length,1);assert.equal(tasks[0].title,'Contactar a Lucía Orgánica · nuevo registro');assert.equal(tasks[0].kind,'registration_followup');
  assert.equal(Date.parse(tasks[0].dueAt)-t,24*3600000);assert.equal(tasks[0].status,'open');
  // re-entry with the same email never duplicates the task or the contact
- const again=signup(disk,{name:'Lucía Orgánica',email:'org@example.test',phone:'5500000811'});assert.equal(again.ok,false);assert.equal(again.code,'EXISTING_ACCOUNT_EMAIL');assert.equal(again.error,'Ya tienes una cuenta con este correo. Inicia sesión para continuar.');
+ const again=signup(disk,{name:'Lucía Orgánica',email:'org@example.test',phone:'5500000811'});assert.equal(again.ok,false);assert.equal(again.code,'EXISTING_ACCOUNT_EMAIL');assert.equal(again.error,'Este correo ya está registrado. Inicia sesión aquí');
  assert.equal(s.listTasks({}).filter(x=>x.kind==='registration_followup').length,1);assert.equal(s.listContacts().length,1);
  console.log('PASS organic origin + one 24 h follow-up task for the responsable; no duplicates on re-entry');
  // 5 duplicate alert: one open alert, bumped on each new attempt
  const dupTasks=()=>s.listTasks({}).filter(x=>x.kind==='duplicate_registration');assert.equal(dupTasks().length,1);assert.equal(dupTasks()[0].title,'Lucía Orgánica intentó registrarse de nuevo');
- const byPhone=signup(disk,{name:'Otra',email:'otra@example.test',phone:'55 0000 0811'});assert.equal(byPhone.code,'EXISTING_ACCOUNT_PHONE','phone checked before the code');assert.match(byPhone.error,/Ya tienes una cuenta con este celular/);
+ const byPhone=signup(disk,{name:'Otra',email:'otra@example.test',phone:'55 0000 0811'});assert.equal(byPhone.code,'EXISTING_ACCOUNT_PHONE','phone checked before the code');assert.equal(byPhone.error,'Este celular ya está registrado. Inicia sesión aquí');
  assert.equal(dupTasks().length,1,'deduped');assert.equal(dupTasks()[0].attempts,2);assert.equal(dupTasks()[0].lastMatchedBy,'celular');
  // a holder cannot forge other tasks
  const h=holder(disk);const forged=h.store.transact(h.store.snapshot().revision,(d,ctx)=>{d.tasks['x']={id:'x',contactId:c.id,kind:'duplicate_registration',title:'x',dueAt:ctx.now,status:'open',closeReason:null,createdAt:ctx.now,createdBy:h.actor.id,updatedAt:ctx.now,closedAt:null,closedBy:null,attempts:1};});assert.equal(forged.ok,false);
- // same phone, other type: allowed and flagged on both fichas
- const doc=ok(signup(disk,{kind:'doctor',name:'Dr. Cruce DEMO',email:'cruce.doc@example.test',phone:'5500000811'}));
- assert.equal(s.sharedPhoneAcrossTypes(doc.contactId),true);assert.equal(s.sharedPhoneAcrossTypes(c.id),true);
- const sameTypePhone=signup(disk,{kind:'doctor',name:'Dr. Dos DEMO',email:'dos.doc@example.test',phone:'5500000811'});assert.equal(sameTypePhone.ok,false);assert.equal(sameTypePhone.code,'EXISTING_ACCOUNT_PHONE');
- console.log('PASS duplicates: plain messages, phone checked before code, one deduped alert; same phone across types allowed + flagged, same type blocked');
+ // v36c: same phone, other type → blocked until the ficha toggle (see v36c-cross-type.cjs)
+ const doc=signup(disk,{kind:'doctor',name:'Dr. Cruce DEMO',email:'cruce.doc@example.test',phone:'5500000811'});assert.equal(doc.code,'CROSS_TYPE_PHONE');
+ console.log('PASS duplicates: field-specific messages, phone checked before code, one deduped alert; other type blocked without toggle');
 }
 // 2b no responsable → the task says so
 {const disk=storage();const s=staff(disk,admin);const cfg=s.getIntakeRouting();
@@ -47,6 +45,6 @@ const admin={id:'admin_demo',role:'admin'},ana={id:'kam_ana',role:'kam'};
  const a=staff(disk,admin);ok(a.revokeReferral(rp.id,'Cambio de cartera (prueba)',a.snapshot().revision));
  const rev=a.listReferrals().find(r=>r.id===rp.id);assert.equal(rev.active,false);assert.equal(rev.revokedBy,'admin_demo');assert.equal(rev.revokeReason,'Cambio de cartera (prueba)');
  {const raw=JSON.parse(disk.getItem(Store.STORAGE_KEY)),st=raw.state||raw;assert.ok(Object.values(st.audit).some(x=>x.action==='referral_revoked'&&x.referralId===rp.id&&x.reason==='Cambio de cartera (prueba)'),'revocation history');}
- const after=signup(disk,{name:'Tarde',email:'tarde@example.test',phone:'5500000840',ref:rp.token});assert.equal(after.ok,false,'revoked link no longer works');
+ const after=signup(disk,{name:'Tarde',email:'tarde@example.test',phone:'5500000840',ref:rp.token});assert.equal(after.ok,true,'v36c: revoked link still registers');{const c=staff(disk,admin).getContact(after.value.contactId);assert.equal(c.originalSource,'organic');assert.equal(c.referringKam,null);}
  const fresh=ok(kam.createReferral('patient',kam.snapshot().revision));assert.notEqual(fresh.token,rp.token);
  console.log('PASS referral links: 2 per KAM, reusable, admin revokes with history, KAM gets a new one');}

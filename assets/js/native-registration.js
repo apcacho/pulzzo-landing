@@ -38,6 +38,8 @@ function verify(){
  }else{
  challenge=take(api.requestDemoVerification({email:draft.email,phone:draft.phone,kind:draft.kind,entryToken:draft.entry||undefined,token:draft.invite||undefined,mode:'new_account'}));
  root.document.getElementById('verify-copy').textContent='Simulación local para '+draft.email+'. Código de ejemplo: '+challenge.demoCode+'. No se envió correo; no acredita identidad real.';
+ // v36c: KAM-created contact → the client continues the same expediente; show who is attending them.
+ if(challenge.advisorMessage){const m=root.document.getElementById('message');if(m){m.className='toast ok';m.dataset.advisor='1';m.textContent=challenge.advisorMessage;}}
  code.disabled=false;button.disabled=false;
  }
  root.document.getElementById('resend').onclick=()=>{message.className='toast ok';message.textContent=challenge?'Código demo: '+challenge.demoCode:'Tu acceso demo ya está verificado.';};
