@@ -135,3 +135,9 @@ Tests nuevos: `tests/v36-assisted.cjs`, `tests/dispersion-period-days.cjs`. Fixt
 - Usuarios y grupos: botones con las medidas de .btn (antes 44px y radio 12), pasos, pestañas de área (antes subrayado) y segmentos de permisos (antes navy/gris) con el estilo de pestaña PULZZO; nota 13px (antes 14.4px); h4 14px.
 - CRM Agenda de seguimiento y otros paneles: cuerpo con el mismo margen lateral de 24px que el encabezado (antes 20 vs 24), padding simétrico; orden Vencidas → Hoy → Próximas sin cambios.
 - Sin cambios de lógica, textos legales, onboarding ni prelación.
+
+## v37 revisión — 2026-10-15 02:23 CDMX (rama grok/revision-20261015)
+- Agenda CRM: Lista / Calendario (Semana, Mes), vencidas en rojo, misma visibilidad, clic abre la tarea.
+- Fix: error sin capturar en Solicitudes para cuentas sin CRM (auto-import / en captura).
+- Test crm-contact-simplification actualizado a las reglas actuales. 132/132 tests.
+- Revisión de lógica vs decisiones: ver pulzzo-work-out/REVISION-20261015.md (prelación, pago duplicado, IVA configurable, prórroga con motivo, topes sin uso, reasignación por KAM inactivo).
