@@ -54,3 +54,10 @@ Tests nuevos: `tests/v36-assisted.cjs`, `tests/dispersion-period-days.cjs`. Fixt
    - Insignia «v36 · revisión incompleta» (`index.html`, `backoffice.html`) y `VERSION.json`.
    - El «Aviso de privacidad» del pie SÍ es visible en escritorio: el enlace oculto era el del modal cerrado, así que no se cambió CSS.
 7. Tests: nuevo `tests/v36-registro-crm.cjs`. Se ajustaron `crm-assisted`, `crm-intake-routing`, `crm-intake-owner-routing` y `crm-organic-signup`, y se agregó una inversa en `tests/fixtures/v36-reviewed-changes.json` para `registro-doctor.html`.
+
+## v36c · Acceso entre tipos y duplicados (2026-10-14)
+- `crm-demo-store.js`: `setCrossTypeAccess` (interruptor con historial; cierra la tarea `cross_type_request` como Hecha con `resolution`), `crossTypeEligibility`, `referralStatus`, `advisorFor`. Nuevas tareas del titular `cross_type_request` y `client_entered`. Reclamo verificado de ficha KAM sin cuenta (`kam_contact_self_claimed`). Índices de correo/celular por tipo, más una regla de pares entre tipos que exige el interruptor y el vínculo. Alerta de duplicado a 24 h.
+- `crm-assisted.js`: mensajes por campo, bloqueo entre tipos con mensaje del asesor, continuación del mismo expediente, enlace revocado → regla CRM con historial.
+- `crm-demo-ui.js`: interruptor «Habilitar también como …» en la ficha, con diálogo de motivo, estado «Solicitud pendiente» y última modificación; etiquetas de historial nuevas.
+- `native-registration.js`: aviso «Te está atendiendo …» en la verificación.
+- Tests: `tests/v36c-cross-type.cjs` (nuevo; incluye el cierre automático habilitado/rechazado) y `tests/v36-registro-crm.cjs` actualizado.
