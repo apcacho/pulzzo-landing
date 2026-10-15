@@ -112,3 +112,10 @@ Tests nuevos: `tests/v36-assisted.cjs`, `tests/dispersion-period-days.cjs`. Fixt
 - CRM barra: los botones (Revisar identidad … + Nuevo prospecto) quedan en su propia fila a la izquierda. Comparado con 3376129 y 59f7d1f a 1100/1366/1440/1512 px y móvil: las posiciones eran idénticas a v36h (no lo causó el switch ni el formato de teléfono); antes iban a la derecha por margin-left:auto. Lo visto como encimado probablemente es caché (recargar sin caché). Backoffice (dashboard, solicitudes, pacientes, doctores, documentos, cartera): sin diferencias de layout vs 59f7d1f en escritorio y móvil.
 - Pendiente (pregunta): eliminar/desactivar grupos — no implementado.
 - Pruebas: 128/129 (única falla preexistente crm-contact-simplification). Navegador d/m: v36d 19/19, v36i 14/14, v36g 9/9, v36c 21/21. Capturas: /workspace/pulzzo-work-out/browser-v36i/.
+
+## v36j — 2026-10-15 01:09 CDMX
+- Sidebar de escritorio fijo a toda la altura (100vh/100dvh) con scroll interno; ya no se desplaza al bajar hasta los paneles demo (antes top -142px). Paneles demo inferiores desplazados para no quedar bajo el sidebar. Menú móvil sin cambios (abre/cierra verificado).
+- "Solicitudes en captura" / "Altas en captura" con el mismo formato que "Bandeja de solicitudes" (título, ayuda, badge "N en captura") y vacío compacto de una línea. Texto de doctores sin "la oferta": "La revisión y la aprobación del alta se habilitan cuando envíe su registro."
+- Títulos duplicados retirados: Cartera y Configuración (queda subtítulo); Pacientes → "Directorio de pacientes"; Doctores y clínicas → "Directorio de doctores y clínicas"; Solicitudes de doctores → "Bandeja de solicitudes".
+- Glitch: nota "Demo local" de Configuración recupera su padding.
+- Hashes inline re-pinneados; backoffice-typography ajustado (Configuración sin h2 duplicado).

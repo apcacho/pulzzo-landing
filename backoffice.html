@@ -11685,7 +11685,7 @@ function renderPatientProfiles(){
   el.innerHTML=`<div class="patient-request-list-view">
     <div class="patient-profiles-card">
       <div class="patient-profiles-head">
-        <div><h2>Pacientes</h2><p>Consulta el historial y las solicitudes asociadas a cada paciente.</p></div>
+        <div><h2>Directorio de pacientes</h2><p>Busca por nombre, celular, correo, CURP o RFC.</p></div>
         <div class="patient-request-count" id="patientProfilesCount">${profiles.length} pacientes</div>
       </div>
       <div class="patient-profiles-filters">
@@ -11943,7 +11943,7 @@ function renderProviders(){
   if(!requireCapability('viewProviders'))return false;
   const intake=currentView==='providerRequests',el=$('#'+currentView),other=$('#'+(intake?'providers':'providerRequests'));
   if(other)other.innerHTML='';
-  const title=intake?'Solicitudes de doctores y clínicas':'Doctores y clínicas';
+  const title=intake?'Bandeja de solicitudes':'Directorio de doctores y clínicas';
   if(providerMode==='detail'){
     el.innerHTML=`<div class="patient-request-detail-view provider-detail-view"><button class="patient-back-link" type="button" onclick="backToProviders()">← ${correctionReturnContext?'Volver a correcciones':operationalReturnContext?.view==='history'?'Volver al historial':['documents','corrections'].includes(operationalReturnContext?.view)?'Volver a revisión documental':intake?'Volver a solicitudes de doctores y clínicas':'Volver a doctores y clínicas'}</button>${correctionContextHtml('provider',selectedProviderId)}<div class="detail patient-detail-panel" id="${providerElementId('providerDetail')}" tabindex="-1"></div></div>`;
     renderProviderDetail();return;

@@ -48,7 +48,8 @@ expectRole(maps.dashboard,'.dashboard-block-head h3',section);
 assert.match(html,/#dashboard \.kpi strong\{\s*font-weight:560 !important/);assert.match(html,/#dashboard \.metric-row strong\{\s*font-weight:520 !important/);
 expectRole(maps.dashboard,'.kpi strong',{'font-weight':'560'});expectRole(maps.dashboard,'.metric-row strong',{'font-weight':'520'});expectRole(maps.patients,'.patient-request-list-head h2',section);
 for(const id of ['patientProfiles','providerRequests','providers'])expectRole(maps[id],'.patient-profiles-head h2',section);
-for(const id of ['settings'])expectRole(maps[id],'.section-head h2',section);
+// v36j (2026-10-14): Configuración no longer repeats the page title as a card h2.
+assert.equal(find(maps.settings,'.section-head h2').length,0,'settings has no duplicate h2');
 const entity={'font-size':'16px','font-weight':'600','font-family':'var(--font-body)','line-height':'1.45'};
 for(const id of ['patientProfiles','providerRequests','providers'])expectRole(maps[id],'.patient-profile-name',entity);
 const filter={'font-size':'14px','font-weight':'600','font-family':'var(--font-display)'};expectRole(maps.patients,'.tray-head strong',filter);for(const id of ['patientProfiles','providerRequests','providers'])expectRole(maps[id],'.patient-profiles-filters h3',filter);

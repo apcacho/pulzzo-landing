@@ -29,3 +29,12 @@
 /* Shared navigation icon metrics in both the full drawer and the compact rail. */
 #sidebar .nav-icon{flex:0 0 24px;background:transparent;border-radius:0}
 #sidebar .backoffice-nav-svg,#dashboard .workflow-secondary .backoffice-nav-svg{display:block;flex:0 0 20px;width:20px;height:20px}
+/* v36j: the desktop sidebar stays fixed at full viewport height with its own scroll,
+   so scrolling past the app (demo panels below) never moves or cuts it. Mobile drawer unchanged. */
+@media(min-width:821px){
+  #appView>#sidebar{position:fixed;top:0;left:0;bottom:0;width:282px;height:100vh;height:100dvh;overflow-y:auto;overscroll-behavior:contain;z-index:40}
+  #appView>.main{grid-column:2;min-width:0}
+  #appView.sidebar-collapsed>#sidebar{width:80px}
+  body:has(#appView:not(.hidden))>:is(#demo-servicing-panel,#pulzzo-demo-handoff,#crm-intake-panel){margin-left:298px !important}
+  body:has(#appView.sidebar-collapsed:not(.hidden))>:is(#demo-servicing-panel,#pulzzo-demo-handoff,#crm-intake-panel){margin-left:96px !important}
+}

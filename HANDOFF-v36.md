@@ -177,3 +177,6 @@ Cambio mínimo sobre el directorio existente (`staff-access.js`): los «roles» 
 - CRM barra: los botones (Revisar identidad … + Nuevo prospecto) quedan en su propia fila a la izquierda. Comparado con 3376129 y 59f7d1f a 1100/1366/1440/1512 px y móvil: las posiciones eran idénticas a v36h (no lo causó el switch ni el formato de teléfono); antes iban a la derecha por margin-left:auto. Lo visto como encimado probablemente es caché (recargar sin caché). Backoffice (dashboard, solicitudes, pacientes, doctores, documentos, cartera): sin diferencias de layout vs 59f7d1f en escritorio y móvil.
 - Pendiente (pregunta): eliminar/desactivar grupos — no implementado.
 - Pruebas: 128/129 (única falla preexistente crm-contact-simplification). Navegador d/m: v36d 19/19, v36i 14/14, v36g 9/9, v36c 21/21. Capturas: /workspace/pulzzo-work-out/browser-v36i/.
+
+## v36j — 2026-10-15 01:09 CDMX
+Sidebar fijo (backoffice-sidebar.css, ≥821px), tarjetas en captura (crm-demo-office.js/crm-office.css), títulos sin duplicar (backoffice.html, backoffice-portfolio.js, backoffice-configuration.js). Tests 128/129 (crm-contact-simplification preexistente). Capturas: pulzzo-work-out/browser-v36j/. Pendiente: eliminación de grupos (pregunta abierta).

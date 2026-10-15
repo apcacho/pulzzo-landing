@@ -155,7 +155,7 @@ function portfolioClearFilter(key){
 function renderPortfolio(){
   portfolioReleaseFilterBackground();
   const tab=portfolioState.tab,f=portfolioFilterConfig(),more=f.due||f.month;
-  $('#portfolio').innerHTML=`<div class="portfolio-head"><div><h2>Cartera</h2><p>Consulta saldos, vencimientos y pagos de tus créditos.</p></div><span class="pill pill-aqua">Demo local</span></div>
+  $('#portfolio').innerHTML=`<div class="portfolio-head portfolio-head-compact"><div><p>Consulta saldos, vencimientos y pagos de tus créditos.</p></div><span class="pill pill-aqua">Demo local</span></div>
   <div class="portfolio-tabs" role="tablist" aria-label="Secciones de cartera">${portfolioTabs.map(([id,label])=>`<button role="tab" id="portfolioTab-${id}" aria-controls="portfolioContent" aria-selected="${id===tab}" tabindex="${id===tab?'0':'-1'}" data-portfolio-tab="${id}">${label}</button>`).join('')}</div>
   <div class="portfolio-filter-toolbar"><button id="portfolioFilterToggle" class="btn btn-secondary portfolio-filter-mobile-toggle" aria-controls="portfolioFilterShell" aria-expanded="${portfolioState.filterOpen}">Filtros <span id="portfolioFilterCount"></span></button><span class="portfolio-filter-context">${tab==='summary'?'Resumen al día de hoy · MXN':'Filtra la consulta · importes en MXN'}</span></div>
   <div id="portfolioFilterBackdrop" class="portfolio-filter-backdrop" hidden></div>

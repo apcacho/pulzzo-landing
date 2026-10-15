@@ -830,3 +830,5 @@ body.portfolio-payment-open{overflow:hidden;overscroll-behavior:none}
 #settings .cfg-version-panel .cfg-block legend{padding:0 10px 0 0;font-size:15px}
 #settings .cfg-version-close{display:flex;justify-content:flex-end;margin-top:14px}
 @media(max-width:900px){#settings :is(.cfg-policy,.cfg-pending),#settings .cfg-version-panel{padding:16px}#settings .cfg-rules-head .btn{width:100%}}
+/* v36j: the top-level storage note keeps its card padding (the nested review note rule above zeroed it). */
+#settings>.cfg-impact-note{padding:14px 16px}

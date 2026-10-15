@@ -428,11 +428,14 @@ function mount(w){
   }finally{autoBusy=false;}if(imported){try{office.refresh();}catch(_){}status.textContent=imported+' solicitud(es) enviada(s) incorporada(s) automáticamente a revisión.';}}
  // v36: registrations appear in Solicitudes from registration time as «En captura» (read-only; evaluation/offer disabled until the client submits).
  function inCaptureRows(kind){const state=getStore().snapshot(),session=w.PulzzoCRMOnboarding;return Object.values(state.expedients).filter(exp=>exp.kind===kind&&!exp.submittedAt&&(exp.initialRegistration||exp.holderIdentity)&&state.contacts[exp.contactId]&&!state.contacts[exp.contactId].deletedAt).map(exp=>{let summary=null;try{summary=session&&session.summary?session.summary(exp):null;}catch(_){summary=null;}const missing=Array.isArray(summary?.missing)?summary.missing.length:null,docs=summary?.documentCount??(exp.documents||[]).length;return {exp,contact:state.contacts[exp.contactId],missing,docs};}).sort((a,b)=>String(b.exp.createdAt).localeCompare(String(a.exp.createdAt)));}
- function inCapturePanel(kind){const rows=inCaptureRows(kind),panel=make('section');panel.dataset.crmInCapture=kind;panel.className='card crm-in-capture';panel.style.margin='0 0 16px';
-  const h=make('h3',(kind==='patient'?'Solicitudes':'Altas')+' en captura · '+rows.length);const help=make('p','Registros iniciados por el cliente. Se muestran desde su registro. La evaluación y la oferta se habilitan cuando el cliente envíe su solicitud.');help.className='muted';panel.append(h,help);
-  if(!rows.length){panel.appendChild(make('p','No hay registros en captura.'));return panel;}
-  const list=make('ul');list.style.listStyle='none';list.style.padding='0';
-  for(const r of rows){const li=make('li');li.dataset.expedientId=r.exp.id;li.style.cssText='display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:8px 0;border-top:1px solid #e2e8f0';
+ function inCapturePanel(kind){const rows=inCaptureRows(kind),panel=make('section');panel.dataset.crmInCapture=kind;panel.className='patient-request-list-card crm-in-capture';
+  // v36j: same card as «Bandeja de solicitudes» (head with title, help and count badge); compact one-line empty state.
+  const head=make('div');head.className='patient-request-list-head';const titles=make('div');const h=make('h2',(kind==='patient'?'Solicitudes':'Altas')+' en captura');
+  const help=make('p',kind==='patient'?'Registros iniciados por el paciente. Se muestran desde su registro. La evaluación y la oferta se habilitan cuando el paciente envíe su solicitud.':'Registros iniciados por el doctor o la clínica. Se muestran desde su registro. La revisión y la aprobación del alta se habilitan cuando envíe su registro.');
+  const count=make('div',rows.length+' en captura');count.className='patient-request-count';titles.append(h,help);head.append(titles,count);panel.append(head);
+  if(!rows.length){panel.classList.add('is-empty');const empty=make('p','No hay registros en captura.');empty.className='crm-in-capture-empty';panel.appendChild(empty);return panel;}
+  const list=make('ul');list.className='crm-in-capture-list';
+  for(const r of rows){const li=make('li');li.dataset.expedientId=r.exp.id;li.className='crm-in-capture-row';
    const name=make('strong',r.contact.name||r.contact.email||r.exp.id);const meta=make('span',[r.contact.email,r.contact.phone].filter(Boolean).join(' · '));meta.className='muted';
    const pill=make('span','En captura');pill.className='pill pill-amber';pill.dataset.status='en_captura';
    const progress=make('span',(r.missing==null?'Avance guardado':r.missing+' pendientes')+' · '+r.docs+' documentos');progress.className='muted';
