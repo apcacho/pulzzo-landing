@@ -11,7 +11,7 @@ function portfolioPaymentIsCurrent(){
 }
 function portfolioPaymentInput(){
  const value=id=>document.getElementById('portfolioPayment'+id)?.value||'';
- return {creditId:portfolioPaymentSession?.creditId,amount:value('Amount'),type:value('Type'),date:value('Date'),reference:value('Reference').trim(),method:value('Method'),target:value('Target')||'auto',settlementQuote:portfolioPaymentSession?.quote||null,retrospectiveReason:value('RetrospectiveReason').trim()};
+ return {creditId:portfolioPaymentSession?.creditId,amount:value('Amount'),type:value('Type'),date:value('Date'),reference:value('Reference').trim(),method:value('Method'),target:value('Target')||'auto',settlementQuote:portfolioPaymentSession?.quote||null,retrospectiveReason:value('RetrospectiveReason').trim(),cuenta:value('Cuenta').trim(),origen:value('Origen').trim(),comprobante:portfolioPaymentSession?.comprobante||null};
 }
 function portfolioPaymentReturnFocus(){const mobile=typeof window.matchMedia==='function'&&window.matchMedia('(max-width: 820px)').matches;return document.getElementById(mobile?'portfolioFilterToggle':'portfolioSearch');}
 function portfolioPaymentNotify(text){const el=document.getElementById('portfolioPaymentPreview');if(el)el.textContent=text;}
@@ -101,6 +101,9 @@ function portfolioOpenPayment(id,rowId=''){
   <label class="field">Fecha de pago<input id="portfolioPaymentDate" type="date" value="${dispersionBusinessDateMX()}" max="${dispersionBusinessDateMX()}" required></label>
   <label class="field">Método<select id="portfolioPaymentMethod"><option>SPEI</option><option>Transferencia</option><option>Tarjeta</option><option>Efectivo</option><option>Otro</option></select></label>
   <label class="field">Referencia real del pago<input id="portfolioPaymentReference" maxlength="200" autocomplete="off" placeholder="Folio o referencia de la transferencia" required></label>
+  <label class="field">Cuenta (opcional)<input id="portfolioPaymentCuenta" maxlength="80" autocomplete="off" placeholder="Cuenta de origen, si se conoce"></label>
+  <label class="field">Origen (opcional)<select id="portfolioPaymentOrigen"><option value="">Sin especificar</option><option>Transferencia</option><option>Depósito</option><option>Efectivo</option><option>SPEI</option><option>Tarjeta</option><option>Otro</option></select></label>
+  <label class="field">Comprobante (opcional)<input id="portfolioPaymentComprobante" type="file" accept="image/*,.pdf"></label>
   <label class="field">Aplicar a<select id="portfolioPaymentTarget">${dispersionPaymentTargetOptions(rows,'ordinary')}</select></label>
   <label class="field" id="portfolioPaymentRetrospective" hidden>Motivo del registro retroactivo (solo administrador)<textarea id="portfolioPaymentRetrospectiveReason" maxlength="500" placeholder="Explica por qué se registra hoy un pago recibido antes"></textarea></label>
   </div><p id="portfolioPaymentHint" class="muted"></p><div id="portfolioPaymentSettlement" hidden><button type="button" class="btn btn-secondary" id="portfolioPaymentCalculate">Calcular liquidación a la fecha del pago</button><p id="portfolioPaymentSettlementQuote" role="status" aria-live="polite" aria-atomic="true"></p></div>
@@ -115,8 +118,18 @@ function portfolioOpenPayment(id,rowId=''){
  document.getElementById('portfolioPaymentSave').onclick=portfolioPaymentSave;
  document.getElementById('portfolioPaymentCalculate').onclick=portfolioPaymentCalculateSettlement;
  overlay.addEventListener('click',event=>{if(event.target===overlay)portfolioClosePayment();});
- for(const suffix of ['Amount','Date','Reference','Method','Target','RetrospectiveReason'])document.getElementById('portfolioPayment'+suffix).addEventListener(['Amount','Reference','RetrospectiveReason'].includes(suffix)?'input':'change',()=>portfolioPaymentRefresh(suffix==='Date'));
- document.getElementById('portfolioPaymentType').addEventListener('change',()=>portfolioPaymentRefresh(true));
+  for(const suffix of ['Amount','Date','Reference','Method','Target','RetrospectiveReason','Cuenta','Origen'])document.getElementById('portfolioPayment'+suffix)?.addEventListener(['Amount','Reference','RetrospectiveReason','Cuenta'].includes(suffix)?'input':'change',()=>portfolioPaymentRefresh(suffix==='Date'));
+ document.getElementById('portfolioPaymentType')?.addEventListener('change',()=>portfolioPaymentRefresh(true));
+ document.getElementById('portfolioPaymentComprobante')?.addEventListener('change',event=>{
+  const file=event.target.files&&event.target.files[0];
+  if(!portfolioPaymentSession)return;
+  if(!file){portfolioPaymentSession.comprobante=null;return;}
+  if(file.size>120000){portfolioPaymentSession.comprobante=null;if(typeof toast==='function')toast('El comprobante es demasiado grande para esta demo (máximo 120 KB).');event.target.value='';return;}
+  if(typeof FileReader!=='function')return;
+  const reader=new FileReader();
+  reader.onload=()=>{if(portfolioPaymentSession)portfolioPaymentSession.comprobante={name:file.name,type:file.type||'',dataUrl:String(reader.result||'').slice(0,180000)};};
+  reader.readAsDataURL(file);
+ });
  if(rowId){const row=rows.find(item=>String(item.id)===String(rowId));if(row&&dispersionIsAdvancePayableRow(row)&&!dispersionIsOrdinaryPayableRow(row)){document.getElementById('portfolioPaymentType').value='advance_installment';document.getElementById('portfolioPaymentTarget').innerHTML=dispersionPaymentTargetOptions(rows,'advance_installment');}document.getElementById('portfolioPaymentTarget').value=rowId;}
  document.addEventListener('keydown',portfolioPaymentKeydown);portfolioPaymentRefresh();document.getElementById('portfolioPaymentAmount').focus();return true;
 }
