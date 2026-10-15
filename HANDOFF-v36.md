@@ -183,3 +183,6 @@ Sidebar fijo (backoffice-sidebar.css, ≥821px), tarjetas en captura (crm-demo-o
 
 ## v36k — 2026-10-15 01:45 CDMX
 CRM inline: configCrmPage/configCrmSave/configOpenCrmPage/configOpenCrmRedistribute en backoffice-configuration.js (store CRM propio vía PulzzoCRMStore.createStore con la sesión del directorio). Productos: configProductsPage + CONFIG_CREDIT_LIMITS_EXAMPLE + configOfferLimitCheck (listener/MutationObserver, sin tocar el script inline). Sidebar: backoffice-sidebar.css (#nav con scroll propio). intakeSettings (modal) sigue como respaldo solo si no existe configOpenCrmPage. Capturas: pulzzo-work-out/browser-v36k/.
+
+## v36l — 2026-10-15 02:06 CDMX
+Overrides de identidad al final de assets/css/backoffice-portfolio-polish.css (bloques v36l, scope #settings) y crm-demo-embed.css (task-board/metric-grid/dashboard-split/closed-tasks 24px; embed reconstruido). Guía: docs/IDENTIDAD-PULZZO.md. Lado a lado: pulzzo-work-out/browser-v36l/sbs-*.png; móvil fixed-m-*.png; chequeo computado computed-style-check.txt.

@@ -127,3 +127,11 @@ Tests nuevos: `tests/v36-assisted.cjs`, `tests/dispersion-period-days.cjs`. Fixt
 - Oferta: aviso no bloqueante «Fuera de límites: requiere Administración» (tasa, plazo, monto) con los límites de ejemplo.
 - Brechas: (1) al desactivar un KAM sus clientes existentes NO se reasignan automáticamente (solo los registros nuevos con enlace revocado/KAM inactivo siguen la regla y quedan en historial); (2) la frecuencia de pago no se puede cambiar en la oferta (viene de la solicitud o del valor por defecto); (3) los límites no existían: son valores de ejemplo, no validados.
 - Tests: nuevo tests/v36k-config.cjs; configuration-polish ajustado (6 pestañas, tarjetas).
+
+## v36l — 2026-10-15 02:06 CDMX
+- Guía de identidad docs/IDENTIDAD-PULZZO.md (estilos calculados de Dashboard, CRM y onboarding original); capturas en pulzzo-work-out/browser-v36l/guia/.
+- Configuración unificada con los tokens del Dashboard/CRM: tarjeta exterior 24px, tarjetas internas 22px/20px sin sombra, valores Inter 15px/520 (antes Jakarta 18px), reglas como filas sin viñetas, ejemplos como texto de ayuda (sin cajas grises ad hoc).
+- CRM config: opciones como cajas seleccionables sin círculo (seleccionada #EFFFFF/#B9E0E4).
+- Usuarios y grupos: botones con las medidas de .btn (antes 44px y radio 12), pasos, pestañas de área (antes subrayado) y segmentos de permisos (antes navy/gris) con el estilo de pestaña PULZZO; nota 13px (antes 14.4px); h4 14px.
+- CRM Agenda de seguimiento y otros paneles: cuerpo con el mismo margen lateral de 24px que el encabezado (antes 20 vs 24), padding simétrico; orden Vencidas → Hoy → Próximas sin cambios.
+- Sin cambios de lógica, textos legales, onboarding ni prelación.

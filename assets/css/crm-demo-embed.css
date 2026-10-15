@@ -91,7 +91,7 @@
 .crm-surface .notice.error{background:var(--danger-soft);border-color:#F4CACA;color:#991B1B}
 .crm-surface .capture-history>.timeline{max-height:none;overflow:visible}
 .crm-surface .timeline-row{border-color:var(--line2)}
-.crm-surface .task-board{align-items:stretch;gap:var(--crm-board-gap);padding:20px}
+.crm-surface .task-board{align-items:stretch;gap:var(--crm-board-gap);padding:20px 24px 24px}
 .crm-surface .task-column{border-color:var(--line2);border-radius:var(--crm-board-radius)}
 .crm-surface .task-column h3{background:var(--bg);border-color:var(--line2);gap:8px;padding:12px 14px}
 .crm-surface .task-column.overdue h3{background:#FEF2F2;color:#991B1B}
@@ -401,4 +401,11 @@
  .crm-surface .email-preview-envelope>div{grid-template-columns:1fr;gap:2px}
  .crm-surface .invitation-email-frame{height:740px}
  .crm-surface .share-email-actions>*{flex:1 1 100%}
+}
+/* v36l: panel bodies use the same 24px side inset as .panel-heading, so titles and the first
+   column/metric line up and left/right padding is symmetric (Agenda: Vencidas → Hoy → Próximas). */
+@media(min-width:821px){
+.crm-surface .closed-tasks{padding:0 24px 24px}
+.crm-surface .metric-grid{padding:20px 24px}
+.crm-surface .dashboard-split{padding:0 24px 24px}
 }

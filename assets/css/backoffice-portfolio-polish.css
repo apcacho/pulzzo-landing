@@ -860,3 +860,44 @@ body.portfolio-payment-open{overflow:hidden;overscroll-behavior:none}
 #settings .cfg-prod-card.is-disabled{opacity:.6;background:#F8FAFC}
 .offer-limit-warning{margin:10px 0;padding:10px 14px;border:1px solid #FCD34D;border-radius:10px;background:#FFFBEB;color:#92400E;font-size:14px}
 .offer-limit-warning[hidden]{display:none}
+/* v36l · identidad PULZZO (docs/IDENTIDAD-PULZZO.md). Configuración reuses the Dashboard/CRM tokens:
+   outer card = Dashboard .card (24px, 1px #E8EEF6, no shadow); inner cards = Dashboard KPI (22px, 20px);
+   values = Dashboard metric value (Inter 15px/520); option pickers = boxes with the active-tab/nav selected
+   style (#EFFFFF + #B9E0E4), no radio circles; rules as clean rows, no bullets. */
+#settings .card.cfg-shell{border-radius:24px}
+#settings :is(.cfg-area-card,.cfg-policy,.cfg-pending,.cfg-prod-card,.cfg-version-panel){border:1px solid var(--line2,#E8EEF6);border-radius:22px;padding:20px;box-shadow:none;background:#fff}
+#settings .cfg-impact-note{border-radius:22px}
+#settings .cfg-current dd,#settings .cfg-current dd small{font-family:var(--font-body);font-size:15px;font-weight:520;color:var(--navy,#07142F)}
+#settings .cfg-current dd small{font-size:12px;font-weight:400;color:var(--muted,#64748B)}
+#settings :is(.cfg-policy,.cfg-pending,.cfg-prod-card)>ul,#settings .crmcfg-history ul{list-style:none;padding:0;margin:0;display:grid;gap:0}
+#settings :is(.cfg-policy,.cfg-pending,.cfg-prod-card)>ul>li,#settings .crmcfg-history li{padding:10px 0;border-top:1px solid var(--line2,#E8EEF6);color:var(--ink,#07142F);font-size:13px;line-height:1.5}
+#settings :is(.cfg-policy,.cfg-pending,.cfg-prod-card)>ul>li:first-child,#settings .crmcfg-history li:first-child{border-top:0}
+#settings .crmcfg-option{position:relative;border:1px solid #D7E1EE;border-radius:14px;padding:12px 14px;background:#fff;transition:border-color .15s,background .15s}
+#settings .crmcfg-option:hover{border-color:#B9E0E4}
+#settings .crmcfg-option input{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px;margin:0}
+#settings .crmcfg-option:has(input:checked){border-color:#B9E0E4;background:#EFFFFF}
+#settings .crmcfg-option:has(input:focus-visible){outline:2px solid var(--aqua,#20C7D4);outline-offset:2px}
+#settings .crmcfg-option strong{font-size:13px;font-weight:600;color:#030A18}
+#settings .crmcfg-option small{font-size:12px;color:var(--muted,#64748B)}
+#settings .crmcfg-msg{border-radius:12px;font-size:13px}
+@media(max-width:820px){#settings :is(.cfg-area-card,.cfg-policy,.cfg-pending,.cfg-prod-card,.cfg-version-panel){padding:16px;border-radius:18px}}
+/* v36l · Usuarios y grupos: same components as Dashboard/CRM. Buttons = .btn metrics; steps, area tabs and
+   permission segments = PULZZO tab boxes (selected #EFFFFF + #B9E0E4, 8px); cards = Dashboard card tokens. */
+#settings .sx-btn{height:auto;min-height:36px;padding:7px 12px;border-radius:8px;font-size:12px;font-weight:500;line-height:1.4}
+#settings .sx-btn.sm{min-height:32px}
+#settings .sx-card{border-radius:22px;padding:20px;border-color:var(--line2,#E8EEF6);box-shadow:none}
+#settings .sx-row,#settings .sx-grow>*{border-radius:16px}
+#settings .sx-note{font-size:13px;line-height:1.5;border-radius:16px;color:var(--navy,#07142F)}
+#settings .sx-card h4,#settings .sx-rpane h4{font-family:var(--font-display);font-size:14px;font-weight:600;margin:0}
+#settings .sx-steps{gap:6px;flex-wrap:wrap}
+#settings .sx-step{border:1px solid #D7E1EE;background:#fff;color:#030A18;font-size:12px;font-weight:500;padding:7px 12px;border-radius:8px;min-height:36px}
+#settings .sx-step b{width:20px;height:20px;font-size:11px;background:#F1F5F9;color:var(--muted,#64748B)}
+#settings .sx-step.active{border-color:#B9E0E4;background:#EFFFFF;color:#030A18;font-weight:600}
+#settings .sx-step.active b{background:var(--aqua,#20C7D4);color:#030A18}
+#settings .sx-atabs{border-bottom:0;gap:6px;flex-wrap:wrap;padding-bottom:4px}
+#settings .sx-atab{border:1px solid #D7E1EE;border-radius:8px;background:#fff;color:#030A18;font-size:12px;font-weight:500;padding:7px 12px;margin:0;min-height:36px}
+#settings .sx-atab.active{border-color:#B9E0E4;background:#EFFFFF;font-weight:600;color:#030A18}
+#settings .sx-pseg{border:0;border-radius:0;overflow:visible;gap:6px;background:transparent}
+#settings .sx-pseg button,#settings .sx-pseg button:first-child{border:1px solid #D7E1EE;border-radius:8px;background:#fff;color:#030A18;font-size:12px;font-weight:500;height:auto;min-height:36px;padding:7px 12px}
+#settings .sx-pseg button.on,#settings .sx-pseg button.on[data-scope]{border-color:#B9E0E4;background:#EFFFFF;color:#030A18;font-weight:600}
+#settings .sx-pseg button:focus-visible{outline:2px solid var(--aqua,#20C7D4);outline-offset:2px}
