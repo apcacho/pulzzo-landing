@@ -32,3 +32,11 @@ const throws=(fn,code)=>assert.throws(fn,e=>e.code===code,code);
  const cfg=fs.readFileSync(path.join(__dirname,'../assets/js/backoffice-configuration.js'),'utf8');assert.ok(cfg.includes('cfg-version-panel')&&cfg.includes('Crear una nueva versión')&&cfg.includes('Reglas vigentes · solo consulta'));
  const bo=fs.readFileSync(path.join(__dirname,'../backoffice.html'),'utf8');assert.ok(!bo.includes('configuración separada'),'top-bar Correo CRM button gone');
  console.log('PASS v36h UI hooks: group cards row, wizard steps, area tabs, aligned segmented table, rules card + version panel');}
+// v36i: wrap grid (no horizontal scroll), «Solo propios» only in CRM, no left-accent info boxes, required fields, switches for individual permissions, CRM toolbar left.
+{const fs=require('fs'),path=require('path');const ui=fs.readFileSync(path.join(__dirname,'../assets/js/staff-admin-ui.js'),'utf8');
+ assert.ok(/\.sx-grow\{display:grid;grid-template-columns:repeat\(auto-fill/.test(ui)&&!/\.sx-grow\{[^}]*overflow-x:auto/.test(ui));
+ assert.ok(!/border-left:3px/.test(ui),'no left accent border');assert.ok(ui.includes('Solo propios: ve solo los clientes que tiene asignados'));
+ assert.ok(ui.includes("filter(sc=>sc!=='own'||areaOwn)"));assert.ok(ui.includes('Falta este dato')&&ui.includes('class="sx-req"'));
+ assert.ok(ui.includes('data-ov-cap')&&!ui.includes('Primero crea la cuenta'));assert.ok(ui.includes('sx-effarea'));
+ const css=fs.readFileSync(path.join(__dirname,'../assets/css/crm-demo-embed.css'),'utf8');assert.match(css,/\.crm-toolbar-actions\{[^}]*margin-left:0;justify-content:flex-start\}/);
+ console.log('PASS v36i hooks');}

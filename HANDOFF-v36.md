@@ -167,3 +167,13 @@ Cambio mínimo sobre el directorio existente (`staff-access.js`): los «roles» 
 - Reglas (Productos, Cartera): tarjeta blanca «Reglas vigentes · solo consulta» con valores actuales arriba; «Crear una nueva versión» abre un panel aparte (cerrar descarta el borrador; se cierra al guardar). Textos legales y lógica sin cambios.
 - Barra superior: confirmado que «Correo CRM (configuración separada)» ya no existe en el código (lo visto era caché del navegador; recargar sin caché).
 - Pruebas: nuevo tests/v36h-groups.cjs; 128/129 (única falla preexistente crm-contact-simplification). Navegador d/m: v36h 10/10, v36d 15/15, v36g 9/9, v36c 21/21. Capturas: /workspace/pulzzo-work-out/browser-v36h/.
+
+## v36i — Correcciones de prueba en vivo (15/10/2026, 00:40 CDMX)
+- Grupos: tarjetas en cuadrícula que se acomoda en varias filas (sin scroll horizontal); paginación con línea propia, controles sin encimarse.
+- Permisos de grupo: «Solo propios» solo en CRM (con ayuda «Solo propios: ve solo los clientes que tiene asignados»); otras áreas solo Sin acceso / Todos. Se quitó la fila de encabezados. Columnas alineadas también en filas sin «propios».
+- Notas informativas: sin borde lateral; usan el estilo de nota PULZZO (.sx-note). Configuración no tenía otros bordes laterales.
+- Crear cuenta: campos obligatorios con *, al pulsar Siguiente o Crear cuenta se marcan en rojo con «Falta este dato» y se enfoca el primero; grupos exigen al menos uno.
+- Paso 3: permisos individuales como lista de switches por área (con alcance Todos/Solo propios en CRM y vencimiento opcional), disponibles al crear; se guardan junto con la cuenta (setUserPermission por cada cambio, con historial). Resumen: lista agrupada por área con ✓, sin chips.
+- CRM barra: los botones (Revisar identidad … + Nuevo prospecto) quedan en su propia fila a la izquierda. Comparado con 3376129 y 59f7d1f a 1100/1366/1440/1512 px y móvil: las posiciones eran idénticas a v36h (no lo causó el switch ni el formato de teléfono); antes iban a la derecha por margin-left:auto. Lo visto como encimado probablemente es caché (recargar sin caché). Backoffice (dashboard, solicitudes, pacientes, doctores, documentos, cartera): sin diferencias de layout vs 59f7d1f en escritorio y móvil.
+- Pendiente (pregunta): eliminar/desactivar grupos — no implementado.
+- Pruebas: 128/129 (única falla preexistente crm-contact-simplification). Navegador d/m: v36d 19/19, v36i 14/14, v36g 9/9, v36c 21/21. Capturas: /workspace/pulzzo-work-out/browser-v36i/.
