@@ -1,6 +1,6 @@
 /* Cartera fase 1. Wraps the pinned payment engine; does not rewrite it. */
 'use strict';
-var carteraUiState={action:'prepago',modality:'',token:'',preview:null,draft:{}};
+var carteraUiState={action:'prepago',modality:'',token:'',preview:null,draft:{},hostId:''};
 var carteraCallContext=null;
 var carteraLastDuplicateWarning='';
 var CARTERA_PRELACION=['ivaInteres','ivaMoratorio','commission','moratorio','moratorioSinInteres','interes','ordinarioSinInteres','capital'];
@@ -528,8 +528,19 @@ dispersionExtensionSectionHtml=function(p,row){
 
 function carteraChoice(action,label){return `<button type="button" class="cartera-choice" aria-pressed="${carteraUiState.action===action?'true':'false'}" onclick="carteraChoose('${action}')">${label}</button>`;}
 function carteraModalityButton(value,label,current){return `<button type="button" class="cartera-choice" aria-pressed="${current===value?'true':'false'}" onclick="carteraChooseModality('${value}')">${label}</button>`;}
+function carteraActiveRoot(){
+ if(typeof currentView!=='undefined'&&currentView==='portfolio')return document.getElementById('portfolio')||document.getElementById('portfolioContent');
+ if(typeof currentView!=='undefined'&&currentView==='patientProfiles')return document.getElementById('patientProfiles');
+ if(typeof currentView!=='undefined'&&currentView==='patients')return document.getElementById('patientDetail')||document.getElementById('patients');
+ return document.body||document;
+}
+function carteraQuery(id){
+ const root=carteraActiveRoot();
+ const found=root&&root.querySelector&&root.querySelector('#'+id);
+ return found||(document.getElementById?document.getElementById(id):null);
+}
 function carteraDraft(){
- const read=id=>{const el=document.getElementById(id);return el?el.value:'';};
+ const read=id=>{const el=carteraQuery(id);return el?el.value:'';};
  return {amount:read('carteraAmount'),date:read('carteraDate'),reference:read('carteraReference'),method:read('carteraMethod'),newDue:read('carteraNewDue'),term:read('carteraTerm'),rate:read('carteraRate'),cuota:read('carteraCuota')};
 }
 function carteraMoneyInput(id,label,value,help){return `<label class="field">${label}<input id="${id}" value="${escapeAttr(value||'')}" ${id==='carteraDate'||id==='carteraNewDue'?'type="date"':'type="number" min="0" step="0.01"'}>${help?`<small>${help}</small>`:''}</label>`;}
@@ -576,21 +587,99 @@ function carteraInjectPanel(){
  if(body.insertBefore)body.insertBefore(section,body.firstChild);
  else if(body.prepend)body.prepend(section);
 }
+function carteraPaint(){
+ const p=carteraSelected();
+ const existing=carteraQuery('carteraFase1');
+ if(existing&&p){try{existing.outerHTML=carteraPanelHtml(p);}catch(error){}return;}
+ try{carteraInjectPanel();}catch(error){}
+}
 function carteraChoose(action){
  carteraUiState.draft=carteraDraft();
  carteraUiState.action=action==='extension'?'extension':action==='reestructura'?'reestructura':'prepago';
  carteraUiState.modality='';carteraUiState.token='';carteraUiState.preview=null;carteraUiState.previewHtml='';
- if(typeof renderPatientDetail==='function')renderPatientDetail();
+ carteraPaint();
 }
 function carteraChooseModality(value){
  carteraUiState.draft=carteraDraft();carteraUiState.modality=value;carteraUiState.token='';carteraUiState.preview=null;carteraUiState.previewHtml='';
- if(typeof renderPatientDetail==='function')renderPatientDetail();
+ carteraPaint();
+}
+function carteraNormalizeAction(action){return action==='extension'?'extension':action==='reestructura'?'reestructura':'prepago';}
+function carteraMountPortfolio(){
+ const p=carteraSelected();if(!p)return false;
+ const content=document.getElementById&&document.getElementById('portfolioContent');
+ if(!content){
+  const portfolio=document.getElementById&&document.getElementById('portfolio');
+  if(!portfolio||typeof portfolio.innerHTML!=='string'||portfolio.innerHTML.indexOf('id="carteraFase1Host"')>=0)return !!(portfolio&&portfolio.innerHTML&&portfolio.innerHTML.indexOf('id="carteraFase1Host"')>=0);
+  portfolio.innerHTML='<section id="carteraFase1Host" class="patient-section-card cartera-fase1-host">'+carteraPanelHtml(p)+'</section>'+portfolio.innerHTML;
+  return true;
+ }
+ let host=content.querySelector&&content.querySelector('#carteraFase1Host');
+ const id=typeof escapeAttr==='function'?escapeAttr(p.id):p.id;
+ if(!host&&document.createElement){host=document.createElement('section');host.id='carteraFase1Host';host.className='patient-section-card cartera-fase1-host';if(content.insertBefore)content.insertBefore(host,content.firstChild);else if(content.prepend)content.prepend(host);}
+ if(!content.insertBefore&&!content.prepend){content.innerHTML=`<section id="carteraFase1Host" class="patient-section-card cartera-fase1-host"><div class="patient-section-head"><div><h3>Operaciones de cartera</h3><p>${escapeHtml(p.patient&&p.patient.fullName||p.id)} · ${escapeHtml(p.id)}</p></div><div class="portfolio-actions"><button type="button" class="btn btn-sm btn-primary" onclick="carteraRegisterPayment('${id}')">Registrar pago</button><button type="button" class="btn btn-sm btn-secondary" onclick="carteraCloseHost()">Cerrar</button></div></div>${carteraPanelHtml(p)}</section>`;return true;}
+ if(!host)return false;
+ host.innerHTML=`<div class="patient-section-head"><div><h3>Operaciones de cartera</h3><p>${escapeHtml(p.patient&&p.patient.fullName||p.id)} · ${escapeHtml(p.id)}${p.application&&p.application.carteraDemoState?' · '+escapeHtml(p.application.carteraDemoState):''}</p></div><div class="portfolio-actions"><button type="button" class="btn btn-sm btn-primary" onclick="carteraRegisterPayment('${id}')">Registrar pago</button><button type="button" class="btn btn-sm btn-secondary" onclick="carteraCloseHost()">Cerrar</button></div></div><div id="carteraFase1Mount"></div>`;
+ const mount=host.querySelector?host.querySelector('#carteraFase1Mount'):null;
+ if(mount)mount.innerHTML=carteraPanelHtml(p);
+ if(host.scrollIntoView)host.scrollIntoView({block:'nearest'});
+ return true;
 }
 function carteraOpenFromPortfolio(id,action){
- carteraUiState.action=action==='extension'?'extension':action==='reestructura'?'reestructura':'prepago';
- carteraUiState.modality='';carteraUiState.token='';carteraUiState.preview=null;carteraUiState.previewHtml='';
+ carteraUiState.action=carteraNormalizeAction(action);
+ carteraUiState.modality='';carteraUiState.token='';carteraUiState.preview=null;carteraUiState.previewHtml='';carteraUiState.draft={};carteraUiState.hostId=id;
+ selectedPatientId=id;
+ if(typeof currentView==='undefined'||currentView==='portfolio')return carteraMountPortfolio();
  if(typeof portfolioOpenCredit==='function')return portfolioOpenCredit(id,'detail');
- selectedPatientId=id;patientTab='dispersion';if(typeof renderPatientDetail==='function')renderPatientDetail();return true;
+ patientTab='dispersion';if(typeof renderPatientDetail==='function')renderPatientDetail();return true;
+}
+function carteraCloseHost(){carteraUiState.hostId='';const host=document.getElementById&&document.getElementById('carteraFase1Host');if(host&&host.remove)host.remove();return true;}
+function carteraRegisterPayment(id){
+ selectedPatientId=id;
+ if(typeof portfolioOpenPayment==='function')return portfolioOpenPayment(id,'');
+ if(typeof portfolioOpenCredit==='function')return portfolioOpenCredit(id,'payment');
+ return false;
+}
+function carteraProfileCreditHtml(req){
+ const id=typeof escapeAttr==='function'?escapeAttr(req.id):req.id;
+ const app=req.application||{};
+ const base=app.interestCalculationBase==='outstanding_balance'?'Saldos insolutos':'Saldos globales';
+ const frequency=String(app.paymentFrequency||'').toLowerCase().indexOf('biweek')>=0||String(app.paymentFrequency||'').toLowerCase().indexOf('quinc')>=0?'Quincenal':'Mensual';
+ return `<article class="cartera-profile-credit"><div><h4>${escapeHtml(req.id)}</h4><p>${escapeHtml(app.procedure||'Crédito')} · ${frequency} · ${base}${app.carteraDemoState?' · '+escapeHtml(app.carteraDemoState):''}</p></div><div class="portfolio-actions"><button type="button" class="btn btn-sm btn-primary" onclick="carteraRegisterPayment('${id}')">Registrar pago</button><button type="button" class="btn btn-sm btn-secondary" onclick="carteraOpenProfile('${id}','prepago')">Prepago</button><button type="button" class="btn btn-sm btn-secondary" onclick="carteraOpenProfile('${id}','extension')">Extensión</button><button type="button" class="btn btn-sm btn-secondary" onclick="carteraOpenProfile('${id}','reestructura')">Reestructura</button></div></article>`;
+}
+function carteraInjectProfile(){
+ if(typeof currentView==='undefined'||currentView!=='patientProfiles'||typeof patientProfileMode==='undefined'||patientProfileMode!=='detail')return;
+ if(typeof patientProfileTab!=='undefined'&&patientProfileTab!=='perfil'&&patientProfileTab!=='solicitudes')return;
+ const root=document.getElementById&&document.getElementById('patientProfiles');if(!root)return;
+ const profiles=typeof buildPatientProfiles==='function'?buildPatientProfiles():[];
+ const profile=profiles.find(item=>String(item.key)===String(selectedPatientProfileKey));
+ const credits=profile&&(profile.requests||[]).filter(req=>req&&typeof portfolioDisbursed==='function'&&portfolioDisbursed(req))||[];
+ const html=credits.length?`<section id="carteraProfileOps" class="patient-section-card cartera-profile-ops"><h3>Crédito en cartera</h3><p>Prepago, extensión y reestructura usan las mismas reglas. La vista previa queda en este navegador.</p>${credits.map(carteraProfileCreditHtml).join('')}<div id="carteraProfileSlot"></div></section>`:'';
+ const existing=root.querySelector&&root.querySelector('#carteraProfileOps');
+ if(!html){if(existing&&existing.remove)existing.remove();return;}
+ if(existing)existing.outerHTML=html;
+ else {
+  const tab=root.querySelector&&root.querySelector('.tab-body');
+  const marker='id="carteraProfileOps"';
+  if(tab&&tab.insertAdjacentHTML&&!(tab.innerHTML&&String(tab.innerHTML).indexOf(marker)>=0))tab.insertAdjacentHTML('afterbegin',html);
+  else if(typeof root.innerHTML==='string'&&root.innerHTML.indexOf(marker)<0&&root.innerHTML.indexOf('<div class="tab-body">')>=0)root.innerHTML=root.innerHTML.replace('<div class="tab-body">','<div class="tab-body">'+html);
+ }
+ if(carteraUiState.hostId&&credits.some(req=>req.id===carteraUiState.hostId)){
+  selectedPatientId=carteraUiState.hostId;
+  const p=carteraSelected();
+  if(!p)return;
+  const panel=carteraPanelHtml(p);
+  let slot=root.querySelector&&root.querySelector('#carteraProfileSlot');
+  if(!slot&&document.getElementById){const found=document.getElementById('carteraProfileSlot');if(found&&root.contains&&root.contains(found))slot=found;}
+  if(slot)slot.innerHTML=panel;
+  else if(typeof root.innerHTML==='string')root.innerHTML=root.innerHTML.replace('<div id="carteraProfileSlot"></div>','<div id="carteraProfileSlot">'+panel+'</div>');
+ }
+}
+function carteraOpenProfile(id,action){
+ carteraUiState.action=carteraNormalizeAction(action);
+ carteraUiState.modality='';carteraUiState.token='';carteraUiState.preview=null;carteraUiState.previewHtml='';carteraUiState.draft={};carteraUiState.hostId=id;
+ selectedPatientId=id;
+ carteraInjectProfile();
+ return true;
 }
 function carteraRunPreview(){
  const p=carteraSelected();if(!p)return false;
@@ -603,9 +692,9 @@ function carteraRunPreview(){
  carteraUiState.preview=result;
  carteraUiState.token=result&&result.ok?JSON.stringify({action,modality:carteraUiState.modality,draft}):'';
  carteraUiState.previewHtml=carteraPreviewText(result,action);
- const slot=document.getElementById('carteraFase1Preview');
+ const slot=carteraQuery('carteraFase1Preview');
  if(slot)slot.innerHTML=carteraUiState.previewHtml;
- const button=document.getElementById('carteraConfirm');
+ const button=carteraQuery('carteraConfirm');
  if(button)button.disabled=!carteraUiState.token||(action==='reestructura'&&!staffIsAdmin());
  return !!result&&result.ok!==false;
 }
@@ -623,13 +712,25 @@ function carteraConfirmCurrent(){
  if(!result||result.ok===false){toast(result&&result.error||'No se aplicó la operación.');return false;}
  carteraUiState.token='';carteraUiState.preview=result;carteraUiState.previewHtml='<p>Operación registrada en este navegador.</p>';
  toast('Operación de cartera registrada en este navegador.');
- if(typeof renderPatientDetail==='function')renderPatientDetail();
+ const savedHtml=carteraUiState.previewHtml,savedHost=carteraUiState.hostId,savedAction=carteraUiState.action;
+ if(typeof currentView!=='undefined'&&currentView==='portfolio'&&typeof renderPortfolio==='function'){
+  carteraUiState.hostId='';
+  renderPortfolio();
+  carteraUiState.hostId=savedHost;carteraUiState.action=savedAction;carteraUiState.previewHtml=savedHtml;
+  carteraMountPortfolio();
+ }else if(typeof currentView!=='undefined'&&currentView==='patientProfiles'&&typeof renderPatientProfiles==='function'){
+  renderPatientProfiles();
+  carteraUiState.hostId=savedHost;carteraUiState.previewHtml=savedHtml;
+  carteraInjectProfile();
+ }else if(typeof renderPatientDetail==='function')renderPatientDetail();
+ const slot=carteraQuery('carteraFase1Preview');
+ if(slot&&savedHtml)slot.innerHTML=savedHtml;
  return true;
 }
 function carteraInjectCss(){
  if(!document.getElementById||document.getElementById('carteraFase1Css')||!document.createElement)return;
  const style=document.createElement('style');style.id='carteraFase1Css';
- style.textContent=`.cartera-fase1{margin:0 0 16px;padding:16px;border:1px solid rgba(7,20,47,.08);border-radius:16px;background:#fff;color:#07142F;font-family:Inter,sans-serif}.cartera-fase1 h4{font-family:"Plus Jakarta Sans",Inter,sans-serif;margin:0 0 12px}.cartera-choices{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}.cartera-choice{appearance:none;border:1px solid rgba(7,20,47,.16);background:#fff;color:#07142F;border-radius:12px;padding:12px 14px;font-family:"Plus Jakarta Sans",Inter,sans-serif;font-weight:600;cursor:pointer}.cartera-choice[aria-pressed="true"]{border-color:#20C7D4;box-shadow:inset 0 0 0 1px #20C7D4;background:#f3fcfd}.cartera-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}.cartera-actions{display:flex;gap:8px;margin-top:12px}.cartera-preview{margin-top:12px;color:#07142F}`;
+ style.textContent=`.cartera-fase1{margin:0 0 16px;padding:16px;border:1px solid rgba(7,20,47,.08);border-radius:16px;background:#fff;color:#07142F;font-family:Inter,sans-serif}.cartera-fase1 h4,.cartera-fase1-host h3,.cartera-profile-ops h3{font-family:"Plus Jakarta Sans",Inter,sans-serif;margin:0 0 12px;color:#07142F}.cartera-choices{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}.cartera-choice{appearance:none;border:1px solid rgba(7,20,47,.16);background:#fff;color:#07142F;border-radius:12px;padding:12px 14px;font-family:"Plus Jakarta Sans",Inter,sans-serif;font-weight:600;cursor:pointer}.cartera-choice[aria-pressed="true"]{border-color:#20C7D4;box-shadow:inset 0 0 0 1px #20C7D4;background:#f3fcfd}.cartera-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}.cartera-actions,.cartera-fase1-host .portfolio-actions,.cartera-profile-credit .portfolio-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.cartera-preview{margin-top:12px;color:#07142F}.cartera-fase1-host{margin:0 0 16px}.cartera-profile-credit{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;padding:12px 0}.cartera-profile-credit h4{margin:0;font-family:"Plus Jakarta Sans",Inter,sans-serif;color:#07142F}`;
  (document.head||document.body).appendChild(style);
 }
 if(typeof portfolioActionCell==='function'){
@@ -658,6 +759,69 @@ if(typeof setPatientDetailTab==='function'){
   return result;
  };
 }
+if(typeof renderPatientProfileDetail==='function'){
+ const carteraOriginalRenderPatientProfileDetail=renderPatientProfileDetail;
+ renderPatientProfileDetail=function(){
+  const result=carteraOriginalRenderPatientProfileDetail.apply(this,arguments);
+  try{carteraInjectProfile();}catch(error){}
+  return result;
+ };
+}
+function carteraDemoSettleRow(row){
+ dispersionConceptDefs().forEach(def=>{row[def.paid]=roundToCents(dispersionNumber(row[def.total],0));row[def.pending]=0;});
+ row.paidAmount=roundToCents(dispersionConceptDefs().reduce((sum,def)=>sum+dispersionNumber(row[def.paid],0),0));
+ row.pendingAmount=0;row.status='Pagado';row.dpd=0;
+}
+function carteraDemoRecognizeMora(row){
+ row.moratory=roundToCents(Math.max(dispersionNumber(row.capital,0),0)*0.03);
+ row.moratoryIva=roundToCents(row.moratory*0.16);
+ dispersionHydrateConcepts(row,{});
+ row.status='Vencido';
+ row.dpd=dispersionDaysPastDue(row.currentDueDate||row.dueDate);
+}
+function carteraBuildDemoCredit(spec){
+ const todayMx=dispersionBusinessDateMX();
+ const dispersion=dispersionAddDaysToDateString(todayMx,spec.offset);
+ const frequency=spec.frequency==='biweekly'?'biweekly':'monthly';
+ const amount=spec.amount;
+ const p={id:spec.id,applicationDate:dispersion,documents:[],references:[],payments:[],notes:[],timeline:[{action:'Crédito dispersado',at:dispersion+'T12:00:00.000Z',comment:'Demo de cartera agregada sin modificar expedientes existentes.'}],patient:{patientId:'PAC-'+spec.id,fullName:spec.name,email:spec.email,phone:spec.phone,curp:spec.curp,rfc:spec.rfc,address:'Av. Demo 100, CDMX',housingStatus:'Propia',incomeMonthly:80000,incomeType:'Nómina'},application:{applicationId:spec.id,applicationStatus:'contrato_firmado',stage:'Contrato firmado',procedure:spec.procedure,doctorName:spec.doctor,requestedAmount:amount,procedureAmount:amount,patientProcedureAmount:amount,procedureCost:amount,providerBaseAmount:amount,openingFeeRate:0.05,openingFeeMode:'upfront',interestCalculationBase:spec.base,ordinaryAnnualRate:0.36,annualInterestRate:36,termMonths:8,paymentFrequency:frequency,paymentDayOption:frequency==='biweekly'?'15_last_day':'15',paymentDays:frequency==='biweekly'?[15,'last_day']:[15],preferredPaymentDay:15,initialPaymentsRequired:0,initialPaymentRequired:false,carteraDemoState:spec.state,providerDispersions:[{id:'prov-1',provider:spec.doctor,concept:spec.procedure,amount:amount,status:'Lista para liberar'}]},offer:{status:'borrador',procedureName:spec.procedure,providerName:spec.doctor}};
+ applyFinancialBreakdownToPatient(p);
+ p.application.contractSigned=true;p.application.contractReady=true;p.application.signatureStatus='signed';p.application.signedAt=dispersion+'T12:00:00.000Z';p.application.contractSignedAt=dispersion+'T12:00:00.000Z';p.application.offerAccepted=true;p.application.offerReady=true;p.application.dispersionDate=dispersion;p.application.disbursedAt=dispersion;p.application.amortizationStatus='active';
+ p.offer.status='aceptada';
+ p.contract={signedAt:dispersion+'T12:00:00.000Z',signatureStatus:'signed'};
+ p.application.providerDispersions[0].status='Dispersada';p.application.providerDispersions[0].dispersionDate=dispersion;
+ applyFinancialBreakdownToPatient(p);
+ const rows=dispersionBuildSchedule(p);
+ let settled=0;
+ rows.forEach(row=>{
+  const due=String(row.currentDueDate||row.dueDate||'');
+  if(!(due&&due<todayMx))return;
+  if(spec.payPast){const before=roundToCents(dispersionNumber(row.pendingAmount,0));carteraDemoSettleRow(row);settled=roundToCents(settled+(before||row.paidAmount));}
+  else if(spec.mora)carteraDemoRecognizeMora(row);
+ });
+ if(spec.payPast&&settled>0)p.payments.push({receiptId:'CARTERA-SEED-'+spec.id,date:todayMx,amount:settled,amountReceived:settled,totalApplied:settled,unappliedAmount:0,paymentType:'ordinary',method:'SPEI',reference:'DEMO-'+spec.id,actor:'demo.cartera@pulzzo.mx',carteraFase1:true,createdAt:todayMx+'T12:00:00.000Z'});
+ p.paymentSchedule=rows;
+ return p;
+}
+function carteraSeedDisbursedDemos(){
+ if(typeof db==='undefined'||!Array.isArray(db.patients)||typeof dispersionBuildSchedule!=='function'||typeof applyFinancialBreakdownToPatient!=='function')return [];
+ const specs=[
+  {id:'APP-CARTERA-1001',name:'Elena Vargas Solís',state:'Al corriente · global · mensual',base:'global',frequency:'monthly',offset:-150,payPast:true,amount:84000,procedure:'Rinoplastia',doctor:'Dra. Laura Méndez',phone:'55 4100 1001',curp:'VASL900101MDFRLN01',rfc:'VASL900101AB1',email:'elena.vargas.demo@pulzzo.mx'},
+  {id:'APP-CARTERA-1002',name:'Hugo Ramírez Beltrán',state:'Con atraso · global · mensual',base:'global',frequency:'monthly',offset:-150,payPast:false,mora:true,amount:96000,procedure:'Blefaroplastia',doctor:'Dr. Roberto Salinas',phone:'55 4100 1002',curp:'RABH880202HDFMLG02',rfc:'RABH880202CD3',email:'hugo.ramirez.demo@pulzzo.mx'},
+  {id:'APP-CARTERA-1003',name:'Patricia Núñez Ceballos',state:'Próximo a vencer · global · quincenal',base:'global',frequency:'biweekly',offset:-5,payPast:false,amount:72000,procedure:'Lipoescultura',doctor:'Dra. Laura Méndez',phone:'55 4100 1003',curp:'NUCP920303MDFXBR03',rfc:'NUCP920303EF4',email:'patricia.nunez.demo@pulzzo.mx'},
+  {id:'APP-CARTERA-1004',name:'Sofía Calderón Ibarra',state:'Al corriente · insoluto · mensual',base:'outstanding_balance',frequency:'monthly',offset:-120,payPast:true,amount:110000,procedure:'Abdominoplastia',doctor:'Dr. Miguel Bonilla',phone:'55 4100 1004',curp:'CAIS850404MDFBLF04',rfc:'CAIS850404GH5',email:'sofia.calderon.demo@pulzzo.mx'},
+  {id:'APP-CARTERA-1005',name:'Diego Fuentes Alemán',state:'Próximo a vencer · insoluto · quincenal',base:'outstanding_balance',frequency:'biweekly',offset:-5,payPast:false,amount:64000,procedure:'Rinoplastia',doctor:'Dra. Laura Méndez',phone:'55 4100 1005',curp:'FUAD910505HDFMLG05',rfc:'FUAD910505IJ6',email:'diego.fuentes.demo@pulzzo.mx'}
+ ];
+ const present=new Set((db.patients||[]).map(item=>item&&item.id));
+ const added=[];
+ specs.forEach(spec=>{
+  if(present.has(spec.id))return;
+  try{const credit=carteraBuildDemoCredit(spec);db.patients.push(credit);present.add(spec.id);added.push(spec.id);}catch(error){}
+ });
+ if(added.length){try{carteraResave();}catch(error){}}
+ return added;
+}
 try{carteraInjectCss();}catch(error){}
-Object.assign(globalThis,{carteraAllocateOldestFirst,carteraFindDuplicate,carteraCapitalPending,carteraOpenRows,carteraPreviewExtension,carteraApplyExtension,carteraPreviewPrepay,carteraApplyPrepay,carteraPreviewRestructure,carteraApplyRestructure,carteraPanelHtml,carteraChoose,carteraChooseModality,carteraOpenFromPortfolio,carteraRunPreview,carteraConfirmCurrent});
+try{carteraSeedDisbursedDemos();}catch(error){}
+Object.assign(globalThis,{carteraAllocateOldestFirst,carteraFindDuplicate,carteraCapitalPending,carteraOpenRows,carteraPreviewExtension,carteraApplyExtension,carteraPreviewPrepay,carteraApplyPrepay,carteraPreviewRestructure,carteraApplyRestructure,carteraPanelHtml,carteraChoose,carteraChooseModality,carteraOpenFromPortfolio,carteraOpenProfile,carteraRegisterPayment,carteraCloseHost,carteraSeedDisbursedDemos,carteraRunPreview,carteraConfirmCurrent});
 }
