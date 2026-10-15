@@ -132,3 +132,12 @@ Cambio mínimo sobre el directorio existente (`staff-access.js`): los «roles» 
 - **Tope de Administración superado:** hoy se rechaza sin otro escalamiento. ¿Debe requerir dos firmas de Administración?
 - **Expiración de un permiso individual:** hoy deja de aplicar sin aviso. Recomiendo una tarea o aviso para Administración 3 días antes.
 - **Grupo nuevo «Gerente»:** hoy se usa «Líder / gerente KAM». ¿Quieren un grupo propio?
+
+## v36e — Rediseño visual de Usuarios y roles (14/10/2026, 22:49 CDMX)
+- Solo presentación (assets/js/staff-admin-ui.js); sin cambios de lógica/permisos ni onboarding. Estilos .sx-* inyectados usando tokens del backoffice.
+- Cuentas: tarjetas con badges de grupo y estado; filtros nombre/correo, grupo, estado; paginación con selector 10/20/50/100 (default 10).
+- Alta/edición en panel lateral por pasos: 1 Datos, 2 Grupos (chips), 3 Permisos individuales con vencimiento, 4 Resumen. Cierra con Esc, ×, al cambiar pestaña/ruta o al guardar.
+- Plantillas de roles (grupos): lista en tarjetas con búsqueda y paginación 10/20/50/100; permisos por área en secciones plegables con control segmentado Sin acceso / Solo propios / Todos. Topes de aprobación en tarjeta propia (KAM no aprueba, Líder 10,000 MXN, Admin sin tope).
+- Historial de personal: búsqueda + filtro por tipo, paginación 10/20/50/100.
+- Pruebas: 126/127 (única falla: crm-contact-simplification, preexistente). Regresión navegador v36d d/m 14/14. Capturas: /workspace/pulzzo-work-out/browser-v36e/.
+- Dudas: ¿paginar también la lista de permisos individuales de una cuenta? (recomiendo no, suelen ser pocos). ¿Mostrar autor del historial solo por nombre en vez de nombre+id? (recomiendo nombre, id en tooltip).
