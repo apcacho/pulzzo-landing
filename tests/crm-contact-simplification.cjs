@@ -65,7 +65,9 @@ test('Full onboarding replaces both provisional capture and separate document ac
 test('Only current same-origin full-form routes can be opened',async()=>{
  const h=setup(),destinations=[];h.window.location.assign=url=>destinations.push(url);const c=await add(h,'patient',{email:'route@example.test'});
  h.window.PulzzoCRMOnboarding={start(){return {url:'https://evil.test/solicitud-paciente.html?crmMode=assisted&crmExp=other'};}};
- h.app.handlers.beginOnboarding();assert.equal(destinations.length,0);assert.match(h.get('notice').textContent,/ruta no corresponde/);
+ h.app.handlers.beginOnboarding();assert.equal(destinations.length,0);
+ // Updated 2026-10-15: route errors are shown in the «No se pudo abrir el expediente» dialog (the notice only confirms the saved draft).
+ assert.match(h.get('dialogContent').innerHTML,/ruta no corresponde/);
  const exp=Object.values(h.app.state.store.snapshot().expedients)[0];h.window.PulzzoCRMOnboarding.start=()=>({url:'solicitud-paciente.html?crmMode=holder&crmExp='+exp.id});h.app.handlers.onboardingEditor();assert.equal(destinations.length,0);
  const admin=Store.createStore({storage:h.storage,actor:{id:'admin_demo',role:'admin'}});good(admin.reassignContact(c.id,'kam_luis','Prueba de permiso',admin.snapshot().revision));h.app.handlers.onboardingEditor();assert.equal(destinations.length,0);h.app.destroy();
 });
@@ -107,7 +109,7 @@ test('Two clear contact choices share one expediente; customer-first never opens
   h.app.handlers.inviteHolder();assert.equal(Object.values(h.app.state.store.snapshot().expedients).length,1,'opening share creates the stable entry immediately');assert.equal(destinations.length,0);
   let result=await h.submit({email:c.email});assert.equal(result.error,'');let snap=h.app.state.store.snapshot(),exp=Object.values(snap.expedients)[0],inv=snap.invitations[exp.activeInvitationId];assert.equal(inv.expedientId,exp.id);assert.equal(destinations.length,0);assert.equal(Object.keys(snap.contacts).length,1);
   h.app.handlers.inviteHolder();assert.match(h.get('dialogContent').innerHTML,/data-action="copy-entry"/);assert.equal(h.app.state.store.snapshot().expedients[exp.id].activeInvitationId,inv.id,'reuses live invitation');h.app.closeDialog();
-  h.app.handlers.onboardingEditor();assert.equal(destinations.length,0,'KAM cannot start before holder registration');assert.match(h.get('notice').textContent,/registro inicial/);
+  h.app.handlers.onboardingEditor();assert.equal(destinations.length,0,'KAM cannot start before holder registration');assert.match(h.get('notice').textContent+h.get('dialogContent').innerHTML,/registro inicial/);
   const holder={id:'holder_'+kind,role:'holder',email:c.email},disk=h.storage,now=()=>new Date('2026-10-09T12:00:00Z'),holderStore=Store.createStore({storage:disk,actor:holder,now}),api=Assisted.createAssisted({store:holderStore,actor:holder,now});
   const challenge=good(api.requestDemoVerification({entryToken:inv.token,email:c.email,kind})),proof=good(api.verifyDemoCode(challenge.challengeId,challenge.demoCode));good(api.openEntryLink(inv.token,{email:c.email,proofToken:proof.proofToken},holderStore.snapshot().revision));
   require('./fixtures/registered-expedient.cjs')({storage:disk,staff:h.app.state.actor,expId:exp.id,holder,now});h.app.handlers.onboardingEditor();assert.equal(destinations.length,1);assert.equal(new URL(destinations[0]).searchParams.get('crmExp'),exp.id);assert.equal(new URL(destinations[0]).searchParams.get('crmMode'),'assisted');
@@ -117,18 +119,18 @@ test('Two clear contact choices share one expediente; customer-first never opens
 });
 
 test('Missing email, task counter, cancelled preparation and stale reassignment give honest outcomes',async()=>{
- const h=setup();const c=await add(h);h.app.handlers.inviteHolder();assert.match(h.get('dialogContent').innerHTML,/data-action="edit-contact">Agregar correo/);assert.equal(Object.values(h.app.state.store.snapshot().expedients).length,0);h.app.closeDialog();
+ const h=setup();/* Updated 2026-10-15: phone AND email are mandatory (UI and store), so the old no-email «Agregar correo» branch is unreachable; the invitation shows the personal link and creates its stable expediente. */const c=await add(h);h.app.handlers.inviteHolder();assert.match(h.get('dialogContent').innerHTML,/share-link-dialog/);assert.doesNotMatch(h.get('dialogContent').innerHTML,/Agregar correo/);assert.equal(Object.values(h.app.state.store.snapshot().expedients).length,1);h.app.closeDialog();
  good(h.app.state.store.createTask({contactId:c.id,title:'Llamar mañana',dueAt:'2026-10-10T12:00:00Z'},h.app.state.store.snapshot().revision));h.app.render();assert.match(h.get('contactDetail').innerHTML,/1 tarea pendiente/);assert.match(h.get('contactDetail').innerHTML,/Llamar mañana/);assert.doesNotMatch(h.get('contactDetail').innerHTML,/Próximos pasos/);
- const withEmail=await add(h,'doctor',{email:'cancel-link@example.test',phone:'5512349999'});h.app.handlers.inviteHolder();h.app.closeDialog();assert.equal(Object.values(h.app.state.store.snapshot().expedients).length,1,'closing preserves the generated stable link');
- h.app.handlers.inviteHolder();await h.click('revoke-entry');const admin=Store.createStore({storage:h.storage,actor:{id:'admin_demo',role:'admin'}});good(admin.reassignContact(withEmail.id,'kam_luis','Reasignación',admin.snapshot().revision));const result=await h.submit({email:withEmail.email});assert.ok(result.error);assert.equal(Object.values(admin.snapshot().expedients).length,1);assert.equal(Object.values(admin.snapshot().expedients)[0].entryLink.status,'active','stale revocation must not commit');h.app.destroy();
+ const withEmail=await add(h,'doctor',{email:'cancel-link@example.test',phone:'5512349999'});h.app.handlers.inviteHolder();h.app.closeDialog();assert.equal(Object.values(h.app.state.store.snapshot().expedients).length,2,'closing preserves the generated stable link');
+ h.app.handlers.inviteHolder();await h.click('revoke-entry');const admin=Store.createStore({storage:h.storage,actor:{id:'admin_demo',role:'admin'}});good(admin.reassignContact(withEmail.id,'kam_luis','Reasignación',admin.snapshot().revision));const result=await h.submit({email:withEmail.email});assert.ok(result.error);const own=Object.values(admin.snapshot().expedients).filter(e=>e.contactId===withEmail.id);assert.equal(own.length,1);assert.equal(own[0].entryLink.status,'active','stale revocation must not commit');h.app.destroy();
 });
 
 test('Phone-only prospect stays pending until contact email and holder registration are complete',async()=>{
  const Shared=require('../assets/js/crm-onboarding-session.js');
  for(const kind of ['patient','doctor']){
   const h=setup(),destinations=[];h.window.sessionStorage=new context.fixture.MemoryStorage();h.window.PulzzoCRMOnboarding=Shared;h.window.location.assign=url=>destinations.push(url);
-  const c=await add(h,kind);h.app.handlers.beginOnboarding();let exp=Object.values(h.app.state.store.snapshot().expedients)[0];assert.equal(destinations.length,0);assert.ok(!exp.onboarding);assert.match(h.get('notice').textContent,/registro inicial/);
-  const email=kind+'-phone-first@example.test';good(h.app.state.store.updateContact(c.id,{email},h.app.state.store.snapshot().revision));
+  // Updated 2026-10-15: phone AND email are mandatory now, so the prospect starts with its email (no phone-only state).
+  const email=kind+'-phone-first@example.test';const c=await add(h,kind,{email});h.app.handlers.beginOnboarding();let exp=Object.values(h.app.state.store.snapshot().expedients)[0];assert.equal(destinations.length,0);assert.ok(!exp.onboarding);assert.match(h.get('notice').textContent+h.get('dialogContent').innerHTML,/registro inicial/);
   require('./fixtures/registered-expedient.cjs')({storage:h.storage,staff:h.app.state.actor,expId:exp.id,now:()=>new Date('2026-10-09T12:00:00Z')});
   h.app.handlers.onboardingEditor();assert.equal(destinations.length,1);const ctx=Shared.open({storage:h.storage,sessionStorage:h.window.sessionStorage,location:new URL(destinations[0]),kind});assert.equal(ctx.expId,exp.id);assert.equal(ctx.isAssistant,true);
   h.app.render();assert.equal(h.app.state.store.getContact(c.id).email,email);h.app.handlers.inviteHolder();await h.click('migrate-entry');assert.equal((await h.submit()).error,'');assert.match(h.get('dialogContent').innerHTML,/#entry=/);const snap=h.app.state.store.snapshot();assert.equal(Object.keys(snap.expedients).length,1);assert.equal(snap.expedients[exp.id].fields.email,email);h.app.destroy();
