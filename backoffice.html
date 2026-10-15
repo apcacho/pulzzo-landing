@@ -4015,7 +4015,7 @@
     <header class="topbar">
       <button class="btn btn-soft mobile-menu" id="mobileMenu" aria-label="Abrir menú" aria-controls="sidebar" aria-expanded="false">☰</button>
       <div><h1 id="pageTitle">Dashboard Pulzzo</h1><p id="pageSub">Resumen ejecutivo operativo de Pulzzo.</p></div>
-      <div class="top-actions"><a class="btn btn-secondary btn-sm" href="crm.html">Correo CRM (configuración separada)</a><span class="role-badge" id="roleBadge">Admin</span><button class="btn btn-secondary btn-sm" id="resetBtn">Reset demo</button></div>
+      <div class="top-actions"><span class="role-badge" id="roleBadge">Admin</span><button class="btn btn-secondary btn-sm" id="resetBtn">Reset demo</button></div>
     </header>
     <div class="content">
       <section id="dashboard" class="view active"></section>
@@ -4037,6 +4037,7 @@
 <div id="modalBackdrop" class="modal-backdrop"><div class="modal" id="modal"></div></div>
 <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
+<script src="assets/js/pulzzo-phone.js"></script>
 <script src="assets/js/staff-access.js"></script>
 <script>
 const $=(s,r=document)=>r.querySelector(s); const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
@@ -5368,7 +5369,7 @@ function patientStatusLabel(status){
 function patientContactLine(patient){
   const phone=patient?.phone||patient?.telefono||patient?.mobile||patient?.whatsapp||'Sin teléfono';
   const email=patient?.email||patient?.correo||'Sin correo';
-  return `<strong>Contacto:</strong> ${phone} · ${email}`;
+  return `<strong>Contacto:</strong> ${pzPhone(phone)} · ${email}`;
 }
 
 
@@ -5730,6 +5731,7 @@ function procedureHumanValue(value){
   };
   return map[key]||s;
 }
+function pzPhone(value){return window.PulzzoPhone?window.PulzzoPhone.format(value):value;}
 function normalizePhoneDigits(value){
   return String(value||'').replace(/\D/g,'');
 }
@@ -5956,7 +5958,7 @@ function renderProcedureTab(p){
         ${procedureInfo('¿Con quién se quiere atender?',d.providerSource)}
         ${procedureInfo('Título',d.doctorPrefix||'No especificado')}
         ${procedureInfo('Doctor / clínica / hospital principal',d.doctorName)}
-        ${procedureInfo('Teléfono / WhatsApp',d.doctorContact)}
+        ${procedureInfo('Teléfono / WhatsApp',pzPhone(d.doctorContact))}
         ${procedureInfo('Estado',d.doctorState)}
         ${procedureInfo('Ciudad',d.doctorCity)}
         ${procedureInfo('Instagram / red social',d.doctorInstagram||'No especificado')}
@@ -6342,7 +6344,7 @@ function hasSpecifiedValue(v){
   return !['no especificado','n/a','na','—','-','null','undefined'].includes(text.toLowerCase());
 }
 function patientEditField(id,label,value,type='text',full=false){
-  return `<div class="field ${full?'patient-edit-full':''}"><label>${label}</label><input id="${id}" type="${type}" value="${escapeProcedureValue(value)}"></div>`;
+  return `<div class="field ${full?'patient-edit-full':''}"><label>${label}</label><input id="${id}" type="${type}" value="${escapeProcedureValue(value)}"${type==='tel'?' data-pz-phone inputmode="numeric"':''}></div>`;
 }
 function patientEditSelect(id,label,value,options,full=false){
   const current=String(value||'');
@@ -6457,7 +6459,7 @@ function renderPersonalDataTab(p){
           ${patientEditField('editPersonalBeneficiary','Nombre del paciente',d.beneficiary)}
           ${patientEditSelect('editPersonalRelationship','Relación',d.relationship,['Titular','Familiar - Abuelo/a','Familiar - Padre/Madre','Familiar - Hermano/a','Familiar - Hijo/a','Pareja','Otro'])}
           ${patientEditField('editPersonalEmail','Correo',d.email,'email')}
-          ${patientEditField('editPersonalPhone','Celular',d.phone,'tel')}
+          ${patientEditField('editPersonalPhone','Celular',pzPhone(d.phone),'tel')}
           ${patientEditField('editPersonalCurp','CURP',d.curp)}
           ${patientEditField('editPersonalRfc','RFC',d.rfc)}
           ${patientEditField('editPersonalBirthDate','Fecha de nacimiento',d.birthDate,'date')}
@@ -6508,7 +6510,7 @@ function renderPersonalDataTab(p){
         ${patientPersonalInfo('Paciente',samePatient?'El acreditado también es el paciente':(d.beneficiary||'No especificado'))}
         ${patientPersonalInfo('Relación',samePatient?'Titular':(d.relationship||d.relationshipDetail||'No especificado'))}
         ${patientPersonalInfo('Correo',d.email||'No especificado')}
-        ${patientPersonalInfo('Celular',d.phone||'No especificado')}
+        ${patientPersonalInfo('Celular',pzPhone(d.phone)||'No especificado')}
         ${patientPersonalInfo('CURP',d.curp||'No especificado')}
         ${patientPersonalInfo('RFC',d.rfc||'No especificado')}
         ${patientPersonalInfo('Fecha de nacimiento',formatMaybeDate(d.birthDate))}
@@ -6557,7 +6559,7 @@ function savePersonalDataEdit(patientId){
   if(!a.patientRecipient)a.patientRecipient={};
   p.patient.fullName=($('#editPersonalName')?.value||'').trim();
   p.patient.email=email;
-  p.patient.phone=phone;
+  p.patient.phone=digits||phone;
   p.patient.curp=($('#editPersonalCurp')?.value||'').trim();
   p.patient.rfc=($('#editPersonalRfc')?.value||'').trim();
   p.patient.birthDate=($('#editPersonalBirthDate')?.value||'').trim();
@@ -7342,7 +7344,7 @@ function renderOfferProcedureEditor(procedures){
       ${procedures.map((proc,i)=>`<div class="offer-procedure-card ${offerProcedureSelectedClass(proc)}" id="offerProcCard${i}" data-index="${i}" data-procedure-id="${escapeAttr(proc.id||'proc-'+i)}" data-manual="${proc.manual?'true':'false'}">
         <div class="offer-procedure-top">
           <label class="offer-check"><input type="checkbox" id="offerProcSelected${i}" ${proc.selected!==false?'checked':''} onchange="refreshOfferCalculations()">✓</label>
-          <div class="offer-procedure-title"><b id="offerProcTitle${i}">${escapeHtml(proc.procedureName||`Procedimiento ${i+1}`)}</b><span id="offerProcSubtitle${i}">${escapeHtml(proc.specialty||'No especificado')} · Proveedor solicitado: ${escapeHtml(proc.providerName||'No especificado')} · Teléfono y/o WhatsApp: ${escapeHtml(proc.providerPhone||'No especificado')}</span></div>
+          <div class="offer-procedure-title"><b id="offerProcTitle${i}">${escapeHtml(proc.procedureName||`Procedimiento ${i+1}`)}</b><span id="offerProcSubtitle${i}">${escapeHtml(proc.specialty||'No especificado')} · Proveedor solicitado: ${escapeHtml(proc.providerName||'No especificado')} · Teléfono y/o WhatsApp: ${escapeHtml(pzPhone(proc.providerPhone)||'No especificado')}</span></div>
           <button class="offer-remove-btn" type="button" onclick="removeOfferProcedure(${i})">Quitar</button>
         </div>
         <div class="offer-procedure-fields">
@@ -7398,7 +7400,7 @@ function renderOfferClientPreview(p,o,procedures){
   const intro=o?.clientIntroText||'Revisa cuidadosamente monto, plazo, pago, vigencia y condiciones antes de aceptar la oferta.';
   const initialText=o?.initialPaymentText||buildInitialPaymentText(initialMonths);
   const initialStatus=initialMonths>0?offerValue(o?.initialPaymentStatus||p.application?.initialPaymentStatus,'Pendiente'):'No aplica';
-  const providerLines=selected.length?selected.map(x=>`<div><strong>Doctor, clínica u hospital:</strong> ${escapeHtml(String(x.providerName||'Proveedor no asignado'))} · <strong>Procedimiento:</strong> ${escapeHtml(String(x.procedureName||'Procedimiento'))} · <strong>Teléfono y/o WhatsApp:</strong> ${escapeHtml(String(x.providerPhone||'Sin teléfono'))}</div>`).join(''):`<div><strong>Doctor, clínica u hospital:</strong> ${escapeHtml(String(o?.providerName||p.application?.doctorName||'Proveedor no asignado'))} · <strong>Procedimiento:</strong> ${escapeHtml(String(o?.procedureName||p.application?.procedure||'Procedimiento no especificado'))} · <strong>Teléfono y/o WhatsApp:</strong> ${escapeHtml(String(o?.providerPhone||p.application?.doctorWhatsApp||'Sin teléfono'))}</div>`;
+  const providerLines=selected.length?selected.map(x=>`<div><strong>Doctor, clínica u hospital:</strong> ${escapeHtml(String(x.providerName||'Proveedor no asignado'))} · <strong>Procedimiento:</strong> ${escapeHtml(String(x.procedureName||'Procedimiento'))} · <strong>Teléfono y/o WhatsApp:</strong> ${escapeHtml(String(pzPhone(x.providerPhone)||'Sin teléfono'))}</div>`).join(''):`<div><strong>Doctor, clínica u hospital:</strong> ${escapeHtml(String(o?.providerName||p.application?.doctorName||'Proveedor no asignado'))} · <strong>Procedimiento:</strong> ${escapeHtml(String(o?.procedureName||p.application?.procedure||'Procedimiento no especificado'))} · <strong>Teléfono y/o WhatsApp:</strong> ${escapeHtml(String(pzPhone(o?.providerPhone||p.application?.doctorWhatsApp)||'Sin teléfono'))}</div>`;
   return `<div class="patient-offer-section">
     <div class="offer-preview-label">Vista previa para cliente</div><p class="offer-preview-subcopy">Así se verá la oferta cuando se envíe al perfil del paciente.</p>
     <div class="patient-offer-final">
@@ -7516,7 +7518,7 @@ function syncOfferProcedureName(i){
   const title=document.getElementById(`offerProcTitle${i}`);if(title)title.textContent=name;
   const assoc=document.getElementById(`offerProcedureName${i}`);if(assoc)assoc.value=name;
   const providerTitle=document.getElementById(`offerProviderCardTitle${i}`);if(providerTitle)providerTitle.textContent=name;
-  const subtitle=document.getElementById(`offerProcSubtitle${i}`);if(subtitle){const prov=document.getElementById(`offerProviderName${i}`)?.value||'No especificado';const phone=document.getElementById(`offerProviderPhone${i}`)?.value||'No especificado';subtitle.textContent=`${spec} · Proveedor solicitado: ${prov} · Teléfono y/o WhatsApp: ${phone}`;}
+  const subtitle=document.getElementById(`offerProcSubtitle${i}`);if(subtitle){const prov=document.getElementById(`offerProviderName${i}`)?.value||'No especificado';const phone=document.getElementById(`offerProviderPhone${i}`)?.value||'No especificado';subtitle.textContent=`${spec} · Proveedor solicitado: ${prov} · Teléfono y/o WhatsApp: ${pzPhone(phone)}`;}
 }
 function syncOfferProviderProcedure(i){const name=document.getElementById(`offerProcedureName${i}`)?.value||'';const proc=document.getElementById(`offerProcName${i}`);if(proc)proc.value=name;syncOfferProcedureName(i);}
 function syncOfferProcedureAmount(i){const a=document.getElementById(`offerProcAmount${i}`);const b=document.getElementById(`offerProcedureCost${i}`);if(a&&b){b.dataset.raw=String(parseOfferNumber(a.value));b.value=a.value;}}
@@ -7667,7 +7669,7 @@ function refreshOfferCalculations(){
   const initialText=textEl?.value||buildInitialPaymentText(initialMonths); const it=document.getElementById('previewInitialText'); if(it)it.textContent=initialMonths>0?initialText:'Esta oferta no requiere pagos iniciales.';
   const selected=procedures.filter(x=>x.selected);
   const lines=document.getElementById('previewProviderLines');
-  if(lines)lines.innerHTML=selected.length?selected.map(x=>`<div><strong>Doctor, clínica u hospital:</strong> ${escapeHtml(x.providerName||'Proveedor no asignado')} · <strong>Procedimiento:</strong> ${escapeHtml(x.procedureName||'Procedimiento')} · <strong>Teléfono y/o WhatsApp:</strong> ${escapeHtml(x.providerPhone||'Sin teléfono')}</div>`).join(''):'<div><strong>Doctor, clínica u hospital:</strong> No especificado · <strong>Procedimiento:</strong> No especificado · <strong>Teléfono y/o WhatsApp:</strong> No especificado</div>';
+  if(lines)lines.innerHTML=selected.length?selected.map(x=>`<div><strong>Doctor, clínica u hospital:</strong> ${escapeHtml(x.providerName||'Proveedor no asignado')} · <strong>Procedimiento:</strong> ${escapeHtml(x.procedureName||'Procedimiento')} · <strong>Teléfono y/o WhatsApp:</strong> ${escapeHtml(pzPhone(x.providerPhone)||'Sin teléfono')}</div>`).join(''):'<div><strong>Doctor, clínica u hospital:</strong> No especificado · <strong>Procedimiento:</strong> No especificado · <strong>Teléfono y/o WhatsApp:</strong> No especificado</div>';
 }
 function saveOfferDraftFromDom(skipValidation=true){
   const original=db.patients.find(x=>x.id===selectedPatientId); if(!requireOfferEdit(original))return null;
@@ -11717,7 +11719,7 @@ function renderPatientProfileRow(profile){
         <div class="patient-profile-name">${escapeHtml(pt.fullName||'Paciente sin nombre')}</div>
         ${statusPill(profile.status).replace('class="pill ', 'class="pill patient-profile-status-inline ')}
       </div>
-      <div class="patient-profile-contact">${escapeHtml(pt.phone||'Sin celular')} · ${escapeHtml(pt.email||'Sin correo')}</div>
+      <div class="patient-profile-contact">${escapeHtml(pzPhone(pt.phone)||'Sin celular')} · ${escapeHtml(pt.email||'Sin correo')}</div>
       ${!profile.identityResolved?'<div class="patient-profile-ids">Identidad pendiente de conciliar: solicitud conservada por separado.</div>':''}
       <div class="patient-profile-ids">CURP: ${escapeHtml(pt.curp||'No especificado')} · RFC: ${escapeHtml(pt.rfc||'No especificado')}</div>
     </div>
@@ -11845,7 +11847,7 @@ function renderPatientProfilePerfil(profile){
         ${patientPersonalInfo('Paciente',patientProfileBeneficiaryLabel(d))}
         ${patientPersonalInfo('Relación',patientProfileRelationshipLabel(d))}
         ${patientPersonalInfo('Correo',patientProfileValue(d.email))}
-        ${patientPersonalInfo('Celular',patientProfileValue(d.phone))}
+        ${patientPersonalInfo('Celular',patientProfileValue(pzPhone(d.phone)))}
         ${patientPersonalInfo('CURP',patientProfileValue(d.curp))}
         ${patientPersonalInfo('RFC',patientProfileValue(d.rfc))}
         ${patientPersonalInfo('Fecha de nacimiento',formatMaybeDate(d.birthDate))}

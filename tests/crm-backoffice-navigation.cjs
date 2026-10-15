@@ -124,7 +124,7 @@ test('Actual CRM Back/Forward handlers close interrupted dialogs without adding 
 // explicit Admin authorization before a paid extension. Financial assertions remain intact.
 test('Reviewed inline Backoffice program remains pinned after finance and staff integration',async()=>{
  const original=[...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)].map(m=>m[1]).sort((a,b)=>b.length-a.length)[0];
- assert.equal(crypto.createHash('sha256').update(require('./fixtures/restore-onboarding-render-safety.cjs')(original)).digest('hex'),'c27189559f07465e310ccfda122e60f8f47a1ca9f42732c0df4aa4532d0b73eb','Reviewed inline program changed since v36f (2026-10-14): only the settings nav label and page title were renamed to «Configuración»');
+ assert.equal(crypto.createHash('sha256').update(require('./fixtures/restore-onboarding-render-safety.cjs')(original)).digest('hex'),'51d86bdf7ae083a2f9240b2702afe3ca253380f692ea9ecd923aa3581e5763f8','Reviewed inline program changed since v36g (2026-10-14): v36f settings label + phone display via pzPhone() and bare-digit save of the patient celular');
 });
 test('Admin CRM mounts natively with scoped DOM and one Backoffice shell',async()=>{
  const h=await shell();assert.equal(h.get('crm').children.length,0);assert.equal(h.session(),null);

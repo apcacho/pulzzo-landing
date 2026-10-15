@@ -85,3 +85,12 @@ Tests nuevos: `tests/v36-assisted.cjs`, `tests/dispersion-period-days.cjs`. Fixt
 - Sin cambiar: consentimientos/declaraciones (portal del titular, publicación de doctor, autorización contractual), listas de selección (redistribución, campos a corregir), chips de grupos, check de procedimientos en oferta.
 - Historial de personal: autor por nombre, id en tooltip. Permisos individuales sin paginación.
 - Pruebas: 126/127 (única falla preexistente crm-contact-simplification). Actualizados snapshots aprobados: backoffice-navigation-icons (etiqueta), crm-backoffice-navigation (hash), backoffice-configuration (6 áreas). Navegador: v36d d/m 15/15, v36c d/m 21/21. Capturas: /workspace/pulzzo-work-out/browser-v36f/.
+
+## v36g — Teléfonos «55 3492 3595» y barra superior (14/10/2026, 23:49 CDMX)
+- Nuevo assets/js/pulzzo-phone.js (PulzzoPhone.format / formatTyping / digits). Solo formatea valores que son claramente un número mexicano de 10 dígitos (acepta +52/+521); cualquier otro texto se muestra igual.
+- Se guarda y compara en 10 dígitos como antes; duplicados, WhatsApp (wa.me/52…) y tel:+52… sin cambios.
+- Pantalla: lista y editor de cuentas (Configuración), CRM (lista, kanban, ficha, selector de contacto, campos de teléfono), backoffice (contacto de paciente, perfil de paciente, edición de celular, procedimientos/oferta, teléfono del doctor, perfil público de doctor). Referencias personales ya usaban 2-4-4.
+- Formato al escribir (atributo data-pz-phone): staffPhone, teléfono de prospecto CRM, «Teléfono existente» del registro asistido, celular en edición de paciente (se guarda en dígitos).
+- No se tocó: onboarding (registro-paciente, registro-doctor, solicitud-paciente) — ya formatean 2-4-4 en sus campos; portal del titular; «Teléfono y/o WhatsApp» libre de la oferta y del perfil público (solo se formatea al mostrarlo).
+- Quitado el botón superior «Correo CRM (configuración separada)»; queda la pestaña Configuración › Correo CRM.
+- Pruebas: nuevo tests/phone-format.cjs; 127/128 (única falla preexistente crm-contact-simplification). Re-pin de huellas del script de backoffice.html (crm-backoffice-navigation, backoffice-script-baseline, color-behavior-baseline) por la nueva etiqueta <script> y pzPhone. Navegador: v36g 9/9 d/m, v36d 15/15 d/m, v36c 21/21 d/m. Capturas: /workspace/pulzzo-work-out/browser-v36g/.
