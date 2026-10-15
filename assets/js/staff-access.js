@@ -313,6 +313,17 @@
         if (revoke) { invalidate(state, user); for (const [key, invite] of Object.entries(state.invitations)) if (invite.userId === id) delete state.invitations[key]; }
         audit(state, actor, 'user_updated', id, before, publicUser(state, user)); commit(state, expectedRevision); return publicUser(state, user);
       },
+      // v36h: Admin creates a new group. It starts with no permissions (grants are set afterwards with updateRole) and is logged in history.
+      createRole(reference, input, expectedRevision) {
+        const state = load(), actor = assertActor(state, reference, 'roles'); exactKeys(input, ['label']);
+        const label = typeof input.label === 'string' ? input.label.trim() : '';
+        if (!label || label.length > 100) throw failure('INVALID_ROLE', 'El nombre del grupo no es válido.');
+        if (Object.values(state.roles).some(role => String(role.label).trim().toLowerCase() === label.toLowerCase())) throw failure('DUPLICATE_ROLE', 'Ya existe un grupo con ese nombre.');
+        if (Object.keys(state.roles).length >= 50) throw failure('TOO_MANY_ROLES', 'Se alcanzó el máximo de 50 grupos en la demo.');
+        let id; do { id = random('group_'); } while (own(state.roles, id));
+        const role = { id, label, grants: {}, system: false, createdAt: stamp(), createdBy: actor.id };
+        state.roles[id] = role; audit(state, actor, 'role_created', id, null, clone(role)); commit(state, expectedRevision); return clone(role);
+      },
       updateRole(reference, id, patch, expectedRevision) {
         const state = load(), actor = assertActor(state, reference, 'roles'); exactKeys(patch, ['label', 'grants']);
         const role = lookup(state.roles, id); if (!role) throw failure('ROLE_NOT_FOUND', 'El rol no existe.');

@@ -812,3 +812,21 @@ body.portfolio-payment-open{overflow:hidden;overscroll-behavior:none}
 #settings .cfg-area-card h3{margin:0}
 #settings .pz-switch-list{gap:14px}
 @media(max-width:900px){#settings .cfg-sub-tabs{flex-wrap:nowrap;overflow-x:auto}#settings .cfg-area-card{padding:16px}}
+/* v36h: Reglas en tarjetas limpias (sin cajas grises anidadas) y nueva versión en panel aparte */
+#settings :is(.cfg-policy,.cfg-pending){background:var(--white,#FFF);border-radius:16px;padding:22px}
+#settings .cfg-rules-card{display:grid;gap:16px}
+#settings .cfg-rules-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+#settings .cfg-rules-head h3{margin:0 0 4px}
+#settings .cfg-rules-head .cfg-helper{margin:0}
+#settings .cfg-current{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0;margin:0;border-top:1px solid var(--line2,#E2E8F0)}
+#settings .cfg-current>div{padding:14px 0;border-bottom:1px solid var(--line2,#E2E8F0);padding-right:16px}
+#settings .cfg-current dt{font-size:12px;color:var(--muted,#64748B);margin:0 0 4px}
+#settings .cfg-current dd{margin:0;font-family:var(--font-display);font-size:18px;color:var(--navy,#07142F);font-weight:600}
+#settings .cfg-rules-card>ul{margin:0}
+#settings .cfg-version-panel{margin-top:22px;padding:22px;border:1px solid var(--aqua,#20C7D4);border-radius:16px;background:var(--white,#FFF)}
+#settings .cfg-version-panel[data-open="0"]{display:none}
+#settings .cfg-version-panel .cfg-editor-head{margin-top:0}
+#settings .cfg-version-panel .cfg-block{border:0;border-top:1px solid var(--line2,#E2E8F0);border-radius:0;padding:18px 0 0;background:transparent}
+#settings .cfg-version-panel .cfg-block legend{padding:0 10px 0 0;font-size:15px}
+#settings .cfg-version-close{display:flex;justify-content:flex-end;margin-top:14px}
+@media(max-width:900px){#settings :is(.cfg-policy,.cfg-pending),#settings .cfg-version-panel{padding:16px}#settings .cfg-rules-head .btn{width:100%}}

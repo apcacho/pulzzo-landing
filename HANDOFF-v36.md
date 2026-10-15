@@ -159,3 +159,11 @@ Cambio mínimo sobre el directorio existente (`staff-access.js`): los «roles» 
 - No se tocó: onboarding (registro-paciente, registro-doctor, solicitud-paciente) — ya formatean 2-4-4 en sus campos; portal del titular; «Teléfono y/o WhatsApp» libre de la oferta y del perfil público (solo se formatea al mostrarlo).
 - Quitado el botón superior «Correo CRM (configuración separada)»; queda la pestaña Configuración › Correo CRM.
 - Pruebas: nuevo tests/phone-format.cjs; 127/128 (única falla preexistente crm-contact-simplification). Re-pin de huellas del script de backoffice.html (crm-backoffice-navigation, backoffice-script-baseline, color-behavior-baseline) por la nueva etiqueta <script> y pzPhone. Navegador: v36g 9/9 d/m, v36d 15/15 d/m, v36c 21/21 d/m. Capturas: /workspace/pulzzo-work-out/browser-v36g/.
+
+## v36h — Grupos arriba, crear grupos y Reglas en tarjetas (14/10/2026, 00:10 CDMX)
+- Plantillas de roles (grupos): fila horizontal de tarjetas compactas (nombre · cuentas · permisos) + «+ Nuevo grupo» al final; sin columna izquierda. Búsqueda y paginación 10/20/50/100 se conservan.
+- Editor de grupo a todo el ancho por pasos: 1 Nombre, 2 Permisos (una área a la vez con pestañas y contador), 3 Topes (nota según el grupo + tarjeta de topes; KAM nunca aprueba), 4 Resumen. Tabla de permisos alineada (columnas Sin acceso / Solo propios / Todos), sin cajas anidadas.
+- Nuevo: PulzzoStaffAccess.createRole(actor,{label}) — solo Admin (permiso roles), nombre único, empieza sin permisos, historial «Grupo creado». Los permisos se guardan con updateRole (mismas reglas: reservados a Admin, «Solo propios» solo CRM). Sin eliminar ni desactivar grupos.
+- Reglas (Productos, Cartera): tarjeta blanca «Reglas vigentes · solo consulta» con valores actuales arriba; «Crear una nueva versión» abre un panel aparte (cerrar descarta el borrador; se cierra al guardar). Textos legales y lógica sin cambios.
+- Barra superior: confirmado que «Correo CRM (configuración separada)» ya no existe en el código (lo visto era caché del navegador; recargar sin caché).
+- Pruebas: nuevo tests/v36h-groups.cjs; 128/129 (única falla preexistente crm-contact-simplification). Navegador d/m: v36h 10/10, v36d 15/15, v36g 9/9, v36c 21/21. Capturas: /workspace/pulzzo-work-out/browser-v36h/.
