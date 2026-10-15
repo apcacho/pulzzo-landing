@@ -113,3 +113,22 @@
 - ¿El líder debe ver solo su equipo? La demo no tiene equipos.
 - Si coincide solo el celular con una ficha del KAM y el correo es distinto, hoy se adopta el correo verificado (el anterior queda en el historial). ¿Es correcto o debe revisarlo el KAM?
 - El enlace revocado deja el origen como «Orgánico». ¿Prefieren un origen propio, por ejemplo «Enlace revocado»?
+
+## v36c · Aprobado por el usuario
+Se aprobó tal cual: gana el correo verificado; el enlace revocado queda «Orgánico»; el líder ve todo mientras no existan equipos.
+
+## v36d · Grupos de permisos (implementado, 2026-10-14)
+Cambio mínimo sobre el directorio existente (`staff-access.js`): los «roles» actuales ya funcionaban como grupos. Una cuenta puede tener varios y los permisos se suman. Los roles actuales no cambian. Solo Administración edita todo esto.
+1. **Usuarios:** nombre, correo y celular obligatorios (10 a 15 dígitos), más uno o varios grupos. Las cuentas no se borran: se desactivan (`deactivatedAt` / `deactivatedBy`), conservan su historial y pierden sus sesiones. Al desactivar desde la pantalla, los enlaces de referido del usuario se revocan con el motivo «Usuario desactivado» y no reviven si la cuenta se reactiva. Las cuentas de ejemplo tienen celulares ficticios (55000001xx).
+2. **Grupos:** son las plantillas de rol existentes y los permisos se suman por recurso, igual que antes.
+3. **Permisos individuales:** Administración puede otorgar (todos o solo propios en CRM) o quitar un permiso a una cuenta, con fecha de vencimiento opcional. Al vencer, deja de aplicar solo. El historial guarda `user_permission_changed` con quién, cuándo y el antes/después. Los permisos exclusivos de Admin no se otorgan a otras cuentas. Cada cambio revoca las sesiones del usuario.
+4. **Aprobaciones por monto:** `checkAmountApproval`. Un KAM nunca aprueba, aunque tenga permisos individuales. El líder/gerente aprueba hasta su tope; arriba del tope se escala a Administración. Administración tiene su propio tope (vacío = sin tope). Los topes se editan en «Plantillas de roles (grupos)» y quedan en el historial (`approval_limits_updated`). Valor inicial de demostración: líder 10,000 MXN, Administración sin tope (por confirmar).
+   - **Pendiente:** hoy no existe un flujo de condonaciones en el backoffice. La regla está lista para conectarse cuando se construya (es el siguiente tema).
+5. **Corrección relacionada:** Administración y el líder ya pueden revocar el enlace de un KAM inactivo (antes lo bloqueaba la validación).
+
+### Preguntas v36d (con recomendación)
+- **Topes iniciales:** se pusieron líder 10,000 MXN y Administración sin tope. Recomiendo que ustedes definan las cifras reales.
+- **Cuenta KAM + Líder:** hoy aprueba como líder. Recomiendo bloquearla si tiene KAM, para cumplir «nunca KAM» al pie de la letra. ¿Cuál prefieren?
+- **Tope de Administración superado:** hoy se rechaza sin otro escalamiento. ¿Debe requerir dos firmas de Administración?
+- **Expiración de un permiso individual:** hoy deja de aplicar sin aviso. Recomiendo una tarea o aviso para Administración 3 días antes.
+- **Grupo nuevo «Gerente»:** hoy se usa «Líder / gerente KAM». ¿Quieren un grupo propio?

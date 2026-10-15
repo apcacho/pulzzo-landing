@@ -77,7 +77,7 @@
     };
     function fresh() {
       const at = stamp(), users = {};
-      for (const [id, email, name, role] of seeds) users[id] = { id, email, name, roles: [role], active: true, status: 'active', demoSeed: true, authentication: 'demo', sessionVersion: 1, createdAt: at, updatedAt: at };
+      for (const [index, [id, email, name, role]] of seeds.entries()) users[id] = { id, email, name, phone: '55000001' + String(10 + index), roles: [role], active: true, status: 'active', demoSeed: true, authentication: 'demo', sessionVersion: 1, createdAt: at, updatedAt: at };
       return { schemaVersion: SCHEMA_VERSION, policyVersion: 2, revision: 1, users, roles: seedRoles(), sessions: {}, invitations: {}, audit: [] };
     }
     function save(state) {
@@ -116,11 +116,18 @@
           if (scope === 'all' || !result[cap]) result[cap] = scope;
         }
       }
+      // v36d: individual permissions per user (granted or removed by Admin), lapsing automatically at expiresAt.
+      for (const [cap, entry] of Object.entries(user.overrides || {})) {
+        if (!own(catalog, cap) || !dictionary(entry) || entry.expiresAt && Date.parse(entry.expiresAt) <= milliseconds()) continue;
+        if (entry.scope === 'none') delete result[cap];
+        else if (['own', 'all'].includes(entry.scope) && !(adminOnly.includes(cap) && !(user.roles || []).includes('admin'))) result[cap] = entry.scope;
+      }
       return result;
     }
     function publicUser(state, user) {
       const role = roleOrder.find(id => user.roles.includes(id)) || user.roles[0];
-      return { id: user.id, userId: user.id, crmActorId: user.id, name: user.name, email: user.email, roles: user.roles.slice(), role,
+      return { id: user.id, userId: user.id, crmActorId: user.id, name: user.name, email: user.email, phone: user.phone || '', roles: user.roles.slice(), role,
+        overrides: clone(user.overrides || {}), deactivatedAt: user.deactivatedAt || null, deactivatedBy: user.deactivatedBy || null,
         label: user.roles.map(id => state.roles[id] ? state.roles[id].label : id).join(' + '), active: user.active,
         status: user.status, demoSeed: !!user.demoSeed, sessionVersion: user.sessionVersion, createdAt: user.createdAt, updatedAt: user.updatedAt };
     }
@@ -169,6 +176,7 @@
       if (Object.values(state.users).some(user => user.id !== except && user.email === email)) throw failure('DUPLICATE_EMAIL', 'Ya existe una cuenta con ese correo, incluso si está inactiva.');
       return { name, email };
     }
+    function validPhone(value) { const phone = String(value == null ? '' : value).replace(/\D/g, ''); if (!/^\d{10,15}$/.test(phone)) throw failure('INVALID_PHONE', 'Escribe un celular válido de 10 a 15 dígitos.'); return phone; }
     function exactKeys(input, allowed) { if (!input || typeof input !== 'object' || Array.isArray(input) || Object.keys(input).some(key => !allowed.includes(key))) throw failure('INVALID_FIELDS', 'La solicitud contiene campos no permitidos.'); }
     function issue(state, user) {
       const sessionId = random('session_');
@@ -194,6 +202,7 @@
       const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt: new root.TextEncoder().encode(salt), iterations: 210000 }, key, 256);
       return hex(new Uint8Array(bits));
     }
+    function approvalLimits(state) { const v = dictionary(state.approvalLimits) ? state.approvalLimits : {}; return { leader: own(v, 'leader') ? v.leader : 10000, admin: own(v, 'admin') ? v.admin : null }; }
     function describe(state, user) {
       const all = effective(state, user), scopes = {};
       for (const [cap, scope] of Object.entries(all)) { const resource = catalog[cap][1]; if (!scopes[resource] || scope === 'all') scopes[resource] = scope; }
@@ -284,19 +293,22 @@
       listRoles(reference) { const state = load(); assertActor(state, reference, 'roles'); return clone(Object.values(state.roles)); },
       previewRoles(reference, roles) { const state = load(); assertActor(state, reference, 'roles'); return describe(state, { roles: validRoles(state, roles) }); },
       createUser(reference, input, expectedRevision) {
-        const state = load(), actor = assertActor(state, reference, 'users'); exactKeys(input, ['name', 'email', 'roles']);
-        const identity = validIdentity(state, input), roles = validRoles(state, input.roles), at = stamp(), id = random('staff_');
-        const user = { ...identity, id, roles, active: true, status: 'invited', demoSeed: false, authentication: 'pending', sessionVersion: 1, createdAt: at, updatedAt: at };
+        const state = load(), actor = assertActor(state, reference, 'users'); exactKeys(input, ['name', 'email', 'phone', 'roles']);
+        const identity = validIdentity(state, input), phone = validPhone(input.phone), roles = validRoles(state, input.roles), at = stamp(), id = random('staff_');
+        const user = { ...identity, phone, id, roles, active: true, status: 'invited', demoSeed: false, authentication: 'pending', sessionVersion: 1, createdAt: at, updatedAt: at };
         state.users[id] = user; audit(state, actor, 'user_created', id, null, publicUser(state, user)); commit(state, expectedRevision); return publicUser(state, user);
       },
       updateUser(reference, id, patch, expectedRevision) {
-        const state = load(), actor = assertActor(state, reference, 'users'); exactKeys(patch, ['name', 'email', 'roles', 'active']);
+        const state = load(), actor = assertActor(state, reference, 'users'); exactKeys(patch, ['name', 'email', 'phone', 'roles', 'active']);
         const user = lookup(state.users, id); if (!user) throw failure('USER_NOT_FOUND', 'La cuenta no existe.');
         const before = publicUser(state, user), identity = validIdentity(state, { name: own(patch, 'name') ? patch.name : user.name, email: own(patch, 'email') ? patch.email : user.email }, id);
         if (own(patch, 'active') && typeof patch.active !== 'boolean') throw failure('INVALID_ACTIVE', 'El estado de la cuenta no es válido.');
         const roles = own(patch, 'roles') ? validRoles(state, patch.roles) : user.roles.slice();
         const revoke = JSON.stringify(roles) !== JSON.stringify(user.roles) || own(patch, 'active') && patch.active !== user.active || identity.email !== user.email;
-        Object.assign(user, identity, { roles, active: own(patch, 'active') ? patch.active : user.active, updatedAt: stamp() });
+        const phone = own(patch, 'phone') ? validPhone(patch.phone) : user.phone;
+        const deactivating = own(patch, 'active') && patch.active === false && user.active === true;
+        Object.assign(user, identity, { phone, roles, active: own(patch, 'active') ? patch.active : user.active, updatedAt: stamp() });
+        if (deactivating) { user.deactivatedAt = stamp(); user.deactivatedBy = actor.id; } else if (own(patch, 'active') && patch.active === true && user.deactivatedAt) { user.deactivatedAt = null; user.deactivatedBy = null; }
         assertLastAdmin(state);
         if (revoke) { invalidate(state, user); for (const [key, invite] of Object.entries(state.invitations)) if (invite.userId === id) delete state.invitations[key]; }
         audit(state, actor, 'user_updated', id, before, publicUser(state, user)); commit(state, expectedRevision); return publicUser(state, user);
@@ -345,6 +357,43 @@
         for (const [key, invite] of Object.entries(state.invitations)) if (invite.userId === user.id) delete state.invitations[key];
         audit(state, user, 'invitation_accepted', user.id, null, { userId: user.id, status: 'active' });
         const session = issue(state, user); commit(state); return persistSession(session);
+      },
+      // v36d: Admin grants (all/own) or removes (none) one permission for one user, with optional expiry; clear restores the groups' result.
+      setUserPermission(reference, id, input, expectedRevision) {
+        const state = load(), actor = assertActor(state, reference, 'users'); exactKeys(input, ['capability', 'scope', 'expiresAt']);
+        if (!(state.users[actor.id].roles || []).includes('admin')) throw failure('FORBIDDEN', 'Solo Administración cambia permisos individuales.');
+        const user = lookup(state.users, id); if (!user) throw failure('USER_NOT_FOUND', 'La cuenta no existe.');
+        const cap = input.capability, scope = input.scope;
+        if (!own(catalog, cap) || !['none', 'own', 'all', 'clear'].includes(scope) || scope === 'own' && catalog[cap][1] !== 'crm') throw failure('INVALID_GRANTS', 'El permiso o alcance no es válido.');
+        if (adminOnly.includes(cap) && ['own', 'all'].includes(scope) && !user.roles.includes('admin')) throw failure('ADMIN_ONLY_CAPABILITY', 'Este permiso está reservado a Admin.');
+        if (adminOnly.includes(cap) && scope === 'none' && user.roles.includes('admin')) throw failure('ADMIN_REQUIRED', 'Admin conserva sus permisos obligatorios.');
+        let expiresAt = null;
+        if (input.expiresAt != null && input.expiresAt !== '') { const ms = Date.parse(input.expiresAt); if (!Number.isFinite(ms) || ms <= milliseconds()) throw failure('INVALID_EXPIRY', 'La fecha de vencimiento debe ser futura.'); expiresAt = new Date(ms).toISOString(); }
+        const before = clone(user.overrides || {});
+        user.overrides = clone(user.overrides || {});
+        if (scope === 'clear') delete user.overrides[cap]; else user.overrides[cap] = { scope, expiresAt, by: actor.id, at: stamp() };
+        user.updatedAt = stamp(); invalidate(state, user);
+        audit(state, actor, 'user_permission_changed', id, { capability: cap, entry: before[cap] || null }, { capability: cap, entry: user.overrides[cap] || null });
+        commit(state, expectedRevision); return publicUser(state, user);
+      },
+      // v36d: amount approvals (condonaciones and other money authorizations). Never KAM; leader up to its cap; above → Administración.
+      getApprovalLimits(reference) { const state = load(); assertActor(state, reference); return clone(approvalLimits(state)); },
+      setApprovalLimits(reference, input, expectedRevision) {
+        const state = load(), actor = assertActor(state, reference, 'settings'); exactKeys(input, ['leader', 'admin']);
+        if (!(state.users[actor.id].roles || []).includes('admin')) throw failure('FORBIDDEN', 'Solo Administración configura los topes.');
+        const next = approvalLimits(state);
+        for (const level of ['leader', 'admin']) if (own(input, level)) { const v = input[level]; if (v !== null && !(Number.isFinite(v) && v >= 0 && v <= 1e9)) throw failure('INVALID_LIMIT', 'El tope debe ser un monto válido en MXN o «sin tope».'); next[level] = v === null ? null : Math.round(v * 100) / 100; }
+        if (next.admin !== null && next.leader !== null && next.leader > next.admin) throw failure('INVALID_LIMIT', 'El tope del líder no puede superar el de Administración.');
+        const before = approvalLimits(state); state.approvalLimits = next; audit(state, actor, 'approval_limits_updated', 'approval_limits', before, next); commit(state, expectedRevision); return clone(next);
+      },
+      checkAmountApproval(reference, input) {
+        const state = load(), actor = assertActor(state, reference), user = state.users[actor.id], amount = Number(input && input.amount);
+        if (!Number.isFinite(amount) || amount <= 0) throw failure('INVALID_AMOUNT', 'Captura un monto válido.');
+        const limits = approvalLimits(state), roles = user.roles || [], level = roles.includes('admin') ? 'admin' : roles.includes('leader') ? 'leader' : null;
+        if (!level) return { allowed: false, level: null, escalateTo: 'admin', reason: roles.includes('kam') ? 'Un KAM nunca aprueba montos. Pásalo al líder o a Administración.' : 'Tu cuenta no aprueba montos. Pásalo al líder o a Administración.' };
+        const cap = limits[level];
+        if (cap === null || amount <= cap) return { allowed: true, level, cap, escalateTo: null };
+        return { allowed: false, level, cap, escalateTo: level === 'admin' ? null : 'admin', reason: level === 'admin' ? 'El monto supera el tope de Administración.' : 'El monto supera tu tope; se escala a Administración.' };
       },
       listAudit(reference) { const state = load(); assertActor(state, reference, 'users'); return clone(state.audit).reverse(); }
     };

@@ -102,7 +102,7 @@ await test('last active Admin cannot deactivate/demote even with a pending invit
   throws(() => e.access.updateUser(e.admin, 'admin_demo', { active: false }), 'LAST_ADMIN');
   throws(() => e.access.updateUser(e.admin, 'admin_demo', { roles: ['risk'] }), 'LAST_ADMIN');
   assert.equal(e.access.getVersion(), before);
-  e.access.createUser(e.admin, { name: 'Invited Admin', email: 'new.admin@example.test', roles: ['admin'] });
+  e.access.createUser(e.admin, { name: 'Invited Admin', email: 'new.admin@example.test', phone:'5500000199', roles: ['admin'] });
   throws(() => e.access.updateUser(e.admin, 'admin_demo', { active: false }), 'LAST_ADMIN');
   e.access.updateUser(e.admin, 'kam_luis', { roles: ['kam', 'admin'] });
   e.access.updateUser(e.admin, 'admin_demo', { active: false });
@@ -111,24 +111,24 @@ await test('last active Admin cannot deactivate/demote even with a pending invit
 });
 await test('normalized duplicate email rejected across create/update/inactive accounts', () => {
   const e = environment();
-  throws(() => e.access.createUser(e.admin, { name: 'Duplicate', email: '  ANA.KAM@PULZZO.MX  ', roles: ['risk'] }), 'DUPLICATE_EMAIL');
+  throws(() => e.access.createUser(e.admin, { name: 'Duplicate', email: '  ANA.KAM@PULZZO.MX  ', phone:'5500000199', roles: ['risk'] }), 'DUPLICATE_EMAIL');
   throws(() => e.access.updateUser(e.admin, 'risk_demo', { email: 'ＡＮＡ.KAM@PULZZO.MX' }), 'DUPLICATE_EMAIL');
   e.access.updateUser(e.admin, 'kam_ana', { active: false });
-  throws(() => e.access.createUser(e.admin, { name: 'Duplicate', email: 'ana.kam@pulzzo.mx', roles: ['risk'] }), 'DUPLICATE_EMAIL');
-  for (const email of ['', 'no-at', 'x@', 'two words@example.test']) throws(() => e.access.createUser(e.admin, { name: 'Invalid', email, roles: ['risk'] }), 'INVALID_IDENTITY');
+  throws(() => e.access.createUser(e.admin, { name: 'Duplicate', email: 'ana.kam@pulzzo.mx', phone:'5500000199', roles: ['risk'] }), 'DUPLICATE_EMAIL');
+  for (const email of ['', 'no-at', 'x@', 'two words@example.test']) throws(() => e.access.createUser(e.admin, { name: 'Invalid', email, phone:'5500000199', roles: ['risk'] }), 'INVALID_IDENTITY');
 });
 await test('directory and role management fail closed for every nonadmin', () => {
   const e = environment();
   for (const role of ['kam', 'leader', 'operations', 'risk', 'portfolio', 'provider', 'readonly']) {
     const session = login(e.access, role);
-    for (const action of [() => e.access.listUsers(session), () => e.access.listRoles(session), () => e.access.listAudit(session), () => e.access.createUser(session, { name: 'No', email: 'no@example.test', roles: ['admin'] }), () => e.access.updateUser(session, 'kam_ana', { roles: ['admin'] }), () => e.access.createInvitation(session, 'kam_ana'), () => e.access.updateRole(session, 'kam', { grants: { users: 'all' } }), () => e.access.previewRoles(session, ['admin'])]) throws(action, 'FORBIDDEN');
+    for (const action of [() => e.access.listUsers(session), () => e.access.listRoles(session), () => e.access.listAudit(session), () => e.access.createUser(session, { name: 'No', email: 'no@example.test', phone:'5500000199', roles: ['admin'] }), () => e.access.updateUser(session, 'kam_ana', { roles: ['admin'] }), () => e.access.createInvitation(session, 'kam_ana'), () => e.access.updateRole(session, 'kam', { grants: { users: 'all' } }), () => e.access.previewRoles(session, ['admin'])]) throws(action, 'FORBIDDEN');
   }
   throws(() => e.access.listUsers(null), 'SESSION_INVALID');
 });
 await test('immutable identities/version/audit/credentials reject patch injection', () => {
   const e = environment();
   for (const patch of [{ id: 'admin_demo' }, { sessionVersion: 99 }, { password: 'adminchosen' }, { verifier: {} }, { actorId: 'forged' }, { status: 'active' }]) throws(() => e.access.updateUser(e.admin, 'kam_ana', patch), 'INVALID_FIELDS');
-  throws(() => e.access.createUser(e.admin, { name: 'No', email: 'no@example.test', roles: ['kam'], password: 'adminchosen' }), 'INVALID_FIELDS');
+  throws(() => e.access.createUser(e.admin, { name: 'No', email: 'no@example.test', phone:'5500000199', roles: ['kam'], password: 'adminchosen' }), 'INVALID_FIELDS');
   const snapshot = e.access.listUsers(e.admin); snapshot[0].roles = ['readonly'];
   assert.equal(e.access.can(e.admin, 'users'), true);
 });
@@ -193,7 +193,7 @@ await test('role-template changes revoke all affected sessions and preview is ef
   assert.equal(preview.scopes.crm, 'own'); assert.equal(preview.grants.patientActions, 'all'); assert.ok(!preview.capabilities.includes('crmEdit'));
 });
 await test('minimal public intake roster excludes pending/inactive users and has no private directory fields', () => {
-  const e = environment(), pending = e.access.createUser(e.admin, { name: 'Pending KAM', email: 'pending@example.test', roles: ['kam'] });
+  const e = environment(), pending = e.access.createUser(e.admin, { name: 'Pending KAM', email: 'pending@example.test', phone:'5500000199', roles: ['kam'] });
   assert.deepEqual(e.access.getIntakeKamRoster().map(user => user.id), ['kam_ana', 'kam_luis']);
   assert.ok(e.access.getIntakeKamRoster().every(user => Object.keys(user).sort().join(',') === 'id,name'));
   const roster = e.access.getCrmRoster(e.admin);
@@ -231,7 +231,7 @@ await test('operational assignment uses all required effective grants and only a
   throws(() => e.access.listAssignableUsers(login(e.access, 'leader'), ['docs']), 'FORBIDDEN');
 });
 await test('simulated invite lets invitee set own password, stores verifier only, and cannot be reused', async () => {
-  const e = environment(), user = e.access.createUser(e.admin, { name: 'New KAM', email: ' New.Kam@EXAMPLE.TEST ', roles: ['kam', 'portfolio'] });
+  const e = environment(), user = e.access.createUser(e.admin, { name: 'New KAM', email: ' New.Kam@EXAMPLE.TEST ', phone:'5500000199', roles: ['kam', 'portfolio'] });
   assert.equal(user.status, 'invited'); assert.equal(user.email, 'new.kam@example.test');
   await rejects(() => e.access.login(user.email, 'pulzzo-demo'), 'INVALID_LOGIN');
   const invite = e.access.createInvitation(e.admin, user.id);
@@ -280,7 +280,7 @@ await test('cancelled login/invitation operations write nothing, including befor
   assert.equal(storage.map.size, 0);
 });
 await test('Cancel/pagehide during invite password derivation leaves invitation, credentials and sessions untouched', async () => {
-  const e = environment(), user = e.access.createUser(e.admin, { name: 'Cancelled Invite', email: 'cancel@example.test', roles: ['kam'] });
+  const e = environment(), user = e.access.createUser(e.admin, { name: 'Cancelled Invite', email: 'cancel@example.test', phone:'5500000199', roles: ['kam'] });
   const invite = e.access.createInvitation(e.admin, user.id), before = e.storage.getItem(Staff.STORAGE_KEY), sessionBefore = e.storage.getItem(Staff.SESSION_KEY);
   let active = true;
   const pending = e.access.acceptInvitation(invite.token, 'not-a-real-password', { isCurrent: () => active });

@@ -61,3 +61,9 @@ Tests nuevos: `tests/v36-assisted.cjs`, `tests/dispersion-period-days.cjs`. Fixt
 - `crm-demo-ui.js`: interruptor «Habilitar también como …» en la ficha, con diálogo de motivo, estado «Solicitud pendiente» y última modificación; etiquetas de historial nuevas.
 - `native-registration.js`: aviso «Te está atendiendo …» en la verificación.
 - Tests: `tests/v36c-cross-type.cjs` (nuevo; incluye el cierre automático habilitado/rechazado) y `tests/v36-registro-crm.cjs` actualizado.
+
+## v36d · Grupos de permisos (2026-10-14)
+- `staff-access.js`: celular obligatorio al crear usuario, celulares ficticios para las cuentas de ejemplo, `overrides` por usuario con vencimiento (`setUserPermission`), desactivación con quién y cuándo, `getApprovalLimits` / `setApprovalLimits` / `checkAmountApproval`.
+- `staff-admin-ui.js`: campo de celular, «Grupos de permisos», sección «Permisos individuales», «Topes de aprobación por monto» y revocación de enlaces de referido al desactivar.
+- `crm-demo-store.js`: la revocación de un enlace de KAM inactivo ya se permite.
+- Tests: `tests/v36d-permissions.cjs` (nuevo). Los tests de personal se actualizaron porque ahora el celular es obligatorio.

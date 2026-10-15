@@ -633,7 +633,8 @@
       for (const [id, ref] of Object.entries(after.referrals)) {
         const old = before.referrals[id];
         if (equal(old, ref)) continue;
-        if (actor.role === 'holder' || actor.role === 'kam' && ref.kamId !== actor.id||centralStaff&&(!eligibleKamIds().includes(ref.kamId)||actor.role!=='admin'&&ref.kamId!==actor.id)) fail('forbidden', 'El enlace debe pertenecer al KAM que lo genera.');
+        const revocationOnly = old && old.active !== false && ref.active === false && ['admin', 'leader'].includes(actor.role);
+        if (actor.role === 'holder' || actor.role === 'kam' && ref.kamId !== actor.id||!revocationOnly&&centralStaff&&(!eligibleKamIds().includes(ref.kamId)||actor.role!=='admin'&&ref.kamId!==actor.id)) fail('forbidden', 'El enlace debe pertenecer al KAM que lo genera.');
       }
     }
     function assertProspectLifecycle(state, contact) {
