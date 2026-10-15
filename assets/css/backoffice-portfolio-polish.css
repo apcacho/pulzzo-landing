@@ -805,3 +805,10 @@ body.portfolio-payment-open{overflow:hidden;overscroll-behavior:none}
  #portfolio .portfolio-bar-fill{background:Highlight}
  #portfolio .portfolio-tabs button[aria-selected="true"]{outline:1px solid Highlight;outline-offset:-2px}
 }
+/* v36f: Configuración por áreas (pestañas principales + subpestañas) */
+#settings .cfg-sub-tabs{border-top:1px solid var(--line2,#E5EBF2);background:var(--ui-surface-canvas,#F8FAFC);padding-top:10px;padding-bottom:10px}
+#settings .cfg-sub-tabs .tab{font-size:12.5px;min-height:34px}
+#settings .cfg-area-card{border:1px solid var(--line2,#E5EBF2);border-radius:16px;padding:22px;display:grid;gap:12px;justify-items:start;background:var(--white,#FFF)}
+#settings .cfg-area-card h3{margin:0}
+#settings .pz-switch-list{gap:14px}
+@media(max-width:900px){#settings .cfg-sub-tabs{flex-wrap:nowrap;overflow-x:auto}#settings .cfg-area-card{padding:16px}}

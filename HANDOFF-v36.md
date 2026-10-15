@@ -141,3 +141,12 @@ Cambio mínimo sobre el directorio existente (`staff-access.js`): los «roles» 
 - Historial de personal: búsqueda + filtro por tipo, paginación 10/20/50/100.
 - Pruebas: 126/127 (única falla: crm-contact-simplification, preexistente). Regresión navegador v36d d/m 14/14. Capturas: /workspace/pulzzo-work-out/browser-v36e/.
 - Dudas: ¿paginar también la lista de permisos individuales de una cuenta? (recomiendo no, suelen ser pocos). ¿Mostrar autor del historial solo por nombre en vez de nombre+id? (recomiendo nombre, id en tooltip).
+
+## v36f — Configuración por áreas y switches PULZZO (14/10/2026, 23:17 CDMX)
+- Solo visual/estructura; sin cambios de lógica, permisos ni historial. No se tocaron páginas de onboarding.
+- Menú lateral y título: «Configuración demo» → «Configuración» (una línea, alto 48 px igual que el resto). Badge de versión sin cambios.
+- Configuración en pestañas por área: Usuarios y grupos · CRM · Correo CRM · Productos (Condiciones del producto, Comisiones e impuestos) · Cartera (Pagos y liquidación, Prórrogas, Mora y cobranza, Dispersión) · Historial. Las subpestañas conservan ids cfg-tab-<id>. CRM abre el diálogo existente «Configuración del CRM»; Correo CRM enlaza a crm.html.
+- Switch compartido .pz-switch (assets/css/flat-design-tokens.css, también dentro del ShadowRoot del CRM vía build-crm-embed). Reemplazados: Cuenta activa (con confirmación al desactivar), Habilitar también como paciente/doctor, Plazos de prórroga (mensual 15/30, quincenal 15), KAMs elegibles para el reparto por turnos, Quitar la fotografía del borrador (perfil público CRM).
+- Sin cambiar: consentimientos/declaraciones (portal del titular, publicación de doctor, autorización contractual), listas de selección (redistribución, campos a corregir), chips de grupos, check de procedimientos en oferta.
+- Historial de personal: autor por nombre, id en tooltip. Permisos individuales sin paginación.
+- Pruebas: 126/127 (única falla preexistente crm-contact-simplification). Actualizados snapshots aprobados: backoffice-navigation-icons (etiqueta), crm-backoffice-navigation (hash), backoffice-configuration (6 áreas). Navegador: v36d d/m 15/15, v36c d/m 21/21. Capturas: /workspace/pulzzo-work-out/browser-v36f/.

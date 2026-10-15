@@ -8,7 +8,8 @@ const navSource=html.slice(html.indexOf('const navItems='),html.indexOf('let ses
 const context=vm.createContext({});
 vm.runInContext(navSource+'\nglobalThis.items=navItems;',context);
 const before=vm.runInNewContext(require('./fixtures/backoffice-navigation-before.json')+'\nnavItems;');
-const withoutIcons=items=>JSON.parse(JSON.stringify(items)).map(({icon,roles,capability,...item})=>item);
+// v36f (approved): the sidebar item 'Configuración demo' is now 'Configuración'; routes and order unchanged.
+const withoutIcons=items=>JSON.parse(JSON.stringify(items)).map(({icon,roles,capability,...item})=>item.id==='settings'&&item.label==='Configuración demo'?{...item,label:'Configuración'}:item);
 assert.deepEqual(withoutIcons(context.items.filter(n=>n.id!=='portfolio')),withoutIcons(before),'Routes, order and labels stay identical while central capabilities replace scalar roles');
 assert.deepEqual(Array.from(context.items,n=>n.icon),['dashboard','patientRequest','people','providerRequest','stethoscope','documentSearch','portfolio','settings']);
 assert.deepEqual(JSON.parse(JSON.stringify(context.items.map(({id,capability})=>[id,capability]))),[['dashboard','viewDashboard'],['patients','viewPatients'],['patientProfiles','viewPatients'],['providerRequests','viewProviders'],['providers','viewProviders'],['documents','viewDocuments'],['portfolio','viewPortfolio'],['settings','settings']]);

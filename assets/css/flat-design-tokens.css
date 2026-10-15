@@ -23,3 +23,17 @@
   :is(button,a,input,select,textarea,summary,[tabindex]):focus-visible{outline-color:Highlight!important}
  }
 }
+/* v36f: PULZZO toggle switch, shared by backoffice, Configuración and the CRM ShadowRoot.
+   Markup: <label class="pz-switch"><input type="checkbox" role="switch"><span class="pz-switch-track" aria-hidden="true"></span><span class="pz-switch-text">Etiqueta</span></label> */
+.pz-switch{position:relative;display:inline-flex!important;flex-direction:row!important;align-items:center;gap:10px;width:auto!important;max-width:100%;cursor:pointer;font-weight:600;line-height:1.3;user-select:none;margin:0}
+.pz-switch>input[type=checkbox]{position:absolute!important;left:0;top:50%;width:40px!important;height:24px!important;min-width:0!important;min-height:0!important;margin:-12px 0 0!important;padding:0!important;opacity:0;cursor:pointer;z-index:1;appearance:none;-webkit-appearance:none}
+.pz-switch-track{position:relative;flex:none;width:40px;height:24px;border-radius:999px;background:#CBD5E1;border:1px solid transparent;transition:background .15s}
+.pz-switch-track::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:var(--ui-surface-white,#FFF);transition:transform .15s}
+.pz-switch>input:checked+.pz-switch-track{background:var(--ui-patient-accent,#20C7D4)}
+.pz-switch>input:checked+.pz-switch-track::after{transform:translateX(16px)}
+.pz-switch>input:focus-visible+.pz-switch-track{outline:2px solid var(--ui-focus-ink,#14263D);outline-offset:2px}
+.pz-switch>input:disabled,.pz-switch>input:disabled~*{cursor:not-allowed}
+.pz-switch>input:disabled+.pz-switch-track{opacity:.5}
+.pz-switch-text{min-width:0;overflow-wrap:anywhere}
+.pz-switch-list{display:flex;flex-direction:column;gap:12px}
+@media(prefers-reduced-motion:reduce){.pz-switch-track,.pz-switch-track::after{transition:none}}
