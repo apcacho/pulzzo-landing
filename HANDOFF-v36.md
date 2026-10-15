@@ -186,3 +186,7 @@ CRM inline: configCrmPage/configCrmSave/configOpenCrmPage/configOpenCrmRedistrib
 
 ## v36l — 2026-10-15 02:06 CDMX
 Overrides de identidad al final de assets/css/backoffice-portfolio-polish.css (bloques v36l, scope #settings) y crm-demo-embed.css (task-board/metric-grid/dashboard-split/closed-tasks 24px; embed reconstruido). Guía: docs/IDENTIDAD-PULZZO.md. Lado a lado: pulzzo-work-out/browser-v36l/sbs-*.png; móvil fixed-m-*.png; chequeo computado computed-style-check.txt.
+
+## v37 · revisión 20261015 (rama grok/revision-20261015, tag v36l-identidad = 237a439)
+- Agenda de seguimiento: Lista / Calendario (Semana, Mes) en crm-demo-ui.js (taskLayoutToggle, taskCalendar; estado taskLayout/taskCalMode/taskCalAnchor). Usa la misma lista visible (contacts({})), así un KAM solo ve sus tareas. Clic = mismo detalle de tarea. Estilos en crm-demo-embed.css (bloque v37). Test: tests/v37-task-calendar.cjs.
+- **Fase backend · Google Calendar:** sin integración en la demo. Plan: cada KAM conecta su propia cuenta de Google (OAuth por usuario) y se sincronizan sus tareas; requiere servidor, tokens por usuario y consentimiento. No implementado.

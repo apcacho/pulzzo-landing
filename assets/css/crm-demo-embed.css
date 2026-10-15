@@ -409,3 +409,32 @@
 .crm-surface .metric-grid{padding:20px 24px}
 .crm-surface .dashboard-split{padding:0 24px 24px}
 }
+/* v37 · Agenda Lista / Calendario (docs/IDENTIDAD-PULZZO.md): reuses .view-toggle boxes, CRM borders
+   (#E8EEF6, radius 8 like .task-column), 12px text, overdue = the same danger tint as the Vencidas column. */
+.crm-surface .task-layout-bar{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:10px 12px}
+.crm-surface .task-cal-nav{display:flex;align-items:center;gap:6px;margin-left:auto}
+.crm-surface .task-cal-nav button{min-width:36px}
+.crm-surface .task-cal-title{font-family:var(--font-display);font-size:14px;font-weight:600;color:var(--navy);margin-left:6px}
+.crm-surface .task-calendar{grid-column:1/-1;display:grid;gap:6px;min-width:0}
+.crm-surface .task-cal-heads,.crm-surface .task-cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.crm-surface .task-cal-heads span{font-size:11px;font-weight:500;color:var(--muted);padding:0 4px}
+.crm-surface .task-cal-day{border:1px solid var(--line2);border-radius:8px;background:var(--white);padding:8px;display:flex;flex-direction:column;gap:6px;min-height:96px;min-width:0}
+.crm-surface .mode-week .task-cal-day{min-height:220px}
+.crm-surface .task-cal-day.is-outside{background:var(--bg);opacity:.7}
+.crm-surface .task-cal-day.is-today{border-color:var(--crm-selection-line,#B9E0E4);background:#EFFFFF}
+.crm-surface .task-cal-date{font-size:12px;font-weight:600;color:var(--navy);text-transform:capitalize}
+.crm-surface .task-cal-item{display:grid;gap:2px;text-align:left;width:100%;min-height:0;padding:6px 8px;border:1px solid var(--line2);border-radius:8px;background:#f8fafb;font-size:12px;line-height:1.35;white-space:normal}
+.crm-surface .task-cal-item strong{font-weight:600;color:var(--navy);overflow:hidden;text-overflow:ellipsis}
+.crm-surface .task-cal-item span{font-size:11px;color:var(--muted)}
+.crm-surface .task-cal-item.is-overdue{background:#fff6f4;border-color:#F6D5CC}
+.crm-surface .task-cal-item.is-overdue strong,.crm-surface .task-cal-item.is-overdue span{color:var(--danger)}
+.crm-surface .task-cal-note{grid-column:1/-1;margin:0}
+@media(max-width:820px){
+ .crm-surface .task-cal-nav{margin-left:0;width:100%}
+ .crm-surface .mode-week .task-cal-grid{grid-template-columns:minmax(0,1fr)}
+ .crm-surface .mode-week .task-cal-day{min-height:0}
+ .crm-surface .task-cal-heads,.crm-surface .mode-month .task-cal-grid{gap:3px}
+ .crm-surface .mode-month .task-cal-day{min-height:64px;padding:4px}
+ .crm-surface .mode-month .task-cal-item span{display:none}
+ .crm-surface .mode-month .task-cal-item{padding:3px 4px;font-size:10px}
+}
