@@ -135,4 +135,28 @@ test('The patient profile shows the same payment, schedule, receipt, stage, agre
  assert.match(r.el('patientProfiles').innerHTML,/Gestionar/);
  assert.equal(r.run('currentView'),'patientProfiles');
 });
+test('Credits, collections and the patient profile expose call, plain WhatsApp, mail and copy actions',()=>{
+ const r=runtime();
+ const expect=html=>{
+  assert.match(html,/55 5100 1101/);
+  assert.match(html,/href="tel:\+525551001101"/);
+  assert.match(html,/>Llamar</);
+  assert.match(html,/href="https:\/\/wa\.me\/525551001101" target="_blank"/);
+  assert.doesNotMatch(html,/wa\.me\/525551001101\?text=/);
+  assert.match(html,/WhatsApp sin plantilla/);
+  assert.match(html,/href="mailto:ines\.palacios\.demo@pulzzo\.mx"/);
+  assert.match(html,/Copiar celular/);
+  assert.match(html,/Copiar correo/);
+ };
+ r.run("currentView='portfolio';portfolioState.tab='credits';renderPortfolioBody();");
+ expect(r.el('portfolioContent').innerHTML);
+ r.run("portfolioState.tab='collections';renderPortfolioBody();");
+ const collections=r.el('portfolioContent').innerHTML;
+ expect(collections);
+ assert.match(collections,/carteraOpenWhatsapp\('APP-CARTERA-1101'\)/);
+ r.run("currentView='patientProfiles';patientProfileMode='detail';patientProfileTab='perfil';selectedPatientProfileKey=patientProfileKeyFromRequest(db.patients.find(p=>p.id==='APP-CARTERA-1101'));renderPatientProfiles();");
+ expect(r.el('patientProfiles').innerHTML);
+ r.run("navigator={clipboard:{writeText:function(value){globalThis.__copied=value;return Promise.resolve();}}};carteraCopyContact({getAttribute:function(name){return name==='data-copy'?'55 5100 1101':'';}});");
+ assert.equal(r.run('__copied'),'55 5100 1101');
+});
 console.log('PASS: '+passed+' cartera cobranza groups.');
