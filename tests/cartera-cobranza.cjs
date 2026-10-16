@@ -1,0 +1,105 @@
+'use strict';
+const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict');
+const source=fs.readFileSync(path.join(__dirname,'../backoffice.html'),'utf8');
+const script=[...source.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].find(m=>m[1].includes('const baseState='))[1];
+const fase1=fs.readFileSync(path.join(__dirname,'../assets/js/backoffice-cartera-fase1.js'),'utf8');
+const cobranza=fs.readFileSync(path.join(__dirname,'../assets/js/backoffice-cartera-cobranza.js'),'utf8');
+function runtime(){
+ const elements=new Map();
+ function el(id){if(!elements.has(id))elements.set(id,{id,value:'',dataset:{},style:{},innerHTML:'',textContent:'',checked:false,disabled:false,files:[],classList:{add(){},remove(){},toggle(){}},addEventListener(){},setAttribute(){},focus(){},closest(){return null},querySelector(){return null},querySelectorAll(){return []},appendChild(){},scrollIntoView(){}});return elements.get(id);}
+ const storage=new Map();
+ const document={querySelector:s=>el(String(s).replace(/^#/,'')),querySelectorAll(){return []},getElementById:id=>el(id),addEventListener(){},createElement:()=>el('node'),head:el('head'),body:{style:{},classList:{add(){},remove(){}},appendChild(){},removeChild(){}}};
+ const FixedDate=class extends Date{constructor(...a){super(...(a.length?a:['2026-10-15T18:00:00Z']));}static now(){return new Date('2026-10-15T18:00:00Z').getTime();}};
+ const context=vm.createContext({document,localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,String(v)),removeItem:k=>storage.delete(k)},window:{addEventListener(){},scrollTo(){},open(){return {document:{open(){},write(){},close(){}}}}},confirm:()=>true,Date:FixedDate,console,Intl,Blob,URL:Object.assign(URL,{createObjectURL:()=>'blob:demo',revokeObjectURL(){}}),setTimeout(){},clearTimeout(){},innerWidth:1200,fetch(){throw Error('no hay envío real');}});
+ require('./fixtures/staff-session.cjs')(context);
+ vm.runInContext(script,context);
+ vm.runInContext("render=()=>{};renderPatientDetail=()=>{};closeModal=()=>{};session=testStaffSession('admin');",context);
+ vm.runInContext(fs.readFileSync(path.join(__dirname,'../assets/js/backoffice-configuration.js'),'utf8'),context);
+ vm.runInContext(fs.readFileSync(path.join(__dirname,'../assets/js/backoffice-portfolio.js'),'utf8'),context);
+ vm.runInContext(fs.readFileSync(path.join(__dirname,'../assets/js/backoffice-portfolio-payment.js'),'utf8'),context);
+ vm.runInContext(fase1,context);
+ vm.runInContext(cobranza,context);
+ return {run:code=>vm.runInContext(code,context),el,storage,context};
+}
+let passed=0;function test(name,fn){fn();passed++;console.log('PASS: '+name);}
+test('Stage seeds cover every collection stage without replacing existing credits',()=>{
+ const r=runtime();
+ const before=r.run("db.patients.find(p=>p.id==='APP-PUL-1001').patient.fullName");
+ const rows=JSON.parse(r.run(`JSON.stringify(['APP-CARTERA-1101','APP-CARTERA-1102','APP-CARTERA-1103','APP-CARTERA-1104','APP-CARTERA-1105','APP-CARTERA-1106','APP-CARTERA-1107','APP-CARTERA-1108','APP-CARTERA-1109'].map(id=>{const p=db.patients.find(item=>item.id===id);const stage=carteraCollectionStage(p);return {id,stage:stage.id,phone:p.patient.phone,email:p.patient.email,pause:!!stage.pause};}))`));
+ const byId=Object.fromEntries(rows.map(row=>[row.id,row]));
+ assert.equal(byId['APP-CARTERA-1101'].stage,'precobranza');
+ assert.equal(byId['APP-CARTERA-1102'].stage,'vence_hoy');
+ assert.equal(byId['APP-CARTERA-1103'].stage,'cobranza_1');
+ assert.equal(byId['APP-CARTERA-1104'].stage,'cobranza_3');
+ assert.equal(byId['APP-CARTERA-1105'].stage,'seguimiento');
+ assert.equal(byId['APP-CARTERA-1106'].stage,'mora_temprana');
+ assert.equal(byId['APP-CARTERA-1107'].stage,'candidato_reestructura');
+ assert.equal(byId['APP-CARTERA-1108'].stage,'candidato_externa');
+ assert.equal(byId['APP-CARTERA-1109'].stage,'acuerdo_vigente');
+ assert.equal(byId['APP-CARTERA-1109'].pause,true);
+ rows.forEach(row=>{assert.match(row.phone,/55 5100 11/);assert.match(row.email,/@pulzzo\.mx$/);});
+ assert.equal(r.run("db.patients.find(p=>p.id==='APP-PUL-1001').patient.fullName"),before);
+ assert.equal(r.run("carteraSeedStageCredits().length"),0);
+ assert.doesNotMatch(cobranza,/localStorage\.clear|localStorage\.removeItem|fetch\(/);
+});
+test('Messages are deduped and an active agreement pauses collection until it is broken',()=>{
+ const r=runtime();
+ const first=r.run("carteraOpenWhatsapp('APP-CARTERA-1101')");
+ assert.match(String(first),/wa\.me\/525551001101/);
+ assert.equal(r.run("db.patients.find(p=>p.id==='APP-CARTERA-1101').application.carteraMessages.length"),1);
+ assert.equal(r.run("db.patients.find(p=>p.id==='APP-CARTERA-1101').application.carteraMessages[0].action"),'WhatsApp enviado');
+ r.run("carteraOpenWhatsapp('APP-CARTERA-1101')");
+ assert.equal(r.run("db.patients.find(p=>p.id==='APP-CARTERA-1101').application.carteraMessages.length"),1);
+ const mail=r.run("carteraOpenMailPreview('APP-CARTERA-1103')");
+ assert.match(mail.subject,/Pulzzo/);
+ assert.equal(r.run("carteraLogMail('APP-CARTERA-1103')"),true);
+ assert.equal(r.run("db.patients.find(p=>p.id==='APP-CARTERA-1103').timeline[0].action"),'Enviado (demo)');
+ assert.equal(r.run("carteraLogMail('APP-CARTERA-1103')"),false);
+ r.run("var p=db.patients.find(item=>item.id==='APP-CARTERA-1105');p.application.carteraAgreements=[{id:'ACU-TEST',type:'created',agreementDate:carteraToday(),compromiseDate:carteraAddDays(carteraToday(),-1),amount:10,forgiveness:'none',installmentId:'x',originalDue:'2026-01-01'}];");
+ assert.equal(r.run("carteraDeriveAgreement(p).status"),'incumplido');
+ assert.equal(r.run("carteraDeriveAgreement(p).originalDue"),'2026-01-01');
+ assert.equal(r.run("carteraCollectionStage(p).pause"),false);
+ assert.notEqual(r.run("carteraCollectionStage(p).id"),'acuerdo_vigente');
+});
+test('Forgiveness never touches capital or ordinary interest and needs a manager',()=>{
+ const r=runtime();
+ r.run("var p=db.patients.find(item=>item.id==='APP-CARTERA-1106');var row=dispersionBuildSchedule(p).find(item=>item.pendingAmount>0);row.moratory=200;row.moratoryIva=32;p.paymentSchedule=dispersionBuildSchedule(p);row=p.paymentSchedule.find(item=>item.pendingAmount>0);var interest=row.interest,capital=row.capital;session=testStaffSession('portfolio');var denied=carteraRegisterAgreement(p.id,{agreementDate:carteraToday(),compromiseDate:carteraAddDays(carteraToday(),2),amount:100,forgiveness:'fixed',forgivenessAmount:50});");
+ assert.equal(r.run('denied.ok'),false);
+ r.run("session=testStaffSession('admin');var saved=carteraRegisterAgreement(p.id,{agreementDate:carteraToday(),compromiseDate:carteraAddDays(carteraToday(),2),amount:100,forgiveness:'fixed',forgivenessAmount:50});var applied=carteraApplyForgiveness(p.id);var after=p.paymentSchedule.find(item=>item.id===saved.agreement.installmentId);");
+ assert.equal(r.run('saved.ok'),true);
+ assert.equal(r.run('applied.ok'),true);
+ assert.equal(r.run('after.interest'),r.run('interest'));
+ assert.equal(r.run('after.capital'),r.run('capital'));
+ assert.ok(r.run('after.moratory')<80);
+ assert.equal(r.run('saved.agreement.originalDue'),r.run("p.application.carteraAgreements.find(item=>item.id===saved.agreement.id).originalDue"));
+});
+test('Every applied operation stores a branded receipt and a demo email without sending it',()=>{
+ const r=runtime();
+ r.run("var p=db.patients.find(item=>item.id==='APP-CARTERA-1103');selectedPatientId=p.id;var day=carteraToday();var preview=carteraPreviewOrdinary(p,{amount:25,date:day,reference:'RECIBO-1',method:'SPEI'});if(!preview.ok)throw Error(preview.error||'sin vista');var applied=carteraApplyOrdinary(p,{amount:25,date:day,reference:'RECIBO-1',method:'SPEI'});if(!applied.ok)throw Error(applied.error||'sin pago');var receipt=carteraPresentReceipt(p,applied,'pago');");
+ assert.equal(r.run('applied.ok'),true);
+ assert.equal(r.run('receipt.status'),'Enviado (demo)');
+ assert.match(r.run('receipt.subject'),/Pulzzo/);
+ assert.match(r.run('receipt.body'),/Equipo PULZZO/);
+ assert.equal(r.run('p.timeline[0].action'),'Enviado (demo)');
+ assert.equal(r.run('p.application.carteraReceipts.length'),1);
+ const doc=r.run('carteraReceiptDocument(receipt)');
+ assert.match(doc,/PULZZO/);
+ assert.match(doc,/IVA/);
+ assert.match(doc,/Capital/);
+ assert.equal(r.run("carteraFill(carteraTemplate('recibo','email'),{cliente:'Ana',monto:'$1',fecha:'2026-10-15',credito:'C-1',dias:'0',saldo:'$2',datos_pago:carteraCobranzaRead().paymentData,firma:'Equipo PULZZO'})").includes('Datos de pago · pendiente'),true);
+ const buckets=JSON.parse(r.run('JSON.stringify(carteraAging(portfolioCredits()))'));
+ assert.equal(buckets.map(item=>item.id).join(','),'1-30,31-60,61-90,>90');
+ assert.ok(buckets.some(item=>item.count>0));
+});
+test('Collection settings and templates stay editable without touching other storage',()=>{
+ const r=runtime();
+ const crm=r.storage.get('pulzzo_crm_assisted_demo_v1');
+ assert.match(r.run('carteraCobranzaSettingsHtml()'),/Precobranza/);
+ assert.match(r.run('carteraCobranzaSettingsHtml()'),/WhatsApp/);
+ r.run("carteraCobranzaWrite({paymentData:'CLABE pendiente',days:{precobranza:4}})");
+ assert.equal(r.run('carteraCobranzaRead().paymentData'),'CLABE pendiente');
+ assert.equal(r.run('carteraCobranzaRead().days.precobranza'),4);
+ assert.equal(r.run('carteraCobranzaRead().days.day1'),1);
+ assert.equal(r.storage.get('pulzzo_crm_assisted_demo_v1')||null,crm||null);
+});
+console.log('PASS: '+passed+' cartera cobranza groups.');

@@ -73,10 +73,12 @@ test('Cartera rows and the patient profile expose prepago, extensión, reestruct
  const r=runtime();r.loadModule();
  r.run("currentView='portfolio';portfolioSetTab('credits');");
  const table=r.el('portfolioContent').innerHTML;
- for(const label of ['Elena Vargas Solís','Hugo Ramírez Beltrán','Patricia Núñez Ceballos','Sofía Calderón Ibarra','Diego Fuentes Alemán','Prepago','Extensión','Reestructura','Registrar pago'])assert.match(table,new RegExp(label));
+ for(const label of ['Elena Vargas Solís','Hugo Ramírez Beltrán','Patricia Núñez Ceballos','Sofía Calderón Ibarra','Diego Fuentes Alemán','Aplicar pago'])assert.match(table,new RegExp(label));
  r.run("var beforeView=currentView;carteraOpenFromPortfolio('APP-CARTERA-1002','extension');");
  const host=r.el('portfolioContent').innerHTML;
- assert.match(host,/Operaciones de cartera/);
+ assert.match(host,/Aplicar pago/);
+ assert.match(host,/Pago normal/);
+ assert.match(host,/Extensión/);
  assert.match(host,/Vista previa/);
  assert.match(host,/cartera-choice/);
  assert.doesNotMatch(host,/type="radio"/);
@@ -85,10 +87,11 @@ test('Cartera rows and the patient profile expose prepago, extensión, reestruct
  const profile=r.el('patientProfiles').innerHTML;
  assert.match(profile,/Elena Vargas Solís/);
  assert.match(profile,/Crédito en cartera/);
+ assert.match(profile,/Aplicar pago/);
+ assert.match(profile,/Pago normal/);
  assert.match(profile,/Prepago/);
  assert.match(profile,/Extensión/);
  assert.match(profile,/Reestructura/);
- assert.match(profile,/Registrar pago/);
  assert.match(profile,/Vista previa/);
  assert.doesNotMatch(profile,/type="radio"/);
  assert.equal(r.run('currentView'),'patientProfiles');

@@ -197,7 +197,7 @@ test('Existing extension keeps motivo optional and shows pending commission plus
 test('Portfolio screen and payment drawer expose the fase 1 choices without radio controls',()=>{
  const r=runtime();dispersed(r,'2026-01-01');
  const html=r.run('carteraPanelHtml(p)');
- assert.match(html,/Prepago/);assert.match(html,/Extensión/);assert.match(html,/Reestructura/);assert.match(html,/cartera-choice/);
+ assert.match(html,/Pago normal/);assert.match(html,/Prepago/);assert.match(html,/Extensión/);assert.match(html,/Reestructura/);assert.match(html,/cartera-choices-ops/);assert.match(html,/cartera-choice/);
  assert.doesNotMatch(html,/type="radio"/);
  const choices=r.run(`configChoice('preventiveExtensionModality','Modalidad','COLA_FINAL',[['COLA_FINAL','Cola final'],['PRORRATEADO','Prorrateado']],false)`);
  assert.match(choices,/cartera-choice/);assert.doesNotMatch(choices,/type="radio"/);
