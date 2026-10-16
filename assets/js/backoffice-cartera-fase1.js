@@ -703,6 +703,7 @@ function carteraOpenPayment(id,opts){
  carteraUiState.rowId=opts.rowId||'';
  carteraUiState.modality=opts.modality||'';
  carteraUiState.token='';carteraUiState.preview=null;carteraUiState.previewHtml='';carteraUiState.draft={};carteraUiState.hostId=id;carteraUiState.comprobante=null;
+ if(typeof currentView!=='undefined'&&currentView==='patientProfiles'){carteraUiState.surface='inline';carteraInjectProfile();return true;}
  if(carteraCanUseModal()){
   const name=p.patient&&p.patient.fullName||p.name||'Cliente';
   const code=typeof dispersionApplicationCode==='function'?dispersionApplicationCode(p):p.id;
@@ -725,11 +726,33 @@ function carteraOpenFromPortfolio(id,action){
 function carteraCloseHost(){carteraUiState.hostId='';const host=document.getElementById&&document.getElementById('carteraFase1Host');if(host&&host.remove)host.remove();return true;}
 function carteraRegisterPayment(id){return carteraOpenPayment(id,{action:'pago'});}
 function carteraProfileCreditHtml(req){
+ if(typeof carteraCreditWorkspaceHtml==='function'){try{const workspace=carteraCreditWorkspaceHtml(req);if(workspace)return workspace;}catch(error){}}
  const id=typeof escapeAttr==='function'?escapeAttr(req.id):req.id;
  const app=req.application||{};
  const base=app.interestCalculationBase==='outstanding_balance'?'Saldos insolutos':'Saldos globales';
  const frequency=String(app.paymentFrequency||'').toLowerCase().indexOf('biweek')>=0||String(app.paymentFrequency||'').toLowerCase().indexOf('quinc')>=0?'Quincenal':'Mensual';
- return `<article class="cartera-profile-credit"><div><h4>${escapeHtml(req.id)}</h4><p>${escapeHtml(app.procedure||'Crédito')} · ${frequency} · ${base}${app.carteraDemoState?' · '+escapeHtml(app.carteraDemoState):''}</p></div><div class="portfolio-actions"><button type="button" class="btn btn-sm btn-primary" onclick="carteraOpenPayment('${id}')">Aplicar pago</button></div></article>`;
+ return `<article class="cartera-profile-credit"><div class="cartera-profile-credit-head"><div><h4>${escapeHtml(req.id)}</h4><p>${escapeHtml(app.procedure||'Crédito')} · ${frequency} · ${base}${app.carteraDemoState?' · '+escapeHtml(app.carteraDemoState):''}</p></div><div class="portfolio-actions"><button type="button" class="btn btn-sm btn-primary" onclick="carteraOpenPayment('${id}')">Aplicar pago</button></div></div></article>`;
+}
+function carteraProfileOpsHtml(credits){
+ const focus=credits.find(req=>req.id===carteraUiState.hostId)||credits[0];
+ if(focus){carteraUiState.hostId=focus.id;selectedPatientId=focus.id;}
+ const workspace=typeof carteraCreditWorkspaceHtml==='function';
+ const panel=!workspace&&focus&&carteraSelected()?carteraPanelHtml(carteraSelected()):'';
+ return `<section id="carteraProfileOps" class="patient-section-card cartera-profile-ops"><h3>Crédito en cartera</h3><p>Pago normal, prepago, extensión y reestructura usan el mismo panel. La tabla, los recibos, la cobranza, los acuerdos y los contactos quedan en este perfil.</p>${credits.map(carteraProfileCreditHtml).join('')}<!--cartera-slot-start--><div id="carteraProfileSlot">${panel}</div><!--cartera-slot-end--></section>`;
+}
+function carteraUpsertProfile(root,html){
+ const existing=root.querySelector&&root.querySelector('#carteraProfileOps');
+ if(existing){existing.outerHTML=html;return true;}
+ if(typeof root.innerHTML!=='string')return false;
+ const startToken='<section id="carteraProfileOps"';
+ const endToken='<!--cartera-slot-end--></section>';
+ const start=root.innerHTML.indexOf(startToken);
+ const end=root.innerHTML.indexOf(endToken);
+ if(start>=0&&end>start){root.innerHTML=root.innerHTML.slice(0,start)+html+root.innerHTML.slice(end+endToken.length);return true;}
+ const tab=root.querySelector&&root.querySelector('.tab-body');
+ if(tab&&tab.insertAdjacentHTML&&!(tab.innerHTML&&String(tab.innerHTML).indexOf('id="carteraProfileOps"')>=0)){tab.insertAdjacentHTML('afterbegin',html);return true;}
+ if(root.innerHTML.indexOf('<div class="tab-body">')>=0){root.innerHTML=root.innerHTML.replace('<div class="tab-body">','<div class="tab-body">'+html);return true;}
+ return false;
 }
 function carteraInjectProfile(){
  if(typeof currentView==='undefined'||currentView!=='patientProfiles'||typeof patientProfileMode==='undefined'||patientProfileMode!=='detail')return;
@@ -738,29 +761,14 @@ function carteraInjectProfile(){
  const profiles=typeof buildPatientProfiles==='function'?buildPatientProfiles():[];
  const profile=profiles.find(item=>String(item.key)===String(selectedPatientProfileKey));
  const credits=profile&&(profile.requests||[]).filter(req=>req&&typeof portfolioDisbursed==='function'&&portfolioDisbursed(req))||[];
- const html=credits.length?`<section id="carteraProfileOps" class="patient-section-card cartera-profile-ops"><h3>Crédito en cartera</h3><p>Pago normal, prepago, extensión y reestructura usan el mismo panel.</p>${credits.map(carteraProfileCreditHtml).join('')}<div id="carteraProfileSlot"></div></section>`:'';
- const existing=root.querySelector&&root.querySelector('#carteraProfileOps');
- if(!html){if(existing&&existing.remove)existing.remove();return;}
- if(existing)existing.outerHTML=html;
- else {
-  const tab=root.querySelector&&root.querySelector('.tab-body');
-  const marker='id="carteraProfileOps"';
-  if(tab&&tab.insertAdjacentHTML&&!(tab.innerHTML&&String(tab.innerHTML).indexOf(marker)>=0))tab.insertAdjacentHTML('afterbegin',html);
-  else if(typeof root.innerHTML==='string'&&root.innerHTML.indexOf(marker)<0&&root.innerHTML.indexOf('<div class="tab-body">')>=0)root.innerHTML=root.innerHTML.replace('<div class="tab-body">','<div class="tab-body">'+html);
- }
- if(carteraUiState.hostId&&credits.some(req=>req.id===carteraUiState.hostId)){
-  selectedPatientId=carteraUiState.hostId;
-  const p=carteraSelected();
-  if(!p)return;
-  const panel=carteraPanelHtml(p);
-  let slot=root.querySelector&&root.querySelector('#carteraProfileSlot');
-  if(!slot&&document.getElementById){const found=document.getElementById('carteraProfileSlot');if(found&&root.contains&&root.contains(found))slot=found;}
-  if(slot)slot.innerHTML=panel;
-  else if(typeof root.innerHTML==='string')root.innerHTML=root.innerHTML.replace('<div id="carteraProfileSlot"></div>','<div id="carteraProfileSlot">'+panel+'</div>');
- }
+ if(!credits.length){const existing=root.querySelector&&root.querySelector('#carteraProfileOps');if(existing&&existing.remove)existing.remove();return;}
+ carteraUpsertProfile(root,carteraProfileOpsHtml(credits));
 }
-function carteraOpenProfile(id,action){
- return carteraOpenPayment(id,{action:action||'pago'});
+function carteraOpenProfile(id,action,rowId){
+ return carteraOpenPayment(id,{action:action||'pago',rowId:rowId||''});
+}
+function carteraOpenProfileRow(id,rowId){
+ return carteraOpenPayment(id,{action:'pago',rowId:rowId||''});
 }
 function carteraPreviewKey(){return JSON.stringify({action:carteraUiState.action,modality:carteraUiState.modality,rowId:carteraUiState.rowId||'',draft:carteraDraft()});}
 function carteraRunPreview(){
@@ -798,16 +806,16 @@ function carteraConfirmCurrent(){
  carteraUiState.token='';carteraUiState.preview=result;carteraUiState.previewHtml='<p>Operación registrada en este navegador.</p>';
  toast('Operación de cartera registrada en este navegador.');
  const savedAction=carteraUiState.action;
+ if(typeof carteraPresentReceipt==='function'){try{carteraPresentReceipt(p,result,savedAction);}catch(error){}}
  if(typeof currentView!=='undefined'&&currentView==='portfolio'&&typeof renderPortfolio==='function')renderPortfolio();
  else if(typeof currentView!=='undefined'&&currentView==='patientProfiles'&&typeof renderPatientProfiles==='function')renderPatientProfiles();
  else if(typeof renderPatientDetail==='function')renderPatientDetail();
- if(typeof carteraPresentReceipt==='function'){try{carteraPresentReceipt(p,result,savedAction);}catch(error){}}
  return true;
 }
 function carteraInjectCss(){
  if(!document.getElementById||document.getElementById('carteraFase1Css')||!document.createElement)return;
  const style=document.createElement('style');style.id='carteraFase1Css';
- style.textContent=`.cartera-fase1,.cartera-receipt{margin:0 0 16px;padding:16px;border:1px solid rgba(7,20,47,.08);border-radius:16px;background:#fff;color:#07142F;font-family:Inter,sans-serif}.cartera-fase1 h4,.cartera-fase1-host h3,.cartera-profile-ops h3,.cartera-receipt h4{font-family:"Plus Jakarta Sans",Inter,sans-serif;margin:0 0 12px;color:#07142F}.cartera-choices{display:grid;gap:8px;margin:0 0 12px;align-items:stretch}.cartera-choices-ops{grid-template-columns:repeat(4,minmax(0,1fr))}.cartera-choices-sub{grid-template-columns:repeat(3,minmax(0,1fr))}.cartera-choice{appearance:none;width:100%;min-height:48px;text-align:left;border:1px solid rgba(7,20,47,.16);background:#fff;color:#07142F;border-radius:12px;padding:12px 14px;font-family:"Plus Jakarta Sans",Inter,sans-serif;font-weight:600;cursor:pointer}.cartera-choice[aria-pressed="true"]{border-color:#20C7D4;box-shadow:inset 0 0 0 1px #20C7D4;background:#f3fcfd}.cartera-form,.cartera-receipt-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}.cartera-form .field{display:flex;flex-direction:column;gap:6px;margin:0}.cartera-actions,.cartera-fase1-host .portfolio-actions,.cartera-profile-credit .portfolio-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.cartera-preview{margin-top:12px;color:#07142F}.cartera-fase1-host{margin:0 0 16px}.cartera-profile-credit{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;padding:12px 0}.cartera-profile-credit h4{margin:0;font-family:"Plus Jakarta Sans",Inter,sans-serif;color:#07142F}.cartera-receipt-table{width:100%;border-collapse:collapse}.cartera-receipt-table th,.cartera-receipt-table td{padding:8px 0;border-bottom:1px solid rgba(7,20,47,.08);text-align:left}.cartera-receipt-table td:last-child,.cartera-receipt-table th:last-child{text-align:right}.cartera-aging-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:0}.cartera-aging-grid div{padding:12px;border:1px solid rgba(7,20,47,.08);border-radius:12px;background:#fff}.cartera-aging-grid dt{color:#64748B;font-size:13px}.cartera-aging-grid dd{margin:4px 0 0;font-family:"Plus Jakarta Sans",Inter,sans-serif;font-weight:700;color:#07142F}@media(max-width:800px){.cartera-choices-ops,.cartera-choices-sub,.cartera-form,.cartera-receipt-grid,.cartera-aging-grid{grid-template-columns:1fr}}`;
+ style.textContent=`.cartera-fase1,.cartera-receipt{margin:0 0 16px;padding:16px;border:1px solid rgba(7,20,47,.08);border-radius:16px;background:#fff;color:#07142F;font-family:Inter,sans-serif}.cartera-fase1 h4,.cartera-fase1-host h3,.cartera-profile-ops h3,.cartera-receipt h4{font-family:"Plus Jakarta Sans",Inter,sans-serif;margin:0 0 12px;color:#07142F}.cartera-choices{display:grid;gap:8px;margin:0 0 12px;align-items:stretch}.cartera-choices-ops{grid-template-columns:repeat(4,minmax(0,1fr))}.cartera-choices-sub{grid-template-columns:repeat(3,minmax(0,1fr))}.cartera-choice{appearance:none;width:100%;min-height:48px;text-align:left;border:1px solid rgba(7,20,47,.16);background:#fff;color:#07142F;border-radius:12px;padding:12px 14px;font-family:"Plus Jakarta Sans",Inter,sans-serif;font-weight:600;cursor:pointer}.cartera-choice[aria-pressed="true"]{border-color:#20C7D4;box-shadow:inset 0 0 0 1px #20C7D4;background:#f3fcfd}.cartera-form,.cartera-receipt-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}.cartera-form-stack{grid-template-columns:1fr}.cartera-form .field,.modal-body>.field{display:flex;flex-direction:column;gap:6px;margin:0;min-width:0}.cartera-form .field input,.cartera-form .field select,.cartera-form .field textarea,.modal-body>.field input,.modal-body>.field select,.modal-body>.field textarea{box-sizing:border-box;width:100%;max-width:100%;min-width:0;min-height:48px}.modal.cartera-agreement-modal{width:min(720px,calc(100vw - 32px));max-height:calc(100vh - 32px);display:flex;flex-direction:column}.modal.cartera-agreement-modal .modal-body{overflow:auto}.cartera-actions,.cartera-fase1-host .portfolio-actions,.cartera-profile-credit .portfolio-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.cartera-preview{margin-top:12px;color:#07142F}.cartera-fase1-host{margin:0 0 16px}.cartera-profile-credit{display:block;margin:0 0 12px;padding:16px;border:1px solid rgba(7,20,47,.08);border-radius:16px;background:#fff}.cartera-profile-credit.is-active{box-shadow:inset 0 0 0 1px #20C7D4}.cartera-profile-credit-head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;align-items:flex-start}.cartera-profile-credit h4{margin:0;font-family:"Plus Jakarta Sans",Inter,sans-serif;color:#07142F}.cartera-profile-meta{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:12px 0}.cartera-profile-meta span{display:block;color:#64748B;font-size:13px}.cartera-profile-meta strong{color:#07142F;font-family:"Plus Jakarta Sans",Inter,sans-serif}.cartera-profile-block{margin-top:16px}.cartera-profile-block h4{margin:0 0 8px}.cartera-profile-list{margin:0;padding:0;list-style:none}.cartera-profile-list li{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid rgba(7,20,47,.08)}.cartera-amortization-wrap{overflow:auto}.cartera-amortization-wrap tr.is-selected td{background:#f3fcfd}.cartera-receipt-table{width:100%;border-collapse:collapse}.cartera-receipt-table th,.cartera-receipt-table td{padding:8px 0;border-bottom:1px solid rgba(7,20,47,.08);text-align:left}.cartera-receipt-table td:last-child,.cartera-receipt-table th:last-child{text-align:right}.cartera-aging-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:0}.cartera-aging-grid div{padding:12px;border:1px solid rgba(7,20,47,.08);border-radius:12px;background:#fff}.cartera-aging-grid dt{color:#64748B;font-size:13px}.cartera-aging-grid dd{margin:4px 0 0;font-family:"Plus Jakarta Sans",Inter,sans-serif;font-weight:700;color:#07142F}@media(max-width:800px){.cartera-choices-ops,.cartera-choices-sub,.cartera-form,.cartera-receipt-grid,.cartera-aging-grid,.cartera-profile-meta{grid-template-columns:1fr}}`;
  (document.head||document.body).appendChild(style);
 }
 if(typeof portfolioActionCell==='function'){
@@ -913,5 +921,5 @@ function carteraSeedDisbursedDemos(){
 }
 try{carteraInjectCss();}catch(error){}
 try{carteraSeedDisbursedDemos();}catch(error){}
-Object.assign(globalThis,{carteraAllocateOldestFirst,carteraFindDuplicate,carteraCapitalPending,carteraOpenRows,carteraPreviewExtension,carteraApplyExtension,carteraPreviewPrepay,carteraApplyPrepay,carteraPreviewRestructure,carteraApplyRestructure,carteraPreviewOrdinary,carteraApplyOrdinary,carteraPanelHtml,carteraChoose,carteraChooseModality,carteraOpenFromPortfolio,carteraOpenProfile,carteraOpenPayment,carteraCanUseModal,carteraRegisterPayment,carteraCloseHost,carteraSeedDisbursedDemos,carteraRunPreview,carteraConfirmCurrent,carteraBuildDemoCredit});
+Object.assign(globalThis,{carteraAllocateOldestFirst,carteraFindDuplicate,carteraCapitalPending,carteraOpenRows,carteraPreviewExtension,carteraApplyExtension,carteraPreviewPrepay,carteraApplyPrepay,carteraPreviewRestructure,carteraApplyRestructure,carteraPreviewOrdinary,carteraApplyOrdinary,carteraPanelHtml,carteraChoose,carteraChooseModality,carteraOpenFromPortfolio,carteraOpenProfile,carteraOpenProfileRow,carteraOpenPayment,carteraCanUseModal,carteraRegisterPayment,carteraCloseHost,carteraSeedDisbursedDemos,carteraRunPreview,carteraConfirmCurrent,carteraBuildDemoCredit});
 }

@@ -165,6 +165,13 @@ function carteraStageMessage(p,stage,channel){
  const subject=carteraFill(carteraTemplate(template,'subject'),vars);
  return {subject,body,vars};
 }
+function carteraRefreshSurface(){
+ try{
+  if(typeof currentView==='undefined')return;
+  if(currentView==='patientProfiles'&&typeof renderPatientProfiles==='function')renderPatientProfiles();
+  else if(currentView==='portfolio'&&typeof renderPortfolio==='function')renderPortfolio();
+ }catch(error){}
+}
 function carteraOpenWhatsapp(id){
  const p=(db.patients||[]).find(item=>item.id===id);if(!p)return false;
  const stage=carteraCollectionStage(p);
@@ -176,7 +183,9 @@ function carteraOpenWhatsapp(id){
  const key=carteraMessageKey(p.id,stage,stage.due);
  if(carteraMessageSent(p,key)){if(typeof toast==='function')toast('El enlace se abrió. Este mensaje ya estaba registrado.');return link;}
  if(typeof confirm==='function'&&!confirm('¿Registrar WhatsApp enviado?'))return link;
- return carteraRememberMessage(p,{key,at:new Date().toISOString(),channel:'whatsapp',action:'WhatsApp enviado',comment:stage.label+' · '+stage.due,stage:stage.id,due:stage.due})&&link;
+ const saved=carteraRememberMessage(p,{key,at:new Date().toISOString(),channel:'whatsapp',action:'WhatsApp enviado',comment:stage.label+' · '+stage.due,stage:stage.id,due:stage.due});
+ if(saved&&saved.ok)carteraRefreshSurface();
+ return saved&&link;
 }
 function carteraOpenMailPreview(id){
  const p=(db.patients||[]).find(item=>item.id===id);if(!p)return false;
@@ -198,7 +207,7 @@ function carteraLogMail(id){
  if(!saved.ok){if(typeof toast==='function')toast(saved.error||'No se registró el correo.');return false;}
  if(typeof toast==='function')toast('Enviado (demo). No salió ningún correo real.');
  if(typeof closeModal==='function')closeModal();
- if(typeof renderPortfolio==='function'&&typeof currentView!=='undefined'&&currentView==='portfolio')renderPortfolio();
+ carteraRefreshSurface();
  return true;
 }
 function carteraAmountApproval(amount){
@@ -349,7 +358,72 @@ function carteraPresentReceipt(p,result,action){
  return stored;
 }
 function carteraPrintReceipt(){const receipt=carteraUiState.lastReceipt;if(!receipt||typeof window==='undefined'||!window.open)return false;const win=window.open('','_blank','noopener');if(!win)return false;win.document.open();win.document.write(carteraReceiptDocument(receipt));win.document.close();return true;}
-function carteraDownloadReceipt(){const receipt=carteraUiState.lastReceipt;if(!receipt)return false;const blob=new Blob([carteraReceiptDocument(receipt).replace('<script>window.onload=function(){setTimeout(function(){window.print();},250);}</script>','')],{type:'text/html'});const url=URL.createObjectURL(blob);const link=document.createElement('a');link.href=url;link.download=receipt.attachment||'recibo.html';document.body.appendChild(link);link.click();link.remove();URL.revokeObjectURL(url);return true;}
+function carteraDownloadReceipt(){const receipt=carteraUiState.lastReceipt;if(!receipt)return false;const blob=new Blob([carteraReceiptDocument(receipt).replace('<script>window.onload=function(){setTimeout(function(){window.print();},250);}</script>','')],{type:'text/html'});const url=URL.createObjectURL(blob);const link=document.createElement('a');link.href=url;link.download=receipt.attachment||'recibo.html';document.body.appendChild(link);if(typeof link.click==='function')link.click();if(typeof link.remove==='function')link.remove();URL.revokeObjectURL(url);return true;}
+function carteraStoredReceipt(id,receiptId){
+ const p=(db.patients||[]).find(item=>item&&item.id===id);if(!p)return null;
+ const receipt=(((p.application||{}).carteraReceipts)||[]).find(item=>item&&item.id===receiptId);
+ if(!receipt)return null;
+ carteraUiState.lastReceipt=receipt;
+ return receipt;
+}
+function carteraDownloadStoredReceipt(id,receiptId){if(!carteraStoredReceipt(id,receiptId))return false;return carteraDownloadReceipt();}
+function carteraOpenReceiptPreview(id,receiptId){
+ const receipt=carteraStoredReceipt(id,receiptId);if(!receipt)return false;
+ const lines=carteraReceiptRows(receipt).map(([label,amount])=>`<tr><td>${escapeHtml(label)}</td><td>${fmtMoney(amount||0)}</td></tr>`).join('');
+ const html=`<div class="modal-head"><div><h3>Recibo de pago</h3><p>${escapeHtml(receipt.name||'')} · ${escapeHtml(receipt.code||'')}</p></div><button class="x" type="button" onclick="closeModal()">×</button></div><div class="modal-body"><section class="cartera-receipt"><h4>PULZZO</h4><p>${escapeHtml(receipt.status||'Enviado (demo)')}</p><table class="cartera-receipt-table"><tbody>${lines}</tbody></table><p>Saldo anterior ${fmtMoney(receipt.before||0)} · Saldo posterior ${fmtMoney(receipt.after||0)}</p><p>Próximo pago: ${escapeHtml(receipt.next||'')}</p></section><section class="cartera-fase1"><h4>Correo simulado · Enviado (demo)</h4><div class="cartera-receipt-grid"><div><span>Para</span><strong>${escapeHtml(receipt.to||receipt.email||'Sin correo')}</strong></div><div><span>Asunto</span><strong>${escapeHtml(receipt.subject||'')}</strong></div><div><span>Adjunto</span><strong>${escapeHtml(receipt.attachment||'')}</strong></div></div><pre>${escapeHtml(receipt.body||'')}</pre></section></div><div class="modal-actions"><button type="button" class="btn btn-secondary" onclick="carteraDownloadReceipt()">Descargar</button><button type="button" class="btn btn-primary" onclick="closeModal()">Cerrar</button></div>`;
+ if(typeof modal==='function'&&typeof carteraCanUseModal==='function'&&carteraCanUseModal())modal(html);
+ return receipt;
+}
+function carteraFmtProfileDate(value){const raw=String(value||'').slice(0,10);if(!raw)return '—';return typeof formatMaybeDate==='function'?formatMaybeDate(raw):raw;}
+function carteraProfileStageHtml(p){
+ const stage=carteraCollectionStage(p);
+ const facts=carteraFactsForPatient(p);
+ const patient=p.patient||{};
+ const sent=carteraMessageLog(p).slice(-1)[0];
+ const cells=[['Etapa de cobranza',stage.label],['Días de atraso',String(facts.dpd||0)],['Monto a cobrar',fmtMoney(stage.amount||facts.amount||0)],['Próximo vencimiento',facts.next&&facts.next.date||facts.due||'—'],['Celular',patient.phone||'—'],['Correo',patient.email||'—'],['Último recordatorio',sent?sent.action+' · '+String(sent.at||'').slice(0,10):'—'],['Acuerdo',carteraAgreementLabel(carteraDeriveAgreement(p))]];
+ return `<div class="cartera-profile-meta">${cells.map(([label,value])=>`<div><span>${escapeHtml(label)}</span><strong>${escapeHtml(String(value))}</strong></div>`).join('')}</div>`;
+}
+function carteraAmortizationTable(p){
+ let rows=[];
+ try{rows=typeof dispersionBuildSchedule==='function'?dispersionBuildSchedule(p):(p.paymentSchedule||[]);}catch(error){rows=[];}
+ const body=rows.map(row=>{
+  const pending=typeof portfolioPending==='function'?portfolioPending(row):dispersionNumber(row.pendingAmount,0);
+  const due=row.currentDueDate||row.dueDate||'';
+  const original=row.originalDueDate&&String(row.originalDueDate).slice(0,10)!==String(due).slice(0,10)?`<br><small>Original: ${escapeHtml(carteraFmtProfileDate(row.originalDueDate))}</small>`:'';
+  const status=typeof dispersionPill==='function'?dispersionPill(row.status):escapeHtml(row.status||'Pendiente');
+  const frequency=String(row.paymentFrequency||(p.application&&p.application.paymentFrequency)||'');
+  const kind=row.type==='Pago inicial requerido'?'Pago inicial':frequency.toLowerCase().indexOf('biweek')>=0||frequency.toLowerCase().indexOf('quinc')>=0?'Pago quincenal':'Mensualidad';
+  const selected=row.id&&row.id===carteraUiState.rowId?' class="is-selected"':'';
+  return `<tr${selected}><td>${escapeHtml(row.number||'')}</td><td>${escapeHtml(kind)}</td><td>${escapeHtml(carteraFmtProfileDate(due))}${original}</td><td>${fmtMoney(row.interest||0)}</td><td>${fmtMoney(row.interestIva||0)}</td><td>${fmtMoney(row.moratory||row.interesMora||0)}</td><td>${fmtMoney(row.capital||0)}</td><td>${fmtMoney(row.totalPayment||0)}</td><td>${fmtMoney(pending)}</td><td>${status}</td><td><button class="amortization-manage-button" type="button" onclick="carteraOpenProfileRow('${escapeAttr(p.id)}','${escapeAttr(row.id||'')}')">Gestionar</button></td></tr>`;
+ }).join('');
+ return `<div class="cartera-profile-block"><h4>Tabla de amortización</h4><div class="table-wrap cartera-amortization-wrap"><table class="portfolio-table"><thead><tr><th>#</th><th>Tipo</th><th>Fecha vigente</th><th>Interés</th><th>IVA</th><th>Moratorios</th><th>Capital</th><th>Pago</th><th>Pendiente</th><th>Estatus</th><th></th></tr></thead><tbody>${body||'<tr><td colspan="11">Sin cuotas.</td></tr>'}</tbody></table></div></div>`;
+}
+function carteraReceiptListHtml(p){
+ const list=(((p.application||{}).carteraReceipts)||[]).slice().reverse();
+ const rows=list.map(receipt=>`<li><span><strong>${escapeHtml(receipt.date||'')} · ${fmtMoney(receipt.amount||0)}</strong><br>${escapeHtml(receipt.status||'Enviado (demo)')}</span><span class="portfolio-actions"><button type="button" class="btn btn-sm btn-secondary" onclick="carteraDownloadStoredReceipt('${escapeAttr(p.id)}','${escapeAttr(receipt.id||'')}')">Descargar</button><button type="button" class="btn btn-sm btn-secondary" onclick="carteraOpenReceiptPreview('${escapeAttr(p.id)}','${escapeAttr(receipt.id||'')}')">Ver correo</button></span></li>`).join('');
+ return `<div class="cartera-profile-block"><h4>Recibos</h4>${rows?`<ul class="cartera-profile-list">${rows}</ul>`:'<p>Sin recibos registrados.</p>'}</div>`;
+}
+function carteraAgreementListHtml(p){
+ const events=carteraAgreementEvents(p).filter(item=>item&&item.type==='created');
+ const items=events.map(item=>`<li>Compromiso ${escapeHtml(item.compromiseDate||'')} · ${fmtMoney(item.amount||0)} · vencimiento original ${escapeHtml(item.originalDue||'—')} · cuota ${escapeHtml(String(item.installmentNumber||'—'))}</li>`).join('');
+ return `<div class="cartera-profile-block"><h4>Acuerdos de pago</h4><p>Estado: ${escapeHtml(carteraAgreementLabel(carteraDeriveAgreement(p)))}. La cuota y el vencimiento original quedan congelados.</p>${items?`<ul class="cartera-profile-list">${items}</ul>`:'<p>Sin acuerdos de pago.</p>'}</div>`;
+}
+function carteraContactListHtml(p){
+ const calls=((p.application||{}).carteraContacts)||[];
+ const rows=calls.map(item=>({at:item.at,label:item.channel==='llamada'?'Llamada':item.channel||'Contacto',text:item.note||''})).concat(carteraMessageLog(p).map(item=>({at:item.at,label:item.action||item.channel||'Contacto',text:item.comment||item.subject||''})));
+ rows.sort((a,b)=>String(b.at||'').localeCompare(String(a.at||'')));
+ const items=rows.map(item=>`<li><span><strong>${escapeHtml(item.label)}</strong> · ${escapeHtml(String(item.at||'').slice(0,10))}<br>${escapeHtml(item.text||'')}</span></li>`).join('');
+ return `<div class="cartera-profile-block"><h4>Historial de contacto</h4>${items?`<ul class="cartera-profile-list">${items}</ul>`:'<p>Sin contactos registrados.</p>'}</div>`;
+}
+function carteraCreditWorkspaceHtml(req){
+ const app=req.application||{};
+ const base=app.interestCalculationBase==='outstanding_balance'?'Saldos insolutos':'Saldos globales';
+ const frequency=String(app.paymentFrequency||'').toLowerCase().indexOf('biweek')>=0||String(app.paymentFrequency||'').toLowerCase().indexOf('quinc')>=0?'Quincenal':'Mensual';
+ const focused=!!(carteraUiState&&carteraUiState.hostId===req.id);
+ const panel=focused&&typeof carteraPanelHtml==='function'?carteraPanelHtml(req):'';
+ const id=typeof escapeAttr==='function'?escapeAttr(req.id):req.id;
+ return `<article class="cartera-profile-credit${focused?' is-active':''}"><div class="cartera-profile-credit-head"><div><h4>${escapeHtml(req.id)}</h4><p>${escapeHtml(app.procedure||'Crédito')} · ${frequency} · ${base}${app.carteraDemoState?' · '+escapeHtml(app.carteraDemoState):''}</p></div><div class="portfolio-actions"><button type="button" class="btn btn-sm btn-secondary" onclick="carteraOpenWhatsapp('${id}')">WhatsApp</button><button type="button" class="btn btn-sm btn-secondary" onclick="carteraOpenMailPreview('${id}')">Correo</button><button type="button" class="btn btn-sm btn-secondary" onclick="carteraOpenAgreement('${id}')">Acuerdo</button><button type="button" class="btn btn-sm btn-secondary" onclick="carteraOpenContact('${id}')">Llamada</button><button type="button" class="btn btn-sm btn-primary" onclick="carteraOpenPayment('${id}')">Aplicar pago</button></div></div>${carteraProfileStageHtml(req)}${panel}${carteraAmortizationTable(req)}${carteraReceiptListHtml(req)}${carteraAgreementListHtml(req)}${carteraContactListHtml(req)}</article>`;
+}
 function carteraAging(credits){
  const buckets=[{id:'1-30',label:'1 a 30 días',min:1,max:30,count:0,amount:0},{id:'31-60',label:'31 a 60 días',min:31,max:60,count:0,amount:0},{id:'61-90',label:'61 a 90 días',min:61,max:90,count:0,amount:0},{id:'>90',label:'Más de 90 días',min:91,max:Infinity,count:0,amount:0}];
  (credits||[]).filter(credit=>!credit.settled).forEach(credit=>{
@@ -383,8 +457,9 @@ function carteraOpenAgreement(id){
  const p=(db.patients||[]).find(item=>item.id===id);if(!p)return false;
  const current=carteraDeriveAgreement(p);
  const history=carteraAgreementEvents(p).map(item=>`<li>${escapeHtml(item.type==='created'?'Registrado':'Actualización')} · ${escapeHtml(item.compromiseDate||item.status||'')} · ${escapeHtml(item.originalDue?'Vencimiento original '+item.originalDue:'')}</li>`).join('');
- const html=`<div class="modal-head"><div><h3>Acuerdo de pago</h3><p>${escapeHtml(p.patient&&p.patient.fullName||p.id)}</p></div><button class="x" type="button" onclick="closeModal()">×</button></div><div class="modal-body"><p>Estado: ${escapeHtml(carteraAgreementLabel(current))}. La cuota y el vencimiento original quedan congelados.</p><div class="cartera-form"><label class="field">Fecha del acuerdo<input id="acuerdoFecha" type="date" value="${carteraToday()}"></label><label class="field">Fecha de compromiso<input id="acuerdoCompromiso" type="date" value="${carteraAddDays(carteraToday(),5)}"></label><label class="field">Monto comprometido<input id="acuerdoMonto" type="number" min="0" step="0.01"></label></div><div class="cartera-choices cartera-choices-sub" role="group" aria-label="Condonación"><button type="button" class="cartera-choice" data-forgiveness="none" aria-pressed="true" onclick="carteraChooseForgiveness('none')">No</button><button type="button" class="cartera-choice" data-forgiveness="moratory_total" aria-pressed="false" onclick="carteraChooseForgiveness('moratory_total')">Total moratorios</button><button type="button" class="cartera-choice" data-forgiveness="fixed" aria-pressed="false" onclick="carteraChooseForgiveness('fixed')">Monto fijo</button></div><label class="field">Monto fijo de moratorios<input id="acuerdoCondonacion" type="number" min="0" step="0.01"></label><input id="acuerdoCondonacionTipo" type="hidden" value="none"><p>No se condona capital ni interés ordinario. El monto lo autoriza un líder o un administrador.</p><ul>${history||'<li>Sin acuerdos previos.</li>'}</ul></div><div class="modal-actions"><button type="button" class="btn btn-secondary" onclick="closeModal()">Cerrar</button><button type="button" class="btn btn-secondary" onclick="carteraApplyForgivenessUi('${escapeAttr(id)}')">Aplicar condonación</button><button type="button" class="btn btn-primary" onclick="carteraSaveAgreement('${escapeAttr(id)}')">Registrar acuerdo</button></div>`;
+ const html=`<div class="modal-head"><div><h3>Acuerdo de pago</h3><p>${escapeHtml(p.patient&&p.patient.fullName||p.id)}</p></div><button class="x" type="button" onclick="closeModal()">×</button></div><div class="modal-body"><p>Estado: ${escapeHtml(carteraAgreementLabel(current))}. La cuota y el vencimiento original quedan congelados.</p><div class="cartera-form cartera-form-stack"><label class="field">Fecha del acuerdo<input id="acuerdoFecha" type="date" value="${carteraToday()}"></label><label class="field">Fecha de compromiso<input id="acuerdoCompromiso" type="date" value="${carteraAddDays(carteraToday(),5)}"></label><label class="field">Monto comprometido<input id="acuerdoMonto" type="number" min="0" step="0.01" inputmode="decimal"></label><label class="field">Monto fijo de moratorios<input id="acuerdoCondonacion" type="number" min="0" step="0.01" inputmode="decimal"></label></div><div class="cartera-choices cartera-choices-sub" role="group" aria-label="Condonación"><button type="button" class="cartera-choice" data-forgiveness="none" aria-pressed="true" onclick="carteraChooseForgiveness('none')">No</button><button type="button" class="cartera-choice" data-forgiveness="moratory_total" aria-pressed="false" onclick="carteraChooseForgiveness('moratory_total')">Total moratorios</button><button type="button" class="cartera-choice" data-forgiveness="fixed" aria-pressed="false" onclick="carteraChooseForgiveness('fixed')">Monto fijo</button></div><input id="acuerdoCondonacionTipo" type="hidden" value="none"><p>No se condona capital ni interés ordinario. El monto lo autoriza un líder o un administrador.</p><ul>${history||'<li>Sin acuerdos previos.</li>'}</ul></div><div class="modal-actions"><button type="button" class="btn btn-secondary" onclick="closeModal()">Cerrar</button><button type="button" class="btn btn-secondary" onclick="carteraApplyForgivenessUi('${escapeAttr(id)}')">Aplicar condonación</button><button type="button" class="btn btn-primary" onclick="carteraSaveAgreement('${escapeAttr(id)}')">Registrar acuerdo</button></div>`;
  if(typeof modal==='function')modal(html);
+ const box=document.getElementById&&document.getElementById('modal');if(box)box.className='modal cartera-agreement-modal';
  return true;
 }
 function carteraChooseForgiveness(value){const input=document.getElementById('acuerdoCondonacionTipo');if(input)input.value=value;document.querySelectorAll('[data-forgiveness]').forEach(button=>button.setAttribute('aria-pressed',String(button.getAttribute('data-forgiveness')===value)));}
@@ -393,12 +468,12 @@ function carteraSaveAgreement(id){
  if(!result.ok){if(typeof toast==='function')toast(result.error);return false;}
  if(typeof toast==='function')toast('Acuerdo registrado. La confirmación quedó como Enviado (demo).');
  if(typeof closeModal==='function')closeModal();
- if(typeof renderPortfolio==='function')renderPortfolio();
+ carteraRefreshSurface();
  return true;
 }
-function carteraApplyForgivenessUi(id){const result=carteraApplyForgiveness(id);if(!result.ok){if(typeof toast==='function')toast(result.error);return false;}if(typeof toast==='function')toast('Condonación aplicada solo a moratorios.');if(typeof closeModal==='function')closeModal();if(typeof renderPortfolio==='function')renderPortfolio();return true;}
+function carteraApplyForgivenessUi(id){const result=carteraApplyForgiveness(id);if(!result.ok){if(typeof toast==='function')toast(result.error);return false;}if(typeof toast==='function')toast('Condonación aplicada solo a moratorios.');if(typeof closeModal==='function')closeModal();carteraRefreshSurface();return true;}
 function carteraOpenContact(id){const html=`<div class="modal-head"><div><h3>Registrar llamada</h3></div><button class="x" type="button" onclick="closeModal()">×</button></div><div class="modal-body"><label class="field">Nota<textarea id="carteraContactNote" rows="4"></textarea></label></div><div class="modal-actions"><button type="button" class="btn btn-secondary" onclick="closeModal()">Cerrar</button><button type="button" class="btn btn-primary" onclick="carteraSaveContact('${id}')">Guardar</button></div>`;if(typeof modal==='function')modal(html);return true;}
-function carteraSaveContact(id){const ok=carteraLogContact(id,'llamada',document.getElementById('carteraContactNote').value);if(ok&&typeof closeModal==='function')closeModal();if(ok&&typeof renderPortfolio==='function')renderPortfolio();return ok;}
+function carteraSaveContact(id){const ok=carteraLogContact(id,'llamada',document.getElementById('carteraContactNote').value);if(ok&&typeof closeModal==='function')closeModal();if(ok)carteraRefreshSurface();return ok;}
 function carteraCobranzaSettingsHtml(){
  const config=carteraCobranzaRead();
  const days=[['precobranza','Precobranza, días antes'],['day1','Cobranza día'],['day3','Cobranza día'],['dailyFrom','Seguimiento desde'],['dailyTo','Seguimiento hasta'],['earlyFrom','Mora temprana desde'],['earlyTo','Mora temprana hasta'],['restructureFrom','Candidato a reestructura desde'],['restructureTo','Candidato a reestructura hasta'],['externalFrom','Cobranza externa desde']];
@@ -465,5 +540,5 @@ if(typeof renderSettings==='function'){
  renderSettings=function(){const result=carteraOriginalRenderSettings.apply(this,arguments);try{if(typeof configTab!=='undefined'&&configTab==='collections'){const body=document.querySelector&&document.querySelector('#settings .card-body');if(body&&!body.querySelector('#carteraCobranzaSettings')){const section=document.createElement('section');section.id='carteraCobranzaSettings';section.innerHTML=carteraCobranzaSettingsHtml();body.appendChild(section);}}}catch(error){}return result;};
 }
 try{carteraSeedStageCredits();}catch(error){}
-Object.assign(globalThis,{carteraToday,carteraAddDays,carteraCobranzaRead,carteraCobranzaWrite,carteraTemplate,carteraFill,carteraCollectionStage,carteraCreditFacts,carteraFactsForPatient,carteraDeriveAgreement,carteraAgreementLabel,carteraMessageKey,carteraMessageSent,carteraRememberMessage,carteraWhatsappLink,carteraOpenWhatsapp,carteraOpenMailPreview,carteraLogMail,carteraRegisterAgreement,carteraApplyForgiveness,carteraPresentReceipt,carteraReceiptFromResult,carteraReceiptDocument,carteraAging,carteraSeedStageCredits,carteraBuildStageCredit,carteraSaveCobranzaSettings,carteraCobranzaSettingsHtml,CARTERA_COBRANZA_KEY});
+Object.assign(globalThis,{carteraToday,carteraAddDays,carteraCobranzaRead,carteraCobranzaWrite,carteraTemplate,carteraFill,carteraCollectionStage,carteraCreditFacts,carteraFactsForPatient,carteraDeriveAgreement,carteraAgreementLabel,carteraMessageKey,carteraMessageSent,carteraRememberMessage,carteraWhatsappLink,carteraOpenWhatsapp,carteraOpenMailPreview,carteraLogMail,carteraLogContact,carteraRegisterAgreement,carteraApplyForgiveness,carteraPresentReceipt,carteraReceiptFromResult,carteraReceiptDocument,carteraDownloadReceipt,carteraPrintReceipt,carteraOpenAgreement,carteraSaveAgreement,carteraChooseForgiveness,carteraApplyForgivenessUi,carteraOpenContact,carteraSaveContact,carteraAging,carteraSeedStageCredits,carteraBuildStageCredit,carteraSaveCobranzaSettings,carteraCobranzaSettingsHtml,carteraCreditWorkspaceHtml,carteraDownloadStoredReceipt,carteraOpenReceiptPreview,CARTERA_COBRANZA_KEY});
 })();
