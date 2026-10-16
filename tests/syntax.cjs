@@ -11,5 +11,5 @@ for(const file of fs.readdirSync(root).filter(x=>x.endsWith('.html'))){
   }
 }
 let external=0;
-for(const file of ['assets/js/patient-demo.js','assets/js/backoffice-sidebar.js','assets/js/backoffice-portfolio.js','assets/js/backoffice-configuration.js','assets/pulzzo-demo-bridge.js','preview.cjs']){new vm.Script(fs.readFileSync(path.join(root,file),'utf8'),{filename:file});external++;}
+for(const file of ['assets/js/patient-demo.js','assets/js/backoffice-sidebar.js','assets/js/backoffice-portfolio.js','assets/js/backoffice-configuration.js','assets/js/backoffice-cartera-fase1.js','assets/pulzzo-demo-bridge.js','preview.cjs']){new vm.Script(fs.readFileSync(path.join(root,file),'utf8'),{filename:file});external++;}
 console.log(`PASS: ${count} inline JavaScript blocks and ${external} external/local scripts compile.`);

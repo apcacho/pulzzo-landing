@@ -107,8 +107,8 @@ test('All eight sections distinguish editable, fixed and pending capabilities',(
  const r=runtime();// v36k (2026-10-15): «Valores por defecto y límites del crédito» shows product+tax as cards on one page (no sub-tabs: 6 tab buttons).
  r.mount('product');assert.equal((r.el('settings').innerHTML.match(/onclick="configSelectTab/g)||[]).length,6);assert.match(r.el('settings').innerHTML,/Editable por administrador/);assert.match(r.el('settings').innerHTML,/Cómo arranca cada oferta/);assert.match(r.el('settings').innerHTML,/Comisiones e IVA/);r.mount('payments');assert.match(r.el('settings').innerHTML,/Reglas vigentes · solo consulta/);
  for(const tab of ['collections','disbursement','history']){r.mount(tab);assert.doesNotMatch(r.el('settings').innerHTML,/onclick="configSubmit\(\)"/);}
- r.mount('collections');assert.match(r.el('settings').innerHTML,/Pendiente · no disponible en esta demo/);assert.match(r.el('settings').innerHTML,/No se envían comunicaciones/);
- r.mount('tax');assert.match(r.el('settings').innerHTML,/IVA fijo 16%/);assert.match(r.el('settings').innerHTML,/18-A pendiente/);
+ r.mount('collections');assert.match(r.el('settings').innerHTML,/Pendiente · no disponible en esta demo/);assert.match(r.el('settings').innerHTML,/Enviado \(demo\)/);assert.doesNotMatch(r.el('settings').innerHTML,/No se envían comunicaciones/);
+ r.mount('tax');assert.match(r.el('settings').innerHTML,/puede desactivarse/);assert.match(r.el('settings').innerHTML,/18-A pendiente/);assert.doesNotMatch(r.el('settings').innerHTML,/IVA fijo 16%/);
 });
 test('Tab navigation discards the review and saving does not mutate credit snapshots',()=>{
  const r=runtime();r.mount('extensions');r.run('var before=JSON.stringify(db);configShowPreview();configSelectTab("payments")');assert.equal(r.run('configPreviewToken'),'');assert.equal(r.el('cfg-save').disabled,true);
