@@ -1,7 +1,7 @@
 {
-  "version": "v42",
-  "previous_version": "v36-asistido-20261014",
-  "note": "v42 · demo local. Cartera > Resumen es un tablero. Los hashes de files siguen el manifiesto histórico.",
+  "version": "v43",
+  "previous_version": "v42",
+  "note": "v43 · demo local. Cartera > Resumen tiene gráficas con ejes y corte histórico. Los hashes de files siguen el manifiesto histórico.",
   "status": "demo_local",
   "runtime_source_commit": "f1833ecf73109794f19f01a2bafce4a989e2ccde",
   "runtime_deployment": "appgdep_6acf3ae21f088191a77d30b5cef1d4d1",
