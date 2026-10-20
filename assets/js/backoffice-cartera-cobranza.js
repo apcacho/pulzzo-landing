@@ -759,10 +759,6 @@ if(typeof portfolioCreditCell==='function'&&!portfolioCreditCell.carteraContact)
  };
  portfolioCreditCell.carteraContact=true;
 }
-if(typeof portfolioSummaryHtml==='function'){
- const carteraOriginalSummary=portfolioSummaryHtml;
- portfolioSummaryHtml=function(credits){return carteraOriginalSummary(credits)+carteraAgingHtml(credits);};
-}
 if(typeof renderPortfolioBody==='function'){
  const carteraOriginalPortfolioBody=renderPortfolioBody;
  renderPortfolioBody=function(){const result=carteraOriginalPortfolioBody.apply(this,arguments);try{if(typeof portfolioState!=='undefined'&&portfolioState.tab==='collections')carteraPaintCollections();}catch(error){}return result;};

@@ -15,7 +15,6 @@ function portfolioAsOf(){const today=portfolioToday(),cut=portfolioDate(portfoli
 function portfolioResolveAsOf(asOf){const today=portfolioToday(),date=portfolioDate(asOf);if(!date||date>=today)return {date:today,historical:false};return {date,historical:true};}
 function portfolioSetCut(value){const today=portfolioToday(),date=portfolioDate(value);portfolioState.cutDate=date&&date<today?date:'';if(portfolioState.tab==='summary')renderPortfolioBody();}
 function portfolioSetCutPreset(preset){portfolioState.cutDate=preset==='previous-month'?portfolioPreviousMonthEnd(portfolioToday()):'';if(portfolioState.tab==='summary')renderPortfolioBody();}
-function portfolioSetCutMonth(ym){const today=portfolioToday();portfolioState.cutDate=/^\d{4}-\d{2}$/.test(String(ym||''))&&ym<today.slice(0,7)?portfolioMonthEnd(ym):'';if(portfolioState.tab==='summary')renderPortfolioBody();}
 function portfolioDatePlus(date,days){const d=new Date(date+'T12:00:00Z');d.setUTCDate(d.getUTCDate()+days);return d.toISOString().slice(0,10);}
 function portfolioInDates(date){return (!portfolioState.from||date&&date>=portfolioState.from)&&(!portfolioState.to||date&&date<=portfolioState.to);}
 function portfolioDisbursed(p){const a=p.application||{};return !!(a.dispersionDate||a.disbursedAt||a.dispersedAt||p.dispersionDate||p.disbursedAt||(a.providerDispersions||[]).some(r=>r.dispersionDate));}
@@ -316,7 +315,7 @@ function portfolioContractualPending(credits){
   return {capital,interest,total:roundToCents(capital+interest)};
 }
 function portfolioAgingBuckets(credits,today){
-  const defs=[{id:'current',label:'Al corriente',color:'#20C7D4'},{id:'d30',label:'1-30',color:'#178FA6'},{id:'d60',label:'31-60',color:'#C47A2C'},{id:'d90',label:'61-90',color:'#E15A3C'},{id:'d91',label:'90+',color:'#DC2626'},{id:'settled',label:'Liquidado',color:'#16A34A'}];
+  const defs=[{id:'current',label:'Al corriente',color:'#20C7D4'},{id:'d30',label:'1-30',color:'#DC2626'},{id:'d60',label:'31-60',color:'#DC2626'},{id:'d90',label:'61-90',color:'#DC2626'},{id:'d91',label:'90+',color:'#DC2626'},{id:'settled',label:'Liquidado',color:'#20C7D4'}];
   const map=Object.fromEntries(defs.map(item=>[item.id,{...item,capital:0,count:0}]));
   for(const credit of credits||[]){
     const id=credit.settled?'settled':portfolioAgingId(portfolioCreditDpd(credit,today));
@@ -328,7 +327,7 @@ function portfolioAgingBuckets(credits,today){
 }
 function portfolioMonthSeries(credits,today){
   const anchor=portfolioDate(today)||portfolioToday();
-  const start=portfolioShiftMonth(anchor.slice(0,7),-6);
+  const start=anchor.slice(0,7);
   const moves=portfolioMovements(portfolioReceiptCredits(credits).filter(portfolioMatches)).filter(move=>move.date&&move.date<=anchor);
   const months=[];
   for(let index=0;index<12;index++){
@@ -460,7 +459,8 @@ function portfolioTopClients(credits,principal){
 }
 function portfolioUpcomingRows(credits,today){
   today=today||portfolioToday();
-  return (credits||[]).filter(credit=>!credit.settled).flatMap(credit=>(credit.installments||[]).filter(row=>row.pending>0&&row.date&&row.date>=today).map(row=>({credit,date:row.date,pending:row.pending,days:portfolioDaysBetween(today,row.date)||0}))).sort((a,b)=>a.date.localeCompare(b.date)||String(a.credit.code).localeCompare(String(b.credit.code),'es')).slice(0,6);
+  const until=portfolioDatePlus(today,30);
+  return (credits||[]).filter(credit=>!credit.settled).flatMap(credit=>(credit.installments||[]).filter(row=>row.pending>0&&row.date&&row.date>=today&&row.date<=until).map(row=>({credit,date:row.date,pending:row.pending,days:portfolioDaysBetween(today,row.date)||0}))).sort((a,b)=>a.date.localeCompare(b.date)||String(a.credit.code).localeCompare(String(b.credit.code),'es')).slice(0,6);
 }
 function portfolioShareText(value){
   const number=Number(value)||0;
@@ -477,7 +477,12 @@ function portfolioAxisTicks(max){
   if(ticks[ticks.length-1]<safe)ticks.push(roundToCents(ticks[ticks.length-1]+step));
   return ticks;
 }
-function portfolioAxisMoney(value){return roundToCents(value).toLocaleString('es-MX',{style:'currency',currency:'MXN',maximumFractionDigits:0});}
+function portfolioAxisMoney(value){
+  const amount=roundToCents(value),abs=Math.abs(amount),sign=amount<0?'-':'';
+  if(abs>=1000000)return sign+'$'+(abs/1000000).toLocaleString('es-MX',{minimumFractionDigits:1,maximumFractionDigits:1})+'M';
+  if(abs>=1000)return sign+'$'+Math.round(abs/1000).toLocaleString('es-MX')+'K';
+  return sign+'$'+abs.toLocaleString('es-MX',{maximumFractionDigits:0});
+}
 function portfolioBarPath(x,y,w,h,r){
   const radius=Math.max(0,Math.min(r,w/2,h)),right=x+w,bottom=y+h;
   if(!(h>0)||!(w>0))return '';
@@ -485,35 +490,33 @@ function portfolioBarPath(x,y,w,h,r){
   return `M${x.toFixed(1)} ${bottom.toFixed(1)}V${(y+radius).toFixed(1)}Q${x.toFixed(1)} ${y.toFixed(1)} ${(x+radius).toFixed(1)} ${y.toFixed(1)}H${(right-radius).toFixed(1)}Q${right.toFixed(1)} ${y.toFixed(1)} ${right.toFixed(1)} ${(y+radius).toFixed(1)}V${bottom.toFixed(1)}Z`;
 }
 function portfolioChartSvg(title,bars,grouped){
-  const width=760,height=grouped?292:312,padL=86,padR=18,padT=grouped?18:40,padB=42;
+  const width=720,height=248,padL=52,padR=12,padT=12,padB=28;
   const plotW=width-padL-padR,plotH=height-padT-padB,slot=plotW/Math.max(bars.length,1);
   const peak=Math.max(...bars.map(bar=>Math.max(bar.value||0,bar.value2||0)),0);
   const ticks=portfolioAxisTicks(peak),scaleMax=Math.max(ticks[ticks.length-1]||1,1);
   const yOf=value=>padT+plotH-(Math.max(value,0)/scaleMax)*plotH;
   const baseline=padT+plotH;
-  const grid=ticks.map(tick=>{const y=yOf(tick);return `<line class="portfolio-grid" x1="${padL}" y1="${y.toFixed(1)}" x2="${width-padR}" y2="${y.toFixed(1)}"></line><text class="portfolio-axis-label" x="${padL-8}" y="${(y+4).toFixed(1)}" text-anchor="end">${escapeHtml(portfolioAxisMoney(tick))}</text>`;}).join('');
+  const grid=ticks.map(tick=>{const y=yOf(tick);return `<line class="portfolio-grid" x1="${padL}" y1="${y.toFixed(1)}" x2="${width-padR}" y2="${y.toFixed(1)}"></line><text class="portfolio-axis-label" x="${padL-6}" y="${(y+3).toFixed(1)}" text-anchor="end">${escapeHtml(portfolioAxisMoney(tick))}</text>`;}).join('');
   const shapes=bars.map((bar,index)=>{
     const x=padL+index*slot,cx=x+slot/2;
-    const tipLines=grouped?[bar.label,'Programado '+fmtMoney(bar.value||0),'Cobrado '+fmtMoney(bar.value2||0)]:[bar.label,fmtMoney(bar.value||0)+' · '+(bar.share||'0%'),(bar.count||0)+' créditos'];
-    const tipW=Math.min(210,Math.max(96,...tipLines.map(line=>String(line).length*6.4+18))),tipH=tipLines.length*15+12;
-    let tipX=cx-tipW/2;if(tipX<8)tipX=8;if(tipX+tipW>width-8)tipX=width-8-tipW;
-    const tipY=Math.max(6,padT-tipH-2);
-    const tip=`<g class="portfolio-tip"><rect x="${tipX.toFixed(1)}" y="${tipY.toFixed(1)}" width="${tipW.toFixed(1)}" height="${tipH.toFixed(1)}" rx="6"></rect><text>${tipLines.map((line,lineIndex)=>`<tspan x="${(tipX+10).toFixed(1)}" y="${(tipY+16+lineIndex*15).toFixed(1)}">${escapeHtml(line)}</tspan>`).join('')}</text></g>`;
+    const tipLines=grouped?[bar.label,'Programado '+fmtMoney(bar.value||0),'Cobrado '+fmtMoney(bar.value2||0)]:[bar.label,fmtMoney(bar.value||0),(bar.count||0)+' créditos'];
+    const tipW=Math.min(188,Math.max(88,...tipLines.map(line=>String(line).length*6.2+16))),tipH=tipLines.length*14+10;
+    let tipX=cx-tipW/2;if(tipX<4)tipX=4;if(tipX+tipW>width-4)tipX=width-4-tipW;
+    const tipY=Math.max(4,yOf(Math.max(bar.value||0,bar.value2||0))-tipH-6);
+    const tip=`<g class="portfolio-tip"><rect x="${tipX.toFixed(1)}" y="${tipY.toFixed(1)}" width="${tipW.toFixed(1)}" height="${tipH.toFixed(1)}" rx="4"></rect><text>${tipLines.map((line,lineIndex)=>`<tspan x="${(tipX+8).toFixed(1)}" y="${(tipY+14+lineIndex*14).toFixed(1)}">${escapeHtml(line)}</tspan>`).join('')}</text></g>`;
     if(grouped){
-      const barW=Math.max(7,Math.min(16,slot*0.28)),gap=Math.max(3,Math.min(6,slot*0.08)),pair=barW*2+gap,origin=x+(slot-pair)/2;
-      const h1=Math.max(bar.value>0?2:0,(bar.value||0)/scaleMax*plotH),h2=Math.max(bar.value2>0?2:0,(bar.value2||0)/scaleMax*plotH);
-      const stub=4;
-      const mark=bar.current?`<rect class="portfolio-month-current" x="${(x+2).toFixed(1)}" y="${padT}" width="${(slot-4).toFixed(1)}" height="${plotH.toFixed(1)}" rx="8"></rect>`:'';
-      const scheduled=portfolioBarPath(origin,h1>0?baseline-h1:baseline-stub,barW,h1>0?h1:stub,5);
-      const collected=portfolioBarPath(origin+barW+gap,h2>0?baseline-h2:baseline-stub,barW,h2>0?h2:stub,5);
-      return `<g class="portfolio-bar-group${bar.current?' is-current':''}">${mark}<path class="portfolio-svg-bar is-scheduled" d="${scheduled}"><title>${escapeHtml(bar.label)} programado ${escapeHtml(fmtMoney(bar.value||0))}</title></path><path class="portfolio-svg-bar is-collected" d="${collected}"><title>${escapeHtml(bar.label)} cobrado ${escapeHtml(fmtMoney(bar.value2||0))}</title></path>${tip}</g>`;
+      const barW=Math.max(5,Math.min(9,slot*0.18)),gap=Math.max(2,Math.min(4,slot*0.06)),pair=barW*2+gap,origin=x+(slot-pair)/2;
+      const h1=(bar.value||0)/scaleMax*plotH,h2=(bar.value2||0)/scaleMax*plotH;
+      const mark=bar.current?`<rect class="portfolio-month-current" x="${(x+1).toFixed(1)}" y="${padT}" width="${(slot-2).toFixed(1)}" height="${plotH.toFixed(1)}"></rect>`:'';
+      const scheduled=h1>0?`<path class="portfolio-svg-bar is-scheduled" d="${portfolioBarPath(origin,baseline-h1,barW,h1,2)}" style="fill:#20C7D4"><title>${escapeHtml(bar.label)} programado ${escapeHtml(fmtMoney(bar.value||0))}</title></path>`:'';
+      const collected=h2>0?`<path class="portfolio-svg-bar is-collected" d="${portfolioBarPath(origin+barW+gap,baseline-h2,barW,h2,2)}" style="fill:#16A34A"><title>${escapeHtml(bar.label)} cobrado ${escapeHtml(fmtMoney(bar.value2||0))}</title></path>`:'';
+      return `<g class="portfolio-bar-group${bar.current?' is-current':''}">${mark}${scheduled}${collected}${tip}</g>`;
     }
-    const barW=Math.max(18,Math.min(46,slot*0.56)),h=Math.max(bar.value>0?2:0,(bar.value||0)/scaleMax*plotH),draw=h>0?h:4;
-    const path=portfolioBarPath(x+(slot-barW)/2,baseline-draw,barW,draw,6);
-    const label=`<text class="portfolio-bar-label" x="${cx.toFixed(1)}" y="14" text-anchor="middle">${escapeHtml(fmtMoney(bar.value||0))}</text><text class="portfolio-bar-label" x="${cx.toFixed(1)}" y="28" text-anchor="middle">${escapeHtml(bar.share||'0%')}</text>`;
-    return `<g class="portfolio-bar-group"><path class="portfolio-svg-bar" d="${path}" style="fill:${bar.color||'#20C7D4'}"><title>${escapeHtml(bar.label)} ${escapeHtml(fmtMoney(bar.value||0))} ${escapeHtml(bar.share||'0%')}</title></path>${label}${tip}</g>`;
+    const barW=Math.max(14,Math.min(28,slot*0.42)),h=(bar.value||0)/scaleMax*plotH;
+    const path=h>0?`<path class="portfolio-svg-bar" d="${portfolioBarPath(x+(slot-barW)/2,baseline-h,barW,h,2)}" style="fill:${bar.color||'#20C7D4'}"><title>${escapeHtml(bar.label)} ${escapeHtml(fmtMoney(bar.value||0))}</title></path>`:'';
+    return `<g class="portfolio-bar-group">${path}${tip}</g>`;
   }).join('');
-  const labels=bars.map((bar,index)=>`<text class="portfolio-axis-label${bar.current?' is-current':''}" x="${(padL+index*slot+slot/2).toFixed(1)}" y="${height-16}" text-anchor="middle">${escapeHtml(bar.label)}</text>`).join('');
+  const labels=bars.map((bar,index)=>`<text class="portfolio-axis-label${bar.current?' is-current':''}" x="${(padL+index*slot+slot/2).toFixed(1)}" y="${height-8}" text-anchor="middle">${escapeHtml(bar.label)}</text>`).join('');
   return `<svg class="portfolio-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="${escapeAttr(title)}"><g class="portfolio-axis">${grid}<line class="portfolio-axis-line" x1="${padL}" y1="${padT}" x2="${padL}" y2="${baseline.toFixed(1)}"></line><line class="portfolio-axis-line" x1="${padL}" y1="${baseline.toFixed(1)}" x2="${width-padR}" y2="${baseline.toFixed(1)}"></line></g>${shapes}${labels}</svg>`;
 }
 function portfolioDashboard(credits,asOf){
@@ -530,35 +533,33 @@ function portfolioDashboard(credits,asOf){
 function portfolioSummaryHtml(credits){
   const asOf=portfolioAsOf();
   const board=portfolioDashboard(credits,asOf);
-  const capitalTotal=board.buckets.reduce((sum,bucket)=>sum+bucket.capital,0);
   const kpis=[
-    ['principal','','Cartera vigente',fmtMoney(board.principal),'Saldo de capital de créditos activos al corte.'],
-    ['disbursed','','Monto dispersado neto',fmtMoney(board.disbursed),'Suma ya liberada al proveedor al corte.'],
-    ['overdue','alert','Vencido + moratorios',fmtMoney(board.overdue),'Cuotas vencidas al corte, con moratorios.'],
-    ['latePrincipal','alert','% de cartera con atraso',portfolioShareText(board.lateShare),'Capital en atraso sobre la cartera vigente al corte.'],
-    ['received','good','Cobrado en el mes',fmtMoney(board.received),'Entradas del mes del corte, netas de reversos.'],
-    ['upcoming','','Por cobrar próximos 30 días',fmtMoney(board.upcoming),'Cuotas pendientes desde el corte y 30 días.'],
-    ['contractual','','Flujo contractual pendiente',fmtMoney(board.contractual.total),'Capital e interés ordinario aún no cobrados al corte.'],
-    ['active','','Créditos activos',String(board.active),'Créditos dispersados vigentes al corte.']
+    ['principal','','Cartera vigente',fmtMoney(board.principal)],
+    ['disbursed','','Monto dispersado neto',fmtMoney(board.disbursed)],
+    ['overdue','alert','Vencido + moratorios',fmtMoney(board.overdue)],
+    ['latePrincipal','alert','% de cartera con atraso',portfolioShareText(board.lateShare)],
+    ['received','good','Cobrado en el mes',fmtMoney(board.received)],
+    ['upcoming','','Por cobrar próximos 30 días',fmtMoney(board.upcoming)],
+    ['contractual','','Flujo contractual pendiente',fmtMoney(board.contractual.total)],
+    ['active','','Créditos activos',String(board.active)]
   ];
   const agingEmpty=board.buckets.every(bucket=>!(bucket.capital>0));
-  const monthEmpty=board.months.every(month=>!(month.scheduled>0)&&!(month.collected>0));
-  const agingBars=board.buckets.map(bucket=>({label:bucket.label,value:bucket.capital,color:bucket.color,count:bucket.count,share:capitalTotal>0?portfolioShareText(Math.round(bucket.capital/capitalTotal*1000)/10):'0%'}));
-  const aging=portfolioChartSvg('Saldo de capital por días de atraso al corte',agingBars,false);
+  const agingBars=board.buckets.map(bucket=>({label:bucket.label,value:bucket.capital,color:bucket.color,count:bucket.count}));
+  const aging=portfolioChartSvg('Saldo de capital por días de atraso',agingBars,false);
   const months=portfolioChartSvg('Programado vs. cobrado por mes',board.months.map(month=>({label:month.label,value:month.scheduled,value2:month.collected,current:month.current})),true);
   const cutStamp=portfolioFormatDate(board.today);
-  const cutBar=`<section class="portfolio-cut${board.historical?' is-historical':''}" data-cut="${escapeAttr(board.today)}"><div class="portfolio-cut-copy"><strong>Corte al ${escapeHtml(cutStamp)}</strong><span>${board.historical?'Vista histórica de solo lectura. Solo cuentan pagos, dispersiones y eventos con fecha en o antes del corte. Los días de atraso se calculan a esa fecha.':'Vista al día de hoy, en hora de Ciudad de México. El corte sigue siendo de solo lectura.'}</span></div><div class="portfolio-cut-controls"><button type="button" class="btn btn-secondary" data-cut-preset="today" aria-pressed="${board.historical?'false':'true'}">Hoy</button><button type="button" class="btn btn-secondary" data-cut-preset="previous-month" aria-pressed="${board.today===portfolioPreviousMonthEnd(portfolioToday())?'true':'false'}">Fin del mes anterior</button><label>Mes<input id="portfolioCutMonth" type="month" max="${escapeAttr(portfolioToday().slice(0,7))}" value="${escapeAttr(board.today.slice(0,7))}"></label><label>Fecha<input id="portfolioCutDate" type="date" max="${escapeAttr(portfolioToday())}" value="${escapeAttr(board.today)}"></label></div>${board.notes.length?`<ul class="portfolio-cut-notes">${board.notes.map(note=>`<li>${escapeHtml(note)}</li>`).join('')}</ul>`:''}</section>`;
-  const clientRows=board.clients.map(client=>`<tr data-credit="${escapeAttr(client.creditId)}"><td><button class="portfolio-link" data-credit="${escapeAttr(client.creditId)}" data-action="detail">${escapeHtml(client.name)}</button><small>${escapeHtml(client.code)}</small></td><td class="portfolio-number">${fmtMoney(client.outstanding)}</td><td class="portfolio-number">${portfolioShareText(client.share)}<span class="portfolio-share" aria-hidden="true"><i style="width:${Math.max(0,Math.min(100,client.share))}%"></i></span></td></tr>`).join('');
+  const cutBar=`<header class="portfolio-sheet-head${board.historical?' is-historical':''}" data-cut="${escapeAttr(board.today)}"><div class="portfolio-cut-copy"><h2>Resumen</h2><strong>Corte al ${escapeHtml(cutStamp)}</strong><span>${board.historical?'Vista histórica de solo lectura. Solo cuentan pagos, dispersiones y cuotas hasta esta fecha.':'Vista al día de hoy, en hora de Ciudad de México.'}</span></div><div class="portfolio-cut-controls"><button type="button" class="btn btn-secondary" data-cut-preset="today" aria-pressed="${board.historical?'false':'true'}">Hoy</button><button type="button" class="btn btn-secondary" data-cut-preset="previous-month" aria-pressed="${board.today===portfolioPreviousMonthEnd(portfolioToday())?'true':'false'}">Fin del mes anterior</button><label>Corte al<input id="portfolioCutDate" type="date" max="${escapeAttr(portfolioToday())}" value="${escapeAttr(board.today)}"></label></div>${board.notes.length?`<p class="portfolio-cut-notes">${board.notes.map(note=>escapeHtml(note)).join(' ')}</p>`:''}</header>`;
+  const clientRows=board.clients.map(client=>`<tr data-credit="${escapeAttr(client.creditId)}"><td class="portfolio-sheet-client"><button class="portfolio-link" data-credit="${escapeAttr(client.creditId)}" data-action="detail">${escapeHtml(client.name)}</button><small>${escapeHtml(client.code)}</small></td><td class="portfolio-number">${fmtMoney(client.outstanding)}</td><td class="portfolio-number">${portfolioShareText(client.share)}<span class="portfolio-share" aria-hidden="true"><i style="width:${Math.max(0,Math.min(100,client.share))}%"></i></span></td></tr>`).join('');
   const clientCards=board.clients.map(client=>`<article class="portfolio-mobile-card" data-credit="${escapeAttr(client.creditId)}"><button class="portfolio-link" data-credit="${escapeAttr(client.creditId)}" data-action="detail">${escapeHtml(client.name)}</button><small>${escapeHtml(client.code)}</small>${portfolioCardValues([['Saldo',fmtMoney(client.outstanding)],['% de cartera',portfolioShareText(client.share)]])}<span class="portfolio-share" aria-hidden="true"><i style="width:${Math.max(0,Math.min(100,client.share))}%"></i></span></article>`).join('');
-  const dueRows=board.dues.map(row=>`<tr data-credit="${escapeAttr(row.credit.id)}"><td><button class="portfolio-link" data-credit="${escapeAttr(row.credit.id)}" data-action="detail">${escapeHtml(row.credit.name)}</button><small>${escapeHtml(row.credit.code)}</small></td><td>${escapeHtml(row.date)}</td><td class="portfolio-number">${row.days===0?'Hoy':String(row.days)}</td><td class="portfolio-number">${fmtMoney(row.pending)}</td></tr>`).join('');
-  const dueCards=board.dues.map(row=>`<article class="portfolio-mobile-card portfolio-priority-item" data-credit="${escapeAttr(row.credit.id)}"><button class="portfolio-link" data-credit="${escapeAttr(row.credit.id)}" data-action="detail">${escapeHtml(row.credit.name)}</button>${portfolioCardValues([['Fecha',escapeHtml(row.date)],['En días',row.days===0?'Hoy':String(row.days)],['Monto',fmtMoney(row.pending)]])}</article>`).join('');
-  const todayCards=[['cobranza','En cobranza','Vencidos con saldo pendiente al corte.',board.collections.cobranza],['vence_hoy','Vence hoy','Cuota pendiente que vence en la fecha de corte.',board.collections.vence_hoy],['precobranza','Precobranza','Créditos en el día de precobranza del corte.',board.collections.precobranza],['sin_accion','Sin acción','Vigentes sin gestión en la fecha de corte.',board.collections.sin_accion]];
-  const table=(headers,rows,cards,empty)=>`<div class="table-wrap portfolio-desktop-table" tabindex="0"><table class="portfolio-table"><thead><tr>${headers.map(header=>`<th scope="col">${header}</th>`).join('')}</tr></thead><tbody>${rows||`<tr><td class="portfolio-empty" colspan="${headers.length}">${empty}</td></tr>`}</tbody></table></div><div class="portfolio-mobile-cards">${cards||`<p class="portfolio-empty">${empty}</p>`}</div>`;
-  return `${credits.length?'':'<p class="portfolio-empty">No hay créditos con esta búsqueda.</p>'}${cutBar}<div class="portfolio-kpis" data-dashboard="resumen">${kpis.map(([kind,accent,label,value,copy])=>`<button class="portfolio-metric" data-drill="${kind}"${accent?` data-accent="${accent}"`:''}><span>${label}</span><strong>${value}</strong><small>${copy}</small></button>`).join('')}</div>
-  <div class="portfolio-charts"><section class="portfolio-chart"><h3>Saldo de capital por días de atraso</h3>${aging}${agingEmpty?'<p class="portfolio-empty">Sin saldo de capital en esta consulta.</p>':'<ul class="portfolio-chart-caption">'+board.buckets.map(bucket=>`<li><span>${escapeHtml(bucket.label)}</span><strong>${fmtMoney(bucket.capital)}</strong><small>${escapeHtml(capitalTotal>0?portfolioShareText(Math.round(bucket.capital/capitalTotal*1000)/10):'0%')} · ${bucket.count} créditos</small></li>`).join('')+'</ul>'}</section><section class="portfolio-chart"><h3>Programado vs. cobrado por mes</h3>${months}<p class="portfolio-legend"><span class="is-scheduled">Programado</span><span class="is-collected">Cobrado</span></p><p class="portfolio-chart-note">Seis meses previos, el mes del corte resaltado y cinco meses siguientes. Un mes sin datos queda en la línea base.</p>${monthEmpty?'<p class="portfolio-empty">Sin cuotas ni cobros en esta ventana.</p>':''}</section></div>
-  <div class="portfolio-dashboard-split"><section class="portfolio-chart"><h3>Top clientes por saldo</h3>${table(['Cliente','Saldo','% de cartera'],clientRows,clientCards,'Sin clientes con saldo en esta consulta.')}</section><section class="portfolio-chart"><h3>Próximos vencimientos</h3><div class="portfolio-priority-list">${table(['Cliente','Fecha','En días','Monto'],dueRows,dueCards,'Sin vencimientos próximos en esta consulta.')}</div></section></div>
-  <section class="portfolio-chart portfolio-today"><h3>Cobranza al corte</h3><div class="portfolio-today-grid">${todayCards.map(([id,label,copy,count])=>`<button type="button" class="portfolio-today-card" data-collection="${id}"><span>${label}</span><strong>${count}</strong><small>${copy}</small></button>`).join('')}</div>${board.historical?'<p class="portfolio-chart-note">Los conteos son al corte. La bandeja de Cobranza que se abre sigue calculada al día de hoy: los contactos y acuerdos no se reconstruyen hacia atrás.</p>':''}</section>
-  <p class="portfolio-summary-note">Importes en MXN. Corte al ${escapeHtml(cutStamp)}, hora de Ciudad de México. El capital vigente y lo vencido no se suman entre sí.</p>`;
+  const dueRows=board.dues.map(row=>`<tr data-credit="${escapeAttr(row.credit.id)}"><td class="portfolio-sheet-client"><button class="portfolio-link" data-credit="${escapeAttr(row.credit.id)}" data-action="detail">${escapeHtml(row.credit.name)}</button><small>${escapeHtml(row.credit.code)}</small></td><td>${escapeHtml(portfolioFormatDate(row.date))}</td><td class="portfolio-number">${row.days===0?'Hoy':String(row.days)}</td><td class="portfolio-number">${fmtMoney(row.pending)}</td></tr>`).join('');
+  const dueCards=board.dues.map(row=>`<article class="portfolio-mobile-card portfolio-priority-item" data-credit="${escapeAttr(row.credit.id)}"><button class="portfolio-link" data-credit="${escapeAttr(row.credit.id)}" data-action="detail">${escapeHtml(row.credit.name)}</button>${portfolioCardValues([['Fecha',escapeHtml(portfolioFormatDate(row.date))],['En días',row.days===0?'Hoy':String(row.days)],['Monto',fmtMoney(row.pending)]])}</article>`).join('');
+  const todayCards=[['cobranza','alert','En cobranza (vencidos)',board.collections.cobranza],['vence_hoy','warn','Vence hoy',board.collections.vence_hoy],['precobranza','warn','Precobranza',board.collections.precobranza],['sin_accion','mute','Sin acción',board.collections.sin_accion]];
+  const sheet=(headers,widths,rows,cards,empty)=>`<div class="portfolio-sheet-wrap"><table class="portfolio-sheet"><colgroup>${widths.map(width=>`<col style="width:${width}">`).join('')}</colgroup><thead><tr>${headers.map((header,index)=>`<th scope="col"${index?' class="portfolio-number"':''}>${header}</th>`).join('')}</tr></thead><tbody>${rows||`<tr><td class="portfolio-empty" colspan="${headers.length}">${empty}</td></tr>`}</tbody></table></div><div class="portfolio-mobile-cards">${cards||`<p class="portfolio-empty">${empty}</p>`}</div>`;
+  return `${credits.length?'':'<p class="portfolio-empty">No hay créditos con esta búsqueda.</p>'}<div class="portfolio-sheet-dashboard">${cutBar}<div class="portfolio-kpis" data-dashboard="resumen">${kpis.map(([kind,accent,label,value])=>`<button class="portfolio-metric" data-drill="${kind}"${accent?` data-accent="${accent}"`:''}><span>${label}</span><strong>${value}</strong></button>`).join('')}</div>
+  <div class="portfolio-charts"><section class="portfolio-chart"><h3>Saldo de capital por días de atraso</h3>${aging}${agingEmpty?'<p class="portfolio-empty">Sin saldo de capital en esta consulta.</p>':''}</section><section class="portfolio-chart"><h3>Programado vs. cobrado por mes</h3>${months}<p class="portfolio-legend"><span class="is-scheduled">Programado</span><span class="is-collected">Cobrado</span></p></section></div>
+  <div class="portfolio-dashboard-split"><section class="portfolio-sheet-block"><h3>Top clientes por saldo</h3>${sheet(['Cliente','Saldo','% cartera'],['52%','24%','24%'],clientRows,clientCards,'Sin clientes con saldo en esta consulta.')}</section><section class="portfolio-sheet-block portfolio-priority-list"><h3>Próximos vencimientos</h3>${sheet(['Cliente','Fecha','En días','Monto'],['46%','22%','14%','18%'],dueRows,dueCards,'Sin vencimientos próximos en esta consulta.')}</section></div>
+  <section class="portfolio-today"><h3>Cobranza de hoy</h3><div class="portfolio-today-grid">${todayCards.map(([id,tone,label,count])=>`<button type="button" class="portfolio-today-card" data-collection="${id}" data-tone="${tone}"><span>${label}</span><strong>${count}</strong></button>`).join('')}</div></section>
+  <p class="portfolio-summary-note">Importes en MXN. Corte al ${escapeHtml(cutStamp)}. Los próximos vencimientos son las cuotas de los 30 días siguientes.</p></div>`;
 }
 function portfolioMovementDetails(m){return `<details><summary>Detalle del movimiento</summary><p>${escapeHtml(m.reversalOf?'Reverso':dispersionPaymentTypeLabel(m.paymentType))} · ${escapeHtml(m.method||'Sin método')}<br>Referencia: ${escapeHtml(m.reference||'Sin referencia')}<br>Usuario: ${escapeHtml(m.actor||'No registrado')}</p>${(m.allocations||[]).length?m.allocations.map(a=>`<small>${escapeHtml(a.rowId||'Crédito')} · ${escapeHtml(a.concept||'Sin concepto')}: ${fmtMoney(a.amount)}</small>`).join(''):'<small>Sin desglose histórico</small>'}</details><button class="portfolio-link" data-credit="${escapeAttr(m.credit.id)}" data-action="movements">Ver movimientos del crédito</button>`;}
 function portfolioNoteHtml(saved,creditId){const notes=saved.notes.filter(n=>n.creditId===creditId),note=notes.slice(-1)[0];return note?`${escapeHtml(note.note)}<small>${escapeHtml(note.actor)} · ${escapeHtml(note.createdAt.slice(0,10))}</small><small>${escapeHtml(note.nextAction||'Sin próxima acción')} ${escapeHtml(note.nextDate||'')}</small><details><summary>Historial de gestiones</summary>${notes.map(n=>`<small>${escapeHtml(n.createdAt.slice(0,10))} · ${escapeHtml(n.actor)}: ${escapeHtml(n.note)} · ${escapeHtml(n.nextAction||'')} ${escapeHtml(n.nextDate||'')}</small>`).join('')}</details>`:'Sin gestión registrada';}
@@ -581,7 +582,7 @@ function renderPortfolioBody(){
     const saved=portfolioReadNotes(),status=r=>{const late=r.pending>0&&r.date&&r.date<portfolioToday();return `<span class="pill portfolio-status ${r.pending<=0?'pill-green':late?'pill-amber':'pill-aqua'}">${escapeHtml(r.row.status||'Pendiente')}</span>${late?`<small>${Math.floor((new Date(portfolioToday()+'T12:00:00Z')-new Date(r.date+'T12:00:00Z'))/86400000)} días de atraso</small>`:''}`;},noteAction=r=>tab==='collections'&&can('manageCollections')&&can('notes')?`<button class="btn btn-sm btn-secondary" data-note="${escapeAttr(r.credit.id)}">Registrar gestión</button>`:'';
     target.innerHTML=(tab==='collections'?`<p>Vencimientos hasta hoy. Gestión interna; sin contacto automático.</p>${saved.ok?'':'<p class="portfolio-warning" role="alert">No se pudieron leer las notas locales. No se sobrescribirán.</p>'}`:'<p>Una fila por cuota. Se conserva la fecha original cuando existe una prórroga.</p>')+portfolioTable(['Cliente / crédito','Cuota','Fecha vigente / original',['Pendiente','portfolio-number'],'Estado',...(tab==='collections'?['Última gestión / próxima acción']:[]),'Acciones'],rows.map(r=>`<tr><td>${portfolioCreditCell(r.credit)}</td><td>${escapeHtml(String(r.row.number||r.id))}<small>${escapeHtml(r.row.type||'Cuota')}</small></td><td>${escapeHtml(r.date||'Sin fecha')}<small>Original: ${escapeHtml(r.original||'Sin fecha')}</small>${r.date!==r.original?'<small>Prórroga / fecha ajustada</small>':''}</td><td class="portfolio-number">${fmtMoney(r.pending)}</td><td>${status(r)}</td>${tab==='collections'?`<td class="portfolio-note">${portfolioNoteHtml(saved,r.credit.id)}</td>`:''}<td>${portfolioActionCell(r.credit,r.id)}${noteAction(r)}</td></tr>`),'cuotas',rows.map(r=>`<article class="portfolio-mobile-card"><div class="portfolio-card-head"><div>${portfolioCreditCell(r.credit)}</div><div>${status(r)}</div></div>${portfolioCardValues([['Cuota',escapeHtml(String(r.row.number||r.id))],['Pendiente',fmtMoney(r.pending)],['Vencimiento',escapeHtml(r.date||'Sin fecha')]])}<details><summary>Detalle de la cuota${tab==='collections'?' y gestión':''}</summary><p>${escapeHtml(r.row.type||'Cuota')}<br>Original: ${escapeHtml(r.original||'Sin fecha')}${r.date!==r.original?'<br>Prórroga / fecha ajustada':''}</p>${tab==='collections'?`<div class="portfolio-note">${portfolioNoteHtml(saved,r.credit.id)}</div>`:''}</details><div class="portfolio-card-actions">${portfolioActionCell(r.credit,r.id)}${noteAction(r)}</div></article>`));
   }
-  if(tab==='summary'){const cutInput=document.getElementById('portfolioCutDate'),cutMonth=document.getElementById('portfolioCutMonth');if(cutInput)cutInput.onchange=e=>portfolioSetCut(e.target.value);if(cutMonth)cutMonth.onchange=e=>portfolioSetCutMonth(e.target.value);}
+  if(tab==='summary'){const cutInput=document.getElementById('portfolioCutDate');if(cutInput)cutInput.onchange=e=>portfolioSetCut(e.target.value);}
   target.onclick=e=>{const b=e.target.closest('button');if(b){if(b.dataset.registerPayment){const id=$('#portfolioPaymentCredit').value;if(id)portfolioOpenCredit(id,'payment');else {toast('Selecciona un crédito para registrar el pago.');$('#portfolioPaymentCredit').focus();}}else if(b.dataset.cutPreset)portfolioSetCutPreset(b.dataset.cutPreset);else if(b.dataset.collection)portfolioOpenCollections(b.dataset.collection==='clear'?'':b.dataset.collection);else if(b.dataset.drill)portfolioDrill(b.dataset.drill);else if(b.dataset.rangeFrom)portfolioDrillRange(b.dataset.rangeFrom,b.dataset.rangeTo);else if(b.dataset.credit)portfolioOpenCredit(b.dataset.credit,b.dataset.action,b.dataset.row||'');else if(b.dataset.note)portfolioOpenNote(b.dataset.note);return;}const row=e.target.closest('[data-credit]');if(row)portfolioOpenCredit(row.dataset.credit,row.dataset.action||'detail',row.dataset.row||'');};
 }
 

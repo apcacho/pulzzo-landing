@@ -38,13 +38,13 @@ function engine(){
  return {run:code=>vm.runInContext(code,context),el};
 }
 let count=0;function test(name,fn){fn();count++;console.log('PASS: '+name);}
-test('Footer badge and VERSION.json say v43 demo local',()=>{
+test('Footer badge and VERSION.json say v44 demo local',()=>{
  const index=fs.readFileSync(path.join(root,'index.html'),'utf8');
  const version=JSON.parse(fs.readFileSync(path.join(root,'VERSION.json'),'utf8'));
- assert.match(index,/>v43 · demo local</);assert.match(html,/>v43 · demo local</);
+ assert.match(index,/>v44 · demo local</);assert.match(html,/>v44 · demo local</);
  assert.doesNotMatch(index,/revisión incompleta/);assert.doesNotMatch(html,/revisión incompleta/);
- assert.equal(version.version,'v43');assert.match(version.note,/v43 · demo local/);
- assert.equal(typeof version.files,'object');assert.ok(version.files['backoffice.html']);assert.equal(version.previous_version,'v42');
+ assert.equal(version.version,'v44');assert.match(version.note,/v44 · demo local/);
+ assert.equal(typeof version.files,'object');assert.ok(version.files['backoffice.html']);assert.equal(version.previous_version,'v43');
 });
 test('Dashboard math matches the cartera engine on the synthetic book',()=>{
  const r=runtime();
@@ -57,17 +57,17 @@ test('Dashboard math matches the cartera engine on the synthetic book',()=>{
  assert.equal(board.lateShare,40);assert.equal(board.active,2);
  assert.equal(r.run('roundToCents(portfolioDashboard(portfolioCredits()).buckets.reduce((s,b)=>s+b.capital,0))'),500);
  assert.equal(board.buckets.map(bucket=>bucket.label).join(','),'Al corriente,1-30,31-60,61-90,90+,Liquidado');
- assert.equal(board.months.length,12);assert.equal(board.months[6].month,'2026-10');assert.equal(board.months[6].current,true);
- assert.equal(board.months[0].month,'2026-04');assert.equal(board.months[11].month,'2027-03');
- assert.equal(board.months[6].collected,board.received);
- assert.equal(board.months.filter((month,index)=>index!==6).reduce((sum,month)=>sum+month.collected,0),0);
+ assert.equal(board.months.length,12);assert.equal(board.months[0].month,'2026-10');assert.equal(board.months[0].current,true);
+ assert.equal(board.months[11].month,'2027-09');
+ assert.equal(board.months[0].collected,board.received);
+ assert.equal(board.months.slice(1).reduce((sum,month)=>sum+month.collected,0),0);
  assert.equal(board.contractual.capital,board.principal);
  assert.equal(board.contractual.total,board.contractual.capital+board.contractual.interest);
  assert.equal(board.collections.cobranza+board.collections.vence_hoy+board.collections.precobranza+board.collections.sin_accion,board.active);
  assert.equal(board.disbursed,500);
  r.run("db.patients[0].paymentSchedule[1].interestPending=25;db.patients[0].payments.push({date:'2026-10-04',amountReceived:-110,totalApplied:-100,unappliedAmount:-10,reversalOf:'R-1'})");
  const after=JSON.parse(r.run('JSON.stringify(portfolioDashboard(portfolioCredits()))'));
- assert.equal(after.received,0);assert.equal(after.months[6].collected,0);
+ assert.equal(after.received,0);assert.equal(after.months[0].collected,0);
  assert.equal(after.contractual.interest,25);assert.equal(after.contractual.total,after.principal+25);
  assert.equal(after.contractual.capital,after.principal);
 });
@@ -75,12 +75,14 @@ test('Resumen renders the dashboard, keeps search, and opens a filtered Cobranza
  const r=runtime();r.run('renderPortfolio()');
  const shell=r.el('portfolio').innerHTML,rendered=r.el('portfolioContent').innerHTML;
  assert.match(shell,/id="portfolioSearch"/);
- for(const label of ['Cartera vigente','Monto dispersado neto','Vencido + moratorios','% de cartera con atraso','Cobrado en el mes','Por cobrar próximos 30 días','Flujo contractual pendiente','Créditos activos','Cobranza al corte','En cobranza','Vence hoy','Precobranza','Sin acción','Top clientes por saldo','Próximos vencimientos','Corte al 08/10/2026','Vista al día de hoy'])assert.match(rendered,new RegExp(label.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')));
+ for(const label of ['Cartera vigente','Monto dispersado neto','Vencido + moratorios','% de cartera con atraso','Cobrado en el mes','Por cobrar próximos 30 días','Flujo contractual pendiente','Créditos activos','Cobranza de hoy','En cobranza (vencidos)','Vence hoy','Precobranza','Sin acción','Top clientes por saldo','Próximos vencimientos','Corte al 08/10/2026','Vista al día de hoy'])assert.match(rendered,new RegExp(label.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')));
  assert.equal((rendered.match(/class="portfolio-metric"/g)||[]).length,8);
  assert.equal((rendered.match(/class="portfolio-today-card"/g)||[]).length,4);
  assert.match(rendered,/<svg[\s>]/);assert.doesNotMatch(rendered,/<script|chart\.js|cdn\.|googleapis/i);
  assert.match(rendered,/class="portfolio-grid"/);assert.match(rendered,/class="portfolio-axis"/);assert.match(rendered,/class="portfolio-tip"/);assert.match(rendered,/class="portfolio-month-current"/);
- assert.equal((rendered.match(/class="portfolio-svg-bar is-scheduled"/g)||[]).length,12);assert.equal((rendered.match(/class="portfolio-svg-bar is-collected"/g)||[]).length,12);
+ assert.match(rendered,/class="portfolio-svg-bar is-scheduled"/);assert.match(rendered,/class="portfolio-svg-bar is-collected"/);
+ assert.doesNotMatch(rendered,/type="month"|portfolio-chart-caption|Seis meses previos/);
+ assert.match(rendered,/20\/10\/2026/);assert.doesNotMatch(rendered,/2026-12-15|15\/12\/2026/);
  assert.match(rendered,/#20C7D4/);assert.match(rendered,/#16A34A/);assert.match(rendered,/#DC2626/);assert.match(rendered,/Liquidado/);
  assert.doesNotMatch(rendered,/#FF8A5B|#F9734A|#07142F|#07142f/);
  assert.match(rendered,/\$500|500\.00|MXN/);
@@ -127,7 +129,9 @@ test('A past cut excludes later payments and bucket capital still matches that d
  const past=JSON.parse(r.run('JSON.stringify(portfolioDashboard(portfolioCredits(),"2026-10-02"))'));
  assert.equal(past.historical,true);assert.equal(past.today,'2026-10-02');assert.equal(past.received,0);assert.equal(past.principal,500);
  assert.equal(r.run('roundToCents(portfolioDashboard(portfolioCredits(),"2026-10-02").buckets.reduce((s,b)=>s+b.capital,0))'),500);
- assert.equal(past.months[6].collected,0);
+ assert.equal(past.months[0].month,'2026-10');assert.equal(past.months[0].collected,0);
+ assert.ok(past.dues.every(row=>row.date>='2026-10-02'&&row.date<='2026-11-01'));
+ assert.ok(!past.dues.some(row=>row.date==='2026-10-01'));
  r.run("db.patients[0].paymentSchedule[0].status='Pagado';db.patients[0].paymentSchedule[0].paidAmount=100;db.patients[0].paymentSchedule[0].pendingAmount=0;db.patients[0].paymentSchedule[0].capitalPaid=80;db.patients[0].paymentSchedule[0].capitalPending=0");
  const labeled=JSON.parse(r.run('JSON.stringify(portfolioDashboard(portfolioCredits(),"2026-10-02"))'));
  assert.equal(r.run('roundToCents(portfolioDashboard(portfolioCredits(),"2026-10-02").buckets.reduce((s,b)=>s+b.capital,0))'),labeled.principal);
@@ -146,6 +150,30 @@ test('A past cut excludes later payments and bucket capital still matches that d
  assert.equal(r.run('portfolioState.cutDate'),'2026-09-30');
  assert.match(r.el('portfolioContent').innerHTML,/Corte al 30\/09\/2026/);
  assert.equal(r.run('JSON.stringify(db)'),before);
+});
+test('Cut date drops dues outside the next 30 days and payments booked after it',()=>{
+ const r=runtime();
+ r.run("db.patients[1].paymentSchedule.push({id:'far',number:'far',type:'Mensualidad ordinaria',dueDate:'2026-12-15',currentDueDate:'2026-12-15',capital:40,capitalPending:40,totalPayment:50,pendingAmount:50,status:'Pendiente'});db.patients[0].payments.push({receiptId:'R-LATER',date:'2026-11-02',amountReceived:40,totalApplied:40,unappliedAmount:0})");
+ const openBook=JSON.parse(r.run('JSON.stringify(portfolioMonthSeries(portfolioCredits(),"2026-11-15"))'));
+ assert.equal(openBook[0].month,'2026-11');
+ assert.equal(openBook.find(month=>month.month==='2026-11').collected,40);
+ const closedBook=JSON.parse(r.run('JSON.stringify(portfolioMonthSeries(portfolioCredits(),"2026-10-02"))'));
+ assert.equal(closedBook.find(month=>month.month==='2026-10').collected,0);
+ assert.equal(closedBook.find(month=>month.month==='2026-11').collected,0);
+ r.run("portfolioState.cutDate='2026-10-02'");
+ const past=JSON.parse(r.run('JSON.stringify(portfolioDashboard(portfolioCredits(),"2026-10-02"))'));
+ assert.equal(past.received,0);
+ assert.equal(past.months[0].month,'2026-10');
+ assert.equal(past.months[0].collected,0);
+ assert.equal(past.months.find(month=>month.month==='2026-11').collected,0);
+ assert.ok(past.dues.length>0);
+ assert.ok(past.dues.every(row=>row.date>='2026-10-02'&&row.date<='2026-11-01'));
+ assert.equal(past.dues.some(row=>row.date==='2026-12-15'||row.date<'2026-10-02'),false);
+ r.run('renderPortfolio()');
+ const view=r.el('portfolioContent').innerHTML;
+ assert.match(view,/20\/10\/2026/);
+ assert.doesNotMatch(view,/15\/12\/2026|2026-12-15|01\/10\/2026/);
+ assert.equal(r.run('db.patients[0].payments.length'),2);
 });
 test('Seeded cartera at a past cut drops later collections and keeps bucket capital equal',()=>{
  const r=engine();
