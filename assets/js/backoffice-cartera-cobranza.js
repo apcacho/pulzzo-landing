@@ -646,7 +646,11 @@ function carteraAgingHtml(credits){
 }
 function carteraCollectionsHtml(){
  const credits=(typeof portfolioCredits==='function'?portfolioCredits():[]).filter(credit=>typeof portfolioMatches!=='function'||portfolioMatches(credit)).filter(credit=>!credit.settled);
- const rows=credits.map(credit=>{
+ const focus=typeof portfolioState!=='undefined'&&portfolioState.collectionFocus||'';
+ const focusLabels={cobranza:'En cobranza',vence_hoy:'Vence hoy',precobranza:'Precobranza',sin_accion:'Sin acción'};
+ const listed=focus&&typeof portfolioCollectionBucket==='function'?credits.filter(credit=>portfolioCollectionBucket(credit)===focus):credits;
+ const banner=focus?`<p class="portfolio-summary-note">Bandeja de hoy: ${focusLabels[focus]||''}. <button type="button" class="portfolio-link" data-collection="clear">Ver toda la cobranza</button></p>`:'';
+ const rows=listed.map(credit=>{
   const stage=carteraCollectionStage(credit);
   const facts=carteraCreditFacts(credit);
   const agreement=carteraDeriveAgreement(credit.record);
@@ -655,7 +659,7 @@ function carteraCollectionsHtml(){
   const actions=stage.channel?`<button type="button" class="btn btn-sm btn-secondary" onclick="carteraOpenWhatsapp('${escapeAttr(credit.id)}')">WhatsApp</button><button type="button" class="btn btn-sm btn-secondary" onclick="carteraMarkWhatsapp('${escapeAttr(credit.id)}')">Marcar WhatsApp enviado</button><button type="button" class="btn btn-sm btn-secondary" onclick="carteraOpenMailPreview('${escapeAttr(credit.id)}')">Correo</button>`:'<span class="pill pill-gray">Sin mensaje automático</span>';
   return `<tr><td>${escapeHtml(credit.name)}<small>${escapeHtml(credit.code)}</small></td><td>${escapeHtml(stage.label)}</td><td>${facts.dpd}</td><td>${fmtMoney(stage.amount||facts.amount||0)}</td><td>${escapeHtml(facts.next&&facts.next.date||'—')}</td><td>${escapeHtml(facts.oldest&&facts.oldest.date||'—')}</td><td>${carteraPhoneActions(patient.phone)}</td><td>${carteraMailActions(patient.email)}</td><td>${sent?escapeHtml(sent.action+' · '+String(sent.at).slice(0,10)):'—'}</td><td>${escapeHtml(carteraAgreementLabel(agreement))}</td><td>${actions}<button type="button" class="btn btn-sm btn-primary" onclick="carteraOpenPayment('${escapeAttr(credit.id)}')">Aplicar pago</button><button type="button" class="btn btn-sm btn-secondary" onclick="carteraOpenAgreement('${escapeAttr(credit.id)}')">Acuerdo</button><button type="button" class="btn btn-sm btn-secondary" onclick="carteraOpenContact('${escapeAttr(credit.id)}')">Llamada</button></td></tr>`;
  }).join('');
- return carteraMailSummaryHtml(credits)+`<p>Una fila por crédito. Llamar usa el teléfono, el ícono abre WhatsApp sin plantilla y el correo abre el programa de correo. WhatsApp se marca con Marcar WhatsApp enviado. El correo automático queda como Enviado (demo). No hay envío real.</p><div class="table-wrap portfolio-desktop-table"><table class="portfolio-table"><thead><tr><th>Cliente</th><th>Etapa de hoy</th><th>Días de atraso</th><th>Monto a cobrar</th><th>Próximo vencimiento</th><th>Vencido más antiguo</th><th>Celular</th><th>Correo</th><th>Último recordatorio</th><th>Acuerdo</th><th>Acciones</th></tr></thead><tbody>${rows||'<tr><td colspan="11">Sin créditos en cartera.</td></tr>'}</tbody></table></div>`;
+ return carteraMailSummaryHtml(credits)+banner+`<p>Una fila por crédito. Llamar usa el teléfono, el ícono abre WhatsApp sin plantilla y el correo abre el programa de correo. WhatsApp se marca con Marcar WhatsApp enviado. El correo automático queda como Enviado (demo). No hay envío real.</p><div class="table-wrap portfolio-desktop-table"><table class="portfolio-table"><thead><tr><th>Cliente</th><th>Etapa de hoy</th><th>Días de atraso</th><th>Monto a cobrar</th><th>Próximo vencimiento</th><th>Vencido más antiguo</th><th>Celular</th><th>Correo</th><th>Último recordatorio</th><th>Acuerdo</th><th>Acciones</th></tr></thead><tbody>${rows||`<tr><td colspan="11">${focus?'Sin créditos en esta bandeja.':'Sin créditos en cartera.'}</td></tr>`}</tbody></table></div>`;
 }
 function carteraMailSummaryHtml(credits){
  const digest=carteraMailDigest(credits);

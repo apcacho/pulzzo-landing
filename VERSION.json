@@ -1,8 +1,8 @@
 {
-  "version": "v36-asistido-20261014",
-  "previous_version": "v35-consolidada-20261014",
-  "note": "files hashes below correspond to v35; v36 changes are listed in CAMBIOS-v36.md",
-  "status": "revision_incompleta",
+  "version": "v42",
+  "previous_version": "v36-asistido-20261014",
+  "note": "v42 · demo local. Cartera > Resumen es un tablero. Los hashes de files siguen el manifiesto histórico.",
+  "status": "demo_local",
   "runtime_source_commit": "f1833ecf73109794f19f01a2bafce4a989e2ccde",
   "runtime_deployment": "appgdep_6acf3ae21f088191a77d30b5cef1d4d1",
   "runtime_match": true,
