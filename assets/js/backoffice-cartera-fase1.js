@@ -520,7 +520,7 @@ dispersionExtensionEligibility=function(row,p){
 };
 const carteraOriginalExtensionSection=dispersionExtensionSectionHtml;
 dispersionExtensionSectionHtml=function(p,row){
- let html=carteraOriginalExtensionSection(p,row).replace('>Nota interna<','>Motivo (opcional)<');
+ let html=carteraOriginalExtensionSection(p,row).replace('>Nota interna<','>Motivo<').replace('id="extensionNote"','id="extensionNote" required');
  const eligibility=dispersionExtensionEligibility(row,p);
  if(eligibility.commissionPending>0)html=html.replace('</h4>','</h4><p class="extension-manage-note">Comisión pendiente '+fmtMoney(eligibility.commissionPending)+' + IVA '+fmtMoney(eligibility.commissionIva)+'.</p>');
  return html;
@@ -922,4 +922,122 @@ function carteraSeedDisbursedDemos(){
 try{carteraInjectCss();}catch(error){}
 try{carteraSeedDisbursedDemos();}catch(error){}
 Object.assign(globalThis,{carteraAllocateOldestFirst,carteraFindDuplicate,carteraCapitalPending,carteraOpenRows,carteraPreviewExtension,carteraApplyExtension,carteraPreviewPrepay,carteraApplyPrepay,carteraPreviewRestructure,carteraApplyRestructure,carteraPreviewOrdinary,carteraApplyOrdinary,carteraPanelHtml,carteraChoose,carteraChooseModality,carteraOpenFromPortfolio,carteraOpenProfile,carteraOpenProfileRow,carteraOpenPayment,carteraCanUseModal,carteraRegisterPayment,carteraCloseHost,carteraSeedDisbursedDemos,carteraRunPreview,carteraConfirmCurrent,carteraBuildDemoCredit});
+
+function v1Session(){
+ if(typeof session!=='undefined'&&session)return session;
+ if(typeof staffCurrentSession==='function')return staffCurrentSession();
+ return null;
+}
+if(typeof dispersionAuthorizeExtension==='function'&&!globalThis.__pulzzoV1Extension){
+ const v1OriginalExtension=dispersionAuthorizeExtension;
+ dispersionAuthorizeExtension=function(rowId,days,reason){
+  const field=document.getElementById&&document.getElementById('extensionNote');
+  const decision=globalThis.PulzzoV1&&PulzzoV1.extensionMotivo?PulzzoV1.extensionMotivo(reason,field&&field.value):{ok:String(reason==null?(field&&field.value||''):reason).trim().length>0,motivo:String(reason==null?(field&&field.value||''):reason).trim()};
+  if(!decision.ok){if(typeof toast==='function')toast('El motivo de la prórroga es obligatorio.');return false;}
+  return v1OriginalExtension(rowId,days,decision.motivo);
+ };
+ globalThis.__pulzzoV1Extension=true;
+}
+if(typeof sendOffer==='function'&&!globalThis.__pulzzoV1SendOffer){
+ const v1OriginalSendOffer=sendOffer;
+ sendOffer=function(id){
+  try{
+   const current=v1Session();
+   if(globalThis.PulzzoV1&&PulzzoV1.offerCapDecision&&globalThis.PulzzoStaffAccess&&current){
+    const p=(db.patients||[]).find(item=>item&&item.id===id);
+    const amount=p&&((p.offer&&p.offer.approvedAmount)||(p.application&&(p.application.approvedAmount||p.application.requestedAmount)));
+    const decision=PulzzoV1.offerCapDecision(current,amount,PulzzoStaffAccess.checkAmountApproval.bind(PulzzoStaffAccess));
+    if(decision&&decision.allowed===false){if(typeof toast==='function')toast(decision.reason||'El monto supera el tope de tu nivel. Escala a un administrador.');return false;}
+   }
+  }catch(ignore){}
+  return v1OriginalSendOffer(id);
+ };
+ globalThis.__pulzzoV1SendOffer=true;
+}
+if(typeof renderDispersionTab==='function'&&!globalThis.__pulzzoV1Phases){
+ const v1OriginalDispersion=renderDispersionTab;
+ renderDispersionTab=function(p){
+  let html=v1OriginalDispersion(p);
+  try{
+   if(globalThis.PulzzoV1&&typeof PulzzoV1.phasePanelHtml==='function'){
+    const panel=PulzzoV1.phasePanelHtml(p);
+    const marker='<section class="dispersion-block provider-dispersion-block">';
+    if(panel&&html.indexOf(marker)!==-1&&html.indexOf('v1-phases')===-1)html=html.replace(marker,panel+marker);
+   }
+  }catch(ignore){}
+  return html;
+ };
+ globalThis.__pulzzoV1Phases=true;
+}
+if(typeof providerTabContent==='function'&&!globalThis.__pulzzoV1ProviderLink){
+ const v1OriginalProviderTab=providerTabContent;
+ providerTabContent=function(p,linked){
+  let html=v1OriginalProviderTab(p,linked);
+  try{
+   const tab=typeof providerTab==='string'?providerTab:(/Nombre visible/.test(html)&&/Tipo cuenta/.test(html)?'resumen':'');
+   if(tab==='resumen'&&globalThis.PulzzoV1&&p&&html.indexOf('data-v1-referral')===-1){
+    const doctor={id:p.id,name:((p.profile&&p.profile.prefix)?p.profile.prefix+' ':'')+(p.profile&&p.profile.name||''),kamId:p.assignedKam||p.kamId||null};
+    const row=PulzzoV1.ensureDoctorReferral(typeof localStorage!=='undefined'?localStorage:null,doctor);
+    if(row){
+     const svg=PulzzoV1.qrSvg(row.url)||'';
+     html+='<section class="v1-referral" data-v1-referral="1"><h3>Enlace de referido</h3><p class="v1-note">Demostración en este navegador. Quien se registre con este enlace queda ligado a este doctor.</p><p><a href="'+PulzzoV1.esc(row.path)+'">'+PulzzoV1.esc(row.url)+'</a></p>'+(svg?'<div class="v1-qr">'+svg+'</div><button type="button" class="btn btn-secondary btn-sm" onclick="PulzzoV1.downloadDoctorQr(\''+PulzzoV1.esc(row.token)+'\')">Descargar QR</button>':'<p>Copia el enlace. El QR demo no cubre esta longitud.</p>')+'</section>';
+    }
+   }
+  }catch(ignore){}
+  return html;
+ };
+ globalThis.__pulzzoV1ProviderLink=true;
+}
+if(typeof renderNav==='function'&&!globalThis.__pulzzoV1Nav){
+ const v1OriginalNav=renderNav;
+ renderNav=function(){
+  v1OriginalNav();
+  try{
+   const nav=document.getElementById&&document.getElementById('nav');
+   if(!nav||!nav.appendChild||nav.querySelector&&nav.querySelector('[data-v1-alerts]'))return;
+   const count=globalThis.PulzzoV1&&PulzzoV1.alertCount?PulzzoV1.alertCount(typeof localStorage!=='undefined'?localStorage:null,v1Session()):0;
+   const button=document.createElement('button');
+   button.type='button';button.className='nav-alert';button.textContent='Avisos '+count;
+   if(button.dataset)button.dataset.v1Alerts='1';else button.setAttribute&&button.setAttribute('data-v1-alerts','1');
+   if(button.addEventListener)button.addEventListener('click',function(event){if(event&&event.stopPropagation)event.stopPropagation();if(typeof toast==='function')toast('Avisos demo: '+count+'. Abre el CRM para el detalle. No se envió ningún mensaje.');});
+   nav.appendChild(button);
+  }catch(ignore){}
+ };
+ globalThis.__pulzzoV1Nav=true;
+}
+if(typeof renderPatientDetail==='function'&&!globalThis.__pulzzoV1Badge){
+ const v1OriginalPatientDetail=renderPatientDetail;
+ renderPatientDetail=function(){
+  const result=v1OriginalPatientDetail.apply(this,arguments);
+  try{
+   if(globalThis.PulzzoV1&&PulzzoV1.paintPunctualBadge){
+    const patient=(typeof db!=='undefined'&&db.patients||[]).find(item=>item&&item.id===(typeof selectedPatientId!=='undefined'?selectedPatientId:''));
+    PulzzoV1.paintPunctualBadge(patient);
+   }
+  }catch(ignore){}
+  return result;
+ };
+ globalThis.__pulzzoV1Badge=true;
+}
+if(typeof renderOfferTab==='function'&&!globalThis.__pulzzoV1OfferRate){
+ const v1OriginalOfferTab=renderOfferTab;
+ renderOfferTab=function(p){
+  let html=v1OriginalOfferTab(p);
+  try{
+   if(globalThis.PulzzoV1&&PulzzoV1.LEGAL_NOTE&&p&&p.offer&&html.indexOf(PulzzoV1.LEGAL_NOTE)===-1)html+='<p class="v1-note">'+PulzzoV1.esc(PulzzoV1.LEGAL_NOTE)+'</p>';
+   if(globalThis.PulzzoV1&&typeof PulzzoV1.suggestedOfferRate==='function'){
+    const rate=PulzzoV1.suggestedOfferRate(p);
+    if(typeof rate==='number'&&Number.isFinite(rate)){
+     const shown=String(Math.round(rate*100)/100);
+     html=html.replace(/(id="offerAnnualInterestRate"[^>]*value=")[^"]*(")/,'$1'+shown+'$2');
+     html=html.replace('id="offerAnnualInterestRate"','id="offerAnnualInterestRate" data-v1-preferential="1"');
+     if(html.indexOf(PulzzoV1.NOTICE)===-1)html=html.replace('id="offerAnnualInterestRate" data-v1-preferential="1"','id="offerAnnualInterestRate" data-v1-preferential="1"');
+     html=html.replace(/(<input id="offerAnnualInterestRate"[^>]*>)/,'$1<p class="offer-help-text">Demo · '+PulzzoV1.esc(PulzzoV1.NOTICE)+'</p>');
+    }
+   }
+  }catch(ignore){}
+  return html;
+ };
+ globalThis.__pulzzoV1OfferRate=true;
+}
 }

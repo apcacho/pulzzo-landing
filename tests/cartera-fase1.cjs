@@ -178,7 +178,7 @@ test('Restructure A capitalizes recognized debt, B keeps mora aside, and portfol
  assert.equal(plain.run('!!p.application.restructured'),false);
 });
 
-test('Existing extension keeps motivo optional and shows pending commission plus IVA',()=>{
+test('Existing extension requires motivo and shows pending commission plus IVA',()=>{
  const r=runtime();dispersed(r,'2026-01-01');
  r.run(`var row=dispersionBuildSchedule(p).find(item=>dispersionExtensionEligibility(item,p).ok);row.commission=200;row.commissionPending=200;row.commissionPaid=0;session=testStaffSession('portfolio');var blocked=dispersionExtensionEligibility(row,p);`);
  assert.equal(r.run('blocked.ok'),false);
@@ -189,9 +189,10 @@ test('Existing extension keeps motivo optional and shows pending commission plus
  r.run(`session=testStaffSession('admin');var allowed=dispersionExtensionEligibility(row,p);var html=dispersionExtensionSectionHtml(p,row);`);
  assert.equal(r.run('allowed.ok'),true);
  assert.match(r.run('allowed.message'),/IVA/);
- assert.match(r.run('html'),/Motivo \(opcional\)/);
+ assert.match(r.run('html'),/>Motivo</);
+ assert.doesNotMatch(r.run('html'),/Motivo \(opcional\)/);
  assert.match(r.run('html'),/IVA/);
- assert.doesNotMatch(r.run('html'),/id="extensionNote"[^>]*required/);
+ assert.match(r.run('html'),/id="extensionNote"[^>]*required/);
 });
 
 test('Portfolio screen and payment drawer expose the fase 1 choices without radio controls',()=>{

@@ -31,7 +31,7 @@ for(const [file,originalScriptHash] of Object.entries(pages)){
  assert.equal(html.split(link).length-1,1,file+': one late semantic stylesheet');
  assert.ok(html.indexOf(link)>html.lastIndexOf('</style>'),file+': semantic colors follow legacy layout styles');
  // External central staff module adds no portal inline behavior. Preserve the prior inline hash.
- let scripts=[...html.replace('<script src="assets/js/staff-access.js"></script>','').replace('<script src="assets/js/native-registration.js"></script>','').matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)].map(match=>match[1]).join('\n');
+ let scripts=[...html.replace('<script src="assets/js/staff-access.js"></script>','').replace('<script src="assets/js/native-registration.js"></script>','').replace('<script src="assets/js/pulzzo-v1.js"></script>','').matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)].map(match=>match[1]).join('\n');
  scripts=require('./fixtures/restore-native-registration.cjs')(file,scripts);
  // Normalize only the reviewed shared-session branches; the unchanged organic
  // controller must still match the prior full script snapshot exactly.
