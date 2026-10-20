@@ -170,8 +170,26 @@ test('Credits, collections and the patient profile expose call, plain WhatsApp, 
  assert.match(collections,/Acciones de hoy/);
  assert.match(collections,/Pausados/);
  assert.match(collections,/Mora 31\+/);
+ assert.match(collections,/Vence hoy/);
+ assert.match(collections,/Reglas de envío automático/);
+ assert.match(collections,/Modo demo · no hay envío real/);
+ assert.match(collections,/Aplicar pago/);
+ assert.match(collections,/15\/11\/2026|20\/10\/2026|23\/10\/2026|30\/10\/2026|31\/10\/2026/);
+ assert.doesNotMatch(collections,/La corrida demo usa la hora|Una fila por crédito|cartera-mail-grid/);
  assert.doesNotMatch(collections,/type="radio"/);
  assert.doesNotMatch(collections,/border-left/);
+ r.run("carteraToggleDigest('mora')");
+ const mora=r.el('portfolioContent').innerHTML;
+ assert.match(mora,/Hugo Ramírez Beltrán/);
+ assert.match(mora,/aria-pressed="true"/);
+ assert.doesNotMatch(mora,/Inés Palacios Mora/);
+ r.run("carteraToggleDigest('vence_hoy')");
+ const due=r.el('portfolioContent').innerHTML;
+ assert.match(due,/Jorge Beltrán Osorio/);
+ assert.doesNotMatch(due,/Hugo Ramírez Beltrán/);
+ r.run("carteraToggleDigest('vence_hoy')");
+ assert.match(r.el('portfolioContent').innerHTML,/Inés Palacios Mora/);
+ assert.match(r.el('portfolioContent').innerHTML,/Hugo Ramírez Beltrán/);
 });
 test('Automatic demo mail follows the rules, pauses, dedupe and never leaves the browser',()=>{
  const r=runtime();
