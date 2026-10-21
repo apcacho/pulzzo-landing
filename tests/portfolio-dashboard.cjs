@@ -38,13 +38,13 @@ function engine(){
  return {run:code=>vm.runInContext(code,context),el};
 }
 let count=0;function test(name,fn){fn();count++;console.log('PASS: '+name);}
-test('Footer badge and VERSION.json say v52 demo local',()=>{
+test('Footer badge and VERSION.json say v53 demo local',()=>{
  const index=fs.readFileSync(path.join(root,'index.html'),'utf8');
  const version=JSON.parse(fs.readFileSync(path.join(root,'VERSION.json'),'utf8'));
- assert.match(index,/>v52 · demo local</);assert.match(html,/>v52 · demo local</);
+ assert.match(index,/>v53 · demo local</);assert.match(html,/>v53 · demo local</);
  assert.doesNotMatch(index,/revisión incompleta/);assert.doesNotMatch(html,/revisión incompleta/);
- assert.equal(version.version,'v52');assert.match(version.note,/v52 · demo local/);
- assert.equal(typeof version.files,'object');assert.ok(version.files['backoffice.html']);assert.equal(version.previous_version,'v51');
+ assert.equal(version.version,'v53');assert.match(version.note,/v53 · demo local/);
+ assert.equal(typeof version.files,'object');assert.ok(version.files['backoffice.html']);assert.equal(version.previous_version,'v52');
 });
 test('Cartera amounts always show two MXN decimals',()=>{
  const r=engine();
@@ -204,5 +204,31 @@ test('Seeded cartera at a past cut drops later collections and keeps bucket capi
  assert.ok(past.principal>live.principal,'unwound capital is higher before the seed payments');
  assert.equal(past.contractual.capital,past.principal);
  assert.equal(r.run('JSON.stringify(db)'),before);
+});
+test('Visible money, dates and signed status stay readable',()=>{
+ const r=engine();
+ assert.match(html,/minimumFractionDigits:2,maximumFractionDigits:2/);
+ assert.match(html,/formatLocalDateMX\(dashboardFilters\.from\)/);
+ assert.match(html,/contrato_firmado:'Contrato firmado'/);
+ assert.equal(r.run('fmtMoney(85000)'),'$85,000.00');
+ assert.equal(r.run('fmtMoney(136000)'),'$136,000.00');
+ assert.equal(r.run("formatLocalDateMX('2026-10-01')"),'01/10/2026');
+ assert.equal(r.run("formatOperationalStatus('contrato_firmado')"),'Contrato firmado');
+ assert.equal(r.run("formatOperationalStatus('firmada')"),'Contrato firmado');
+ assert.match(r.run("statusPill('contrato_firmado')"),/Contrato firmado/);
+ assert.doesNotMatch(r.run("statusPill('contrato_firmado')"),/Estado no definido/);
+ const note=r.run("portfolioNoteHtml({notes:[{creditId:'CR',note:'Llamada',actor:'Ana',createdAt:'2026-10-07T15:00:00.000Z',nextAction:'Volver a llamar',nextDate:'2026-10-09'}]},'CR')");
+ assert.match(note,/07\/10\/2026/);
+ assert.match(note,/09\/10\/2026/);
+ assert.doesNotMatch(note,/2026-10-07|2026-10-09/);
+ assert.equal(r.run("carteraVisibleStamp('2026-10-07T15:00:00.000Z')"),'07/10/2026');
+ assert.equal(r.run("carteraVisibleStamp('')"),'');
+ const workspace=r.run("carteraCreditWorkspaceHtml(db.patients.find(item=>item.id==='APP-CARTERA-1106'))");
+ assert.match(workspace,/Historial de contacto/);
+ assert.doesNotMatch(workspace,/Historial de contacto[\s\S]*\d{4}-\d{2}-\d{2}/);
+ const solicitud=fs.readFileSync(path.join(root,'solicitud-paciente.html'),'utf8');
+ assert.match(solicitud,/function money\(n\)\{return Number\(n\|\|0\)\.toLocaleString\('es-MX',\{style:'currency',currency:'MXN',minimumFractionDigits:2,maximumFractionDigits:2\}\)\}/);
+ const limits=fs.readFileSync(path.join(root,'assets/js/backoffice-configuration.js'),'utf8');
+ assert.match(limits,/money=v=>'\$'\+Number\(v\)\.toLocaleString\('es-MX',\{minimumFractionDigits:2,maximumFractionDigits:2\}\)\+' MXN'/);
 });
 console.log('PASS: '+count+' portfolio dashboard suites.');

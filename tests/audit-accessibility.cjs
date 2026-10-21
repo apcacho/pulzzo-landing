@@ -30,7 +30,7 @@ run(fs.readFileSync(path.join(root,'assets/js/backoffice-portfolio-payment.js'),
 for(const [id,value] of Object.entries({Amount:'',Date:'2026-10-08',Type:'early_liquidation',Reference:'',Method:'SPEI',Target:'auto'}))el('portfolioPayment'+id).value=value;
 el('portfolioPaymentSave');el('portfolioPaymentPreview');el('portfolioPaymentSettlementQuote');
 run("portfolioPaymentSession={creditId:'A',quote:{calculationDate:'2026-10-08',total:12345.67}};portfolioPaymentIsCurrent=()=>true;portfolioPaymentCredit=()=>({});dispersionPaymentTypeCopy=()=>'';portfolioPaymentRefresh();");
-assert.match(el('portfolioPaymentSettlementQuote').textContent,/12,345.67/);assert.match(el('portfolioPaymentSettlementQuote').textContent,/2026-10-08/);assert.equal(el('portfolioPaymentAmount').value,'');assert.equal(el('portfolioPaymentSave').disabled,true);
+assert.match(el('portfolioPaymentSettlementQuote').textContent,/12,345.67/);assert.match(el('portfolioPaymentSettlementQuote').textContent,/08\/10\/2026/);assert.equal(el('portfolioPaymentAmount').value,'');assert.equal(el('portfolioPaymentSave').disabled,true);
 el('portfolioPaymentDate').value='2026-10-07';run('portfolioPaymentRefresh()');assert.equal(el('portfolioPaymentSettlementQuote').textContent,'');
 console.log('PASS: settlement quote is visible without a received amount and invalidates on date change');
 const config=fs.readFileSync(path.join(root,'assets/js/backoffice-configuration.js'),'utf8');assert.match(config,/id="cfg-tab-\$\{id\}"/);assert.match(config,/getElementById\('cfg-tab-'\+tab\)\?\.focus/);assert.match(config,/id="cfg-message" tabindex="-1"/);

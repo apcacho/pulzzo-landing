@@ -2271,7 +2271,7 @@ const doctorDirectory=[
   {id:'dr-5',displayName:'Dr. Roberto Salinas',providerType:'Doctor independiente',state:'Nuevo León',municipality:'Monterrey',city:'Nuevo León',specialties:['ortopedia'],services:'Ortopedia y traumatología',visibleContactType:'Celular registrado',visibleContactValue:'81 2345 6789'}
 ];
 
-function money(n){return Number(n||0).toLocaleString('es-MX',{style:'currency',currency:'MXN',minimumFractionDigits:0,maximumFractionDigits:2})}
+function money(n){return Number(n||0).toLocaleString('es-MX',{style:'currency',currency:'MXN',minimumFractionDigits:2,maximumFractionDigits:2})}
 function parseMoney(value){
   if(typeof value==='number') return Number.isFinite(value)?value:0;
   const raw=String(value??'').trim().replace(/^MXN\s*/i,'').replace(/^\$\s*/,'').replace(/\s*MXN$/i,'').trim();

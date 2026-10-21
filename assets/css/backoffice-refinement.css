@@ -364,6 +364,15 @@ body.backoffice-typography:has(:is(#providers,#providerRequests).active) .modal:
  body.backoffice-typography #carteraFase1Launch.cartera-fase1>.btn{
   width:auto!important;height:36px!important;min-height:36px!important;padding:0 14px!important;white-space:nowrap!important;flex:0 0 auto!important;
  }
+ /* Tab labels stay whole words. The shared control rule wraps anywhere, so a
+    crowded bar was splitting Resumen, Documentos, Buró and Historial. Bars scroll. */
+ body.backoffice-typography :is(.tabs,.patient-detail-tabs,.patient-profile-tabbar,.portfolio-tabs,.dispersion-inner-tabs,.bureau-dashboard-tabs,.workflow-tabs,.cfg-sub-tabs,.cfg-main-tabs,.period-tabs){
+  flex-wrap:nowrap!important;overflow-x:auto!important;overflow-y:hidden!important;max-width:100%!important;
+ }
+ body.backoffice-typography :is(.tabs,.patient-detail-tabs,.patient-profile-tabbar,.portfolio-tabs,.dispersion-inner-tabs,.bureau-dashboard-tabs,.workflow-tabs,.cfg-sub-tabs,.cfg-main-tabs,.period-tabs) :is(.tab,button,.period-btn,[role="tab"]){
+  flex:0 0 auto!important;width:auto!important;max-width:none!important;
+  white-space:nowrap!important;overflow-wrap:normal!important;word-break:normal!important;
+ }
 }
 
 /* The shared focus ring lives in the first layer, so only a later rule in that

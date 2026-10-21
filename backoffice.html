@@ -4041,7 +4041,7 @@
 <script src="assets/js/staff-access.js"></script>
 <script>
 const $=(s,r=document)=>r.querySelector(s); const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
-const fmtMoney=n=>Number(n||0).toLocaleString('es-MX',{style:'currency',currency:'MXN',minimumFractionDigits:0,maximumFractionDigits:2});
+const fmtMoney=n=>Number(n||0).toLocaleString('es-MX',{style:'currency',currency:'MXN',minimumFractionDigits:2,maximumFractionDigits:2});
 const today=()=>toLocalISODate(new Date()); const now=()=>new Date().toLocaleString('es-MX',{dateStyle:'medium',timeStyle:'short'});
 // The central local-demo directory owns identities, role templates and sessions.
 const staffAccess=window.PulzzoStaffAccess;
@@ -4353,7 +4353,7 @@ const OPERATIONAL_STATUS_LABELS={
   rechazada:'Rechazada',offer_rejected_by_client:'Oferta rechazada por cliente',client_rejected_offer:'Oferta rechazada por cliente',client_rejected:'Oferta rechazada por cliente',offerrejectedbyclient:'Oferta rechazada por cliente',cliente_rechazo_oferta:'Oferta rechazada por cliente',rechazada_por_cliente:'Oferta rechazada por cliente',
   rejected_can_reapply:'No aprobada por Pulzzo',rejectedcanreapply:'No aprobada por Pulzzo',can_reapply:'No aprobada por Pulzzo',pulzzo_rejected_reapply:'No aprobada por Pulzzo',rechazo_pulzzo_con_reaplicar:'No aprobada por Pulzzo',rechazado_con_reaplicacion:'No aprobada por Pulzzo',rechazada_por_pulzzo:'No aprobada por Pulzzo',
   rejected_blocked:'No aprobada definitivamente',rejectedblocked:'No aprobada definitivamente',blocked:'No aprobada definitivamente',definitive_rejection:'No aprobada definitivamente',pulzzo_rejected_blocked:'No aprobada definitivamente',rechazo_bloqueado:'No aprobada definitivamente',rechazo_pulzzo_bloqueado:'No aprobada definitivamente',
-  contract_pending:'Firma pendiente',signature_pending:'Firma pendiente',contract_pending_signature:'Firma pendiente',contract_signed:'Contrato firmado',signed:'Contrato firmado',
+  contract_pending:'Firma pendiente',signature_pending:'Firma pendiente',contract_pending_signature:'Firma pendiente',contract_signed:'Contrato firmado',contrato_firmado:'Contrato firmado',signed:'Contrato firmado',firmado:'Contrato firmado',firmada:'Contrato firmado',
   disbursement_pending:'Dispersión pendiente',disbursement_review:'Dispersión en revisión',disbursed:'Dispersada',
   active:'En curso',closed:'Cerrada',cancelled:'Cancelada',locked:'Bloqueado',pending:'Pendiente',pendiente:'Pendiente',rejected:'Rechazado',rechazado:'Rechazado',
   perfil_en_revision:'Perfil en revisión',fiscal_banco_pendiente:'Fiscal y banco pendiente',correccion_requerida:'Corrección requerida',correction_required:'Corrección requerida',perfil_incompleto:'Perfil incompleto'
@@ -4959,7 +4959,7 @@ function openDashboardSlaModal(type){
     <div><strong>${r.title}</strong><span class="sla-modal-meta">${r.stage} · Responsable: ${r.owner} · ${r.hours}h ${r.suffix}</span></div>
     <button class="btn btn-sm btn-secondary" onclick="openDashboardRecord('patient','${r.id}')">Ver paciente</button>
   </div>`).join('')}</div>`:`<div class="dashboard-empty">${empty}</div>`;
-  modal(`<div class="modal-head"><div><h3>${title}</h3><p>Periodo: ${dashboardFilters.from} a ${dashboardFilters.visibleTo||dashboardFilters.to}</p></div><button class="x" onclick="closeModal()">×</button></div><div class="modal-body">${body}</div><div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal()">Cerrar</button></div>`);
+  modal(`<div class="modal-head"><div><h3>${title}</h3><p>Periodo: ${formatLocalDateMX(dashboardFilters.from)} a ${formatLocalDateMX(dashboardFilters.visibleTo||dashboardFilters.to)}</p></div><button class="x" onclick="closeModal()">×</button></div><div class="modal-body">${body}</div><div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal()">Cerrar</button></div>`);
 }
 
 function renderDashboardInsights(patients){
@@ -5042,7 +5042,7 @@ function renderDashboard(){
             ['today','Hoy'],['week','Semana'],['month','Mes'],['year','Año'],['custom','Personalizado']
           ].map(x=>`<button class="period-btn ${dashboardFilters.period===x[0]?'active':''}" type="button" onclick="setDashboardPeriod('${x[0]}')">${x[1]}</button>`).join('')}
         </div>
-        <div class="dashboard-period-note">Fechas de Ciudad de México. Registros sin fecha quedan fuera del periodo. Periodo seleccionado: ${periodLabels[dashboardFilters.period]||'Personalizado'} · ${dashboardFilters.from} a ${dashboardFilters.visibleTo||dashboardLastVisibleDay(dashboardFilters.to)}</div>
+        <div class="dashboard-period-note">Fechas de Ciudad de México. Registros sin fecha quedan fuera del periodo. Periodo seleccionado: ${periodLabels[dashboardFilters.period]||'Personalizado'} · ${formatLocalDateMX(dashboardFilters.from)} a ${formatLocalDateMX(dashboardFilters.visibleTo||dashboardLastVisibleDay(dashboardFilters.to))}</div>
       </div>
       <div class="dashboard-filter-right">
         <div class="dashboard-filter-field"><label>Desde</label><input type="date" value="${dashboardFilters.from}" onchange="updateDashboardDate('from',this.value)"></div>
@@ -12974,5 +12974,5 @@ document.addEventListener('DOMContentLoaded',()=>{
   try{session=staffAccess?.getSession()||null;if(session){$('#loginView').classList.add('hidden');$('#appView').classList.remove('hidden');initApp();}}catch(error){session=null;staffShowLoggedOut();}
 });
 </script>
-<aside aria-label="Estado de revisión" style="position:fixed;bottom:6px;right:8px;z-index:2147483647;background:#fff;color:#334155;border:1px solid #cbd5e1;border-radius:6px;padding:4px 8px;font:11px system-ui;pointer-events:none">v52 · demo local</aside></body>
+<aside aria-label="Estado de revisión" style="position:fixed;bottom:6px;right:8px;z-index:2147483647;background:#fff;color:#334155;border:1px solid #cbd5e1;border-radius:6px;padding:4px 8px;font:11px system-ui;pointer-events:none">v53 · demo local</aside></body>
 </html>
