@@ -1,7 +1,7 @@
 {
-  "version": "v47",
-  "previous_version": "v46",
-  "note": "v47 · demo local. Cobranza filtra por próximo vencimiento, etapa y días de atraso, y las fichas de hoy no cambian con los filtros. Los hashes de files siguen el manifiesto histórico.",
+  "version": "v48",
+  "previous_version": "v47",
+  "note": "v48 · demo local. Campañas de correo en Cobranza y CRM, con consentimiento y WhatsApp uno por uno. Los hashes de files siguen el manifiesto histórico.",
   "status": "demo_local",
   "runtime_source_commit": "f1833ecf73109794f19f01a2bafce4a989e2ccde",
   "runtime_deployment": "appgdep_6acf3ae21f088191a77d30b5cef1d4d1",

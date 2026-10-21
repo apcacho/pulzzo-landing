@@ -38,13 +38,13 @@ function engine(){
  return {run:code=>vm.runInContext(code,context),el};
 }
 let count=0;function test(name,fn){fn();count++;console.log('PASS: '+name);}
-test('Footer badge and VERSION.json say v47 demo local',()=>{
+test('Footer badge and VERSION.json say v48 demo local',()=>{
  const index=fs.readFileSync(path.join(root,'index.html'),'utf8');
  const version=JSON.parse(fs.readFileSync(path.join(root,'VERSION.json'),'utf8'));
- assert.match(index,/>v47 · demo local</);assert.match(html,/>v47 · demo local</);
+ assert.match(index,/>v48 · demo local</);assert.match(html,/>v48 · demo local</);
  assert.doesNotMatch(index,/revisión incompleta/);assert.doesNotMatch(html,/revisión incompleta/);
- assert.equal(version.version,'v47');assert.match(version.note,/v47 · demo local/);
- assert.equal(typeof version.files,'object');assert.ok(version.files['backoffice.html']);assert.equal(version.previous_version,'v46');
+ assert.equal(version.version,'v48');assert.match(version.note,/v48 · demo local/);
+ assert.equal(typeof version.files,'object');assert.ok(version.files['backoffice.html']);assert.equal(version.previous_version,'v47');
 });
 test('Cartera amounts always show two MXN decimals',()=>{
  const r=engine();
