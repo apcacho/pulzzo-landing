@@ -82,6 +82,13 @@ for(const selector of ['#portfolio :is(input,select,textarea)','#settings :is(in
 for(const selector of ['#portfolio .portfolio-tabs button','#portfolio .portfolio-filter-chip','#portfolio .portfolio-link','#settings .cfg-check','#settings summary']){
  assert.ok(has(selector,'min-height','44px','pointer:coarse'),`${selector} keeps a coarse-pointer target`);
 }
+assert.ok(has('.patient-request-detail-view #patientTabBody','padding-top','24px'),'Expediente tabs leave 24px under the tab bar');
+assert.ok(has('#carteraFase1Launch.cartera-fase1','padding','22px 24px'),'Aplicar pago keeps roomy card padding');
+assert.ok(has('#carteraFase1Launch.cartera-fase1','column-gap','16px'),'Aplicar pago keeps the button 16px from the copy');
+assert.ok(has('#carteraFase1Launch.cartera-fase1','margin','0 0 16px'),'The historical note sits 16px under Aplicar pago');
+assert.ok(has('.dispersion-payments-section>.financial-breakdown-note','padding','14px 16px'));
+assert.ok(has('.dispersion-payments-section>.financial-breakdown-note','background','#FFFBEB'));
+assert.match(css,/dispersion-payments-section>\.financial-breakdown-note::before/);
 assert.match(css,/prefers-reduced-motion:reduce/);
 assert.match(css,/forced-colors:active/);
 assert.doesNotMatch(css,/(?:^|[}\s,])(?:\.sidebar|\.nav-btn|\.login|#login|\.auth)[^{]*\{/,'No unrelated navigation or auth styling');

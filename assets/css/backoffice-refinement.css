@@ -361,6 +361,9 @@ body.backoffice-typography:has(:is(#providers,#providerRequests).active) .modal:
  body.backoffice-typography .v1-phases .v1-phase-footer>.btn{
   flex:0 0 auto!important;width:auto!important;height:34px!important;min-height:34px!important;padding:0 12px!important;white-space:nowrap!important;
  }
+ body.backoffice-typography #carteraFase1Launch.cartera-fase1>.btn{
+  width:auto!important;height:36px!important;min-height:36px!important;padding:0 14px!important;white-space:nowrap!important;flex:0 0 auto!important;
+ }
 }
 
 /* The shared focus ring lives in the first layer, so only a later rule in that

@@ -1128,24 +1128,27 @@ body.portfolio-payment-open{overflow:hidden;overscroll-behavior:none}
 .dispersion-payments-section .summary-dispersion-block .dispersion-demo-switch,
 .dispersion-payments-section .provider-dispersion-block .dispersion-card,
 .dispersion-payments-section .v1-phases{
- border:0;
+ border:1px solid #E2E8F0;
  border-radius:12px;
  background:#fff;
  box-shadow:0 1px 3px rgba(7,20,47,.06), 0 1px 2px rgba(7,20,47,.04);
 }
+.dispersion-payments-section .summary-category-grid-dispersion .dispersion-mini-card{padding:12px 14px;min-height:0}
 .dispersion-payments-section .summary-single-card,
-.dispersion-payments-section .summary-category-grid-dispersion .dispersion-mini-card,
 .dispersion-payments-section .summary-dispersion-block .dispersion-demo-switch,
 .dispersion-payments-section .provider-dispersion-block .dispersion-card,
-.dispersion-payments-section .v1-phases{padding:16px 18px}
-.dispersion-payments-section .summary-category-grid-dispersion .dispersion-mini-card{min-height:0}
+.dispersion-payments-section .v1-phases{padding:22px 24px}
 .dispersion-payments-section .summary-dispersion-block .dispersion-demo-actions button,
 .dispersion-payments-section .provider-dispersion-block :is(.btn,button,input,select,textarea),
 .dispersion-payments-section .v1-phases :is(.btn,input,select,textarea){border-radius:8px}
-.dispersion-payments-section .provider-dispersion-block{border-top:0;padding-top:0;gap:16px}
-.dispersion-payments-section .v1-phases{margin-top:16px;gap:12px;border-top:0;padding-top:16px}
+.dispersion-payments-section{gap:20px}
+.dispersion-payments-section .dispersion-subtab-panel.active{gap:20px}
+.dispersion-payments-section .summary-dispersion-block,
+.dispersion-payments-section .provider-dispersion-block{margin:0;border-top:0;padding-top:0;gap:20px}
+.dispersion-payments-section .provider-dispersion-block .dispersion-stack{gap:20px}
+.dispersion-payments-section .v1-phases{margin:0;gap:16px}
 .dispersion-payments-section .provider-dispersion-block .dispersion-condition-row{min-height:0;padding:10px 12px;border:0;border-radius:8px;background:#F8FAFC}
-.dispersion-payments-section .provider-dispersion-block .dispersion-condition-note{border:0;border-radius:8px;background:#F8FAFC;margin-top:12px}
+.dispersion-payments-section .provider-dispersion-block .dispersion-condition-note{border:0;border-radius:8px;background:#F8FAFC;margin-top:16px}
 .v1-phases .dispersion-block-head{display:block}
 .v1-phases .v1-phase-heading{min-width:0}
 .v1-phases .v1-phase-title{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
@@ -1214,13 +1217,61 @@ body.portfolio-payment-open{overflow:hidden;overscroll-behavior:none}
  background-repeat:no-repeat!important;background-position:center!important;background-size:12px 12px!important;
 }
 .v1-phases input[type="checkbox"]:focus{outline:2px solid #20C7D4!important;outline-offset:1px!important;box-shadow:none!important}
-#carteraFase1Launch.cartera-fase1,
-.dispersion-payments-section>.financial-breakdown-note{
- border:0;
+/* v52 · room under the expediente tabs, and the same card padding on every tab. */
+.patient-request-detail-view #patientTabBody{padding-top:24px}
+.patient-request-detail-view #patientTabBody :is(.patient-profile-card,.patient-detail-section,.patient-section-card,.patient-offer-section,.internal-notes-card){padding:22px 24px}
+.patient-request-detail-view #patientTabBody .internal-notes-card{margin-top:0}
+.patient-request-detail-view #patientTabBody > .patient-offer-section{margin:0}
+.patient-request-detail-view #patientTabBody > .patient-offer-section + .patient-offer-section,
+.patient-request-detail-view #patientTabBody > .v1-note{margin-top:20px}
+.patient-request-detail-view #patientTabBody :is(.patient-profile-shell,.patient-offer-config,.patient-profile-tab){display:grid;gap:20px}
+.patient-request-detail-view #patientTabBody .patient-detail-section,
+.patient-request-detail-view #patientTabBody .patient-personal-toolbar{margin-bottom:0}
+.patient-request-detail-view #patientTabBody .activity-list{gap:16px}
+.patient-request-detail-view #patientTabBody .activity-item{padding:16px 18px}
+#carteraFase1Launch.cartera-fase1{
+ display:grid;
+ grid-template-columns:minmax(0,1fr) auto;
+ column-gap:16px;
+ row-gap:4px;
+ align-items:center;
+ margin:0 0 16px;
+ padding:22px 24px;
+ border:1px solid #E2E8F0;
  border-radius:12px;
  background:#fff;
  box-shadow:0 1px 3px rgba(7,20,47,.06), 0 1px 2px rgba(7,20,47,.04);
- padding:16px 18px;
 }
-#carteraFase1Launch.cartera-fase1 :is(.btn,button){width:auto;border-radius:8px}
-.dispersion-payments-section>.financial-breakdown-note{margin:0}
+#carteraFase1Launch.cartera-fase1 h4{grid-column:1;grid-row:1;margin:0}
+#carteraFase1Launch.cartera-fase1 p{grid-column:1;grid-row:2;margin:0;color:#64748B}
+#carteraFase1Launch.cartera-fase1>.btn{grid-column:2;grid-row:1 / span 2;align-self:center;justify-self:end;width:auto;border-radius:8px}
+.dispersion-payments-section>.financial-breakdown-note{
+ display:flex;
+ align-items:flex-start;
+ gap:10px;
+ margin:0;
+ padding:14px 16px;
+ border:0;
+ border-radius:10px;
+ background:#FFFBEB;
+ color:#92400E;
+ box-shadow:none;
+ font-size:13px;
+ line-height:1.45;
+}
+.dispersion-payments-section>.financial-breakdown-note::before{
+ content:"";
+ flex:0 0 16px;
+ width:16px;
+ height:16px;
+ margin-top:2px;
+ background-color:transparent;
+ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6.25' fill='none' stroke='%23D97706' stroke-width='1.4'/%3E%3Cpath d='M8 7.2V11.2' fill='none' stroke='%23D97706' stroke-width='1.4' stroke-linecap='round'/%3E%3Ccircle cx='8' cy='5.1' r='.8' fill='%23D97706'/%3E%3C/svg%3E");
+ background-repeat:no-repeat;
+ background-position:center;
+ background-size:16px 16px;
+}
+@media(max-width:720px){
+ #carteraFase1Launch.cartera-fase1{grid-template-columns:minmax(0,1fr)}
+ #carteraFase1Launch.cartera-fase1>.btn{grid-column:1;grid-row:3;justify-self:start;margin-top:12px}
+}
