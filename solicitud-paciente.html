@@ -8073,6 +8073,7 @@ button[data-stage-action="view-contract-document"]:not(:disabled):active{
 <script>if(!isSharedPatientCapture())window.PulzzoPatientDemoBridge={getState:()=>{assertApplicationFresh();return state;},getAccount:()=>{assertApplicationFresh();return patientFromStorage;},assertFresh:()=>assertApplicationFresh(),save:options=>saveState(options),getCorrectionSnapshot:()=>PulzzoPatientDemo.patientSnapshot(state),refresh:()=>{renderPortal();renderPatientCorrectionEditor();syncPatientSubmissionLock();}};</script>
 <script src="assets/pulzzo-demo-bridge.js"></script>
 <script src="assets/js/demo-servicing.js"></script>
+<script src="assets/js/pulzzo-v1.js"></script>
 <script>
 document.addEventListener('click',event=>{
   if(!PulzzoPatientDemo.patientSubmitted(state))return;

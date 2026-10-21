@@ -122,7 +122,7 @@
     if (!storage && root) { try { storage = root.localStorage; } catch (_) {} }
     if (!storage || typeof storage.getItem !== 'function' || typeof storage.setItem !== 'function') fail('storage_unavailable', 'El almacenamiento local no está disponible.');
     const actor = Object.freeze(clone(options.actor || {}));
-    const staffAccess=(root&&root.PulzzoStaffAccess)||options.staffAccess,centralStaff=!!staffAccess&&actor.role!=='holder';
+    const staffAccess=options.staffAccess===null?null:((root&&root.PulzzoStaffAccess)||options.staffAccess),centralStaff=!!staffAccess&&actor.role!=='holder';
     const staffSession=centralStaff?(options.staffSession||staffAccess.getSession()):null;
     const staffContext=centralStaff?staffAccess.crmContext(staffSession):null;
     function assertStaff(){if(centralStaff&&(!staffContext||!staffContext.isCurrent()||!staffContext.actor||staffContext.actor.id!==actor.id||staffContext.actor.role!==actor.role||staffContext.scope==='none'))fail('forbidden','La sesión del directorio cambió o no permite acceder al CRM.');}
@@ -301,8 +301,16 @@
       const email = normalizeEmail(input.email), phone = normalizePhone(input.phone);
       if (!email || !validEmail(email) || !phone || !/^\d{7,15}$/.test(phone)) fail('invalid_contact', 'Correo y teléfono son obligatorios: captura un correo válido y un teléfono de 7 a 15 dígitos.');
       let originalSource = input.originalSource || (actor.role === 'holder' ? 'unknown' : 'manual');
-      let referringKam = null;
+      let referringKam = null, doctorLink = null;
       if (input.referralToken) { const ref = referralFor(draft, input.referralToken, type); originalSource = 'kam_referral'; referringKam = ref.kamId; }
+      else if (input.doctorReferralToken) {
+        try {
+          const resolver = options && options.resolveDoctorReferral || (root && root.PulzzoV1 && root.PulzzoV1.resolveDoctorReferral);
+          doctorLink = typeof resolver === 'function' ? resolver(String(input.doctorReferralToken), storage) : null;
+        } catch (ignore) { doctorLink = null; }
+        if (doctorLink && doctorLink.doctorId) { originalSource = 'doctor_referral'; referringKam = null; }
+        else doctorLink = null;
+      }
       else if (['referral', 'kam_referral'].includes(originalSource) || input.referringKam) fail('invalid_referral', 'El origen referido requiere un token DEMO válido.');
       if (!SOURCES.includes(originalSource)) fail('invalid_source', 'El origen del contacto no es válido.');
       // v36c: same person enabled for the other type from its CRM ficha → new record linked to it, never a merged identity.
@@ -313,6 +321,7 @@
       if(centralStaff&&staffContext.writeScope==='own'&&!eligibleKamIds().includes(actor.id)&&!(staffSession.roles||[]).includes('admin'))fail('kam_role_required','Para crear contactos propios, Administración debe agregar el rol KAM a esta cuenta.');
       if(actor.role==='holder'&&input.assignedKam)fail('forbidden','El titular no puede elegir una asignación comercial.');
       let assignedKam = input.assignedKam || ((actor.role === 'kam'||centralStaff&&eligibleKamIds().includes(actor.id)) ? actor.id : referringKam);
+      if (!assignedKam && doctorLink && isId(doctorLink.kamId)) assignedKam = doctorLink.kamId;
       let intakeRecipientRole=null,intakeRoutingMode=null;
       if(!assignedKam){const routing=intakeConfig(draft.intakeRouting);intakeRoutingMode=routing.mode;
         const eligible=eligibleKamIds(),pool=routing.kamIds.filter(id=>eligible.includes(id));if(routing.mode==='round_robin'&&pool.length){const cursor=intakeCursor(draft);assignedKam=pool[cursor%pool.length];draft.intakeCursor=cursor+1;}
@@ -322,10 +331,12 @@
       if(centralStaff&&assignedKam&&!validAssignment(assignedKam))fail('invalid_actor','El responsable no está activo o no pertenece al directorio CRM.');
       if (assignedKam !== null && !isId(assignedKam)) fail('invalid_actor', 'La asignación KAM no es válida.');
       if (actor.role === 'kam' && assignedKam !== actor.id) fail('forbidden', 'Un KAM sólo puede crear contactos asignados a sí mismo.');
+      let noteText = text(input.notes || '', 6000, false);
+      if (doctorLink && doctorLink.doctorId) noteText = text((noteText ? noteText + '\n' : '') + 'Doctor vinculado: ' + String(doctorLink.doctorName || '').trim() + ' · ' + String(doctorLink.doctorId), 6000, false);
       const contact = { id: ctx.id('ct'), type, name: text(input.name, 160, true), email, phone, stage: 'new', stageReason: null,
         intakeRecipientRole, intakeRoutingMode, originalSource, captureMechanism: input.captureMechanism || (actor.role === 'holder' ? 'self_service' : 'crm_manual'), referringKam, assignedKam: assignedKam || null, assistingActors: actor.role === 'kam' ? [actor.id] : [],
         createdAt: ctx.now, updatedAt: ctx.now, createdBy: actor.id, deletedAt: null,
-        holderId: null, accountId: null, accountExists: false, notes: text(input.notes || '', 6000, false) };
+        holderId: null, accountId: null, accountExists: false, notes: noteText };
       if (crossLinks.length) contact.linkedContactIds = crossLinks;
       intakeProof(draft).allocations.push({id:contact.id,assignedKam:contact.assignedKam,intakeRecipientRole,intakeRoutingMode});
       return contact;

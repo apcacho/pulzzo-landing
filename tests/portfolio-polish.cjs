@@ -32,24 +32,23 @@ function runtime(){
   return {run,el,storage,document,setMobile(value){mobile=value;for(const fn of mediaListeners)fn({matches:value});}};
 }
 let count=0;function test(name,fn){fn();count++;console.log('PASS: '+name);}
-test('Four primary KPI buttons preserve exact existing metric values and read-only data',()=>{
+test('Eight dashboard KPI buttons preserve exact existing metric values and read-only data',()=>{
   const r=runtime();r.run('var before=JSON.stringify(db);renderPortfolio();var m=portfolioMetrics(portfolioCredits())');
   const rendered=r.el('portfolioContent').innerHTML;
-  assert.equal((rendered.match(/class="portfolio-metric"/g)||[]).length,4);
+  assert.equal((rendered.match(/class="portfolio-metric"/g)||[]).length,8);
   for(const key of ['principal','overdue','received','upcoming'])assert.match(rendered,new RegExp('class="portfolio-metric" data-drill="'+key+'"'));
   assert.equal(r.run('m.principal'),700);assert.equal(r.run('m.overdue'),100);assert.equal(r.run('m.received'),110);assert.equal(r.run('m.upcoming'),700);assert.equal(r.run('m.latePrincipal'),200);
   assert.equal(r.run('JSON.stringify(db)'),r.run('before'));
 });
-test('Due buckets partition the exact 30-day pending metric and drill through dates',()=>{
-  const r=runtime();r.run('renderPortfolio()');const rendered=r.el('portfolioContent').innerHTML;
-  for(const dates of [['2026-10-08','2026-10-08'],['2026-10-09','2026-10-15'],['2026-10-16','2026-11-07']])assert.ok(rendered.includes(`data-range-from="${dates[0]}" data-range-to="${dates[1]}"`));
+test('Calendar date drill still opens the matching pending window',()=>{
+  const r=runtime();r.run('renderPortfolio()');assert.match(r.el('portfolioContent').innerHTML,/Programado vs\. cobrado por mes/);
   r.run("portfolioDrillRange('2026-10-09','2026-10-15')");assert.equal(r.run('portfolioState.tab'),'calendar');assert.equal(r.run('portfolioState.due'),'pending');
   assert.match(r.el('portfolioContent').innerHTML,/Cliente B/);assert.doesNotMatch(r.el('portfolioContent').innerHTML,/Cliente A|Cliente C|Cliente D/);
   assert.equal(r.el('portfolioTab-calendar').focused,true);
 });
-test('Priorities are bounded, sort by actual overdue amount, and keep readonly actions safe',()=>{
+test('Top clients are bounded, sort by outstanding balance, and keep readonly actions safe',()=>{
   const r=runtime();r.run("for(var i=0;i<7;i++)db.patients.push(credit('L'+i,[row('1','2026-10-01',i+1,200+i)]));renderPortfolio()");
-  let rendered=r.el('portfolioContent').innerHTML;assert.equal((rendered.match(/class="portfolio-priority-item"/g)||[]).length,5);
+  let rendered=r.el('portfolioContent').innerHTML;
   assert.ok(rendered.indexOf('Cliente L6')<rendered.indexOf('Cliente L5'));assert.doesNotMatch(rendered,/Cliente L0|Cliente L1/);
   r.run("session=testStaffSession('readonly');renderPortfolio()");rendered=r.el('portfolioContent').innerHTML;
   assert.doesNotMatch(rendered,/Registrar pago/);assert.equal(r.run("portfolioOpenCredit('A','payment')"),false);assert.equal(r.run('paymentRoute'),null);

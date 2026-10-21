@@ -3652,6 +3652,7 @@ html, body {
       <div class="hero-ctas hero-ctas-main animate delay-4">
         <a href="registro-paciente.html" class="btn btn-primary btn-lg">Solicitar financiamiento</a>
         <a href="registro-doctor.html" class="btn btn-coral btn-lg">Soy Doctor o Clínica</a>
+        <button type="button" class="btn btn-secondary btn-lg" onclick="openModal('modal-solicitar')">Quiero que me contacten</button>
       </div>
 
       <!-- Stats -->
@@ -4268,8 +4269,8 @@ html, body {
     <div class="pulzzo-modal-body">
       <div class="form-group"><label>Nombre completo *</label><input type="text" id="lead-nombre" placeholder="Tu nombre y apellidos"></div>
       <div class="pulzzo-grid-2">
-        <div class="form-group"><label>Teléfono *</label><input type="tel" placeholder="55 1234 5678"></div>
-        <div class="form-group"><label>Correo *</label><input type="email" placeholder="tu@correo.com"></div>
+        <div class="form-group"><label>Teléfono *</label><input id="lead-telefono" type="tel" placeholder="55 1234 5678"></div>
+        <div class="form-group"><label>Correo *</label><input id="lead-correo" type="email" placeholder="tu@correo.com"></div>
       </div>
       <div class="form-group"><label>¿Qué procedimiento buscas financiar? *</label>
         <select><option value="">Selecciona</option><option>Cirugía Plástica o Estética</option><option>Cirugía Bariátrica</option><option>Dental</option><option>Oftalmología</option><option>Ortopedia</option><option>Reproducción Asistida</option><option>Ginecología</option><option>Fisioterapia / Rehabilitación</option><option>Medicina estética</option><option>Otro</option></select>
@@ -4322,6 +4323,8 @@ html, body {
 <div id="pulzzo-toast" role="status" aria-live="polite"></div>
 
 <script src="assets/js/patient-demo.js"></script>
+<script src="assets/js/crm-demo-store.js"></script>
+<script src="assets/js/pulzzo-v1.js"></script>
 <script>
   // ---- MODALS ----
   function openModal(id) { const el=document.getElementById(id); if(el){el.style.display='block';document.body.style.overflow='hidden';} }
@@ -4332,6 +4335,11 @@ html, body {
   function submitLead() {
     const name=(document.getElementById('lead-nombre')||{}).value||'';
     if(!name.trim()){showToast('Por favor ingresa tu nombre para continuar.');return;}
+    try{
+      if(typeof PulzzoV1!=='undefined'&&PulzzoV1.saveLandingContact){
+        PulzzoV1.saveLandingContact({origin:'contact',name:name,email:(document.getElementById('lead-correo')||{}).value,phone:(document.getElementById('lead-telefono')||{}).value});
+      }
+    }catch(ignore){}
     const firstName=name.split(' ')[0];
     const modal=document.getElementById('modal-solicitar');
     if(modal){const body=modal.querySelector('.pulzzo-modal-body');if(body){body.innerHTML='<div class="pulzzo-success-state"><div class="pulzzo-success-icon">🎉</div><div class="pulzzo-success-title">¡Listo '+firstName+'!</div><div class="pulzzo-success-text">Un asesor de Pulzzo te contactará en menos de 30 minutos.</div></div>';}}
@@ -5008,6 +5016,7 @@ document.addEventListener('keydown', function(e){ if(e.key === 'Escape') toggleD
       <div class="refer-success-icon">✓</div>
       <h3>Demostración completada</h3>
       <p>No se envió ni se guardó ningún referido. Esta demo no contacta al doctor ni envía correos.</p>
+      <p id="refer-local-status"></p>
     </div>
 
   </div>
@@ -5217,6 +5226,17 @@ function submitRefer(e){
     var s=document.getElementById('refer-success');
     s.style.display='flex';
   })();
+  try{
+    if(typeof PulzzoV1!=='undefined'&&PulzzoV1.saveLandingContact){
+      var nombre=document.getElementById('ref-nombre');
+      var prefijo=document.getElementById('ref-prefijo');
+      var contacto=document.getElementById('ref-contacto');
+      var correo=document.getElementById('ref-tu-correo');
+      var saved=PulzzoV1.saveLandingContact({origin:'refer',name:nombre&&nombre.value,prefix:prefijo&&prefijo.value,contact:contacto&&contacto.value,email:correo&&correo.value,referrer:correo&&correo.value});
+      var note=document.getElementById('refer-local-status');
+      if(note)note.textContent=saved&&saved.ok?'En este navegador quedó un contacto demo en el CRM. No se envió correo.':'';
+    }
+  }catch(ignore){}
 }
 document.addEventListener('keydown',function(e){
   if(e.key==='Escape')closeReferModal();
@@ -5228,5 +5248,5 @@ document.addEventListener('keydown',function(e){
 <script src="assets/js/doctor-publication-context.js"></script>
 <script src="assets/js/doctor-publication.js"></script>
 <script src="assets/js/doctor-publication-ui.js"></script>
-<aside aria-label="Estado de revisión" style="position:fixed;bottom:6px;right:8px;z-index:2147483647;background:#fff;color:#334155;border:1px solid #cbd5e1;border-radius:6px;padding:4px 8px;font:11px system-ui;pointer-events:none">v36 · revisión incompleta</aside></body>
+<aside aria-label="Estado de revisión" style="position:fixed;bottom:6px;right:8px;z-index:2147483647;background:#fff;color:#334155;border:1px solid #cbd5e1;border-radius:6px;padding:4px 8px;font:11px system-ui;pointer-events:none">v47 · demo local</aside></body>
 </html>

@@ -7,6 +7,8 @@ const CARTERA_DAY_DEFAULTS={precobranza:3,day1:1,day3:3,dailyFrom:5,dailyTo:30,e
 const CARTERA_MAIL_STAGES=[['precobranza','Precobranza'],['vence_hoy','Vence hoy'],['cobranza_1','Cobranza +1'],['cobranza_3','Cobranza +3'],['seguimiento','Seguimiento diario 5–30'],['recordatorio','Recordatorio día de acuerdo'],['confirmacion','Confirmación de acuerdo'],['recibo','Recibo de pago']];
 const CARTERA_MAIL_TIMEZONE='America/Mexico_City';
 const CARTERA_MORA_STAGES={mora_temprana:true,candidato_reestructura:true,candidato_externa:true};
+let carteraDigestFocus='';
+function carteraMoney(n){return typeof portfolioFormatMoney==='function'?portfolioFormatMoney(n):Number(n||0).toLocaleString('es-MX',{style:'currency',currency:'MXN',minimumFractionDigits:2,maximumFractionDigits:2});}
 function carteraToday(){return typeof portfolioToday==='function'?portfolioToday():typeof dispersionBusinessDateMX==='function'?dispersionBusinessDateMX():new Date().toISOString().slice(0,10);}
 function carteraAddDays(date,days){if(typeof portfolioDatePlus==='function')return portfolioDatePlus(date,days);const stamp=new Date(String(date).slice(0,10)+'T12:00:00Z');stamp.setUTCDate(stamp.getUTCDate()+Number(days)||0);return stamp.toISOString().slice(0,10);}
 function carteraDaySpan(from,to){return Math.round((Date.parse(String(to).slice(0,10)+'T12:00:00Z')-Date.parse(String(from).slice(0,10)+'T12:00:00Z'))/86400000);}
@@ -108,7 +110,7 @@ function carteraVars(p,extra){
  const patient=p&&p.patient||{};
  const rules=carteraCobranzaRead();
  const facts=p&&p.installments?carteraCreditFacts(p):p?carteraFactsForPatient(p):{dpd:0,amount:0,due:'',balance:0};
- return Object.assign({cliente:patient.fullName||p&&p.name||'Cliente',monto:typeof fmtMoney==='function'?fmtMoney(extra&&extra.amount||facts.amount||0):String(extra&&extra.amount||facts.amount||0),fecha:extra&&extra.fecha||facts.due||carteraToday(),credito:p&&(p.code||(typeof dispersionApplicationCode==='function'?dispersionApplicationCode(p):p.id))||'',dias:String(extra&&extra.dias!=null?extra.dias:facts.dpd||0),saldo:typeof fmtMoney==='function'?fmtMoney(extra&&extra.saldo!=null?extra.saldo:facts.balance||0):String(facts.balance||0),datos_pago:rules.paymentData||'Datos de pago · pendiente',firma:'Equipo PULZZO'},extra||{});
+ return Object.assign({cliente:patient.fullName||p&&p.name||'Cliente',monto:typeof fmtMoney==='function'?carteraMoney(extra&&extra.amount||facts.amount||0):String(extra&&extra.amount||facts.amount||0),fecha:extra&&extra.fecha||facts.due||carteraToday(),credito:p&&(p.code||(typeof dispersionApplicationCode==='function'?dispersionApplicationCode(p):p.id))||'',dias:String(extra&&extra.dias!=null?extra.dias:facts.dpd||0),saldo:typeof fmtMoney==='function'?carteraMoney(extra&&extra.saldo!=null?extra.saldo:facts.balance||0):String(facts.balance||0),datos_pago:rules.paymentData||'Datos de pago · pendiente',firma:'Equipo PULZZO'},extra||{});
 }
 function carteraCreditFacts(credit,today){
  today=today||carteraToday();
@@ -412,7 +414,7 @@ function carteraApplyForgiveness(id){
  p.paymentSchedule=rows;
  const app=p.application||(p.application={});
  (app.carteraAgreements||(app.carteraAgreements=[])).push({type:'status',agreementId:agreement.id,status:agreement.status==='incumplido'?'incumplido':'vigente',forgivenessApplied:true,amount,at:new Date().toISOString(),actor:session&&session.email||'demo'});
- (p.timeline||(p.timeline=[])).unshift({action:'Condonación aplicada',at:new Date().toISOString(),comment:'Moratorios condonados '+fmtMoney(amount)+'. Capital e interés ordinario intactos.',entity:p.id});
+ (p.timeline||(p.timeline=[])).unshift({action:'Condonación aplicada',at:new Date().toISOString(),comment:'Moratorios condonados '+carteraMoney(amount)+'. Capital e interés ordinario intactos.',entity:p.id});
  if(typeof carteraResave==='function')carteraResave();
  return {ok:true,amount,originalDue:agreement.originalDue};
 }
@@ -434,8 +436,8 @@ function carteraRegisterAgreement(id,input){
  const entry={id:'ACU-'+Date.now().toString(36),type:'created',agreementDate,compromiseDate,amount,forgiveness,forgivenessAmount,installmentId:row.id||'',installmentNumber:row.number||'',originalDue:row.originalDueDate||row.currentDueDate||row.dueDate||'',frozenAt:new Date().toISOString(),createdAt:new Date().toISOString(),actor:session&&session.email||'demo'};
  const app=p.application||(p.application={});
  (app.carteraAgreements||(app.carteraAgreements=[])).push(entry);
- (p.timeline||(p.timeline=[])).unshift({action:'Acuerdo registrado',at:entry.createdAt,comment:'Compromiso '+compromiseDate+' · '+fmtMoney(amount)+' · cuota '+entry.installmentNumber+' · vencimiento original '+entry.originalDue,entity:p.id});
- const vars=carteraVars(p,{monto:fmtMoney(amount),fecha:compromiseDate,dias:0});
+ (p.timeline||(p.timeline=[])).unshift({action:'Acuerdo registrado',at:entry.createdAt,comment:'Compromiso '+compromiseDate+' · '+carteraMoney(amount)+' · cuota '+entry.installmentNumber+' · vencimiento original '+entry.originalDue,entity:p.id});
+ const vars=carteraVars(p,{monto:carteraMoney(amount),fecha:compromiseDate,dias:0});
  const subject=carteraFill(carteraTemplate('confirmacion','subject'),vars);
  const confirmation=carteraFill(carteraTemplate('confirmacion','email'),vars);
  const rules=carteraCobranzaRead().mail;
@@ -494,17 +496,17 @@ function carteraReceiptFromResult(p,result,action){
  }
  const rows=typeof dispersionBuildSchedule==='function'?dispersionBuildSchedule(p):[];
  const upcoming=rows.find(row=>dispersionNumber(row.pendingAmount,0)>0);
- const next=upcoming?fmtMoney(upcoming.pendingAmount||upcoming.totalPayment||0)+' · '+(upcoming.currentDueDate||upcoming.dueDate||''):'Sin cuotas pendientes';
+ const next=upcoming?carteraMoney(upcoming.pendingAmount||upcoming.totalPayment||0)+' · '+(upcoming.currentDueDate||upcoming.dueDate||''):'Sin cuotas pendientes';
  return {id:'REC-'+Date.now().toString(36),at:new Date().toISOString(),date:carteraToday(),action:action||'pago',name,email,code,creditId:p.id,amount,breakdown,before,after,next};
 }
 function carteraReceiptRows(receipt){return [['IVA',receipt.breakdown.iva],['Comisiones',receipt.breakdown.comisiones],['Moratorios',receipt.breakdown.moratorios],['Ordinarios',receipt.breakdown.ordinarios],['Capital',receipt.breakdown.capital]];}
 function carteraReceiptDocument(receipt){
- const rows=carteraReceiptRows(receipt).map(([label,amount])=>`<tr><td>${label}</td><td>${fmtMoney(amount||0)}</td></tr>`).join('');
- return `<!doctype html><html lang="es"><head><meta charset="UTF-8"><title>Recibo Pulzzo</title><style>body{font-family:Inter,Arial,sans-serif;color:#07142F;margin:24px}h1{font-family:"Plus Jakarta Sans",Inter,sans-serif;font-size:22px}table{width:100%;border-collapse:collapse}td{padding:8px 0;border-bottom:1px solid #E8EEF6}td:last-child{text-align:right}</style></head><body><h1>PULZZO</h1><p>Recibo de operación · ${receipt.id}</p><p>${receipt.name}<br>Crédito ${receipt.code}<br>${receipt.date}</p><p>Monto ${fmtMoney(receipt.amount||0)}</p><table>${rows}</table><p>Saldo anterior ${fmtMoney(receipt.before||0)} · Saldo posterior ${fmtMoney(receipt.after||0)}</p><p>Próximo pago: ${receipt.next}</p><script>window.onload=function(){setTimeout(function(){window.print();},250);}<\/script></body></html>`;
+ const rows=carteraReceiptRows(receipt).map(([label,amount])=>`<tr><td>${label}</td><td>${carteraMoney(amount||0)}</td></tr>`).join('');
+ return `<!doctype html><html lang="es"><head><meta charset="UTF-8"><title>Recibo Pulzzo</title><style>body{font-family:Inter,Arial,sans-serif;color:#07142F;margin:24px}h1{font-family:"Plus Jakarta Sans",Inter,sans-serif;font-size:22px}table{width:100%;border-collapse:collapse}td{padding:8px 0;border-bottom:1px solid #E8EEF6}td:last-child{text-align:right}</style></head><body><h1>PULZZO</h1><p>Recibo de operación · ${receipt.id}</p><p>${receipt.name}<br>Crédito ${receipt.code}<br>${receipt.date}</p><p>Monto ${carteraMoney(receipt.amount||0)}</p><table>${rows}</table><p>Saldo anterior ${carteraMoney(receipt.before||0)} · Saldo posterior ${carteraMoney(receipt.after||0)}</p><p>Próximo pago: ${receipt.next}</p><script>window.onload=function(){setTimeout(function(){window.print();},250);}<\/script></body></html>`;
 }
 function carteraPresentReceipt(p,result,action){
  const receipt=carteraReceiptFromResult(p,result,action);
- const vars=carteraVars(p,{monto:fmtMoney(receipt.amount||0),fecha:receipt.date,saldo:fmtMoney(receipt.after||0),dias:0,credito:receipt.code,cliente:receipt.name});
+ const vars=carteraVars(p,{monto:carteraMoney(receipt.amount||0),fecha:receipt.date,saldo:carteraMoney(receipt.after||0),dias:0,credito:receipt.code,cliente:receipt.name});
  const subject=carteraFill(carteraTemplate('recibo','subject'),vars);
  const body=carteraFill(carteraTemplate('recibo','email'),vars);
  const rules=carteraCobranzaRead().mail;
@@ -516,8 +518,8 @@ function carteraPresentReceipt(p,result,action){
  if(send)carteraLogDemoEmail(p,{key:'correo|'+p.id+'|recibo|'+stored.id,at:stored.at,stage:'recibo',due:stored.date,subject,body,to:receipt.email||'Sin correo',cc:rules.cc||'',comment:preview+' \nAdjunto: '+stored.attachment});
  if(typeof carteraResave==='function')carteraResave();
  carteraUiState.lastReceipt=stored;
- const lines=carteraReceiptRows(stored).map(([label,amount])=>`<tr><td>${escapeHtml(label)}</td><td>${fmtMoney(amount||0)}</td></tr>`).join('');
- const html=`<div class="modal-head"><div><h3>Recibo de pago</h3><p>${escapeHtml(stored.name)} · ${escapeHtml(stored.code)}</p></div><button class="x" type="button" onclick="closeModal()">×</button></div><div class="modal-body"><section class="cartera-receipt" id="carteraReceiptSheet"><h4>PULZZO</h4><div class="cartera-receipt-grid"><div><span>Cliente</span><strong>${escapeHtml(stored.name)}</strong></div><div><span>Crédito</span><strong>${escapeHtml(stored.code)}</strong></div><div><span>Fecha</span><strong>${escapeHtml(stored.date)}</strong></div><div><span>Monto</span><strong>${fmtMoney(stored.amount||0)}</strong></div></div><table class="cartera-receipt-table"><tbody>${lines}</tbody></table><p>Saldo anterior ${fmtMoney(stored.before||0)} · Saldo posterior ${fmtMoney(stored.after||0)}</p><p>Próximo pago: ${escapeHtml(stored.next)}</p></section><section class="cartera-fase1"><h4>Correo simulado · ${escapeHtml(stored.status||'Registrado')}</h4><div class="cartera-receipt-grid"><div><span>Para</span><strong>${escapeHtml(stored.to||'Sin correo')}</strong></div><div><span>Copia</span><strong>${escapeHtml(stored.cc||'—')}</strong></div><div><span>Asunto</span><strong>${escapeHtml(subject)}</strong></div><div><span>Adjunto</span><strong>${escapeHtml(stored.attachment)}</strong></div></div><pre>${escapeHtml(stored.preview||body)}</pre></section></div><div class="modal-actions"><button type="button" class="btn btn-secondary" onclick="carteraPrintReceipt()">Imprimir</button><button type="button" class="btn btn-secondary" onclick="carteraDownloadReceipt()">Descargar</button><button type="button" class="btn btn-primary" onclick="closeModal()">Cerrar</button></div>`;
+ const lines=carteraReceiptRows(stored).map(([label,amount])=>`<tr><td>${escapeHtml(label)}</td><td>${carteraMoney(amount||0)}</td></tr>`).join('');
+ const html=`<div class="modal-head"><div><h3>Recibo de pago</h3><p>${escapeHtml(stored.name)} · ${escapeHtml(stored.code)}</p></div><button class="x" type="button" onclick="closeModal()">×</button></div><div class="modal-body"><section class="cartera-receipt" id="carteraReceiptSheet"><h4>PULZZO</h4><div class="cartera-receipt-grid"><div><span>Cliente</span><strong>${escapeHtml(stored.name)}</strong></div><div><span>Crédito</span><strong>${escapeHtml(stored.code)}</strong></div><div><span>Fecha</span><strong>${escapeHtml(stored.date)}</strong></div><div><span>Monto</span><strong>${carteraMoney(stored.amount||0)}</strong></div></div><table class="cartera-receipt-table"><tbody>${lines}</tbody></table><p>Saldo anterior ${carteraMoney(stored.before||0)} · Saldo posterior ${carteraMoney(stored.after||0)}</p><p>Próximo pago: ${escapeHtml(stored.next)}</p></section><section class="cartera-fase1"><h4>Correo simulado · ${escapeHtml(stored.status||'Registrado')}</h4><div class="cartera-receipt-grid"><div><span>Para</span><strong>${escapeHtml(stored.to||'Sin correo')}</strong></div><div><span>Copia</span><strong>${escapeHtml(stored.cc||'—')}</strong></div><div><span>Asunto</span><strong>${escapeHtml(subject)}</strong></div><div><span>Adjunto</span><strong>${escapeHtml(stored.attachment)}</strong></div></div><pre>${escapeHtml(stored.preview||body)}</pre></section></div><div class="modal-actions"><button type="button" class="btn btn-secondary" onclick="carteraPrintReceipt()">Imprimir</button><button type="button" class="btn btn-secondary" onclick="carteraDownloadReceipt()">Descargar</button><button type="button" class="btn btn-primary" onclick="closeModal()">Cerrar</button></div>`;
  if(typeof modal==='function'&&typeof carteraCanUseModal==='function'&&carteraCanUseModal())modal(html);
  return stored;
 }
@@ -533,15 +535,17 @@ function carteraStoredReceipt(id,receiptId){
 function carteraDownloadStoredReceipt(id,receiptId){if(!carteraStoredReceipt(id,receiptId))return false;return carteraDownloadReceipt();}
 function carteraOpenReceiptPreview(id,receiptId){
  const receipt=carteraStoredReceipt(id,receiptId);if(!receipt)return false;
- const lines=carteraReceiptRows(receipt).map(([label,amount])=>`<tr><td>${escapeHtml(label)}</td><td>${fmtMoney(amount||0)}</td></tr>`).join('');
- const html=`<div class="modal-head"><div><h3>Recibo de pago</h3><p>${escapeHtml(receipt.name||'')} · ${escapeHtml(receipt.code||'')}</p></div><button class="x" type="button" onclick="closeModal()">×</button></div><div class="modal-body"><section class="cartera-receipt"><h4>PULZZO</h4><p>${escapeHtml(receipt.status||'Enviado (demo)')}</p><table class="cartera-receipt-table"><tbody>${lines}</tbody></table><p>Saldo anterior ${fmtMoney(receipt.before||0)} · Saldo posterior ${fmtMoney(receipt.after||0)}</p><p>Próximo pago: ${escapeHtml(receipt.next||'')}</p></section><section class="cartera-fase1"><h4>Correo simulado · ${escapeHtml(receipt.status||'Enviado (demo)')}</h4><div class="cartera-receipt-grid"><div><span>Para</span><strong>${escapeHtml(receipt.to||receipt.email||'Sin correo')}</strong></div><div><span>Copia</span><strong>${escapeHtml(receipt.cc||'—')}</strong></div><div><span>Asunto</span><strong>${escapeHtml(receipt.subject||'')}</strong></div><div><span>Adjunto</span><strong>${escapeHtml(receipt.attachment||'')}</strong></div></div><pre>${escapeHtml(receipt.preview||receipt.body||'')}</pre></section></div><div class="modal-actions"><button type="button" class="btn btn-secondary" onclick="carteraDownloadReceipt()">Descargar</button><button type="button" class="btn btn-primary" onclick="closeModal()">Cerrar</button></div>`;
+ const lines=carteraReceiptRows(receipt).map(([label,amount])=>`<tr><td>${escapeHtml(label)}</td><td>${carteraMoney(amount||0)}</td></tr>`).join('');
+ const html=`<div class="modal-head"><div><h3>Recibo de pago</h3><p>${escapeHtml(receipt.name||'')} · ${escapeHtml(receipt.code||'')}</p></div><button class="x" type="button" onclick="closeModal()">×</button></div><div class="modal-body"><section class="cartera-receipt"><h4>PULZZO</h4><p>${escapeHtml(receipt.status||'Enviado (demo)')}</p><table class="cartera-receipt-table"><tbody>${lines}</tbody></table><p>Saldo anterior ${carteraMoney(receipt.before||0)} · Saldo posterior ${carteraMoney(receipt.after||0)}</p><p>Próximo pago: ${escapeHtml(receipt.next||'')}</p></section><section class="cartera-fase1"><h4>Correo simulado · ${escapeHtml(receipt.status||'Enviado (demo)')}</h4><div class="cartera-receipt-grid"><div><span>Para</span><strong>${escapeHtml(receipt.to||receipt.email||'Sin correo')}</strong></div><div><span>Copia</span><strong>${escapeHtml(receipt.cc||'—')}</strong></div><div><span>Asunto</span><strong>${escapeHtml(receipt.subject||'')}</strong></div><div><span>Adjunto</span><strong>${escapeHtml(receipt.attachment||'')}</strong></div></div><pre>${escapeHtml(receipt.preview||receipt.body||'')}</pre></section></div><div class="modal-actions"><button type="button" class="btn btn-secondary" onclick="carteraDownloadReceipt()">Descargar</button><button type="button" class="btn btn-primary" onclick="closeModal()">Cerrar</button></div>`;
  if(typeof modal==='function'&&typeof carteraCanUseModal==='function'&&carteraCanUseModal())modal(html);
  return receipt;
 }
 function carteraFmtProfileDate(value){const raw=String(value||'').slice(0,10);if(!raw)return '—';return typeof formatMaybeDate==='function'?formatMaybeDate(raw):raw;}
 function carteraCopyIcon(){return '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"></rect><path d="M6 16H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" fill="none" stroke="currentColor" stroke-width="1.8"></path></svg>';}
 function carteraWhatsappIcon(){return '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M12 3.2A8.7 8.7 0 0 0 4.4 16.3L3.2 20.8l4.6-1.2A8.8 8.8 0 1 0 12 3.2zm4.9 12.4c-.2.6-1.2 1.1-1.7 1.1-.4.1-.9.2-2.9-.6-2.4-1-4-3.5-4.1-3.6-.1-.2-1.2-1.6-1.2-3s.8-2.1 1-2.4c.3-.3.6-.3.8-.3h.6c.2 0 .4 0 .6.5.2.6.8 2 .8 2.1.1.1.1.3 0 .5-.1.2-.2.3-.3.5l-.2.3c-.1.1-.2.2-.1.4.1.2.6 1 1.3 1.6.9.8 1.6 1 1.8 1.1.2.1.3.1.4-.1.1-.1.5-.6.6-.8.2-.2.3-.2.5-.1.2.1 1.4.7 1.6.8.2.1.4.2.4.3.1.2.1.7-.1 1.3z"></path></svg>';}
-function carteraCopyButton(value,label){const text=String(value||'').trim();if(!text)return '';return `<button type="button" class="cartera-contact-icon" data-copy="${escapeAttr(text)}" onclick="carteraCopyContact(this)" aria-label="${escapeAttr(label)}">${carteraCopyIcon()}</button>`;}
+function carteraCopyPhoneIcon(){return '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-dasharray="2.4 1.8"></rect><path fill="none" stroke="currentColor" stroke-width="1.6" d="M9.2 8.2h1.5l.6 1.6-1 .6a6.2 6.2 0 0 0 3 3l.6-1 1.6.6v1.3a1.1 1.1 0 0 1-1.1 1.1A7.4 7.4 0 0 1 8.1 9.3a1.1 1.1 0 0 1 1.1-1.1z"></path></svg>';}
+function carteraCopyMailIcon(){return '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-dasharray="2.4 1.8"></rect><rect x="6.5" y="8.2" width="11" height="7.6" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.6"></rect><path d="M7.2 9.4l4.8 3.2 4.8-3.2" fill="none" stroke="currentColor" stroke-width="1.6"></path></svg>';}
+function carteraCopyButton(value,label,kind){const text=String(value||'').trim();if(!text)return '';const icon=kind==='mail'?carteraCopyMailIcon():kind==='phone'?carteraCopyPhoneIcon():carteraCopyIcon();return `<button type="button" class="cartera-contact-icon" data-copy="${escapeAttr(text)}" onclick="carteraCopyContact(this)" aria-label="${escapeAttr(label)}" title="${escapeAttr(label+' · '+text)}">${icon}</button>`;}
 function carteraPlainWhatsapp(phone){const digits=carteraPhoneDigits(phone);return digits?'https://wa.me/'+digits:'';}
 function carteraTelHref(phone){const digits=carteraPhoneDigits(phone);return digits?'tel:+'+digits:'';}
 function carteraPhoneActions(phone,label){
@@ -583,7 +587,7 @@ function carteraProfileStageHtml(p){
  const facts=carteraFactsForPatient(p);
  const patient=p.patient||{};
  const sent=carteraMessageLog(p).slice(-1)[0];
- const lead=[['Etapa de cobranza',stage.label],['Días de atraso',String(facts.dpd||0)],['Monto a cobrar',fmtMoney(stage.amount||facts.amount||0)],['Próximo vencimiento',facts.next&&facts.next.date||facts.due||'—']];
+ const lead=[['Etapa de cobranza',stage.label],['Días de atraso',String(facts.dpd||0)],['Monto a cobrar',carteraMoney(stage.amount||facts.amount||0)],['Próximo vencimiento',facts.next&&facts.next.date||facts.due||'—']];
  const tail=[['Último recordatorio',sent?sent.action+' · '+String(sent.at||'').slice(0,10):'—'],['Acuerdo',carteraAgreementLabel(carteraDeriveAgreement(p))]];
  const text=rows=>rows.map(([label,value])=>`<div><span>${escapeHtml(label)}</span><strong>${escapeHtml(String(value))}</strong></div>`).join('');
  return `<div class="cartera-profile-meta">${text(lead)}<div><span>Celular</span>${carteraPhoneActions(patient.phone)}</div><div><span>Correo</span>${carteraMailActions(patient.email)}</div>${text(tail)}</div>`;
@@ -599,18 +603,18 @@ function carteraAmortizationTable(p){
   const frequency=String(row.paymentFrequency||(p.application&&p.application.paymentFrequency)||'');
   const kind=row.type==='Pago inicial requerido'?'Pago inicial':frequency.toLowerCase().indexOf('biweek')>=0||frequency.toLowerCase().indexOf('quinc')>=0?'Pago quincenal':'Mensualidad';
   const selected=row.id&&row.id===carteraUiState.rowId?' class="is-selected"':'';
-  return `<tr${selected}><td>${escapeHtml(row.number||'')}</td><td>${escapeHtml(kind)}</td><td>${escapeHtml(carteraFmtProfileDate(due))}${original}</td><td>${fmtMoney(row.interest||0)}</td><td>${fmtMoney(row.interestIva||0)}</td><td>${fmtMoney(row.moratory||row.interesMora||0)}</td><td>${fmtMoney(row.capital||0)}</td><td>${fmtMoney(row.totalPayment||0)}</td><td>${fmtMoney(pending)}</td><td>${status}</td><td><button class="amortization-manage-button" type="button" onclick="carteraOpenProfileRow('${escapeAttr(p.id)}','${escapeAttr(row.id||'')}')">Gestionar</button></td></tr>`;
+  return `<tr${selected}><td>${escapeHtml(row.number||'')}</td><td>${escapeHtml(kind)}</td><td>${escapeHtml(carteraFmtProfileDate(due))}${original}</td><td>${carteraMoney(row.interest||0)}</td><td>${carteraMoney(row.interestIva||0)}</td><td>${carteraMoney(row.moratory||row.interesMora||0)}</td><td>${carteraMoney(row.capital||0)}</td><td>${carteraMoney(row.totalPayment||0)}</td><td>${carteraMoney(pending)}</td><td>${status}</td><td><button class="amortization-manage-button" type="button" onclick="carteraOpenProfileRow('${escapeAttr(p.id)}','${escapeAttr(row.id||'')}')">Gestionar</button></td></tr>`;
  }).join('');
  return `<div class="cartera-profile-block"><h4>Tabla de amortización</h4><div class="table-wrap cartera-amortization-wrap"><table class="portfolio-table"><thead><tr><th>#</th><th>Tipo</th><th>Fecha vigente</th><th>Interés</th><th>IVA</th><th>Moratorios</th><th>Capital</th><th>Pago</th><th>Pendiente</th><th>Estatus</th><th></th></tr></thead><tbody>${body||'<tr><td colspan="11">Sin cuotas.</td></tr>'}</tbody></table></div></div>`;
 }
 function carteraReceiptListHtml(p){
  const list=(((p.application||{}).carteraReceipts)||[]).slice().reverse();
- const rows=list.map(receipt=>`<li><span><strong>${escapeHtml(receipt.date||'')} · ${fmtMoney(receipt.amount||0)}</strong><br>${escapeHtml(receipt.status||'Enviado (demo)')}</span><span class="portfolio-actions"><button type="button" class="btn btn-sm btn-secondary" onclick="carteraDownloadStoredReceipt('${escapeAttr(p.id)}','${escapeAttr(receipt.id||'')}')">Descargar</button><button type="button" class="btn btn-sm btn-secondary" onclick="carteraOpenReceiptPreview('${escapeAttr(p.id)}','${escapeAttr(receipt.id||'')}')">Ver correo</button></span></li>`).join('');
+ const rows=list.map(receipt=>`<li><span><strong>${escapeHtml(receipt.date||'')} · ${carteraMoney(receipt.amount||0)}</strong><br>${escapeHtml(receipt.status||'Enviado (demo)')}</span><span class="portfolio-actions"><button type="button" class="btn btn-sm btn-secondary" onclick="carteraDownloadStoredReceipt('${escapeAttr(p.id)}','${escapeAttr(receipt.id||'')}')">Descargar</button><button type="button" class="btn btn-sm btn-secondary" onclick="carteraOpenReceiptPreview('${escapeAttr(p.id)}','${escapeAttr(receipt.id||'')}')">Ver correo</button></span></li>`).join('');
  return `<div class="cartera-profile-block"><h4>Recibos</h4>${rows?`<ul class="cartera-profile-list">${rows}</ul>`:'<p>Sin recibos registrados.</p>'}</div>`;
 }
 function carteraAgreementListHtml(p){
  const events=carteraAgreementEvents(p).filter(item=>item&&item.type==='created');
- const items=events.map(item=>`<li>Compromiso ${escapeHtml(item.compromiseDate||'')} · ${fmtMoney(item.amount||0)} · vencimiento original ${escapeHtml(item.originalDue||'—')} · cuota ${escapeHtml(String(item.installmentNumber||'—'))}</li>`).join('');
+ const items=events.map(item=>`<li>Compromiso ${escapeHtml(item.compromiseDate||'')} · ${carteraMoney(item.amount||0)} · vencimiento original ${escapeHtml(item.originalDue||'—')} · cuota ${escapeHtml(String(item.installmentNumber||'—'))}</li>`).join('');
  return `<div class="cartera-profile-block"><h4>Acuerdos de pago</h4><p>Estado: ${escapeHtml(carteraAgreementLabel(carteraDeriveAgreement(p)))}. La cuota y el vencimiento original quedan congelados.</p>${items?`<ul class="cartera-profile-list">${items}</ul>`:'<p>Sin acuerdos de pago.</p>'}</div>`;
 }
 function carteraContactListHtml(p){
@@ -642,27 +646,127 @@ function carteraAging(credits){
 }
 function carteraAgingHtml(credits){
  const buckets=carteraAging(credits);
- return `<section class="portfolio-chart cartera-aging"><h3>Antigüedad de la cartera</h3><dl class="cartera-aging-grid">${buckets.map(bucket=>`<div><dt>${bucket.label}</dt><dd>${bucket.count} créditos</dd><dd>${fmtMoney(bucket.amount)}</dd></div>`).join('')}</dl><p>Importes vencidos por días de atraso. No se suman al capital pendiente.</p></section>`;
+ return `<section class="portfolio-chart cartera-aging"><h3>Antigüedad de la cartera</h3><dl class="cartera-aging-grid">${buckets.map(bucket=>`<div><dt>${bucket.label}</dt><dd>${bucket.count} créditos</dd><dd>${carteraMoney(bucket.amount)}</dd></div>`).join('')}</dl><p>Importes vencidos por días de atraso. No se suman al capital pendiente.</p></section>`;
+}
+function carteraSheetDate(value){
+ const raw=String(value||'').slice(0,10);
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(raw))return '—';
+ if(typeof portfolioFormatDate==='function')return portfolioFormatDate(raw);
+ const parts=raw.split('-');
+ return parts[2]+'/'+parts[1]+'/'+parts[0];
+}
+function carteraStageShort(stage){
+ const id=stage&&stage.id||'';
+ const map={candidato_externa:'Cobranza externa',candidato_reestructura:'Reestructura',mora_temprana:'Mora temprana',seguimiento:'Seguimiento',cobranza_1:'Cobranza +1',cobranza_3:'Cobranza +3',vence_hoy:'Vence hoy',precobranza:'Precobranza',al_corriente:'Al corriente',acuerdo_hoy:'Acuerdo hoy',acuerdo_vigente:'Acuerdo',condonacion_pendiente:'Condonación'};
+ return map[id]||(stage&&stage.label)||'';
+}
+function carteraStageTone(stage){
+ const id=stage&&stage.id||'';
+ if(['candidato_externa','candidato_reestructura','mora_temprana','cobranza_1','cobranza_3'].includes(id))return 'alert';
+ if(['vence_hoy','precobranza','seguimiento','acuerdo_hoy','condonacion_pendiente'].includes(id))return 'warn';
+ if(id==='acuerdo_vigente')return 'ok';
+ return 'mute';
+}
+function carteraPhoneIcon(){return '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" d="M8 4h3l1.2 3.2-2 1.2a12 12 0 0 0 5.4 5.4l1.2-2 3.2 1.2V16a2 2 0 0 1-2 2A14 14 0 0 1 6 6a2 2 0 0 1 2-2z"></path></svg>';}
+function carteraMailIcon(){return '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"></rect><path d="M4 7l8 6 8-6" fill="none" stroke="currentColor" stroke-width="1.8"></path></svg>';}
+function carteraCollectionContact(patient){
+ patient=patient||{};
+ const phone=String(patient.phone||'').trim();
+ const email=String(patient.email||'').trim();
+ const tel=carteraTelHref(phone),wa=carteraPlainWhatsapp(phone);
+ const bits=[];
+ if(tel)bits.push(`<a class="cartera-icon-btn" href="${escapeAttr(tel)}" title="${escapeAttr('Llamar · '+phone)}"><span class="cartera-sr">Llamar</span>${carteraPhoneIcon()}</a>`);
+ if(wa)bits.push(`<a class="cartera-icon-btn" href="${escapeAttr(wa)}" target="_blank" rel="noopener noreferrer" title="${escapeAttr('WhatsApp sin plantilla · '+phone)}"><span class="cartera-sr">WhatsApp</span>${carteraWhatsappIcon()}</a>`);
+ if(email)bits.push(`<a class="cartera-icon-btn" href="mailto:${escapeAttr(email)}" title="${escapeAttr('Correo · '+email)}"><span class="cartera-sr">Correo</span>${carteraMailIcon()}</a>`);
+ if(phone)bits.push(carteraCopyButton(phone,'Copiar celular','phone'));
+ if(email)bits.push(carteraCopyButton(email,'Copiar correo','mail'));
+ return `<div class="cartera-icon-row">${bits.join('')||'<span class="cartera-sr">Sin celular</span>'}</div>`;
+}
+function carteraRowMenu(credit,stage,sent,detail){
+ const id=escapeAttr(credit.id);
+ const status=sent?escapeHtml((sent.action||'Recordatorio')+' · '+carteraSheetDate(sent.at)):(stage.channel?'Sin envío registrado':'Sin mensaje automático');
+ const facts=detail?`<p>Vencido más antiguo: ${escapeHtml(detail.oldest)}</p><p>Último recordatorio: ${detail.reminder}</p><p>Acuerdo: ${detail.deal}</p>`:'';
+ return `<div class="cartera-row-actions"><button type="button" class="btn btn-sm btn-primary" onclick="carteraOpenPayment('${id}')">Aplicar pago</button><details class="cartera-more"><summary aria-label="Más acciones">⋯</summary><div class="cartera-more-panel">${facts}<button type="button" onclick="carteraOpenAgreement('${id}')">Acuerdo</button><button type="button" onclick="carteraOpenContact('${id}')">Llamada</button><button type="button" onclick="carteraOpenWhatsapp('${id}')">WhatsApp</button><button type="button" onclick="carteraMarkWhatsapp('${id}')">Marcar WhatsApp enviado</button><button type="button" onclick="carteraOpenMailPreview('${id}')">Correo</button><p>${status}</p></div></details></div>`;
+}
+function carteraToggleDigest(id){
+ carteraDigestFocus=carteraDigestFocus===id?'':id;
+ if(typeof portfolioState!=='undefined'&&carteraDigestFocus)portfolioState.collectionFocus='';
+ carteraPaintCollections();
+ return carteraDigestFocus;
+}
+function carteraClearDigest(){carteraDigestFocus='';return '';}
+function carteraStageGroup(stage){
+ const id=stage&&stage.id||'';
+ if(id==='cobranza_1'||id==='cobranza_3'||id==='seguimiento')return 'seguimiento';
+ return id;
+}
+function carteraOpenMailRules(){
+ try{
+  if(typeof configTab!=='undefined')configTab='collections';
+  if(typeof setView==='function')setView('settings');
+  if(typeof renderSettings==='function')renderSettings();
+ }catch(error){}
+ return true;
+}
+function carteraRulesFold(){
+ const mail=carteraCobranzaRead().mail||{};
+ const on=CARTERA_MAIL_STAGES.filter(([key])=>mail.stages&&mail.stages[key]).map(([,label])=>label);
+ return `<details class="cartera-rules-fold"><summary>Reglas de envío automático</summary><p>Modo demo · no hay envío real. ${mail.enabled?'Encendido':'Apagado'} · ${escapeHtml(mail.sendTime||'09:00')} · ${escapeHtml(CARTERA_MAIL_TIMEZONE)}.</p>${on.length?`<p>${escapeHtml(on.join(', '))}.</p>`:''}<button type="button" class="btn btn-secondary" onclick="carteraOpenMailRules()">Editar reglas</button></details>`;
 }
 function carteraCollectionsHtml(){
- const credits=(typeof portfolioCredits==='function'?portfolioCredits():[]).filter(credit=>typeof portfolioMatches!=='function'||portfolioMatches(credit)).filter(credit=>!credit.settled);
- const rows=credits.map(credit=>{
+ const all=typeof portfolioCredits==='function'?portfolioCredits():[];
+ const book=all.filter(credit=>credit&&!credit.settled);
+ const state=typeof portfolioState!=='undefined'?portfolioState:{};
+ const focus=state.collectionFocus||'';
+ const from=state.from||'';
+ const to=state.to||'';
+ const stageFilter=state.stage||'all';
+ const agingFilter=state.aging||'all';
+ const focusLabels={cobranza:'En cobranza',vence_hoy:'Vence hoy',precobranza:'Precobranza',sin_accion:'Sin acción'};
+ const digest=carteraMailDigest(book);
+ const digestLabels={actions:'Acciones de hoy',paused:'Pausados',mora:'Mora 31+',vence_hoy:'Vence hoy'};
+ const idsOf=rows=>new Set((rows||[]).map(row=>row.id));
+ let listed=all.filter(credit=>typeof portfolioCreditMatches==='function'?portfolioCreditMatches(credit):credit&&!credit.settled);
+ if(from||to)listed=listed.filter(credit=>{const date=(carteraCreditFacts(credit).next||{}).date||'';return !!date&&(!from||date>=from)&&(!to||date<=to);});
+ if(stageFilter!=='all')listed=listed.filter(credit=>carteraStageGroup(carteraCollectionStage(credit))===stageFilter);
+ if(agingFilter!=='all'&&typeof portfolioAgingId==='function')listed=listed.filter(credit=>portfolioAgingId(carteraCreditFacts(credit).dpd||0)===agingFilter);
+ if(focus&&typeof portfolioCollectionBucket==='function')listed=listed.filter(credit=>portfolioCollectionBucket(credit)===focus);
+ else if(carteraDigestFocus==='actions'){const ids=idsOf(digest.actions);listed=listed.filter(credit=>ids.has(credit.id));}
+ else if(carteraDigestFocus==='paused'){const ids=idsOf(digest.paused);listed=listed.filter(credit=>ids.has(credit.id));}
+ else if(carteraDigestFocus==='mora'){const ids=idsOf(digest.mora);listed=listed.filter(credit=>ids.has(credit.id));}
+ else if(carteraDigestFocus==='vence_hoy')listed=listed.filter(credit=>carteraCollectionStage(credit).id==='vence_hoy');
+ const banner=focus?`<p class="portfolio-summary-note">Bandeja de hoy: ${focusLabels[focus]||''}. <button type="button" class="portfolio-link" data-collection="clear">Ver toda la cobranza</button></p>`:(carteraDigestFocus?`<p class="portfolio-summary-note">Mostrando ${digestLabels[carteraDigestFocus]||''}. <button type="button" class="portfolio-link" data-digest="${escapeAttr(carteraDigestFocus)}">Ver toda la cobranza</button></p>`:'');
+ const rows=listed.map(credit=>{
   const stage=carteraCollectionStage(credit);
   const facts=carteraCreditFacts(credit);
   const agreement=carteraDeriveAgreement(credit.record);
   const patient=credit.record.patient||{};
   const sent=(carteraMessageLog(credit.record).slice(-1)[0]);
-  const actions=stage.channel?`<button type="button" class="btn btn-sm btn-secondary" onclick="carteraOpenWhatsapp('${escapeAttr(credit.id)}')">WhatsApp</button><button type="button" class="btn btn-sm btn-secondary" onclick="carteraMarkWhatsapp('${escapeAttr(credit.id)}')">Marcar WhatsApp enviado</button><button type="button" class="btn btn-sm btn-secondary" onclick="carteraOpenMailPreview('${escapeAttr(credit.id)}')">Correo</button>`:'<span class="pill pill-gray">Sin mensaje automático</span>';
-  return `<tr><td>${escapeHtml(credit.name)}<small>${escapeHtml(credit.code)}</small></td><td>${escapeHtml(stage.label)}</td><td>${facts.dpd}</td><td>${fmtMoney(stage.amount||facts.amount||0)}</td><td>${escapeHtml(facts.next&&facts.next.date||'—')}</td><td>${escapeHtml(facts.oldest&&facts.oldest.date||'—')}</td><td>${carteraPhoneActions(patient.phone)}</td><td>${carteraMailActions(patient.email)}</td><td>${sent?escapeHtml(sent.action+' · '+String(sent.at).slice(0,10)):'—'}</td><td>${escapeHtml(carteraAgreementLabel(agreement))}</td><td>${actions}<button type="button" class="btn btn-sm btn-primary" onclick="carteraOpenPayment('${escapeAttr(credit.id)}')">Aplicar pago</button><button type="button" class="btn btn-sm btn-secondary" onclick="carteraOpenAgreement('${escapeAttr(credit.id)}')">Acuerdo</button><button type="button" class="btn btn-sm btn-secondary" onclick="carteraOpenContact('${escapeAttr(credit.id)}')">Llamada</button></td></tr>`;
+  const next=carteraSheetDate(facts.next&&facts.next.date);
+  const oldest=carteraSheetDate(facts.oldest&&facts.oldest.date);
+  const reminder=sent?escapeHtml((sent.action||'Recordatorio')+' · '+carteraSheetDate(sent.at)):'—';
+  const deal=escapeHtml(carteraAgreementLabel(agreement));
+  return `<tr><td class="cartera-col-client"><span class="cartera-who"><button type="button" class="portfolio-link" data-credit="${escapeAttr(credit.id)}" data-action="detail">${escapeHtml(credit.name)}</button><small>${escapeHtml(credit.code)}</small></span></td><td class="cartera-col-stage"><span class="cartera-stage" data-tone="${carteraStageTone(stage)}" title="${escapeAttr(stage.label)}">${escapeHtml(carteraStageShort(stage))}</span></td><td class="cartera-col-days">${facts.dpd||0}</td><td class="cartera-col-money">${carteraMoney(stage.amount||facts.amount||0)}</td><td class="cartera-col-date">${escapeHtml(next)}</td><td class="cartera-col-contact">${carteraCollectionContact(patient)}</td><td class="cartera-col-actions">${carteraRowMenu(credit,stage,sent,{oldest,reminder,deal})}</td></tr>`;
  }).join('');
- return carteraMailSummaryHtml(credits)+`<p>Una fila por crédito. Llamar usa el teléfono, el ícono abre WhatsApp sin plantilla y el correo abre el programa de correo. WhatsApp se marca con Marcar WhatsApp enviado. El correo automático queda como Enviado (demo). No hay envío real.</p><div class="table-wrap portfolio-desktop-table"><table class="portfolio-table"><thead><tr><th>Cliente</th><th>Etapa de hoy</th><th>Días de atraso</th><th>Monto a cobrar</th><th>Próximo vencimiento</th><th>Vencido más antiguo</th><th>Celular</th><th>Correo</th><th>Último recordatorio</th><th>Acuerdo</th><th>Acciones</th></tr></thead><tbody>${rows||'<tr><td colspan="11">Sin créditos en cartera.</td></tr>'}</tbody></table></div>`;
+ const cards=listed.map(credit=>{
+  const stage=carteraCollectionStage(credit);
+  const facts=carteraCreditFacts(credit);
+  const patient=credit.record.patient||{};
+  const sent=carteraMessageLog(credit.record).slice(-1)[0];
+  const detail={oldest:carteraSheetDate(facts.oldest&&facts.oldest.date),reminder:sent?escapeHtml((sent.action||'Recordatorio')+' · '+carteraSheetDate(sent.at)):'—',deal:escapeHtml(carteraAgreementLabel(carteraDeriveAgreement(credit.record)))};
+  return `<article class="portfolio-mobile-card"><div class="portfolio-card-head"><div class="cartera-who"><button type="button" class="portfolio-link" data-credit="${escapeAttr(credit.id)}" data-action="detail">${escapeHtml(credit.name)}</button><small>${escapeHtml(credit.code)}</small></div><span class="cartera-stage" data-tone="${carteraStageTone(stage)}">${escapeHtml(carteraStageShort(stage))}</span></div><p class="cartera-money">${carteraMoney(stage.amount||facts.amount||0)} · ${escapeHtml(carteraSheetDate(facts.next&&facts.next.date))}</p>${carteraCollectionContact(patient)}${carteraRowMenu(credit,stage,sent,detail)}</article>`;
+ }).join('');
+ const vence=book.filter(credit=>carteraCollectionStage(credit).id==='vence_hoy').length;
+ const empty=focus||carteraDigestFocus?'Sin créditos en esta bandeja.':(from||to||stageFilter!=='all'||agingFilter!=='all'||state.query)?'Sin créditos con estos filtros.':'Sin créditos en cartera.';
+ return carteraMailSummaryHtml(book,digest,vence)+banner+`<div class="table-wrap cartera-sheet-wrap"><table class="cartera-sheet"><colgroup><col class="cartera-col-client"><col class="cartera-col-stage"><col class="cartera-col-days"><col class="cartera-col-money"><col class="cartera-col-date"><col class="cartera-col-contact"><col class="cartera-col-actions"></colgroup><thead><tr><th class="cartera-col-client" scope="col">Cliente</th><th class="cartera-col-stage" scope="col">Etapa</th><th class="cartera-col-days" scope="col">Días atraso</th><th class="cartera-col-money" scope="col">Monto</th><th class="cartera-col-date" scope="col">Próximo venc.</th><th class="cartera-col-contact" scope="col">Contacto</th><th class="cartera-col-actions" scope="col">Acciones</th></tr></thead><tbody>${rows||`<tr><td class="portfolio-empty" colspan="7">${empty}</td></tr>`}</tbody></table></div><div class="portfolio-mobile-cards">${cards||'<p class="portfolio-empty">Sin créditos en esta bandeja.</p>'}</div>`;
 }
-function carteraMailSummaryHtml(credits){
- const digest=carteraMailDigest(credits);
- const block=(title,rows,empty)=>`<section><h4>${title}</h4><p>${rows.length}</p>${rows.length?`<ul>${rows.map(row=>`<li><strong>${escapeHtml(row.title)}</strong><span>${escapeHtml(row.meta||'')}</span>${row.preview?`<pre class="cartera-fase1">${escapeHtml(row.preview)}</pre>`:''}</li>`).join('')}</ul>`:`<p>${empty}</p>`}</section>`;
- return `<section class="cartera-fase1 cartera-mail-summary" aria-label="Resumen diario de cobranza"><div class="cartera-mail-head"><div><h4>Resumen de hoy</h4><p>La corrida demo usa la hora guardada en America/Mexico_City. No sale ningún correo real.</p></div><span class="pill pill-gray">Correo no conectado · modo demo</span></div><div class="cartera-actions"><button type="button" class="btn btn-primary" onclick="carteraRunMailNow()">Ejecutar ahora</button></div><div class="cartera-mail-grid">${block('Acciones de hoy',digest.actions,'Sin correos demo hoy.')}${block('Pausados',digest.paused,'Sin pausas.')}${block('Mora 31+',digest.mora,'Sin créditos en mora 31+.')}</div></section>`;
+function carteraMailSummaryHtml(credits,digest,vence){
+ digest=digest||carteraMailDigest(credits||[]);
+ if(vence==null)vence=(credits||[]).filter(credit=>carteraCollectionStage(credit).id==='vence_hoy').length;
+ const tiles=[['actions','aqua','Acciones de hoy',digest.actions.length],['paused','mute','Pausados',digest.paused.length],['mora','alert','Mora 31+',digest.mora.length],['vence_hoy','warn','Vence hoy',vence]];
+ return `<section class="cartera-mail-summary" aria-label="Resumen diario de cobranza"><header class="cartera-sheet-head"><div><h3>Cobranza de hoy</h3><p>Modo demo · no hay envío real.</p></div><div class="cartera-sheet-tools"><span class="pill pill-gray">Correo no conectado · modo demo</span><button type="button" class="btn btn-primary" onclick="carteraRunMailNow()">Ejecutar ahora</button></div></header><div class="portfolio-today-grid">${tiles.map(([id,tone,label,count])=>`<button type="button" class="portfolio-today-card" data-digest="${id}" data-tone="${tone}" aria-pressed="${carteraDigestFocus===id?'true':'false'}"><span>${label}</span><strong>${count}</strong></button>`).join('')}</div>${carteraRulesFold()}</section>`;
 }
-function carteraPaintCollections(){const target=document.getElementById('portfolioContent');if(target)target.innerHTML=carteraCollectionsHtml();}
+function carteraPaintCollections(){if(typeof portfolioState!=='undefined'&&portfolioState.from&&portfolioState.to&&portfolioState.from>portfolioState.to)return;const target=document.getElementById('portfolioContent');if(target)target.innerHTML=carteraCollectionsHtml();}
 function carteraOpenAgreement(id){
  const p=(db.patients||[]).find(item=>item.id===id);if(!p)return false;
  const current=carteraDeriveAgreement(p);
@@ -755,10 +859,6 @@ if(typeof portfolioCreditCell==='function'&&!portfolioCreditCell.carteraContact)
  };
  portfolioCreditCell.carteraContact=true;
 }
-if(typeof portfolioSummaryHtml==='function'){
- const carteraOriginalSummary=portfolioSummaryHtml;
- portfolioSummaryHtml=function(credits){return carteraOriginalSummary(credits)+carteraAgingHtml(credits);};
-}
 if(typeof renderPortfolioBody==='function'){
  const carteraOriginalPortfolioBody=renderPortfolioBody;
  renderPortfolioBody=function(){const result=carteraOriginalPortfolioBody.apply(this,arguments);try{if(typeof portfolioState!=='undefined'&&portfolioState.tab==='collections')carteraPaintCollections();}catch(error){}return result;};
@@ -769,5 +869,5 @@ if(typeof renderSettings==='function'){
 }
 try{carteraSeedStageCredits();}catch(error){}
 try{carteraRunAutomaticMail({source:'load'});}catch(error){}
-Object.assign(globalThis,{carteraToday,carteraAddDays,carteraCobranzaRead,carteraCobranzaWrite,carteraTemplate,carteraFill,carteraCollectionStage,carteraCreditFacts,carteraFactsForPatient,carteraDeriveAgreement,carteraAgreementLabel,carteraMessageKey,carteraMessageSent,carteraRememberMessage,carteraWhatsappLink,carteraOpenWhatsapp,carteraMarkWhatsapp,carteraOpenMailPreview,carteraLogMail,carteraLogContact,carteraRegisterAgreement,carteraApplyForgiveness,carteraPresentReceipt,carteraReceiptFromResult,carteraReceiptDocument,carteraDownloadReceipt,carteraPrintReceipt,carteraOpenAgreement,carteraSaveAgreement,carteraChooseForgiveness,carteraApplyForgivenessUi,carteraOpenContact,carteraSaveContact,carteraAging,carteraSeedStageCredits,carteraBuildStageCredit,carteraSaveCobranzaSettings,carteraCobranzaSettingsHtml,carteraCreditWorkspaceHtml,carteraDownloadStoredReceipt,carteraOpenReceiptPreview,carteraCopyContact,carteraPhoneActions,carteraMailActions,carteraRunAutomaticMail,carteraRunMailNow,carteraEmailPreviewText,carteraMailDigest,carteraMailToggleForStage,CARTERA_COBRANZA_KEY,CARTERA_MAIL_STAGES,CARTERA_MAIL_TIMEZONE});
+Object.assign(globalThis,{carteraToday,carteraAddDays,carteraCobranzaRead,carteraCobranzaWrite,carteraTemplate,carteraFill,carteraCollectionStage,carteraCreditFacts,carteraFactsForPatient,carteraDeriveAgreement,carteraAgreementLabel,carteraMessageKey,carteraMessageSent,carteraRememberMessage,carteraWhatsappLink,carteraOpenWhatsapp,carteraMarkWhatsapp,carteraOpenMailPreview,carteraLogMail,carteraLogContact,carteraRegisterAgreement,carteraApplyForgiveness,carteraPresentReceipt,carteraReceiptFromResult,carteraReceiptDocument,carteraDownloadReceipt,carteraPrintReceipt,carteraOpenAgreement,carteraSaveAgreement,carteraChooseForgiveness,carteraApplyForgivenessUi,carteraOpenContact,carteraSaveContact,carteraAging,carteraSeedStageCredits,carteraBuildStageCredit,carteraSaveCobranzaSettings,carteraCobranzaSettingsHtml,carteraCreditWorkspaceHtml,carteraDownloadStoredReceipt,carteraOpenReceiptPreview,carteraCopyContact,carteraPhoneActions,carteraMailActions,carteraRunAutomaticMail,carteraRunMailNow,carteraEmailPreviewText,carteraMailDigest,carteraMailToggleForStage,carteraToggleDigest,carteraClearDigest,carteraStageGroup,carteraOpenMailRules,CARTERA_COBRANZA_KEY,CARTERA_MAIL_STAGES,CARTERA_MAIL_TIMEZONE});
 })();
