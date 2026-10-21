@@ -281,6 +281,19 @@ body.backoffice-typography:has(:is(#providers,#providerRequests).active) .modal:
  body.backoffice-typography :is(.row-item.active,.patient-list-item.active,.request-list-item.active,.patient-row.active,.patient-card-item.active,.patient-list-item.is-active,.request-list-item.is-active,.patient-row.is-active,.patient-card-item.is-active){
   border-width:1px!important;border-color:var(--bo-control-line)!important;background:var(--bo-control-light)!important;box-shadow:none!important;
  }
+ /* Text fields and single-line selects had no author border, so the user agent
+    inset border stayed visible as a thick dark top and left edge. This rule
+    sits before :focus so the focus border-color below still wins. background-color
+    (not the background shorthand) keeps the select chevron image. */
+ body.backoffice-typography :is(input:not([type]),input[type="text"],input[type="search"],input[type="email"],input[type="tel"],input[type="number"],input[type="date"],input[type="datetime-local"],input[type="password"],input[type="url"],textarea,select:not([multiple]):is(:not([size]),[size="0"],[size="1"])):not(:disabled):not([readonly]){
+  border:1px solid #E2E8F0!important;background-color:#fff!important;box-shadow:none!important;
+ }
+ body.backoffice-typography :is(input:not([type]),input[type="text"],input[type="search"],input[type="email"],input[type="tel"],input[type="number"],input[type="date"],input[type="datetime-local"],input[type="password"],input[type="url"],textarea,select:not([multiple]):is(:not([size]),[size="0"],[size="1"])):is(:disabled,[readonly]){
+  border:1px solid #E2E8F0!important;box-shadow:none!important;
+ }
+ body.backoffice-typography :is(input:not([type]),input[type="text"],input[type="search"],input[type="email"],input[type="tel"],input[type="password"],input[type="url"],textarea){
+  -webkit-appearance:none!important;appearance:none!important;
+ }
  body.backoffice-typography :is(input,select,textarea):focus{border-color:var(--bo-control-focus)!important;outline:none!important;box-shadow:none!important}
  body.backoffice-typography :is(button,a,input,select,textarea,[tabindex]):focus-visible{
   outline:2px solid var(--bo-control-focus)!important;outline-offset:-2px!important;box-shadow:none!important;
@@ -320,6 +333,42 @@ body.backoffice-typography:has(:is(#providers,#providerRequests).active) .modal:
  @media(forced-colors:active){
   body.backoffice-typography :is(button,a,input,select,textarea,[tabindex]):focus-visible{outline-color:Highlight!important}
   body.backoffice-typography :is(.btn,.tab,.period-btn){border-color:ButtonText!important}
+ }
+ /* Phase table controls. Same layer as the shared chrome, and more specific,
+    so 34px fields and the gray Liberar button beat the 38px/opacity rules above.
+    Unlayered !important cannot outrank this layer. */
+ body.backoffice-typography .v1-phases .v1-phase-table :is(input:not([type="checkbox"]),select){
+  height:34px!important;min-height:34px!important;padding:0 10px!important;
+  border:1px solid #E2E8F0!important;border-radius:8px!important;
+  background-color:#fff!important;box-shadow:none!important;color:#07142F!important;
+ }
+ body.backoffice-typography .v1-phases .v1-phase-pct{
+  appearance:textfield!important;-moz-appearance:textfield!important;
+  text-align:center!important;padding:0 4px!important;
+ }
+ body.backoffice-typography .v1-phases .v1-phase-table :is(input:not([type="checkbox"]),select):focus{
+  border-color:#E2E8F0!important;box-shadow:none!important;
+ }
+ body.backoffice-typography .v1-phases .v1-release{
+  width:auto!important;height:32px!important;min-height:32px!important;padding:0 10px!important;white-space:nowrap!important;
+ }
+ body.backoffice-typography .v1-phases .v1-release:not(:disabled){
+  opacity:1!important;background-color:var(--bo-control-solid)!important;border-color:var(--bo-control-solid)!important;color:var(--bo-control-ink)!important;
+ }
+ body.backoffice-typography .v1-phases .v1-release:disabled{
+  opacity:1!important;background-color:#F1F5F9!important;color:#94A3B8!important;border-color:#E2E8F0!important;box-shadow:none!important;
+ }
+ body.backoffice-typography .v1-phases .v1-phase-footer>.btn{
+  flex:0 0 auto!important;width:auto!important;height:34px!important;min-height:34px!important;padding:0 12px!important;white-space:nowrap!important;
+ }
+}
+
+/* The shared focus ring lives in the first layer, so only a later rule in that
+   same layer can turn the phase-table ring aqua. */
+@layer ui-flat-accessibility{
+ body.backoffice-typography .v1-phases .v1-phase-table :is(input:not([type="checkbox"]),select):focus-visible,
+ body.backoffice-typography .v1-phases input[type="checkbox"]:focus-visible{
+  outline:2px solid #20C7D4!important;outline-offset:1px!important;
  }
 }
 

@@ -661,10 +661,19 @@
     writeOps(storage, ops);
     return {ok:true, book:book, demo:true};
   }
-  function formatPhaseTotal(sum, amount) {
+  function formatPhasePercent(sum) {
     const rounded = Math.round(Number(sum) * 100) / 100;
     const pct = Number.isFinite(rounded) ? (Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(2)) : '0';
-    return pct + '% · ' + money(amount);
+    return pct + '%';
+  }
+  function releaseHint(priorReleased, evidence, kamOn) {
+    const missing = [];
+    if (!priorReleased) missing.push('la fase anterior');
+    if (!String(evidence || '').trim()) missing.push('la evidencia del doctor');
+    if (!kamOn) missing.push('la validación del KAM');
+    if (!missing.length) return '';
+    if (missing.length === 1) return 'Falta ' + missing[0] + '.';
+    return 'Falta ' + missing.slice(0, -1).join(', ') + ' y ' + missing[missing.length - 1] + '.';
   }
   function phaseRowHtml(phase, locked, priorReleased) {
     const released = phase.status === 'liberada';
@@ -676,9 +685,10 @@
       : '<input class="v1-evidence" data-v1-phase-evidence placeholder="Nota ficticia de evidencia" value="' + esc(phase.evidence || '') + '" oninput="PulzzoV1.syncPhasePanel(this)">';
     const kam = '<input data-v1-phase-kam type="checkbox" aria-label="Validación KAM"' + (released || phase.kamValidated ? ' checked' : '') + (released ? ' disabled' : ' onchange="PulzzoV1.syncPhasePanel(this)"') + '>';
     const ready = !released && priorReleased && String(phase.evidence || '').trim() && phase.kamValidated === true;
+    const hint = ready ? '' : releaseHint(priorReleased, phase.evidence, phase.kamValidated === true);
     const action = released
       ? '<span class="v1-released-ref">Liberada</span>'
-      : '<button type="button" class="btn btn-primary btn-sm v1-release" onclick="PulzzoV1.releasePhaseFromDom(this)"' + (ready ? '' : ' disabled') + '>Liberar</button>';
+      : '<button type="button" class="btn btn-primary btn-sm v1-release" onclick="PulzzoV1.releasePhaseFromDom(this)"' + (hint ? ' title="' + esc(hint) + '"' : '') + (ready ? '' : ' disabled') + '>Liberar</button>';
     return '<tr class="v1-phase" data-phase-id="' + esc(phase.id) + '" data-phase-status="' + esc(released ? 'liberada' : 'pendiente') + '"><td><input class="v1-phase-name" data-v1-phase-label value="' + esc(phase.label) + '"' + ro + ' oninput="PulzzoV1.syncPhasePanel(this)"></td><td><input class="v1-phase-pct" data-v1-phase-percent type="number" min="0" max="100" step="0.01" value="' + esc(phase.percent) + '"' + ro + ' oninput="PulzzoV1.syncPhasePanel(this)"></td><td class="v1-phase-money" data-v1-phase-amount>' + esc(money(phase.amount)) + '</td><td><span class="v1-pill" data-tone="' + tone + '">' + esc(label) + '</span></td><td>' + evidence + '</td><td class="v1-kam">' + kam + '</td><td class="v1-action">' + action + '</td></tr>';
   }
   function phasePanelHtml(patient) {
@@ -696,7 +706,7 @@
     const amount = Math.round(book.phases.reduce((acc, phase) => acc + Number(phase.amount || 0), 0) * 100) / 100;
     const off = Math.abs(sum - 100) > 0.001;
     const footer = locked ? '' : '<div class="action-bar v1-phase-footer"><button type="button" class="btn btn-secondary btn-sm" onclick="PulzzoV1.addPhaseRow(this)">Agregar fase</button><button type="button" class="btn btn-primary btn-sm" data-v1-save-phases onclick="PulzzoV1.savePhasesFromDom(this)"' + (off ? ' disabled' : '') + '>Guardar porcentajes</button></div>';
-    return '<section class="dispersion-block v1-phases" data-v1-patient="' + esc(patient && patient.id) + '" data-v1-total="' + esc(total) + '"><div class="dispersion-block-head"><div><h4>Dispersión por fases</h4><p>Simulación. Cada fase se libera aparte. La tabla del cliente sigue siendo una sola, sobre el total.</p></div></div><p class="v1-legal-chip">' + esc(LEGAL_NOTE) + '</p><div class="v1-phase-table-wrap"><table class="v1-phase-table"><colgroup><col class="c-name"><col class="c-pct"><col class="c-money"><col class="c-state"><col class="c-evidence"><col class="c-kam"><col class="c-action"></colgroup><thead><tr><th>Fase</th><th>%</th><th>Monto</th><th>Estado</th><th>Evidencia del doctor (demo)</th><th>Validación KAM</th><th>Acción</th></tr></thead><tbody class="v1-phase-list">' + rows + '</tbody><tfoot><tr class="v1-phase-total"><td colspan="7"><span data-v1-phase-total>' + esc(formatPhaseTotal(sum, amount)) + '</span><span class="v1-phase-warn" data-v1-phase-warn' + (off ? '' : ' hidden') + '>Los porcentajes deben sumar 100%.</span></td></tr></tfoot></table></div>' + footer + '<p class="v1-phase-msg" role="status"></p></section>';
+    return '<section class="dispersion-block v1-phases" data-v1-patient="' + esc(patient && patient.id) + '" data-v1-total="' + esc(total) + '"><div class="dispersion-block-head"><div class="v1-phase-heading"><div class="v1-phase-title"><h4>Dispersión por fases</h4><span class="v1-legal-chip">' + esc(LEGAL_NOTE) + '</span></div><p>Simulación. Cada fase se libera aparte. La tabla del cliente sigue siendo una sola, sobre el total.</p></div></div><div class="v1-phase-table-wrap"><table class="v1-phase-table"><colgroup><col class="c-name"><col class="c-pct"><col class="c-money"><col class="c-state"><col class="c-evidence"><col class="c-kam"><col class="c-action"></colgroup><thead><tr><th>Fase</th><th>%</th><th>Monto</th><th>Estado</th><th>Evidencia del doctor (demo)</th><th>Validación KAM</th><th>Acción</th></tr></thead><tbody class="v1-phase-list">' + rows + '</tbody><tfoot><tr class="v1-phase-total"><td>Total</td><td data-v1-phase-total>' + esc(formatPhasePercent(sum)) + '</td><td class="v1-phase-money" data-v1-phase-amount-total>' + esc(money(amount)) + '</td><td colspan="4"><span class="v1-phase-warn" data-v1-phase-warn' + (off ? '' : ' hidden') + '>Los porcentajes deben sumar 100%.</span></td></tr></tfoot></table></div>' + footer + '<p class="v1-phase-msg" role="status"></p></section>';
   }
   function syncPhasePanel(node) {
     const box = phaseRoot(node);
@@ -725,13 +735,23 @@
         pill.textContent = validada ? 'Validada' : 'Pendiente';
       }
       const button = row.querySelector('.v1-release');
-      if (button) button.disabled = !(priorOk && evidence && String(evidence.value || '').trim() && kam && kam.checked);
+      if (button) {
+        const evidenceText = evidence ? evidence.value : '';
+        const kamOn = !!(kam && kam.checked);
+        const canRelease = priorOk && String(evidenceText || '').trim() && kamOn;
+        button.disabled = !canRelease;
+        const hint = releaseHint(priorOk, evidenceText, kamOn);
+        if (hint) button.title = hint;
+        else button.removeAttribute('title');
+      }
       if (!released) priorOk = false;
     });
     const sum = Math.round(safe.reduce((acc, row) => acc + row.percent, 0) * 100) / 100;
     const sumAmount = Math.round(amounts.reduce((acc, row) => acc + Number(row.amount || 0), 0) * 100) / 100;
     const totalNode = box.querySelector('[data-v1-phase-total]');
-    if (totalNode) totalNode.textContent = formatPhaseTotal(sum, sumAmount);
+    if (totalNode) totalNode.textContent = formatPhasePercent(sum);
+    const amountNode = box.querySelector('[data-v1-phase-amount-total]');
+    if (amountNode) amountNode.textContent = money(sumAmount);
     const warn = box.querySelector('[data-v1-phase-warn]');
     if (warn) {
       warn.hidden = checked.ok;

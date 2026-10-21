@@ -1146,41 +1146,74 @@ body.portfolio-payment-open{overflow:hidden;overscroll-behavior:none}
 .dispersion-payments-section .v1-phases{margin-top:16px;gap:12px;border-top:0;padding-top:16px}
 .dispersion-payments-section .provider-dispersion-block .dispersion-condition-row{min-height:0;padding:10px 12px;border:0;border-radius:8px;background:#F8FAFC}
 .dispersion-payments-section .provider-dispersion-block .dispersion-condition-note{border:0;border-radius:8px;background:#F8FAFC;margin-top:12px}
+.v1-phases .dispersion-block-head{display:block}
+.v1-phases .v1-phase-heading{min-width:0}
+.v1-phases .v1-phase-title{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .v1-phases .dispersion-block-head h4{margin:0;font-size:16px;line-height:1.2}
-.v1-phases .dispersion-block-head p{margin:2px 0 0;font-size:12px;line-height:1.35}
-.v1-phases .v1-legal-chip{margin:0;padding:0;border:0;background:transparent;color:#64748B;font-size:12px;font-weight:500;line-height:1.35}
+.v1-phases .dispersion-block-head p{margin:4px 0 0;color:#64748B;font-size:12px;line-height:1.35}
+.v1-phases .v1-legal-chip{display:inline-flex;align-items:center;margin:0;padding:2px 8px;border:0;border-radius:999px;background:#FEF3C7;color:#92400E;font-size:11px;font-weight:650;line-height:1.3;white-space:nowrap}
 .v1-phases .v1-phase-table-wrap{overflow-x:auto}
-.v1-phases .v1-phase-table{display:table;width:100%;border-collapse:collapse;table-layout:fixed;font-size:13px}
+.v1-phases .v1-phase-table{display:table;width:100%;border-collapse:collapse;table-layout:fixed;font-size:13px;color:#07142F}
 .v1-phases .v1-phase-table thead{display:table-header-group}
 .v1-phases .v1-phase-table tbody{display:table-row-group}
 .v1-phases .v1-phase-table tfoot{display:table-footer-group}
 .v1-phases .v1-phase-table tr{display:table-row}
 .v1-phases .v1-phase-table :is(th,td){display:table-cell}
-.v1-phases .v1-phase-table .c-name{width:16%}
-.v1-phases .v1-phase-table .c-pct{width:9%}
-.v1-phases .v1-phase-table .c-money{width:14%}
-.v1-phases .v1-phase-table .c-state{width:12%}
-.v1-phases .v1-phase-table .c-evidence{width:24%}
-.v1-phases .v1-phase-table .c-kam{width:12%}
-.v1-phases .v1-phase-table .c-action{width:13%}
-.v1-phases .v1-phase-table th{padding:4px 8px 8px;color:#64748B;font-size:11px;font-weight:650;line-height:1.25;text-align:left;white-space:normal}
-.v1-phases .v1-phase-table td{padding:6px 8px;border-top:1px solid #E8EEF6;vertical-align:middle}
-.v1-phases .v1-phase-table :is(input:not([type="checkbox"]),button){width:100%;max-width:100%}
-.v1-phases .v1-phase-pct{text-align:center}
-.v1-phases .v1-phase-money,.v1-phases .v1-phase-table th:nth-child(3){text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
-.v1-phases .v1-kam,.v1-phases .v1-phase-table th:nth-child(6){text-align:center}
-.v1-phases .v1-action,.v1-phases .v1-phase-table th:nth-child(7){text-align:center}
-.v1-phases .v1-pill{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:650;line-height:1.3;white-space:nowrap}
+.v1-phases .v1-phase-table .c-name{width:22%}
+.v1-phases .v1-phase-table .c-pct{width:72px}
+.v1-phases .v1-phase-table .c-money{width:132px}
+.v1-phases .v1-phase-table .c-state{width:104px}
+.v1-phases .v1-phase-table .c-evidence{width:28%}
+.v1-phases .v1-phase-table .c-kam{width:108px}
+.v1-phases .v1-phase-table .c-action{width:96px}
+.v1-phases .v1-phase-table th{padding:0 12px 8px;color:#64748B;font-size:11px!important;font-weight:650!important;letter-spacing:.04em!important;line-height:1.25!important;text-align:left;text-transform:uppercase!important;vertical-align:bottom;white-space:normal}
+.v1-phases .v1-phase-table td{height:52px;padding:10px 12px;border-top:1px solid #E8EEF6;vertical-align:middle}
+.v1-phases .v1-phase-table :is(.v1-phase-name,.v1-evidence){width:100%;max-width:100%}
+.v1-phases .v1-phase-table :is(input:not([type="checkbox"]),select){
+ height:34px!important;min-height:34px!important;box-sizing:border-box!important;
+ padding:0 10px!important;border:1px solid #E2E8F0!important;border-radius:8px!important;
+ background-color:#fff!important;box-shadow:none!important;color:#07142F!important;
+ font-size:13px!important;line-height:32px!important;
+}
+.v1-phases .v1-phase-table :is(input:not([type="checkbox"]),select):focus{
+ border-color:#E2E8F0!important;outline:2px solid #20C7D4!important;outline-offset:1px!important;box-shadow:none!important;
+}
+.v1-phases .v1-phase-table th:nth-child(2),
+.v1-phases .v1-phase-table td:nth-child(2){width:72px;padding-left:0;padding-right:0;text-align:center}
+.v1-phases .v1-phase-pct{width:72px;max-width:100%;margin:0 auto;text-align:center;-moz-appearance:textfield;appearance:textfield}
+.v1-phases .v1-phase-pct::-webkit-outer-spin-button,
+.v1-phases .v1-phase-pct::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.v1-phases .v1-phase-table td.v1-phase-money,
+.v1-phases .v1-phase-table th:nth-child(3){text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;padding-right:16px}
+.v1-phases .v1-phase-table th:nth-child(4),
+.v1-phases .v1-phase-table td:nth-child(4){padding-left:0;text-align:left}
+.v1-phases .v1-kam,
+.v1-phases .v1-phase-table th:nth-child(6){text-align:center}
+.v1-phases .v1-action,
+.v1-phases .v1-phase-table th:nth-child(7){width:96px;padding-left:6px;padding-right:6px;text-align:center}
+.v1-phases .v1-pill{display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:650;line-height:1.3;white-space:nowrap}
 .v1-phases .v1-pill[data-tone="pendiente"]{background:#F1F5F9;color:#64748B}
 .v1-phases .v1-pill[data-tone="validada"]{background:#FEF3C7;color:#92400E}
 .v1-phases .v1-pill[data-tone="liberada"]{background:#DCFCE7;color:#166534}
 .v1-phases .v1-evidence-done,.v1-phases .v1-released-ref{color:#64748B;font-size:12px}
-.v1-phases .v1-phase-total td{border-top:1px solid #E8EEF6;font-weight:650;color:#07142F}
-.v1-phases .v1-phase-warn{margin-left:12px;color:#DC2626;font-size:12px;font-weight:650}
+.v1-phases .v1-phase-total td{border-top:1px solid #CBD5E1;font-weight:700;color:#07142F;height:auto}
+.v1-phases .v1-phase-warn{color:#DC2626;font-size:12px;font-weight:650}
 .v1-phases .v1-phase-warn[hidden]{display:none}
 .v1-phases .v1-phase-footer{display:flex;justify-content:flex-end;gap:8px;margin:0}
-.v1-phases .v1-phase-footer>.btn{flex:0 0 auto!important;width:auto!important}
-.v1-phases input[type="checkbox"]{width:16px;height:16px;border-radius:4px}
+.v1-phases .v1-phase-footer>.btn{flex:0 0 auto!important;width:auto!important;height:34px!important;min-height:34px!important;padding:0 12px!important;font-size:13px!important;white-space:nowrap!important}
+.v1-phases .v1-release{width:auto!important;height:32px!important;min-height:32px!important;padding:0 10px!important;font-size:13px!important;white-space:nowrap!important}
+.v1-phases .v1-release:disabled{opacity:1!important;background:#F1F5F9!important;color:#94A3B8!important;border-color:#E2E8F0!important;box-shadow:none!important}
+.v1-phases input[type="checkbox"]{
+ -webkit-appearance:none!important;appearance:none!important;width:16px!important;height:16px!important;min-height:16px!important;
+ margin:0!important;padding:0!important;border:1px solid #E2E8F0!important;border-radius:4px!important;
+ background-color:#fff!important;background-image:none!important;box-shadow:none!important;vertical-align:middle;cursor:pointer;
+}
+.v1-phases input[type="checkbox"]:checked{
+ background-color:#20C7D4!important;border-color:#20C7D4!important;
+ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2.2 6.1 4.7 8.6 9.8 3.4' fill='none' stroke='%23fff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")!important;
+ background-repeat:no-repeat!important;background-position:center!important;background-size:12px 12px!important;
+}
+.v1-phases input[type="checkbox"]:focus{outline:2px solid #20C7D4!important;outline-offset:1px!important;box-shadow:none!important}
 #carteraFase1Launch.cartera-fase1,
 .dispersion-payments-section>.financial-breakdown-note{
  border:0;

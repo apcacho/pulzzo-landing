@@ -1,7 +1,7 @@
 {
-  "version": "v51",
-  "previous_version": "v50",
-  "note": "v51 · demo local. La tabla de fases entra por la pestaña Dispersión y pagos, y Aplicar pago y la nota histórica usan la tarjeta suave. Los hashes de files siguen el manifiesto histórico.",
+  "version": "v52",
+  "previous_version": "v51",
+  "note": "v52 · demo local. La tabla de fases usa borde fino, columnas alineadas, total en el pie y Liberar en gris hasta cumplir la evidencia. Los hashes de files siguen el manifiesto histórico.",
   "status": "demo_local",
   "runtime_source_commit": "f1833ecf73109794f19f01a2bafce4a989e2ccde",
   "runtime_deployment": "appgdep_6acf3ae21f088191a77d30b5cef1d4d1",
