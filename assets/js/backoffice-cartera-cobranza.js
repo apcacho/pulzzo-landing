@@ -824,6 +824,7 @@ function carteraOpenCampaign(){
  if(typeof carteraUiState!=='undefined')carteraUiState.campaignDraft={ids,templateId};
  const html=carteraCampaignDialogHtml(ids,templateId);
  if(typeof modal==='function')modal(html);
+ carteraMarkCampaignModal();
  return html;
 }
 function carteraRefreshCampaignDialog(){
@@ -835,7 +836,12 @@ function carteraRefreshCampaignDialog(){
  if(typeof carteraUiState!=='undefined')carteraUiState.campaignDraft={ids:draft.ids,templateId};
  const html=carteraCampaignDialogHtml(draft.ids||[],templateId,title);
  if(typeof modal==='function')modal(html);
+ carteraMarkCampaignModal();
  return html;
+}
+function carteraMarkCampaignModal(){
+ const box=document.getElementById&&document.getElementById('modal');
+ if(box)box.className='modal cartera-campaign-modal';
 }
 function carteraSendCampaign(input){
  input=input||{};

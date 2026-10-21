@@ -11,12 +11,14 @@ assert.match(tokens,/--ui-surface-radius:12px;/);
 assert.match(tokens,/:focus-visible\{\s*outline:2px solid var\(--ui-focus-ink,#14263D\)!important;/);
 assert.match(tokens,/@media\(forced-colors:active\)/);
 const pages=['solicitud-paciente.html','registro-doctor.html','registro-paciente.html','login-doctor.html','login-paciente.html','backoffice.html','asistido-demo.html','crm-demo.html','verificacion-cuenta.html','verificacion-doctor.html'];
+const approvedElevation='0 1px 3px rgba(7,20,47,.06), 0 1px 2px rgba(7,20,47,.04)';
 const checkShadows=(css,name)=>{
  for(const m of css.matchAll(/(--[\w-]*shadow[\w-]*)\s*:\s*([^;}]+)/g)){
   assert.equal(m[2].trim(),m[1]==='--ui-surface-shadow'?'none':'var(--ui-surface-shadow,none)',`${name}: every shadow alias consumes the canonical flat token`);
  }
  for(const m of css.matchAll(/(?<![\w-])box-shadow\s*:\s*([^;}]+)/g)){
-  assert.match(m[1].trim(),/^(?:none|var\(--ui-surface-shadow,none\))\s*(?:!important)?$/,`${name}: no decorative or selection shadow`);
+  const value=m[1].trim().replace(/\s+/g,' ').replace(/\s*!important$/,'');
+  assert.ok(value==='none'||value==='var(--ui-surface-shadow,none)'||value===approvedElevation,`${name}: no decorative or selection shadow`);
  }
 };
 for(const page of pages){

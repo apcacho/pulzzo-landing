@@ -1045,3 +1045,80 @@ body.portfolio-payment-open{overflow:hidden;overscroll-behavior:none}
  #appView:not(.sidebar-collapsed):has(#portfolio.active)>.main>.topbar,
  #appView:not(.sidebar-collapsed):has(#portfolio.active)>.main>.content{padding-left:74px}
 }
+/* v49 · white cards on the light page. The color bar is clipped by the radius. */
+#portfolio :is(.portfolio-metric,.portfolio-today-card,.portfolio-chart,.portfolio-sheet-block,.cartera-sheet-wrap,.cartera-campaign-bar,.cartera-campaign-fold,.cartera-rules-fold,.portfolio-filters){
+ border:0;
+ border-radius:12px;
+ background:#fff;
+ box-shadow:0 1px 3px rgba(7,20,47,.06), 0 1px 2px rgba(7,20,47,.04);
+}
+#portfolio :is(.portfolio-metric,.portfolio-today-card,.cartera-campaign-bar){position:relative;overflow:hidden}
+#portfolio .portfolio-metric::before,
+#portfolio .portfolio-today-card::before,
+#portfolio .cartera-campaign-bar::before{
+ content:"";
+ position:absolute;
+ top:0;
+ left:0;
+ right:0;
+ height:3px;
+ background:var(--aqua,#20C7D4);
+ pointer-events:none;
+}
+#portfolio .portfolio-today-card::before{background:#94A3B8}
+#portfolio .portfolio-today-card[data-tone="aqua"]::before{background:var(--aqua,#20C7D4)}
+#portfolio .portfolio-metric[data-accent="alert"]::before,
+#portfolio .portfolio-today-card[data-tone="alert"]::before{background:var(--red,#DC2626)}
+#portfolio .portfolio-metric[data-accent="good"]::before{background:var(--green,#16A34A)}
+#portfolio .portfolio-today-card[data-tone="warn"]::before{background:var(--amber,#F59E0B)}
+#portfolio .portfolio-today-card[data-tone="mute"]::before{background:#94A3B8}
+#portfolio .portfolio-kpis,
+#portfolio .portfolio-charts,
+#portfolio .portfolio-dashboard-split,
+#portfolio .portfolio-today-grid{gap:16px}
+#portfolio .portfolio-charts,
+#portfolio .portfolio-dashboard-split,
+#portfolio .portfolio-today{margin-top:16px}
+#portfolio .cartera-mail-summary{margin:0 0 16px}
+#portfolio .portfolio-metric,
+#portfolio .portfolio-today-card{padding:16px 18px}
+#portfolio .portfolio-chart,
+#portfolio .portfolio-sheet-block{padding:16px 18px;overflow:hidden}
+#portfolio .portfolio-sheet-dashboard{padding:16px;border-radius:12px}
+#portfolio .portfolio-filters{gap:16px;padding:16px;margin-bottom:16px}
+#portfolio .cartera-sheet-wrap{padding:16px 8px;overflow:visible}
+#portfolio .cartera-campaign-bar{gap:16px;margin:0 0 16px;padding:16px 18px}
+#portfolio .cartera-campaign-fold,
+#portfolio .cartera-rules-fold{max-width:none;margin-top:16px;padding:16px 18px}
+#portfolio :is(.btn,input,select,textarea,.portfolio-filter-chip){border-radius:8px}
+#portfolio :is(input[type="checkbox"],input[type="radio"]){border-radius:4px}
+#portfolio .cartera-icon-row :is(a,button),
+#portfolio .cartera-more>summary,
+#portfolio .cartera-more-panel,
+#portfolio .portfolio-cut-controls input{border-radius:8px}
+.modal.cartera-campaign-modal{
+ border-radius:12px;
+ box-shadow:0 1px 3px rgba(7,20,47,.06), 0 1px 2px rgba(7,20,47,.04);
+ overflow:hidden;
+}
+.modal.cartera-campaign-modal :is(.btn,input,select,textarea){border-radius:8px}
+.modal.cartera-campaign-modal .cartera-fase1{
+ position:relative;
+ overflow:hidden;
+ margin:8px 0 0;
+ padding:16px 18px;
+ border:0;
+ border-radius:12px;
+ background:#fff;
+ box-shadow:0 1px 3px rgba(7,20,47,.06), 0 1px 2px rgba(7,20,47,.04);
+ white-space:pre-wrap;
+}
+.modal.cartera-campaign-modal .cartera-fase1::before{
+ content:"";
+ position:absolute;
+ top:0;
+ left:0;
+ right:0;
+ height:3px;
+ background:var(--aqua,#20C7D4);
+}
