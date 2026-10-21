@@ -661,13 +661,84 @@
     writeOps(storage, ops);
     return {ok:true, book:book, demo:true};
   }
+  function formatPhaseTotal(sum, amount) {
+    const rounded = Math.round(Number(sum) * 100) / 100;
+    const pct = Number.isFinite(rounded) ? (Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(2)) : '0';
+    return pct + '% · ' + money(amount);
+  }
+  function phaseRowHtml(phase, locked, priorReleased) {
+    const released = phase.status === 'liberada';
+    const tone = released ? 'liberada' : (phase.kamValidated ? 'validada' : 'pendiente');
+    const label = released ? 'Liberada' : (phase.kamValidated ? 'Validada' : 'Pendiente');
+    const ro = (locked || released) ? ' readonly' : '';
+    const evidence = released
+      ? '<span class="v1-evidence-done">' + esc(phase.evidence || '—') + '</span>'
+      : '<input class="v1-evidence" data-v1-phase-evidence placeholder="Nota ficticia de evidencia" value="' + esc(phase.evidence || '') + '" oninput="PulzzoV1.syncPhasePanel(this)">';
+    const kam = '<input data-v1-phase-kam type="checkbox" aria-label="Validación KAM"' + (released || phase.kamValidated ? ' checked' : '') + (released ? ' disabled' : ' onchange="PulzzoV1.syncPhasePanel(this)"') + '>';
+    const ready = !released && priorReleased && String(phase.evidence || '').trim() && phase.kamValidated === true;
+    const action = released
+      ? '<span class="v1-released-ref">Liberada</span>'
+      : '<button type="button" class="btn btn-primary btn-sm v1-release" onclick="PulzzoV1.releasePhaseFromDom(this)"' + (ready ? '' : ' disabled') + '>Liberar</button>';
+    return '<tr class="v1-phase" data-phase-id="' + esc(phase.id) + '" data-phase-status="' + esc(released ? 'liberada' : 'pendiente') + '"><td><input class="v1-phase-name" data-v1-phase-label value="' + esc(phase.label) + '"' + ro + ' oninput="PulzzoV1.syncPhasePanel(this)"></td><td><input class="v1-phase-pct" data-v1-phase-percent type="number" min="0" max="100" step="0.01" value="' + esc(phase.percent) + '"' + ro + ' oninput="PulzzoV1.syncPhasePanel(this)"></td><td class="v1-phase-money" data-v1-phase-amount>' + esc(money(phase.amount)) + '</td><td><span class="v1-pill" data-tone="' + tone + '">' + esc(label) + '</span></td><td>' + evidence + '</td><td class="v1-kam">' + kam + '</td><td class="v1-action">' + action + '</td></tr>';
+  }
   function phasePanelHtml(patient) {
     const storage = storageOf();
     const total = offerTotal(patient);
     const book = phasesFor(storage, patient && patient.id, total);
     const locked = book.phases.some(phase => phase.status === 'liberada');
-    const rows = book.phases.map(phase => '<div class="v1-phase" data-phase-id="' + esc(phase.id) + '"><label>Fase <input data-v1-phase-label value="' + esc(phase.label) + '"' + (locked ? ' readonly' : '') + '></label><label>% <input data-v1-phase-percent type="number" min="0" max="100" step="0.01" value="' + esc(phase.percent) + '"' + (locked ? ' readonly' : '') + '></label><strong>' + esc(money(phase.amount)) + '</strong><span>' + esc(phase.status === 'liberada' ? 'Liberada' : 'Pendiente') + '</span>' + (phase.status === 'liberada' ? '<small>Ref. ' + esc(phase.id) + '</small>' : '<label>Evidencia del doctor (demo)<input data-v1-phase-evidence placeholder="Nota ficticia de evidencia"></label><label class="check"><input data-v1-phase-kam type="checkbox"> Validación del KAM</label><button type="button" class="btn btn-primary btn-sm" onclick="PulzzoV1.releasePhaseFromDom(this)">Liberar fase</button>') + '</div>').join('');
-    return '<section class="dispersion-block v1-phases" data-v1-patient="' + esc(patient && patient.id) + '" data-v1-total="' + esc(total) + '"><div class="dispersion-block-head"><div><h4>Dispersión por fases</h4><p>Simulación. Cada fase se libera aparte. La tabla del cliente sigue siendo una sola, sobre el total.</p></div></div><p class="v1-note">' + esc(LEGAL_NOTE) + '</p><div class="v1-phase-list">' + rows + '</div>' + (locked ? '' : '<div class="action-bar"><button type="button" class="btn btn-secondary btn-sm" onclick="PulzzoV1.addPhaseRow(this)">Agregar fase</button><button type="button" class="btn btn-primary btn-sm" onclick="PulzzoV1.savePhasesFromDom(this)">Guardar porcentajes</button></div>') + '<p class="v1-phase-msg" role="status"></p></section>';
+    let prior = true;
+    const rows = book.phases.map(phase => {
+      const html = phaseRowHtml(phase, locked, prior);
+      if (phase.status !== 'liberada') prior = false;
+      return html;
+    }).join('');
+    const sum = Math.round(book.phases.reduce((acc, phase) => acc + Number(phase.percent), 0) * 100) / 100;
+    const amount = Math.round(book.phases.reduce((acc, phase) => acc + Number(phase.amount || 0), 0) * 100) / 100;
+    const off = Math.abs(sum - 100) > 0.001;
+    const footer = locked ? '' : '<div class="action-bar v1-phase-footer"><button type="button" class="btn btn-secondary btn-sm" onclick="PulzzoV1.addPhaseRow(this)">Agregar fase</button><button type="button" class="btn btn-primary btn-sm" data-v1-save-phases onclick="PulzzoV1.savePhasesFromDom(this)"' + (off ? ' disabled' : '') + '>Guardar porcentajes</button></div>';
+    return '<section class="dispersion-block v1-phases" data-v1-patient="' + esc(patient && patient.id) + '" data-v1-total="' + esc(total) + '"><div class="dispersion-block-head"><div><h4>Dispersión por fases</h4><p>Simulación. Cada fase se libera aparte. La tabla del cliente sigue siendo una sola, sobre el total.</p></div></div><p class="v1-legal-chip">' + esc(LEGAL_NOTE) + '</p><div class="v1-phase-table-wrap"><table class="v1-phase-table"><colgroup><col class="c-name"><col class="c-pct"><col class="c-money"><col class="c-state"><col class="c-evidence"><col class="c-kam"><col class="c-action"></colgroup><thead><tr><th>Fase</th><th>%</th><th>Monto</th><th>Estado</th><th>Evidencia del doctor (demo)</th><th>Validación KAM</th><th>Acción</th></tr></thead><tbody class="v1-phase-list">' + rows + '</tbody><tfoot><tr class="v1-phase-total"><td colspan="7"><span data-v1-phase-total>' + esc(formatPhaseTotal(sum, amount)) + '</span><span class="v1-phase-warn" data-v1-phase-warn' + (off ? '' : ' hidden') + '>Los porcentajes deben sumar 100%.</span></td></tr></tfoot></table></div>' + footer + '<p class="v1-phase-msg" role="status"></p></section>';
+  }
+  function syncPhasePanel(node) {
+    const box = phaseRoot(node);
+    if (!box || !box.querySelectorAll) return;
+    const total = Number(box.getAttribute('data-v1-total')) || 0;
+    const rows = Array.from(box.querySelectorAll('[data-phase-id]'));
+    const draft = rows.map(row => ({
+      id:row.getAttribute('data-phase-id'),
+      label:(row.querySelector('[data-v1-phase-label]') || {}).value || '',
+      percent:(row.querySelector('[data-v1-phase-percent]') || {}).value
+    }));
+    const safe = draft.map(row => ({percent:Number.isFinite(Number(row.percent)) ? Number(row.percent) : 0}));
+    const amounts = phaseAmounts(total, safe);
+    const checked = validatePhases(draft);
+    let priorOk = true;
+    rows.forEach((row, index) => {
+      const moneyCell = row.querySelector('[data-v1-phase-amount]');
+      if (moneyCell) moneyCell.textContent = money(amounts[index].amount);
+      const released = row.getAttribute('data-phase-status') === 'liberada';
+      const kam = row.querySelector('[data-v1-phase-kam]');
+      const evidence = row.querySelector('[data-v1-phase-evidence]');
+      const pill = row.querySelector('.v1-pill');
+      if (pill && !released) {
+        const validada = !!(kam && kam.checked);
+        pill.setAttribute('data-tone', validada ? 'validada' : 'pendiente');
+        pill.textContent = validada ? 'Validada' : 'Pendiente';
+      }
+      const button = row.querySelector('.v1-release');
+      if (button) button.disabled = !(priorOk && evidence && String(evidence.value || '').trim() && kam && kam.checked);
+      if (!released) priorOk = false;
+    });
+    const sum = Math.round(safe.reduce((acc, row) => acc + row.percent, 0) * 100) / 100;
+    const sumAmount = Math.round(amounts.reduce((acc, row) => acc + Number(row.amount || 0), 0) * 100) / 100;
+    const totalNode = box.querySelector('[data-v1-phase-total]');
+    if (totalNode) totalNode.textContent = formatPhaseTotal(sum, sumAmount);
+    const warn = box.querySelector('[data-v1-phase-warn]');
+    if (warn) {
+      warn.hidden = checked.ok;
+      warn.textContent = checked.ok ? 'Los porcentajes deben sumar 100%.' : checked.error;
+    }
+    const save = box.querySelector('[data-v1-save-phases]');
+    if (save) save.disabled = !checked.ok;
   }
   function phaseRoot(node) {
     let current = node;
@@ -811,7 +882,7 @@
     if (!doc || doc.getElementById('pulzzo-v1-style')) return;
     const style = doc.createElement('style');
     style.id = 'pulzzo-v1-style';
-    style.textContent = '.v1-note{margin:8px 0;padding:10px 12px;border:1px solid #d7e3ea;border-radius:12px;background:#f4fafb;color:#07142f;font:500 14px/1.45 sans-serif}.v1-qr{display:inline-block;background:#fff;padding:8px;border-radius:12px;margin:8px 0}.v1-badge{display:inline-block;margin-left:8px;padding:2px 8px;border-radius:999px;background:#07142f;color:#fff;font-size:12px}.v1-suggest{display:grid;gap:6px;margin-top:8px}.v1-suggest button{text-align:left}.v1-phase{display:grid;gap:8px;padding:12px 0;border-top:1px solid #e2e8f0}.nav-alert{margin:8px;border:0;border-radius:999px;background:#07142f;color:#fff;padding:6px 10px;cursor:pointer}';
+    style.textContent = '.v1-note{margin:8px 0;padding:10px 12px;border:1px solid #d7e3ea;border-radius:12px;background:#f4fafb;color:#07142f;font:500 14px/1.45 sans-serif}.v1-qr{display:inline-block;background:#fff;padding:8px;border-radius:12px;margin:8px 0}.v1-badge{display:inline-block;margin-left:8px;padding:2px 8px;border-radius:999px;background:#07142f;color:#fff;font-size:12px}.v1-suggest{display:grid;gap:6px;margin-top:8px}.v1-suggest button{text-align:left}.nav-alert{margin:8px;border:0;border-radius:999px;background:#07142f;color:#fff;padding:6px 10px;cursor:pointer}';
     (doc.head || doc.documentElement).appendChild(style);
   }
   function installPatientDirectory(win) {
@@ -951,7 +1022,7 @@
     queueAffiliation:queueAffiliation, flushAffiliationTasks:flushAffiliationTasks, affiliationTitle:affiliationTitle, ensureAffiliationContact:ensureAffiliationContact,
     saveLandingContact:saveLandingContact,
     officeProgress:officeProgress, funnelStage:funnelStage, doctorFunnel:doctorFunnel, doctorPayouts:doctorPayouts, patientsForDoctor:patientsForDoctor,
-    validatePhases:validatePhases, phaseAmounts:phaseAmounts, phasesFor:phasesFor, savePhases:savePhases, releasePhase:releasePhase, phasePanelHtml:phasePanelHtml, defaultPhaseBook:defaultPhaseBook,
+    validatePhases:validatePhases, phaseAmounts:phaseAmounts, phasesFor:phasesFor, savePhases:savePhases, releasePhase:releasePhase, phasePanelHtml:phasePanelHtml, syncPhasePanel:syncPhasePanel, defaultPhaseBook:defaultPhaseBook,
     punctualSettings:punctualSettings, savePunctualSettings:savePunctualSettings, isPunctual:isPunctual, preferentialAnnualRate:preferentialAnnualRate, recordPunctualNotice:recordPunctualNotice,
     offerCapDecision:offerCapDecision, extensionMotivo:extensionMotivo, notificationSummary:notificationSummary, toCsv:toCsv, downloadCsv:downloadCsv,
     currentDoctor:currentDoctor, doctorPanelHtml:doctorPanelHtml, punctualSettingsCard:punctualSettingsCard, paintPunctualBadge:paintPunctualBadge, suggestedOfferRate:suggestedOfferRate, alertCount:alertCount,
@@ -981,15 +1052,16 @@
     },
     addPhaseRow:function (node) {
       const box = phaseRoot(node);
-      if (!box || !box.querySelector) return;
+      if (!box || !box.querySelector || !root.document) return;
       const list = box.querySelector('.v1-phase-list');
       if (!list) return;
       const id = 'fase-' + (list.querySelectorAll('[data-phase-id]').length + 1);
-      const item = root.document.createElement('div');
-      item.className = 'v1-phase';
-      item.setAttribute('data-phase-id', id);
-      item.innerHTML = '<label>Fase <input data-v1-phase-label value="Nueva fase"></label><label>% <input data-v1-phase-percent type="number" min="0" max="100" step="0.01" value="0"></label>';
+      const holder = root.document.createElement('tbody');
+      holder.innerHTML = phaseRowHtml({id:id, label:'Nueva fase', percent:0, amount:0, status:'pendiente', evidence:'', kamValidated:false}, false, false);
+      const item = holder.querySelector('tr');
+      if (!item) return;
       list.appendChild(item);
+      syncPhasePanel(item);
     },
     savePunctualFromDom:function () {
       const doc = root.document;

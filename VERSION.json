@@ -1,7 +1,7 @@
 {
-  "version": "v49",
-  "previous_version": "v48",
-  "note": "v49 · demo local. Tarjetas de Cartera y campañas con radio 12px, acento superior redondeado y sombra suave. Los hashes de files siguen el manifiesto histórico.",
+  "version": "v50",
+  "previous_version": "v49",
+  "note": "v50 · demo local. Dispersión por fases en tabla compacta, con total al 100% y tarjetas alineadas al expediente. Los hashes de files siguen el manifiesto histórico.",
   "status": "demo_local",
   "runtime_source_commit": "f1833ecf73109794f19f01a2bafce4a989e2ccde",
   "runtime_deployment": "appgdep_6acf3ae21f088191a77d30b5cef1d4d1",

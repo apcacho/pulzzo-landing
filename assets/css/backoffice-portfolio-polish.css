@@ -1122,3 +1122,57 @@ body.portfolio-payment-open{overflow:hidden;overscroll-behavior:none}
  height:3px;
  background:var(--aqua,#20C7D4);
 }
+/* v50 · expediente dispersion cards and the compact phase table. */
+.dispersion-payments-section .summary-single-card,
+.dispersion-payments-section .summary-category-grid-dispersion .dispersion-mini-card,
+.dispersion-payments-section .summary-dispersion-block .dispersion-demo-switch,
+.dispersion-payments-section .provider-dispersion-block .dispersion-card,
+.dispersion-payments-section .v1-phases{
+ border:0;
+ border-radius:12px;
+ background:#fff;
+ box-shadow:0 1px 3px rgba(7,20,47,.06), 0 1px 2px rgba(7,20,47,.04);
+}
+.dispersion-payments-section .summary-single-card,
+.dispersion-payments-section .summary-category-grid-dispersion .dispersion-mini-card,
+.dispersion-payments-section .summary-dispersion-block .dispersion-demo-switch,
+.dispersion-payments-section .provider-dispersion-block .dispersion-card,
+.dispersion-payments-section .v1-phases{padding:16px 18px}
+.dispersion-payments-section .summary-category-grid-dispersion .dispersion-mini-card{min-height:0}
+.dispersion-payments-section .summary-dispersion-block .dispersion-demo-actions button,
+.dispersion-payments-section .provider-dispersion-block :is(.btn,button,input,select,textarea),
+.dispersion-payments-section .v1-phases :is(.btn,input,select,textarea){border-radius:8px}
+.dispersion-payments-section .provider-dispersion-block{border-top:0;padding-top:0;gap:16px}
+.dispersion-payments-section .v1-phases{margin-top:16px;gap:12px;border-top:0;padding-top:16px}
+.dispersion-payments-section .provider-dispersion-block .dispersion-condition-row{min-height:0;padding:10px 12px;border:0;border-radius:8px;background:#F8FAFC}
+.dispersion-payments-section .provider-dispersion-block .dispersion-condition-note{border:0;border-radius:8px;background:#F8FAFC;margin-top:12px}
+.v1-phases .dispersion-block-head h4{margin:0;font-size:16px;line-height:1.2}
+.v1-phases .dispersion-block-head p{margin:2px 0 0;font-size:12px;line-height:1.35}
+.v1-phases .v1-legal-chip{margin:0;padding:0;border:0;background:transparent;color:#64748B;font-size:12px;font-weight:500;line-height:1.35}
+.v1-phases .v1-phase-table-wrap{overflow-x:auto}
+.v1-phases .v1-phase-table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:13px}
+.v1-phases .v1-phase-table .c-name{width:16%}
+.v1-phases .v1-phase-table .c-pct{width:9%}
+.v1-phases .v1-phase-table .c-money{width:14%}
+.v1-phases .v1-phase-table .c-state{width:12%}
+.v1-phases .v1-phase-table .c-evidence{width:24%}
+.v1-phases .v1-phase-table .c-kam{width:12%}
+.v1-phases .v1-phase-table .c-action{width:13%}
+.v1-phases .v1-phase-table th{padding:4px 8px 8px;color:#64748B;font-size:11px;font-weight:650;line-height:1.25;text-align:left;white-space:normal}
+.v1-phases .v1-phase-table td{padding:6px 8px;border-top:1px solid #E8EEF6;vertical-align:middle}
+.v1-phases .v1-phase-table :is(input:not([type="checkbox"]),button){width:100%;max-width:100%}
+.v1-phases .v1-phase-pct{text-align:center}
+.v1-phases .v1-phase-money,.v1-phases .v1-phase-table th:nth-child(3){text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.v1-phases .v1-kam,.v1-phases .v1-phase-table th:nth-child(6){text-align:center}
+.v1-phases .v1-action,.v1-phases .v1-phase-table th:nth-child(7){text-align:center}
+.v1-phases .v1-pill{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:650;line-height:1.3;white-space:nowrap}
+.v1-phases .v1-pill[data-tone="pendiente"]{background:#F1F5F9;color:#64748B}
+.v1-phases .v1-pill[data-tone="validada"]{background:#FEF3C7;color:#92400E}
+.v1-phases .v1-pill[data-tone="liberada"]{background:#DCFCE7;color:#166534}
+.v1-phases .v1-evidence-done,.v1-phases .v1-released-ref{color:#64748B;font-size:12px}
+.v1-phases .v1-phase-total td{border-top:1px solid #E8EEF6;font-weight:650;color:#07142F}
+.v1-phases .v1-phase-warn{margin-left:12px;color:#DC2626;font-size:12px;font-weight:650}
+.v1-phases .v1-phase-warn[hidden]{display:none}
+.v1-phases .v1-phase-footer{display:flex;justify-content:flex-end;gap:8px;margin:0}
+.v1-phases .v1-phase-footer>.btn{flex:0 0 auto!important;width:auto!important}
+.v1-phases input[type="checkbox"]{width:16px;height:16px;border-radius:4px}

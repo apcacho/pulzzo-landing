@@ -40,7 +40,19 @@ const released = V1.releasePhase(phaseStorage, 'APP-1', 'fase-1', {total:1000, e
 assert.equal(released.ok, true);
 assert.equal(released.book.phases[0].status, 'liberada');
 assert.equal(V1.savePhases(phaseStorage, 'APP-1', [{id:'fase-1', label:'Anticipo', percent:50}, {id:'fase-2', label:'Resto', percent:50}], 1000).ok, false);
-assert.ok(V1.phasePanelHtml({id:'APP-1', application:{requestedAmount:1000}}).includes(V1.LEGAL_NOTE));
+const offTotal = V1.savePhases(new Memory(), 'APP-SUM', [{id:'a', label:'Anticipo', percent:50}, {id:'b', label:'Cierre', percent:40}], 96000);
+assert.equal(offTotal.ok, false);
+assert.equal(offTotal.error, 'Los porcentajes deben sumar 100%.');
+const phasePanel = V1.phasePanelHtml({id:'APP-1', application:{requestedAmount:1000}});
+assert.ok(phasePanel.includes(V1.LEGAL_NOTE));
+assert.match(phasePanel, /<table class="v1-phase-table"/);
+assert.match(phasePanel, /data-v1-phase-total>100% · \$1,000\.00/);
+assert.match(phasePanel, /data-v1-phase-warn hidden>Los porcentajes deben sumar 100%/);
+assert.match(phasePanel, /data-v1-save-phases/);
+assert.doesNotMatch(phasePanel, /data-v1-save-phases[^>]*disabled/);
+assert.equal((phasePanel.match(/v1-release"[^>]*disabled/g) || []).length, 3);
+assert.match(phasePanel, />Liberar</);
+assert.match(phasePanel, /v1-phase-footer/);
 assert.equal(phaseStorage.keys().includes('pulzzo_backoffice_demo'), false);
 
 assert.equal(V1.isPunctual({paymentSchedule:[]}).eligible, false);
