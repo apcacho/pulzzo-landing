@@ -38,13 +38,31 @@ function engine(){
  return {run:code=>vm.runInContext(code,context),el};
 }
 let count=0;function test(name,fn){fn();count++;console.log('PASS: '+name);}
-test('Footer badge and VERSION.json say v45 demo local',()=>{
+test('Footer badge and VERSION.json say v46 demo local',()=>{
  const index=fs.readFileSync(path.join(root,'index.html'),'utf8');
  const version=JSON.parse(fs.readFileSync(path.join(root,'VERSION.json'),'utf8'));
- assert.match(index,/>v45 · demo local</);assert.match(html,/>v45 · demo local</);
+ assert.match(index,/>v46 · demo local</);assert.match(html,/>v46 · demo local</);
  assert.doesNotMatch(index,/revisión incompleta/);assert.doesNotMatch(html,/revisión incompleta/);
- assert.equal(version.version,'v45');assert.match(version.note,/v45 · demo local/);
- assert.equal(typeof version.files,'object');assert.ok(version.files['backoffice.html']);assert.equal(version.previous_version,'v44');
+ assert.equal(version.version,'v46');assert.match(version.note,/v46 · demo local/);
+ assert.equal(typeof version.files,'object');assert.ok(version.files['backoffice.html']);assert.equal(version.previous_version,'v45');
+});
+test('Cartera amounts always show two MXN decimals',()=>{
+ const r=engine();
+ assert.equal(r.run('portfolioFormatMoney(13423.2)'),'$13,423.20');
+ assert.equal(r.run('portfolioFormatMoney(78792)'),'$78,792.00');
+ assert.equal(r.run('portfolioFormatMoney(5752.8)'),'$5,752.80');
+ r.run("currentView='portfolio';portfolioState.tab='collections';renderPortfolioBody();");
+ const collections=r.el('portfolioContent').innerHTML;
+ assert.match(collections,/\$13,423\.20/);
+ const cells=[...collections.matchAll(/cartera-col-money">([^<]+)/g)].map(match=>match[1]);
+ assert.ok(cells.length>3);
+ cells.forEach(amount=>assert.match(amount,/^\$[\d,]+\.\d{2}$/));
+ assert.doesNotMatch(collections,/\$\d[\d,]*\.\d(?!\d)/);
+ r.run("portfolioState.tab='summary';renderPortfolioBody();");
+ const summary=r.el('portfolioContent').innerHTML;
+ const amounts=[...summary.matchAll(/<strong>([^<]+)<\/strong>/g)].map(match=>match[1]).filter(value=>value.includes('$'));
+ assert.ok(amounts.length>=4);
+ amounts.forEach(amount=>assert.match(amount,/^\$[\d,]+\.\d{2}$/));
 });
 test('Dashboard math matches the cartera engine on the synthetic book',()=>{
  const r=runtime();

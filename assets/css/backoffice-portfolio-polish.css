@@ -984,34 +984,49 @@ body.portfolio-payment-open{overflow:hidden;overscroll-behavior:none}
 #portfolio .cartera-sheet-head h3{margin:0;font-size:16px;font-weight:650}
 #portfolio .cartera-sheet-head p{margin:2px 0 0;color:var(--muted,#64748B);font-size:12px}
 #portfolio .cartera-sheet-tools{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
-#portfolio .cartera-mail-summary{margin:0 0 10px}
-#portfolio .cartera-rules-fold{margin-top:8px;font-size:12px;color:var(--muted,#64748B)}
-#portfolio .cartera-rules-fold summary{cursor:pointer;color:var(--navy,#07142F);font-weight:650}
-#portfolio .cartera-rules-fold p{margin:6px 0}
-#portfolio .cartera-sheet-wrap{max-width:100%;min-width:0;overflow:visible}
-#portfolio .cartera-sheet{width:100%;min-width:0;table-layout:fixed;border-collapse:collapse;font-size:12px}
-#portfolio .cartera-sheet th,#portfolio .cartera-sheet td{padding:6px 4px;border-bottom:1px solid var(--line2,#E8EEF6);text-align:left;vertical-align:middle;white-space:nowrap}
+#portfolio .cartera-mail-summary{margin:0 0 12px}
+#portfolio .cartera-rules-fold{max-width:68ch;margin-top:12px;padding:8px 12px;border-radius:4px;background:#F8FAFC;font-size:12px;color:var(--muted,#64748B);line-height:1.45}
+#portfolio .cartera-rules-fold summary{display:inline;min-height:0;padding:0;cursor:pointer;color:var(--navy,#07142F);font-weight:650}
+#portfolio .cartera-rules-fold p{max-width:68ch;margin:6px 0;line-height:1.45}
+#portfolio .cartera-sheet-wrap{max-width:100%;min-width:0;overflow:visible;border:0;border-radius:0;background:transparent}
+#portfolio .cartera-sheet{width:100%;min-width:0;table-layout:fixed;border-collapse:collapse;font-size:13px}
+#portfolio .cartera-sheet col.cartera-col-client{width:20%}
+#portfolio .cartera-sheet col.cartera-col-stage{width:14%}
+#portfolio .cartera-sheet col.cartera-col-days{width:8%}
+#portfolio .cartera-sheet col.cartera-col-money{width:13%}
+#portfolio .cartera-sheet col.cartera-col-date{width:11%}
+#portfolio .cartera-sheet col.cartera-col-contact{width:18%}
+#portfolio .cartera-sheet col.cartera-col-actions{width:16%}
+#portfolio .cartera-sheet th,#portfolio .cartera-sheet td{height:48px;padding:8px 10px;border-bottom:1px solid var(--line2,#E8EEF6);text-align:left;vertical-align:middle;white-space:nowrap}
 #portfolio .cartera-sheet th{color:var(--muted,#64748B);font-size:11px;font-weight:650}
-#portfolio .cartera-sheet .cartera-money{text-align:right;font-variant-numeric:tabular-nums}
-#portfolio .cartera-who{white-space:normal;line-height:1.25}
-#portfolio .cartera-who .portfolio-link{display:inline;min-height:0;padding:0;margin:0 4px 0 0;font-size:12px;white-space:nowrap}
-#portfolio .cartera-who small{display:inline;margin:0;color:var(--muted,#64748B);font-size:10px;white-space:nowrap}
-#portfolio .cartera-fold{display:block;margin-top:2px;white-space:normal}
-#portfolio .cartera-fold summary{display:inline;color:var(--muted,#64748B);font-size:11px;cursor:pointer}
-#portfolio .cartera-fold p{margin:2px 0 0;color:var(--navy,#07142F);font-size:11px}
+#portfolio .cartera-sheet .cartera-col-stage,#portfolio .cartera-sheet .cartera-col-days,#portfolio .cartera-sheet .cartera-col-contact,#portfolio .cartera-sheet .cartera-col-actions{text-align:center}
+#portfolio .cartera-sheet .cartera-col-money{text-align:right;padding-right:18px;font-variant-numeric:tabular-nums}
+#portfolio .cartera-sheet .cartera-col-date{text-align:left;padding-left:18px}
+#portfolio .cartera-who{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:1px;min-width:0;white-space:normal;line-height:1.2}
+#portfolio .cartera-who .portfolio-link{display:block;min-height:0;padding:0;margin:0;font-size:13px;white-space:nowrap}
+#portfolio .cartera-who small{display:block;margin:0;color:var(--muted,#64748B);font-size:11px;white-space:nowrap}
 #portfolio .cartera-stage{display:inline-block;max-width:100%;padding:2px 8px;border-radius:999px;background:#F1F5F9;color:#475569;font-size:11px;font-weight:650;line-height:1.3;white-space:nowrap}
 #portfolio .cartera-stage[data-tone="alert"]{background:#FEE2E2;color:#DC2626}
 #portfolio .cartera-stage[data-tone="warn"]{background:#FEF3C7;color:#92400E}
 #portfolio .cartera-stage[data-tone="ok"]{background:#EFFFFF;color:#0F766E}
-#portfolio .cartera-icon-row{display:flex;align-items:center;gap:4px}
+#portfolio .cartera-icon-row{display:inline-flex;align-items:center;justify-content:center;gap:3px;max-width:100%}
 #portfolio .cartera-icon-row :is(a,button){position:relative;display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;padding:0;border:1px solid var(--line,#D7E1EE);border-radius:4px;background:#fff;color:var(--navy,#07142F);cursor:pointer}
 #portfolio .cartera-sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
-#portfolio .cartera-row-actions{display:flex;align-items:center;justify-content:flex-end;gap:4px}
-#portfolio .cartera-row-actions>.btn{min-height:28px;padding:4px 8px;white-space:nowrap}
+#portfolio .cartera-row-actions{display:flex;align-items:center;justify-content:center;gap:6px}
+#portfolio .cartera-row-actions>.btn{min-height:28px;padding:4px 10px;white-space:nowrap}
 #portfolio .cartera-more{position:relative}
-#portfolio .cartera-more>summary{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border:1px solid var(--line,#D7E1EE);border-radius:4px;background:#fff;color:var(--navy,#07142F);list-style:none;cursor:pointer}
+#portfolio .cartera-more>summary{display:inline-flex;align-items:center;justify-content:center;width:28px;min-height:28px;height:28px;padding:0;border:1px solid var(--line,#D7E1EE);border-radius:4px;background:#fff;color:var(--navy,#07142F);list-style:none;cursor:pointer}
 #portfolio .cartera-more>summary::-webkit-details-marker{display:none}
-#portfolio .cartera-more-panel{position:absolute;right:0;top:calc(100% + 4px);z-index:6;display:grid;min-width:210px;padding:4px;background:#fff;border:1px solid var(--line,#D7E1EE);border-radius:4px}
+#portfolio .cartera-more-panel{position:absolute;right:0;top:calc(100% + 4px);z-index:6;display:grid;min-width:220px;padding:6px;background:#fff;border:1px solid var(--line,#D7E1EE);border-radius:4px;text-align:left}
 #portfolio .cartera-more-panel button{display:block;width:100%;padding:6px 8px;border:0;background:transparent;color:var(--navy,#07142F);font-size:12px;text-align:left;cursor:pointer}
-#portfolio .cartera-more-panel p{margin:4px 8px;color:var(--muted,#64748B);font-size:11px;white-space:normal}
+#portfolio .cartera-more-panel p{margin:2px 8px;color:var(--muted,#64748B);font-size:11px;line-height:1.4;white-space:normal}
 #portfolio .portfolio-filters :is(input,select){min-height:32px}
+@media(min-width:821px){
+ #appView:has(#portfolio.active)>.main>.topbar,
+ #appView:has(#portfolio.active)>.main>.content{padding-left:max(32px,calc((100% - 1440px) / 2));padding-right:max(32px,calc((100% - 1440px) / 2))}
+ #portfolio{width:100%;max-width:1440px;margin-left:auto;margin-right:auto}
+}
+@media(min-width:821px) and (max-width:1180px){
+ #appView:not(.sidebar-collapsed):has(#portfolio.active)>.main>.topbar,
+ #appView:not(.sidebar-collapsed):has(#portfolio.active)>.main>.content{padding-left:74px}
+}
