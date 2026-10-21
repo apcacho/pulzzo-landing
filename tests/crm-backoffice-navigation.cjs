@@ -124,7 +124,7 @@ test('Actual CRM Back/Forward handlers close interrupted dialogs without adding 
 // explicit Admin authorization before a paid extension. Financial assertions remain intact.
 test('Reviewed inline Backoffice program remains pinned after finance and staff integration',async()=>{
  const original=[...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)].map(m=>m[1]).sort((a,b)=>b.length-a.length)[0];
- assert.equal(crypto.createHash('sha256').update(require('./fixtures/restore-onboarding-render-safety.cjs')(original)).digest('hex'),'9991a47d98c584b8dae5d870e2c8787b56ba907c26e88d735b70b2b479f98c0d','Reviewed inline program changed in v53: two-decimal money, DD/MM/AAAA dashboard dates and the Contrato firmado label');
+ assert.equal(crypto.createHash('sha256').update(require('./fixtures/restore-onboarding-render-safety.cjs')(original)).digest('hex'),'f7b5676e8eb1457c864740e410cd5550eb819d4c05ee0689337dfdb1efe55f3e','Reviewed inline program changed in v53: two-decimal money, DD/MM/AAAA dates, Contrato firmado, Ofertas validity and correction dates');
 });
 test('Admin CRM mounts natively with scoped DOM and one Backoffice shell',async()=>{
  const h=await shell();assert.equal(h.get('crm').children.length,0);assert.equal(h.session(),null);

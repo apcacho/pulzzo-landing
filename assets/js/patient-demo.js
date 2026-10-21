@@ -137,7 +137,8 @@
       days.forEach((day,index)=>{
         const date=new Date(anchor.getFullYear(),anchor.getMonth()+month,day==='end'?end:day);
         const cents=biweekly?(index===0?Math.floor(monthlyCents/2):monthlyCents-Math.floor(monthlyCents/2)):monthlyCents;
-        rows.push({n:rows.length+1,date:date.toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric'}),isoDate:[date.getFullYear(),String(date.getMonth()+1).padStart(2,'0'),String(date.getDate()).padStart(2,'0')].join('-'),payment:money(cents/100),paymentAmount:cents/100,capital:'Por definir',interest:'Por definir',balance:'Por definir',status:rows.length?'Pendiente':'Próximo'});
+        const isoDate=[date.getFullYear(),String(date.getMonth()+1).padStart(2,'0'),String(date.getDate()).padStart(2,'0')].join('-');
+        rows.push({n:rows.length+1,date:isoDate.slice(8,10)+'/'+isoDate.slice(5,7)+'/'+isoDate.slice(0,4),isoDate,payment:money(cents/100),paymentAmount:cents/100,capital:'Por definir',interest:'Por definir',balance:'Por definir',status:rows.length?'Pendiente':'Próximo'});
       });
     }
     return rows;

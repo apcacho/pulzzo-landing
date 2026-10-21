@@ -19,7 +19,7 @@ const pages={
  'registro-doctor.html':'7c424706ad5224c4c0b6d3e7cc9113a06951b04950aa02cadf3136a135255596',
  'verificacion-cuenta.html':'ce2f4184c76a5a208fd0bdf68bdc18012774804fa13fd7835c54f87061c65843',
  'verificacion-doctor.html':'b8dd3e5c6f0ea646c19e78308eb77a151cfacecf169b38d2e41487238b790096',
- 'solicitud-paciente.html':'c03fefc5c068649d8fc9858501538000d7efb5ee3346fee7ef8c8f23aa020a82'
+ 'solicitud-paciente.html':'41f48dad3ce330ee6c3bd65c92eaab18491e9cd05ae0e082975f4f0a815aa826'
 };
 const classRole='ui-(?:action-(?:primary|secondary|commitment|danger|warning)|selection(?:-current)?|choice)';
 const stripRoles=text=>text.replace(new RegExp(' class="'+classRole+'"','g'),'').replace(new RegExp(' '+classRole+'\\b','g'),'');
