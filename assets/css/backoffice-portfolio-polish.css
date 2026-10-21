@@ -1150,7 +1150,12 @@ body.portfolio-payment-open{overflow:hidden;overscroll-behavior:none}
 .v1-phases .dispersion-block-head p{margin:2px 0 0;font-size:12px;line-height:1.35}
 .v1-phases .v1-legal-chip{margin:0;padding:0;border:0;background:transparent;color:#64748B;font-size:12px;font-weight:500;line-height:1.35}
 .v1-phases .v1-phase-table-wrap{overflow-x:auto}
-.v1-phases .v1-phase-table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:13px}
+.v1-phases .v1-phase-table{display:table;width:100%;border-collapse:collapse;table-layout:fixed;font-size:13px}
+.v1-phases .v1-phase-table thead{display:table-header-group}
+.v1-phases .v1-phase-table tbody{display:table-row-group}
+.v1-phases .v1-phase-table tfoot{display:table-footer-group}
+.v1-phases .v1-phase-table tr{display:table-row}
+.v1-phases .v1-phase-table :is(th,td){display:table-cell}
 .v1-phases .v1-phase-table .c-name{width:16%}
 .v1-phases .v1-phase-table .c-pct{width:9%}
 .v1-phases .v1-phase-table .c-money{width:14%}
@@ -1176,3 +1181,13 @@ body.portfolio-payment-open{overflow:hidden;overscroll-behavior:none}
 .v1-phases .v1-phase-footer{display:flex;justify-content:flex-end;gap:8px;margin:0}
 .v1-phases .v1-phase-footer>.btn{flex:0 0 auto!important;width:auto!important}
 .v1-phases input[type="checkbox"]{width:16px;height:16px;border-radius:4px}
+#carteraFase1Launch.cartera-fase1,
+.dispersion-payments-section>.financial-breakdown-note{
+ border:0;
+ border-radius:12px;
+ background:#fff;
+ box-shadow:0 1px 3px rgba(7,20,47,.06), 0 1px 2px rgba(7,20,47,.04);
+ padding:16px 18px;
+}
+#carteraFase1Launch.cartera-fase1 :is(.btn,button){width:auto;border-radius:8px}
+.dispersion-payments-section>.financial-breakdown-note{margin:0}
