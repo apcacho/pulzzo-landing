@@ -134,6 +134,11 @@
 #portfolio .portfolio-filter-buttons{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 #portfolio .portfolio-filter-context{color:var(--muted,#64748B);font-size:12px}
 #portfolio .portfolio-filter-date{flex:0 1 145px}
+#portfolio .portfolio-filters.is-sheet .portfolio-filter-main{flex:1 1 100%;gap:8px 10px}
+#portfolio .portfolio-filters.is-sheet .portfolio-filter-main>label{flex:1 1 108px}
+#portfolio .portfolio-filters.is-sheet .portfolio-search{flex:1.4 1 150px}
+#portfolio .portfolio-filters.is-sheet .portfolio-filter-date{flex:0 1 132px}
+#portfolio .portfolio-filters.is-sheet .portfolio-filter-buttons{flex:0 0 auto;margin-left:auto}
 #portfolio .portfolio-more-filters>p{flex:1 1 100%;margin-top:2px}
 #portfolio .portfolio-filter-chips{
  display:flex;
@@ -999,9 +1004,8 @@ body.portfolio-payment-open{overflow:hidden;overscroll-behavior:none}
 #portfolio .cartera-sheet col.cartera-col-actions{width:16%}
 #portfolio .cartera-sheet th,#portfolio .cartera-sheet td{height:48px;padding:8px 10px;border-bottom:1px solid var(--line2,#E8EEF6);text-align:left;vertical-align:middle;white-space:nowrap}
 #portfolio .cartera-sheet th{color:var(--muted,#64748B);font-size:11px;font-weight:650}
-#portfolio .cartera-sheet .cartera-col-stage,#portfolio .cartera-sheet .cartera-col-days,#portfolio .cartera-sheet .cartera-col-contact,#portfolio .cartera-sheet .cartera-col-actions{text-align:center}
-#portfolio .cartera-sheet .cartera-col-money{text-align:right;padding-right:18px;font-variant-numeric:tabular-nums}
-#portfolio .cartera-sheet .cartera-col-date{text-align:left;padding-left:18px}
+#portfolio .cartera-sheet .cartera-col-stage,#portfolio .cartera-sheet .cartera-col-days,#portfolio .cartera-sheet .cartera-col-money,#portfolio .cartera-sheet .cartera-col-date,#portfolio .cartera-sheet .cartera-col-contact,#portfolio .cartera-sheet .cartera-col-actions{text-align:center}
+#portfolio .cartera-sheet .cartera-col-money,#portfolio .cartera-sheet .cartera-col-date{font-variant-numeric:tabular-nums}
 #portfolio .cartera-who{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:1px;min-width:0;white-space:normal;line-height:1.2}
 #portfolio .cartera-who .portfolio-link{display:block;min-height:0;padding:0;margin:0;font-size:13px;white-space:nowrap}
 #portfolio .cartera-who small{display:block;margin:0;color:var(--muted,#64748B);font-size:11px;white-space:nowrap}

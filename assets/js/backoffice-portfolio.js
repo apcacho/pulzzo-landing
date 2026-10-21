@@ -1,6 +1,6 @@
 /* Shared portfolio views. Financial calculations and posting stay in the credit ledger. */
 'use strict';
-const portfolioState={tab:'summary',query:'',creditState:'active',due:'all',from:'',to:'',movementMonth:'',moreFilters:false,filterOpen:false,collectionFocus:'',cutDate:''};
+const portfolioState={tab:'summary',query:'',creditState:'active',due:'all',from:'',to:'',movementMonth:'',moreFilters:false,filterOpen:false,collectionFocus:'',cutDate:'',stage:'all',aging:'all'};
 const portfolioTabs=[['summary','Resumen'],['credits','Créditos'],['movements','Pagos y movimientos'],['calendar','Calendario'],['collections','Cobranza']];
 const portfolioNoteKey='pulzzo.backoffice.collectionNotes.v1';
 function portfolioDate(value){
@@ -88,13 +88,14 @@ function portfolioOpenCredit(id,action='detail',rowId=''){
 }
 function portfolioSetTab(tab){
   if(!portfolioTabs.some(([id])=>id===tab))return;
-  portfolioSetFiltersOpen(false,false);portfolioState.tab=tab;portfolioState.due='all';portfolioState.movementMonth='';portfolioState.collectionFocus='';renderPortfolio();document.getElementById('portfolioTab-'+tab)?.focus();
+  portfolioSetFiltersOpen(false,false);portfolioState.tab=tab;portfolioState.due='all';portfolioState.movementMonth='';portfolioState.collectionFocus='';if(typeof carteraClearDigest==='function')carteraClearDigest();renderPortfolio();document.getElementById('portfolioTab-'+tab)?.focus();
 }
 function portfolioOpenCollections(focus){
   const allowed=['cobranza','vence_hoy','precobranza','sin_accion'];
   portfolioSetFiltersOpen(false,false);
-  portfolioState.tab='collections';portfolioState.due='all';portfolioState.from='';portfolioState.to='';portfolioState.movementMonth='';portfolioState.creditState='active';
+  portfolioState.tab='collections';portfolioState.due='all';portfolioState.from='';portfolioState.to='';portfolioState.movementMonth='';portfolioState.creditState='active';portfolioState.stage='all';portfolioState.aging='all';
   portfolioState.collectionFocus=allowed.includes(focus)?focus:'';
+  if(typeof carteraClearDigest==='function')carteraClearDigest();
   renderPortfolio();document.getElementById('portfolioTab-collections')?.focus();
 }
 function portfolioDrill(kind){
@@ -114,14 +115,19 @@ function portfolioDrillRange(from,to){
   renderPortfolio();document.getElementById('portfolioTab-calendar')?.focus();
 }
 function portfolioSelect(id,label,value,options,className=''){return `<label class="${className}">${label}<select id="${id}">${options.map(([key,text])=>`<option value="${key}" ${value===key?'selected':''}>${text}</option>`).join('')}</select></label>`;}
-function portfolioFilterConfig(){const tab=portfolioState.tab;return {credit:['credits','calendar','collections'].includes(tab),dates:tab!=='summary',due:['credits','calendar','collections'].includes(tab),month:tab==='movements'};}
+function portfolioFilterConfig(){const tab=portfolioState.tab;return {credit:['credits','calendar','collections'].includes(tab),dates:tab!=='summary',due:['credits','calendar'].includes(tab),month:tab==='movements',stage:tab==='collections',aging:tab==='collections'};}
+function portfolioStageOptions(){return [['all','Todas'],['al_corriente','Al corriente'],['precobranza','Precobranza'],['vence_hoy','Vence hoy'],['seguimiento','Seguimiento'],['mora_temprana','Mora 31–60'],['candidato_reestructura','Candidato reestructura'],['candidato_externa','Cobranza externa']];}
+function portfolioAgingOptions(){return [['all','Todos'],['current','Al corriente (0)'],['d30','1–30'],['d60','31–60'],['d90','61–90'],['d91','90+']];}
+function portfolioOptionText(options,value){const found=(options||[]).find(item=>item[0]===value);return found?found[1]:value;}
 function portfolioActiveFilters(){
   const f=portfolioFilterConfig(),s=portfolioState,filters=[];
   if(s.query)filters.push(['query','Búsqueda: '+s.query]);
   if(f.credit&&s.creditState!=='all')filters.push(['creditState','Estado: '+({active:'Activos',settled:'Liquidados',all:'Todos'}[s.creditState]||'Activos')]);
   if(f.due&&s.due!=='all')filters.push(['due','Vencimiento: '+({late:'Vencidos',today:'Hoy',upcoming:'Próximos 30 días',pending:'Con saldo pendiente'}[s.due]||s.due)]);
-  if(f.dates&&s.from)filters.push(['from','Desde: '+portfolioFormatDate(s.from)]);
-  if(f.dates&&s.to)filters.push(['to','Hasta: '+portfolioFormatDate(s.to)]);
+  if(f.stage&&s.stage&&s.stage!=='all')filters.push(['stage','Etapa: '+portfolioOptionText(portfolioStageOptions(),s.stage)]);
+  if(f.aging&&s.aging&&s.aging!=='all')filters.push(['aging','Días de atraso: '+portfolioOptionText(portfolioAgingOptions(),s.aging)]);
+  if(f.dates&&s.from)filters.push(['from',(f.stage?'Próximo vencimiento desde: ':'Desde: ')+portfolioFormatDate(s.from)]);
+  if(f.dates&&s.to)filters.push(['to',(f.stage?'Próximo vencimiento hasta: ':'Hasta: ')+portfolioFormatDate(s.to)]);
   if(f.month&&s.movementMonth)filters.push(['movementMonth','Mes: '+s.movementMonth]);
   return filters;
 }
@@ -163,26 +169,28 @@ function portfolioToggleMore(){
   toggle?.setAttribute('aria-expanded',String(portfolioState.moreFilters));
 }
 function portfolioClearFilter(key){
-  const defaults={query:'',creditState:'all',due:'all',from:'',to:'',movementMonth:''};if(!Object.prototype.hasOwnProperty.call(defaults,key))return;
+  const defaults={query:'',creditState:'all',due:'all',from:'',to:'',movementMonth:'',stage:'all',aging:'all'};if(!Object.prototype.hasOwnProperty.call(defaults,key))return;
   portfolioState[key]=defaults[key];renderPortfolio();
   const mobile=typeof window.matchMedia==='function'&&window.matchMedia('(max-width: 820px)').matches;
   document.getElementById(mobile&&!portfolioState.filterOpen?'portfolioFilterToggle':'portfolioSearch')?.focus();
 }
 function renderPortfolio(){
   portfolioReleaseFilterBackground();
-  const tab=portfolioState.tab,f=portfolioFilterConfig(),more=f.due||f.month;
+  const tab=portfolioState.tab,f=portfolioFilterConfig(),more=f.due||f.month,sheet=tab==='collections';
   $('#portfolio').innerHTML=`<div class="portfolio-head portfolio-head-compact"><div><p>Consulta saldos, vencimientos y pagos de tus créditos.</p></div><span class="pill pill-aqua">Demo local</span></div>
   <div class="portfolio-tabs" role="tablist" aria-label="Secciones de cartera">${portfolioTabs.map(([id,label])=>`<button role="tab" id="portfolioTab-${id}" aria-controls="portfolioContent" aria-selected="${id===tab}" tabindex="${id===tab?'0':'-1'}" data-portfolio-tab="${id}">${label}</button>`).join('')}</div>
   <div class="portfolio-filter-toolbar"><button id="portfolioFilterToggle" class="btn btn-secondary portfolio-filter-mobile-toggle" aria-controls="portfolioFilterShell" aria-expanded="${portfolioState.filterOpen}">Filtros <span id="portfolioFilterCount"></span></button><span class="portfolio-filter-context">${tab==='summary'?'Corte al '+escapeHtml(portfolioFormatDate(portfolioAsOf()))+' · MXN':'Filtra la consulta · importes en MXN'}</span></div>
   <div id="portfolioFilterBackdrop" class="portfolio-filter-backdrop" hidden></div>
-  <section id="portfolioFilterShell" class="portfolio-filter-shell portfolio-filters${portfolioState.filterOpen?' is-open':''}">
+  <section id="portfolioFilterShell" class="portfolio-filter-shell portfolio-filters${sheet?' is-sheet':''}${portfolioState.filterOpen?' is-open':''}">
     <div class="portfolio-filter-heading"><h3 id="portfolioFilterTitle">Filtrar cartera</h3><button id="portfolioFilterClose" class="btn btn-secondary portfolio-filter-close" aria-label="Cerrar filtros">Cerrar</button></div>
-    <div class="portfolio-filter-main"><label class="portfolio-search">Crédito o cliente<input id="portfolioSearch" type="search" placeholder="Nombre o dato del cliente" aria-describedby="portfolioSearchHelp" value="${escapeAttr(portfolioState.query)}"></label>
+    <div class="portfolio-filter-main"><label class="portfolio-search">${sheet?'Buscar':'Crédito o cliente'}<input id="portfolioSearch" type="search" placeholder="Nombre o dato del cliente"${sheet?'':' aria-describedby="portfolioSearchHelp"'} value="${escapeAttr(portfolioState.query)}"></label>
       ${f.credit?portfolioSelect('portfolioCreditState','Estado',portfolioState.creditState,[['active','Activos'],['settled','Liquidados'],['all','Todos']],'portfolio-filter-status'):''}
-      ${f.dates?`<label class="portfolio-filter-date">Desde<input id="portfolioFrom" type="date" lang="es-MX" value="${escapeAttr(portfolioState.from)}"></label><label class="portfolio-filter-date">Hasta<input id="portfolioTo" type="date" lang="es-MX" value="${escapeAttr(portfolioState.to)}"></label>`:''}
+      ${f.stage?portfolioSelect('portfolioStage','Etapa',portfolioState.stage||'all',portfolioStageOptions(),'portfolio-filter-stage'):''}
+      ${f.aging?portfolioSelect('portfolioAging','Días de atraso',portfolioState.aging||'all',portfolioAgingOptions(),'portfolio-filter-aging'):''}
+      ${f.dates?`<label class="portfolio-filter-date">${sheet?'Venc. desde':'Desde'}<input id="portfolioFrom" type="date" lang="es-MX" aria-label="${sheet?'Próximo vencimiento desde':'Desde'}" value="${escapeAttr(portfolioState.from)}"></label><label class="portfolio-filter-date">${sheet?'Venc. hasta':'Hasta'}<input id="portfolioTo" type="date" lang="es-MX" aria-label="${sheet?'Próximo vencimiento hasta':'Hasta'}" value="${escapeAttr(portfolioState.to)}"></label>`:''}
       <div class="portfolio-filter-buttons">${more?`<button id="portfolioMoreToggle" class="btn btn-secondary" aria-controls="portfolioMoreFilters" aria-expanded="${portfolioState.moreFilters}">Más filtros</button>`:''}<button class="btn btn-secondary" id="portfolioClear">Limpiar</button></div>
     </div>
-    <p id="portfolioSearchHelp" class="portfolio-search-help">Busca por teléfono, RFC, CURP, nombre, número de crédito o correo electrónico.</p>
+    ${sheet?'':`<p id="portfolioSearchHelp" class="portfolio-search-help">Busca por teléfono, RFC, CURP, nombre, número de crédito o correo electrónico.</p>`}
     ${more?`<div id="portfolioMoreFilters" class="portfolio-more-filters"${portfolioState.moreFilters?'':' hidden'}>${f.due?portfolioSelect('portfolioDue','Vencimiento',portfolioState.due,[['all','Todos'],['late','Vencidos'],['today','Vencen hoy'],['upcoming','Próximos 30 días'],['pending','Con saldo pendiente']]):''}${f.month?`<label>Mes del movimiento<input id="portfolioMonth" type="month" value="${escapeAttr(portfolioState.movementMonth)}"></label>`:''}<p>Los filtros se aplican al cambiar cada campo.</p></div>`:''}
     <div class="portfolio-filter-footer"><button id="portfolioFilterDone" class="btn btn-primary">Ver resultados</button></div>
   </section>
@@ -194,8 +202,8 @@ function renderPortfolio(){
     portfolioSetTab(ids[next]);document.getElementById('portfolioTab-'+ids[next])?.focus();
   };
   $('#portfolioSearch').oninput=e=>{portfolioState.query=e.target.value;renderPortfolioBody();portfolioRenderFilterChips();};
-  for(const [id,key] of [['portfolioCreditState','creditState'],['portfolioDue','due'],['portfolioFrom','from'],['portfolioTo','to'],['portfolioMonth','movementMonth']]){const el=document.getElementById(id);if(el)el.onchange=e=>{portfolioState[key]=e.target.value;renderPortfolioBody();portfolioRenderFilterChips();};}
-  $('#portfolioClear').onclick=()=>{Object.assign(portfolioState,{query:'',creditState:'active',due:'all',from:'',to:'',movementMonth:'',collectionFocus:''});renderPortfolio();$('#portfolioSearch').focus();};
+  for(const [id,key] of [['portfolioCreditState','creditState'],['portfolioDue','due'],['portfolioStage','stage'],['portfolioAging','aging'],['portfolioFrom','from'],['portfolioTo','to'],['portfolioMonth','movementMonth']]){const el=document.getElementById(id);if(el)el.onchange=e=>{portfolioState[key]=e.target.value;renderPortfolioBody();portfolioRenderFilterChips();};}
+  $('#portfolioClear').onclick=()=>{Object.assign(portfolioState,{query:'',creditState:'active',due:'all',from:'',to:'',movementMonth:'',collectionFocus:'',stage:'all',aging:'all'});if(typeof carteraClearDigest==='function')carteraClearDigest();renderPortfolio();$('#portfolioSearch').focus();};
   $('#portfolioFilterToggle').onclick=()=>portfolioSetFiltersOpen(!portfolioState.filterOpen);
   for(const id of ['portfolioFilterClose','portfolioFilterDone','portfolioFilterBackdrop'])document.getElementById(id).onclick=()=>portfolioSetFiltersOpen(false);
   const moreToggle=document.getElementById('portfolioMoreToggle');if(moreToggle)moreToggle.onclick=portfolioToggleMore;

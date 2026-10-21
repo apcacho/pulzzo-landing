@@ -694,6 +694,12 @@ function carteraToggleDigest(id){
  carteraPaintCollections();
  return carteraDigestFocus;
 }
+function carteraClearDigest(){carteraDigestFocus='';return '';}
+function carteraStageGroup(stage){
+ const id=stage&&stage.id||'';
+ if(id==='cobranza_1'||id==='cobranza_3'||id==='seguimiento')return 'seguimiento';
+ return id;
+}
 function carteraOpenMailRules(){
  try{
   if(typeof configTab!=='undefined')configTab='collections';
@@ -708,18 +714,27 @@ function carteraRulesFold(){
  return `<details class="cartera-rules-fold"><summary>Reglas de envío automático</summary><p>Modo demo · no hay envío real. ${mail.enabled?'Encendido':'Apagado'} · ${escapeHtml(mail.sendTime||'09:00')} · ${escapeHtml(CARTERA_MAIL_TIMEZONE)}.</p>${on.length?`<p>${escapeHtml(on.join(', '))}.</p>`:''}<button type="button" class="btn btn-secondary" onclick="carteraOpenMailRules()">Editar reglas</button></details>`;
 }
 function carteraCollectionsHtml(){
- const credits=(typeof portfolioCredits==='function'?portfolioCredits():[]).filter(credit=>typeof portfolioMatches!=='function'||portfolioMatches(credit)).filter(credit=>!credit.settled);
- const focus=typeof portfolioState!=='undefined'&&portfolioState.collectionFocus||'';
+ const all=typeof portfolioCredits==='function'?portfolioCredits():[];
+ const book=all.filter(credit=>credit&&!credit.settled);
+ const state=typeof portfolioState!=='undefined'?portfolioState:{};
+ const focus=state.collectionFocus||'';
+ const from=state.from||'';
+ const to=state.to||'';
+ const stageFilter=state.stage||'all';
+ const agingFilter=state.aging||'all';
  const focusLabels={cobranza:'En cobranza',vence_hoy:'Vence hoy',precobranza:'Precobranza',sin_accion:'Sin acción'};
- const digest=carteraMailDigest(credits);
+ const digest=carteraMailDigest(book);
  const digestLabels={actions:'Acciones de hoy',paused:'Pausados',mora:'Mora 31+',vence_hoy:'Vence hoy'};
  const idsOf=rows=>new Set((rows||[]).map(row=>row.id));
- let listed=credits;
- if(focus&&typeof portfolioCollectionBucket==='function')listed=credits.filter(credit=>portfolioCollectionBucket(credit)===focus);
- else if(carteraDigestFocus==='actions'){const ids=idsOf(digest.actions);listed=credits.filter(credit=>ids.has(credit.id));}
- else if(carteraDigestFocus==='paused'){const ids=idsOf(digest.paused);listed=credits.filter(credit=>ids.has(credit.id));}
- else if(carteraDigestFocus==='mora'){const ids=idsOf(digest.mora);listed=credits.filter(credit=>ids.has(credit.id));}
- else if(carteraDigestFocus==='vence_hoy')listed=credits.filter(credit=>carteraCollectionStage(credit).id==='vence_hoy');
+ let listed=all.filter(credit=>typeof portfolioCreditMatches==='function'?portfolioCreditMatches(credit):credit&&!credit.settled);
+ if(from||to)listed=listed.filter(credit=>{const date=(carteraCreditFacts(credit).next||{}).date||'';return !!date&&(!from||date>=from)&&(!to||date<=to);});
+ if(stageFilter!=='all')listed=listed.filter(credit=>carteraStageGroup(carteraCollectionStage(credit))===stageFilter);
+ if(agingFilter!=='all'&&typeof portfolioAgingId==='function')listed=listed.filter(credit=>portfolioAgingId(carteraCreditFacts(credit).dpd||0)===agingFilter);
+ if(focus&&typeof portfolioCollectionBucket==='function')listed=listed.filter(credit=>portfolioCollectionBucket(credit)===focus);
+ else if(carteraDigestFocus==='actions'){const ids=idsOf(digest.actions);listed=listed.filter(credit=>ids.has(credit.id));}
+ else if(carteraDigestFocus==='paused'){const ids=idsOf(digest.paused);listed=listed.filter(credit=>ids.has(credit.id));}
+ else if(carteraDigestFocus==='mora'){const ids=idsOf(digest.mora);listed=listed.filter(credit=>ids.has(credit.id));}
+ else if(carteraDigestFocus==='vence_hoy')listed=listed.filter(credit=>carteraCollectionStage(credit).id==='vence_hoy');
  const banner=focus?`<p class="portfolio-summary-note">Bandeja de hoy: ${focusLabels[focus]||''}. <button type="button" class="portfolio-link" data-collection="clear">Ver toda la cobranza</button></p>`:(carteraDigestFocus?`<p class="portfolio-summary-note">Mostrando ${digestLabels[carteraDigestFocus]||''}. <button type="button" class="portfolio-link" data-digest="${escapeAttr(carteraDigestFocus)}">Ver toda la cobranza</button></p>`:'');
  const rows=listed.map(credit=>{
   const stage=carteraCollectionStage(credit);
@@ -741,8 +756,9 @@ function carteraCollectionsHtml(){
   const detail={oldest:carteraSheetDate(facts.oldest&&facts.oldest.date),reminder:sent?escapeHtml((sent.action||'Recordatorio')+' · '+carteraSheetDate(sent.at)):'—',deal:escapeHtml(carteraAgreementLabel(carteraDeriveAgreement(credit.record)))};
   return `<article class="portfolio-mobile-card"><div class="portfolio-card-head"><div class="cartera-who"><button type="button" class="portfolio-link" data-credit="${escapeAttr(credit.id)}" data-action="detail">${escapeHtml(credit.name)}</button><small>${escapeHtml(credit.code)}</small></div><span class="cartera-stage" data-tone="${carteraStageTone(stage)}">${escapeHtml(carteraStageShort(stage))}</span></div><p class="cartera-money">${carteraMoney(stage.amount||facts.amount||0)} · ${escapeHtml(carteraSheetDate(facts.next&&facts.next.date))}</p>${carteraCollectionContact(patient)}${carteraRowMenu(credit,stage,sent,detail)}</article>`;
  }).join('');
- const vence=credits.filter(credit=>carteraCollectionStage(credit).id==='vence_hoy').length;
- return carteraMailSummaryHtml(credits,digest,vence)+banner+`<div class="table-wrap cartera-sheet-wrap"><table class="cartera-sheet"><colgroup><col class="cartera-col-client"><col class="cartera-col-stage"><col class="cartera-col-days"><col class="cartera-col-money"><col class="cartera-col-date"><col class="cartera-col-contact"><col class="cartera-col-actions"></colgroup><thead><tr><th class="cartera-col-client" scope="col">Cliente</th><th class="cartera-col-stage" scope="col">Etapa</th><th class="cartera-col-days" scope="col">Días atraso</th><th class="cartera-col-money" scope="col">Monto</th><th class="cartera-col-date" scope="col">Próximo venc.</th><th class="cartera-col-contact" scope="col">Contacto</th><th class="cartera-col-actions" scope="col">Acciones</th></tr></thead><tbody>${rows||`<tr><td class="portfolio-empty" colspan="7">${focus||carteraDigestFocus?'Sin créditos en esta bandeja.':'Sin créditos en cartera.'}</td></tr>`}</tbody></table></div><div class="portfolio-mobile-cards">${cards||'<p class="portfolio-empty">Sin créditos en esta bandeja.</p>'}</div>`;
+ const vence=book.filter(credit=>carteraCollectionStage(credit).id==='vence_hoy').length;
+ const empty=focus||carteraDigestFocus?'Sin créditos en esta bandeja.':(from||to||stageFilter!=='all'||agingFilter!=='all'||state.query)?'Sin créditos con estos filtros.':'Sin créditos en cartera.';
+ return carteraMailSummaryHtml(book,digest,vence)+banner+`<div class="table-wrap cartera-sheet-wrap"><table class="cartera-sheet"><colgroup><col class="cartera-col-client"><col class="cartera-col-stage"><col class="cartera-col-days"><col class="cartera-col-money"><col class="cartera-col-date"><col class="cartera-col-contact"><col class="cartera-col-actions"></colgroup><thead><tr><th class="cartera-col-client" scope="col">Cliente</th><th class="cartera-col-stage" scope="col">Etapa</th><th class="cartera-col-days" scope="col">Días atraso</th><th class="cartera-col-money" scope="col">Monto</th><th class="cartera-col-date" scope="col">Próximo venc.</th><th class="cartera-col-contact" scope="col">Contacto</th><th class="cartera-col-actions" scope="col">Acciones</th></tr></thead><tbody>${rows||`<tr><td class="portfolio-empty" colspan="7">${empty}</td></tr>`}</tbody></table></div><div class="portfolio-mobile-cards">${cards||'<p class="portfolio-empty">Sin créditos en esta bandeja.</p>'}</div>`;
 }
 function carteraMailSummaryHtml(credits,digest,vence){
  digest=digest||carteraMailDigest(credits||[]);
@@ -750,7 +766,7 @@ function carteraMailSummaryHtml(credits,digest,vence){
  const tiles=[['actions','aqua','Acciones de hoy',digest.actions.length],['paused','mute','Pausados',digest.paused.length],['mora','alert','Mora 31+',digest.mora.length],['vence_hoy','warn','Vence hoy',vence]];
  return `<section class="cartera-mail-summary" aria-label="Resumen diario de cobranza"><header class="cartera-sheet-head"><div><h3>Cobranza de hoy</h3><p>Modo demo · no hay envío real.</p></div><div class="cartera-sheet-tools"><span class="pill pill-gray">Correo no conectado · modo demo</span><button type="button" class="btn btn-primary" onclick="carteraRunMailNow()">Ejecutar ahora</button></div></header><div class="portfolio-today-grid">${tiles.map(([id,tone,label,count])=>`<button type="button" class="portfolio-today-card" data-digest="${id}" data-tone="${tone}" aria-pressed="${carteraDigestFocus===id?'true':'false'}"><span>${label}</span><strong>${count}</strong></button>`).join('')}</div>${carteraRulesFold()}</section>`;
 }
-function carteraPaintCollections(){const target=document.getElementById('portfolioContent');if(target)target.innerHTML=carteraCollectionsHtml();}
+function carteraPaintCollections(){if(typeof portfolioState!=='undefined'&&portfolioState.from&&portfolioState.to&&portfolioState.from>portfolioState.to)return;const target=document.getElementById('portfolioContent');if(target)target.innerHTML=carteraCollectionsHtml();}
 function carteraOpenAgreement(id){
  const p=(db.patients||[]).find(item=>item.id===id);if(!p)return false;
  const current=carteraDeriveAgreement(p);
@@ -853,5 +869,5 @@ if(typeof renderSettings==='function'){
 }
 try{carteraSeedStageCredits();}catch(error){}
 try{carteraRunAutomaticMail({source:'load'});}catch(error){}
-Object.assign(globalThis,{carteraToday,carteraAddDays,carteraCobranzaRead,carteraCobranzaWrite,carteraTemplate,carteraFill,carteraCollectionStage,carteraCreditFacts,carteraFactsForPatient,carteraDeriveAgreement,carteraAgreementLabel,carteraMessageKey,carteraMessageSent,carteraRememberMessage,carteraWhatsappLink,carteraOpenWhatsapp,carteraMarkWhatsapp,carteraOpenMailPreview,carteraLogMail,carteraLogContact,carteraRegisterAgreement,carteraApplyForgiveness,carteraPresentReceipt,carteraReceiptFromResult,carteraReceiptDocument,carteraDownloadReceipt,carteraPrintReceipt,carteraOpenAgreement,carteraSaveAgreement,carteraChooseForgiveness,carteraApplyForgivenessUi,carteraOpenContact,carteraSaveContact,carteraAging,carteraSeedStageCredits,carteraBuildStageCredit,carteraSaveCobranzaSettings,carteraCobranzaSettingsHtml,carteraCreditWorkspaceHtml,carteraDownloadStoredReceipt,carteraOpenReceiptPreview,carteraCopyContact,carteraPhoneActions,carteraMailActions,carteraRunAutomaticMail,carteraRunMailNow,carteraEmailPreviewText,carteraMailDigest,carteraMailToggleForStage,carteraToggleDigest,carteraOpenMailRules,CARTERA_COBRANZA_KEY,CARTERA_MAIL_STAGES,CARTERA_MAIL_TIMEZONE});
+Object.assign(globalThis,{carteraToday,carteraAddDays,carteraCobranzaRead,carteraCobranzaWrite,carteraTemplate,carteraFill,carteraCollectionStage,carteraCreditFacts,carteraFactsForPatient,carteraDeriveAgreement,carteraAgreementLabel,carteraMessageKey,carteraMessageSent,carteraRememberMessage,carteraWhatsappLink,carteraOpenWhatsapp,carteraMarkWhatsapp,carteraOpenMailPreview,carteraLogMail,carteraLogContact,carteraRegisterAgreement,carteraApplyForgiveness,carteraPresentReceipt,carteraReceiptFromResult,carteraReceiptDocument,carteraDownloadReceipt,carteraPrintReceipt,carteraOpenAgreement,carteraSaveAgreement,carteraChooseForgiveness,carteraApplyForgivenessUi,carteraOpenContact,carteraSaveContact,carteraAging,carteraSeedStageCredits,carteraBuildStageCredit,carteraSaveCobranzaSettings,carteraCobranzaSettingsHtml,carteraCreditWorkspaceHtml,carteraDownloadStoredReceipt,carteraOpenReceiptPreview,carteraCopyContact,carteraPhoneActions,carteraMailActions,carteraRunAutomaticMail,carteraRunMailNow,carteraEmailPreviewText,carteraMailDigest,carteraMailToggleForStage,carteraToggleDigest,carteraClearDigest,carteraStageGroup,carteraOpenMailRules,CARTERA_COBRANZA_KEY,CARTERA_MAIL_STAGES,CARTERA_MAIL_TIMEZONE});
 })();
