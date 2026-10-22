@@ -10,7 +10,10 @@
 .modal-actions{flex-wrap:wrap}
 .modal-head>div{min-width:0;overflow-wrap:anywhere}
 .modal-head .x{flex-shrink:0;min-width:44px;min-height:44px}
-.demo-user>div{min-width:0;overflow-wrap:anywhere}
+.demo-user{text-align:left}
+.demo-user>div{min-width:0;flex:1 1 auto;overflow-wrap:anywhere;text-align:left}
+.demo-user strong,.demo-user small{display:block;text-align:left}
+.demo-user .pill{flex:0 0 auto;margin-left:auto}
 .toast{max-width:calc(100vw - 32px);overflow-wrap:anywhere}
 button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--aqua);outline-offset:2px}
 @media(max-width:1180px) and (min-width:821px){.app{grid-template-columns:240px minmax(0,1fr)}}
