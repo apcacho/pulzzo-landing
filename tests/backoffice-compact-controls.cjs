@@ -30,6 +30,7 @@ assert.doesNotMatch(control,/outline-offset:2px!important/);
 assert.match(control,/:focus\{border-color:var\(--bo-control-focus\)!important;outline:none!important;box-shadow:none!important\}/);
 assert.match(control,/\}\s*\/\* Responsive tokens[^]*@media\(max-width:820px\),\(pointer:coarse\)\{\s*body.backoffice-typography\{--bo-control-height:44px;--bo-field-height:44px\}\s*\}\s*$/,'Touch tokens are outside the layer to beat unlayered desktop defaults');
 assert.doesNotMatch(layer,/--bo-control-height:44px/);
+assert.match(layer,/patient-detail-tabs[\s\S]*white-space:nowrap!important/,'Expediente tabs keep whole words and scroll instead of splitting labels');
 // Arithmetic consistency of authored CSS values, not computed browser geometry.
 const touch=control.match(/@media\(max-width:(\d+)px\),\(pointer:coarse\)\{\s*body.backoffice-typography\{--bo-control-height:(\d+)px;--bo-field-height:(\d+)px/);
 const typography=css.match(/@media\(max-width:(\d+)px\)\{[^}]*\}\s*\/\*[^]*?body.backoffice-typography :where\(input,select,textarea\)\{font-size:(\d+)px!important\}/);

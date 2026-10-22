@@ -20,7 +20,7 @@ function runtime(){
  vm.runInContext(fs.readFileSync(path.join(__dirname,'../assets/js/backoffice-portfolio-payment.js'),'utf8'),context);
  vm.runInContext(fs.readFileSync(path.join(__dirname,'../assets/js/backoffice-cartera-fase1.js'),'utf8'),context);
  const run=code=>vm.runInContext(code,context);
- return {run,el,storage,confirm:v=>{confirmResult=v;}};
+ return {run,el,storage,context,confirm:v=>{confirmResult=v;}};
 }
 let passed=0;function test(name,fn){fn();passed++;console.log('PASS: '+name);}
 function dispersed(r,date){r.run(`var p=db.patients.find(p=>p.id==='APP-PUL-1015');selectedPatientId=p.id;p.application.dispersionDate=${JSON.stringify(date)};p.application.disbursedAt=${JSON.stringify(date)};p.application.amortizationStatus='active';p.paymentSchedule=[];p.payments=[];dispersionEnsureSchedule(p);persist();`);}
@@ -214,6 +214,19 @@ test('Portfolio screen and payment drawer expose the fase 1 choices without radi
  assert.equal(r.run('p.payments.at(-1).comprobante'),'data:image/jpeg,abc');
  const drawer=fs.readFileSync(path.join(__dirname,'../assets/js/backoffice-portfolio-payment.js'),'utf8');
  assert.match(drawer,/Comprobante \(opcional\)/);assert.match(drawer,/Origen \(opcional\)/);assert.match(drawer,/getElementById\('portfolioPayment'\+suffix\)\?\.addEventListener/);
+});
+
+test('Solicitudes dispersion tab renders the compact phase table',()=>{
+ const r=runtime();
+ vm.runInContext(fs.readFileSync(path.join(__dirname,'../assets/js/pulzzo-v1.js'),'utf8')+'\n;globalThis.PulzzoV1=globalThis.PulzzoV1||window.PulzzoV1;',r.context);
+ const html=r.run(`patientTabContent(db.patients.find(p=>p.id==='APP-PUL-1001'),'dispersion')`);
+ assert.match(html,/<table class="v1-phase-table"/);
+ assert.match(html,/data-v1-phase-total>/);
+ assert.match(html,/>Liberar</);
+ assert.match(html,/Contrato pendiente de validación legal/);
+ assert.match(html,/financial-breakdown-note/);
+ assert.doesNotMatch(html,/Liberar fase/);
+ assert.match(r.run('String(renderDispersionTab)'),/phasePanelHtml/);
 });
 
 console.log(`PASS: ${passed} cartera fase 1 groups.`);

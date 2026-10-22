@@ -26,7 +26,7 @@ function portfolioPaymentRefresh(resetTarget=false){
  const hint=document.getElementById('portfolioPaymentHint');if(hint)hint.textContent=dispersionPaymentTypeCopy(input.type,p);
  const settlement=document.getElementById('portfolioPaymentSettlement');if(settlement)settlement.hidden=input.type!=='early_liquidation';
  if(s.quote&&s.quote.calculationDate!==input.date){s.quote=null;input.settlementQuote=null;}
- const quoteStatus=document.getElementById('portfolioPaymentSettlementQuote');if(quoteStatus)quoteStatus.textContent=input.type==='early_liquidation'&&s.quote?'Liquidación calculada al '+s.quote.calculationDate+': '+fmtMoney(s.quote.total)+'. Captura por separado el monto realmente recibido.':'';
+ const quoteStatus=document.getElementById('portfolioPaymentSettlementQuote');if(quoteStatus){const quoteDate=s.quote&&typeof portfolioFormatDate==='function'?portfolioFormatDate(s.quote.calculationDate)||s.quote.calculationDate:s.quote&&s.quote.calculationDate;quoteStatus.textContent=input.type==='early_liquidation'&&s.quote?'Liquidación calculada al '+quoteDate+': '+fmtMoney(s.quote.total)+'. Captura por separado el monto realmente recibido.':'';}
  const retro=document.getElementById('portfolioPaymentRetrospective');if(retro)retro.hidden=!(input.date&&input.date<dispersionBusinessDateMX());
  const reason=document.getElementById('portfolioPaymentRetrospectiveReason');if(reason)reason.required=!!(input.date&&input.date<dispersionBusinessDateMX());
  const amount=Number(input.amount);

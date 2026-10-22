@@ -998,8 +998,8 @@
     function updateContact(id, patch, revision) {
       return transact(revision, (draft, ctx) => {
         requireStaff();
-        const contact = requireContact(draft, id), allowed = ['name', 'email', 'phone', 'notes'];
-        if (!plain(patch) || Object.keys(patch).some(k => !allowed.includes(k))) fail('protected_field', 'Actualiza sólo nombre, correo, teléfono o notas.');
+        const contact = requireContact(draft, id), allowed = ['name', 'email', 'phone', 'notes', 'marketingConsent'];
+        if (!plain(patch) || Object.keys(patch).some(k => !allowed.includes(k))) fail('protected_field', 'Actualiza sólo nombre, correo, teléfono, notas o el consentimiento de mensajes.');
         const before = clone(contact);
         if (has(patch, 'name')) contact.name = text(patch.name, 160, true);
         if (has(patch, 'email')) contact.email = normalizeEmail(patch.email);
@@ -1007,6 +1007,10 @@
         if (has(patch, 'email') && (!contact.email || !validEmail(contact.email))) fail('invalid_contact', 'El correo es obligatorio y debe ser válido.');
         if (has(patch, 'phone') && (!contact.phone || !/^\d{7,15}$/.test(contact.phone))) fail('invalid_contact', 'El teléfono es obligatorio: captura de 7 a 15 dígitos.');
         if (has(patch, 'notes')) contact.notes = text(patch.notes, 6000, false);
+        if (has(patch, 'marketingConsent')) {
+          if (typeof patch.marketingConsent !== 'boolean') fail('invalid_contact', 'El consentimiento de mensajes es sí o no.');
+          contact.marketingConsent = patch.marketingConsent;
+        }
         if (equal(before, contact)) return contact;
         // A failed attempt to assist may already have created an empty draft.
         // Keep its contact seed consistent when adding the first email, without

@@ -29,6 +29,9 @@ for(const file of ['index.html','faq.html','aviso-privacidad.html','terminos-con
  const html=read(file);assert.match(html,/assets\/css\/public-responsive.css/);assert.match(html,/<button[^>]*class="hamburger"[^>]*aria-expanded="false"/);assert.match(html,/setAttribute\('aria-expanded',String\(shouldOpen\)\)/);assert.match(html,/innerWidth\s*>\s*1279/);assert.doesNotMatch(html,/innerWidth\s*>\s*1023\)\s*toggleDrawer/);
 }
 for(const css of [admin,registration,publicCss,patientCss])assert.equal((css.match(/\{/g)||[]).length,(css.match(/\}/g)||[]).length,'Corrective stylesheet blocks are balanced');
+assert.match(admin,/\.demo-user\{text-align:left\}/);
+assert.match(admin,/\.demo-user strong,\.demo-user small\{display:block;text-align:left\}/);
+assert.match(admin,/\.demo-user \.pill\{flex:0 0 auto;margin-left:auto\}/);
 assert.match(admin,/grid-template-columns:240px minmax\(0,1fr\)/);
 assert.match(admin,/\.sidebar\{overflow-y:auto;[^}]*height:100dvh/);
 assert.match(admin,/\.sidebar\{[^}]*visibility:hidden/);

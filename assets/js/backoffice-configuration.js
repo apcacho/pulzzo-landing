@@ -267,7 +267,7 @@ const CONFIG_CREDIT_LIMITS_EXAMPLE=Object.freeze({minAnnualRate:18,maxAnnualRate
 function configVersionPanel(rules){return `<section class="cfg-version-panel" id="cfg-version-panel" data-open="${configVersionOpen||!can('settings')?'1':'0'}">${configEditor(rules)}${can('settings')?'<div class="cfg-version-close"><button type="button" class="btn btn-secondary btn-sm" onclick="configOpenVersion(false)">Cerrar sin guardar</button></div>':''}</section>`;}
 function configOpenVersionFor(tab){if(!['product','tax'].includes(tab))return false;configTab=tab;return configOpenVersion(true);}
 function configProductsPage(rules,sections){
- const E=configEscape,L=CONFIG_CREDIT_LIMITS_EXAMPLE,money=v=>'$'+Number(v).toLocaleString('es-MX')+' MXN';
+ const E=configEscape,L=CONFIG_CREDIT_LIMITS_EXAMPLE,money=v=>'$'+Number(v).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2})+' MXN';
  const dl=tab=>`<dl class="cfg-current">${CONFIG_TAB_KEYS[tab].map(key=>`<div><dt>${E(CONFIG_LABELS[key])}</dt><dd>${E(configDisplayValue(key,rules[key]))}</dd></div>`).join('')}</dl>`;
  const btn=tab=>can('settings')?`<button type="button" class="btn btn-primary btn-sm" id="${configTab===tab?'cfg-new-version':'cfg-new-version-'+tab}" aria-controls="cfg-version-panel" aria-expanded="${configTab===tab&&configVersionOpen}" onclick="configOpenVersionFor('${tab}')">Crear una nueva versión</button>`:'';
  const panel=tab=>configTab===tab?configVersionPanel(rules):'';
@@ -286,7 +286,7 @@ function configOfferLimitCheck(){
  const r=num(rate.value),t=num(term.value),a=amount?num(amount.dataset.raw||amount.value):NaN;
  if(Number.isFinite(r)&&rate.value!==''&&(r<L.minAnnualRate||r>L.maxAnnualRate))issues.push(`tasa ${r}% (rango ${L.minAnnualRate}–${L.maxAnnualRate}%)`);
  if(Number.isFinite(t)&&term.value!==''&&!L.allowedTerms.includes(t))issues.push(`plazo ${t} meses (permitidos ${L.allowedTerms.join(', ')})`);
- if(Number.isFinite(a)&&a>0&&(a<L.minAmount||a>L.maxAmount))issues.push(`monto $${a.toLocaleString('es-MX')} (rango $${L.minAmount.toLocaleString('es-MX')}–$${L.maxAmount.toLocaleString('es-MX')})`);
+ if(Number.isFinite(a)&&a>0&&(a<L.minAmount||a>L.maxAmount))issues.push(`monto $${a.toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2})} (rango $${L.minAmount.toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2})}–$${L.maxAmount.toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2})})`);
  let box=document.getElementById('offerLimitWarning');
  if(!box){const anchor=document.getElementById('offerFormError');if(!anchor)return;box=document.createElement('div');box.id='offerLimitWarning';box.className='offer-limit-warning';box.setAttribute('role','status');anchor.insertAdjacentElement('afterend',box);}
  box.hidden=!issues.length;box.innerHTML=issues.length?`<strong>Fuera de límites: requiere Administración.</strong> ${issues.map(configEscape).join(' · ')}. Límites de ejemplo, por definir; no bloquea el guardado.`:'';

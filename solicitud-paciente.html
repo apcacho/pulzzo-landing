@@ -2271,7 +2271,16 @@ const doctorDirectory=[
   {id:'dr-5',displayName:'Dr. Roberto Salinas',providerType:'Doctor independiente',state:'Nuevo León',municipality:'Monterrey',city:'Nuevo León',specialties:['ortopedia'],services:'Ortopedia y traumatología',visibleContactType:'Celular registrado',visibleContactValue:'81 2345 6789'}
 ];
 
-function money(n){return Number(n||0).toLocaleString('es-MX',{style:'currency',currency:'MXN',minimumFractionDigits:0,maximumFractionDigits:2})}
+function money(n){return Number(n||0).toLocaleString('es-MX',{style:'currency',currency:'MXN',minimumFractionDigits:2,maximumFractionDigits:2})}
+function visibleDateMX(value){
+  const raw=String(value||'').trim();
+  const match=raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if(!match)return raw;
+  const year=Number(match[1]),month=Number(match[2]),day=Number(match[3]);
+  const date=new Date(year,month-1,day);
+  if(date.getFullYear()!==year||date.getMonth()!==month-1||date.getDate()!==day)return raw;
+  return String(day).padStart(2,'0')+'/'+String(month).padStart(2,'0')+'/'+year;
+}
 function parseMoney(value){
   if(typeof value==='number') return Number.isFinite(value)?value:0;
   const raw=String(value??'').trim().replace(/^MXN\s*/i,'').replace(/^\$\s*/,'').replace(/\s*MXN$/i,'').trim();
@@ -4751,7 +4760,7 @@ function renderPostApprovalFlowDesktop(){
         <div class="post-mini"><small>${offerAvailable?'Monto aprobado':'Monto estimado (sin aprobación)'}</small><strong>${money(offer.approvedAmount)}</strong></div>
         <div class="post-mini"><small>Pago mensual</small><strong>${escapeHtml(offer.monthlyPayment)}</strong></div>
         <div class="post-mini"><small>Plazo</small><strong>${offer.termMonths} meses</strong></div>
-        <div class="post-mini"><small>Vigencia</small><strong>${escapeHtml(offer.validUntil)} · Fin del día, Ciudad de México</strong></div>
+        <div class="post-mini"><small>Vigencia</small><strong>${escapeHtml(visibleDateMX(offer.validUntil))} · Fin del día, Ciudad de México</strong></div>
         <div class="post-mini"><small>Comisión por apertura</small><strong>${escapeHtml(typeof offer.openingFee==='number'?`${offer.openingFee}%`:offer.openingFee??'Pendiente de oferta')}</strong>${offer.openingFeeDisclosure?`<small>${escapeHtml(offer.openingFeeDisclosure)}</small>`:''}</div>
         <div class="post-mini"><small>Tasa de interés anual</small><strong>${escapeHtml(offer.annualInterestRate??'Pendiente de oferta')}</strong></div>
       </div>
@@ -4838,7 +4847,7 @@ function renderPostApprovalFlowMobile(){
         <div class="post-mini"><small>${offerAvailable?'Monto aprobado':'Monto estimado (sin aprobación)'}</small><strong>${money(offer.approvedAmount)}</strong></div>
         <div class="post-mini"><small>Pago mensual</small><strong>${escapeHtml(offer.monthlyPayment)}</strong></div>
         <div class="post-mini"><small>Plazo</small><strong>${offer.termMonths} meses</strong></div>
-        <div class="post-mini"><small>Vigencia</small><strong>${escapeHtml(offer.validUntil)} · Fin del día, Ciudad de México</strong></div>
+        <div class="post-mini"><small>Vigencia</small><strong>${escapeHtml(visibleDateMX(offer.validUntil))} · Fin del día, Ciudad de México</strong></div>
         <div class="mobile-offer-accordion is-collapsed" data-mobile-offer-accordion>
           <button type="button" class="mobile-offer-accordion-head" aria-expanded="false"><span><b>Detalles de la oferta</b><small>Tasa, comisión y liberación del crédito.</small></span><span class="mobile-accordion-arrow">⌄</span></button>
           <div class="mobile-offer-accordion-body">
@@ -5038,7 +5047,7 @@ function showOfferModal(){
   const initialAmount=Number(o.initialPaymentTotal||0);
   const initialPaymentEach=Number(o.initialPaymentEach||0);
   const initialPaymentStatusLabel=o.initialPaymentStatus||(state.initialPaymentPaid?'Cubierto':'Pendiente');
-  openPortalFlowModal('Oferta final',`<div class="modal-summary-grid"><div class="post-mini"><small>Monto aprobado</small><strong>${money(o.approvedAmount)}</strong></div><div class="post-mini"><small>Pago mensual</small><strong>${escapeHtml(o.monthlyPayment)}</strong></div><div class="post-mini"><small>Plazo</small><strong>${o.termMonths} meses</strong></div><div class="post-mini"><small>Vigencia</small><strong>${escapeHtml(o.validUntil)} · Fin del día, Ciudad de México</strong></div><div class="post-mini"><small>Comisión por apertura</small><strong>${escapeHtml(typeof o.openingFee==='number'?`${o.openingFee}%`:o.openingFee??'Pendiente de oferta')}</strong>${o.openingFeeDisclosure?`<small>${escapeHtml(o.openingFeeDisclosure)}</small>`:''}</div><div class="post-mini"><small>Tasa de interés anual</small><strong>${escapeHtml(o.annualInterestRate??'Pendiente de oferta')}</strong></div>${o.initialPaymentRequired?`<div class="post-mini"><small>Pago inicial</small><strong>${money(initialAmount)}</strong></div><div class="post-mini"><small>Equivale a</small><strong>${escapeHtml(String(o.initialInstallments))} mensualidades</strong></div>`:''}</div>${renderOfferProcedureDetail()}<div class="post-note">Revisa cuidadosamente monto, plazo, pago, vigencia y condiciones antes de aceptar la oferta.</div>`);}
+  openPortalFlowModal('Oferta final',`<div class="modal-summary-grid"><div class="post-mini"><small>Monto aprobado</small><strong>${money(o.approvedAmount)}</strong></div><div class="post-mini"><small>Pago mensual</small><strong>${escapeHtml(o.monthlyPayment)}</strong></div><div class="post-mini"><small>Plazo</small><strong>${o.termMonths} meses</strong></div><div class="post-mini"><small>Vigencia</small><strong>${escapeHtml(visibleDateMX(o.validUntil))} · Fin del día, Ciudad de México</strong></div><div class="post-mini"><small>Comisión por apertura</small><strong>${escapeHtml(typeof o.openingFee==='number'?`${o.openingFee}%`:o.openingFee??'Pendiente de oferta')}</strong>${o.openingFeeDisclosure?`<small>${escapeHtml(o.openingFeeDisclosure)}</small>`:''}</div><div class="post-mini"><small>Tasa de interés anual</small><strong>${escapeHtml(o.annualInterestRate??'Pendiente de oferta')}</strong></div>${o.initialPaymentRequired?`<div class="post-mini"><small>Pago inicial</small><strong>${money(initialAmount)}</strong></div><div class="post-mini"><small>Equivale a</small><strong>${escapeHtml(String(o.initialInstallments))} mensualidades</strong></div>`:''}</div>${renderOfferProcedureDetail()}<div class="post-note">Revisa cuidadosamente monto, plazo, pago, vigencia y condiciones antes de aceptar la oferta.</div>`);}
 function showContractModal(){
   const contractCtx=getPatientContractSignatureContext();
   const title=contractCtx.title;

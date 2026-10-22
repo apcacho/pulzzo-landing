@@ -84,14 +84,29 @@ function carteraMexicoNow(date){
  if(hour==='24')hour='00';
  return {date:String(parts.year||'0000')+'-'+String(parts.month||'01').padStart(2,'0')+'-'+String(parts.day||'01').padStart(2,'0'),time:hour.padStart(2,'0')+':'+String(parts.minute||'00').padStart(2,'0')};
 }
+function carteraCampaignList(raw){
+ if(!Array.isArray(raw))return [];
+ return raw.filter(item=>item&&typeof item==='object'&&!Array.isArray(item)).map(item=>({
+  id:String(item.id||'').slice(0,80),
+  name:String(item.name||'').slice(0,160),
+  date:/^\d{4}-\d{2}-\d{2}$/.test(String(item.date||''))?String(item.date):'',
+  template:String(item.template||'').slice(0,80),
+  templateLabel:String(item.templateLabel||'').slice(0,160),
+  sent:Math.max(0,Number(item.sent)||0),
+  excluded:Math.max(0,Number(item.excluded)||0),
+  user:String(item.user||'').slice(0,160),
+  at:String(item.at||'').slice(0,40),
+  channel:item.channel==='whatsapp'?'whatsapp':'correo'
+ })).filter(item=>item.id&&item.name).slice(0,200);
+}
 function carteraCobranzaRead(){
- const defaults={schema:1,days:{...CARTERA_DAY_DEFAULTS},paymentData:'Datos de pago · pendiente',templates:carteraDefaultTemplates(),mail:carteraMailDefaults(),lastDemoRun:''};
+ const defaults={schema:1,days:{...CARTERA_DAY_DEFAULTS},paymentData:'Datos de pago · pendiente',templates:carteraDefaultTemplates(),mail:carteraMailDefaults(),lastDemoRun:'',campaigns:[]};
  try{
   const raw=localStorage.getItem(CARTERA_COBRANZA_KEY);
   if(!raw)return defaults;
   const parsed=JSON.parse(raw);
   if(!parsed||typeof parsed!=='object'||Array.isArray(parsed))return defaults;
-  return {schema:1,days:{...CARTERA_DAY_DEFAULTS,...(parsed.days||{})},paymentData:String(parsed.paymentData||defaults.paymentData),templates:{...defaults.templates,...(parsed.templates||{})},mail:carteraNormalizeMail(parsed.mail),lastDemoRun:/^\d{4}-\d{2}-\d{2}$/.test(String(parsed.lastDemoRun||''))?String(parsed.lastDemoRun):''};
+  return {schema:1,days:{...CARTERA_DAY_DEFAULTS,...(parsed.days||{})},paymentData:String(parsed.paymentData||defaults.paymentData),templates:{...defaults.templates,...(parsed.templates||{})},mail:carteraNormalizeMail(parsed.mail),lastDemoRun:/^\d{4}-\d{2}-\d{2}$/.test(String(parsed.lastDemoRun||''))?String(parsed.lastDemoRun):'',campaigns:carteraCampaignList(parsed.campaigns)};
  }catch(error){return defaults;}
 }
 function carteraCobranzaWrite(next){
@@ -100,7 +115,8 @@ function carteraCobranzaWrite(next){
  const mail=next.mail?carteraNormalizeMail({...current.mail,...next.mail,stages:{...current.mail.stages,...((next.mail&&next.mail.stages)||{})}}):current.mail;
  let lastDemoRun=current.lastDemoRun;
  if(Object.prototype.hasOwnProperty.call(next,'lastDemoRun')){const value=String(next.lastDemoRun||'');lastDemoRun=/^\d{4}-\d{2}-\d{2}$/.test(value)?value:'';}
- const stored={schema:1,days:{...current.days,...(next.days||{})},paymentData:next.paymentData!=null?String(next.paymentData):current.paymentData,templates:{...current.templates,...(next.templates||{})},mail,lastDemoRun};
+ const campaigns=Object.prototype.hasOwnProperty.call(next,'campaigns')?carteraCampaignList(next.campaigns):carteraCampaignList(current.campaigns);
+ const stored={schema:1,days:{...current.days,...(next.days||{})},paymentData:next.paymentData!=null?String(next.paymentData):current.paymentData,templates:{...current.templates,...(next.templates||{})},mail,lastDemoRun,campaigns};
  localStorage.setItem(CARTERA_COBRANZA_KEY,JSON.stringify(stored));
  return stored;
 }
@@ -541,6 +557,7 @@ function carteraOpenReceiptPreview(id,receiptId){
  return receipt;
 }
 function carteraFmtProfileDate(value){const raw=String(value||'').slice(0,10);if(!raw)return '—';return typeof formatMaybeDate==='function'?formatMaybeDate(raw):raw;}
+function carteraVisibleStamp(value){const raw=String(value||'').trim();return raw?carteraFmtProfileDate(raw):'';}
 function carteraCopyIcon(){return '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"></rect><path d="M6 16H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" fill="none" stroke="currentColor" stroke-width="1.8"></path></svg>';}
 function carteraWhatsappIcon(){return '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M12 3.2A8.7 8.7 0 0 0 4.4 16.3L3.2 20.8l4.6-1.2A8.8 8.8 0 1 0 12 3.2zm4.9 12.4c-.2.6-1.2 1.1-1.7 1.1-.4.1-.9.2-2.9-.6-2.4-1-4-3.5-4.1-3.6-.1-.2-1.2-1.6-1.2-3s.8-2.1 1-2.4c.3-.3.6-.3.8-.3h.6c.2 0 .4 0 .6.5.2.6.8 2 .8 2.1.1.1.1.3 0 .5-.1.2-.2.3-.3.5l-.2.3c-.1.1-.2.2-.1.4.1.2.6 1 1.3 1.6.9.8 1.6 1 1.8 1.1.2.1.3.1.4-.1.1-.1.5-.6.6-.8.2-.2.3-.2.5-.1.2.1 1.4.7 1.6.8.2.1.4.2.4.3.1.2.1.7-.1 1.3z"></path></svg>';}
 function carteraCopyPhoneIcon(){return '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-dasharray="2.4 1.8"></rect><path fill="none" stroke="currentColor" stroke-width="1.6" d="M9.2 8.2h1.5l.6 1.6-1 .6a6.2 6.2 0 0 0 3 3l.6-1 1.6.6v1.3a1.1 1.1 0 0 1-1.1 1.1A7.4 7.4 0 0 1 8.1 9.3a1.1 1.1 0 0 1 1.1-1.1z"></path></svg>';}
@@ -587,8 +604,8 @@ function carteraProfileStageHtml(p){
  const facts=carteraFactsForPatient(p);
  const patient=p.patient||{};
  const sent=carteraMessageLog(p).slice(-1)[0];
- const lead=[['Etapa de cobranza',stage.label],['Días de atraso',String(facts.dpd||0)],['Monto a cobrar',carteraMoney(stage.amount||facts.amount||0)],['Próximo vencimiento',facts.next&&facts.next.date||facts.due||'—']];
- const tail=[['Último recordatorio',sent?sent.action+' · '+String(sent.at||'').slice(0,10):'—'],['Acuerdo',carteraAgreementLabel(carteraDeriveAgreement(p))]];
+ const lead=[['Etapa de cobranza',stage.label],['Días de atraso',String(facts.dpd||0)],['Monto a cobrar',carteraMoney(stage.amount||facts.amount||0)],['Próximo vencimiento',carteraSheetDate(facts.next&&facts.next.date||facts.due||'')]];
+ const tail=[['Último recordatorio',sent?sent.action+' · '+carteraVisibleStamp(sent.at):'—'],['Acuerdo',carteraAgreementLabel(carteraDeriveAgreement(p))]];
  const text=rows=>rows.map(([label,value])=>`<div><span>${escapeHtml(label)}</span><strong>${escapeHtml(String(value))}</strong></div>`).join('');
  return `<div class="cartera-profile-meta">${text(lead)}<div><span>Celular</span>${carteraPhoneActions(patient.phone)}</div><div><span>Correo</span>${carteraMailActions(patient.email)}</div>${text(tail)}</div>`;
 }
@@ -609,19 +626,19 @@ function carteraAmortizationTable(p){
 }
 function carteraReceiptListHtml(p){
  const list=(((p.application||{}).carteraReceipts)||[]).slice().reverse();
- const rows=list.map(receipt=>`<li><span><strong>${escapeHtml(receipt.date||'')} · ${carteraMoney(receipt.amount||0)}</strong><br>${escapeHtml(receipt.status||'Enviado (demo)')}</span><span class="portfolio-actions"><button type="button" class="btn btn-sm btn-secondary" onclick="carteraDownloadStoredReceipt('${escapeAttr(p.id)}','${escapeAttr(receipt.id||'')}')">Descargar</button><button type="button" class="btn btn-sm btn-secondary" onclick="carteraOpenReceiptPreview('${escapeAttr(p.id)}','${escapeAttr(receipt.id||'')}')">Ver correo</button></span></li>`).join('');
+ const rows=list.map(receipt=>`<li><span><strong>${escapeHtml(carteraVisibleStamp(receipt.date))} · ${carteraMoney(receipt.amount||0)}</strong><br>${escapeHtml(receipt.status||'Enviado (demo)')}</span><span class="portfolio-actions"><button type="button" class="btn btn-sm btn-secondary" onclick="carteraDownloadStoredReceipt('${escapeAttr(p.id)}','${escapeAttr(receipt.id||'')}')">Descargar</button><button type="button" class="btn btn-sm btn-secondary" onclick="carteraOpenReceiptPreview('${escapeAttr(p.id)}','${escapeAttr(receipt.id||'')}')">Ver correo</button></span></li>`).join('');
  return `<div class="cartera-profile-block"><h4>Recibos</h4>${rows?`<ul class="cartera-profile-list">${rows}</ul>`:'<p>Sin recibos registrados.</p>'}</div>`;
 }
 function carteraAgreementListHtml(p){
  const events=carteraAgreementEvents(p).filter(item=>item&&item.type==='created');
- const items=events.map(item=>`<li>Compromiso ${escapeHtml(item.compromiseDate||'')} · ${carteraMoney(item.amount||0)} · vencimiento original ${escapeHtml(item.originalDue||'—')} · cuota ${escapeHtml(String(item.installmentNumber||'—'))}</li>`).join('');
+ const items=events.map(item=>`<li>Compromiso ${escapeHtml(carteraVisibleStamp(item.compromiseDate))} · ${carteraMoney(item.amount||0)} · vencimiento original ${escapeHtml(item.originalDue?carteraVisibleStamp(item.originalDue):'—')} · cuota ${escapeHtml(String(item.installmentNumber||'—'))}</li>`).join('');
  return `<div class="cartera-profile-block"><h4>Acuerdos de pago</h4><p>Estado: ${escapeHtml(carteraAgreementLabel(carteraDeriveAgreement(p)))}. La cuota y el vencimiento original quedan congelados.</p>${items?`<ul class="cartera-profile-list">${items}</ul>`:'<p>Sin acuerdos de pago.</p>'}</div>`;
 }
 function carteraContactListHtml(p){
  const calls=((p.application||{}).carteraContacts)||[];
  const rows=calls.map(item=>({at:item.at,label:item.channel==='llamada'?'Llamada':item.channel||'Contacto',text:item.note||''})).concat(carteraMessageLog(p).map(item=>({at:item.at,label:item.action||item.channel||'Contacto',text:item.channel==='correo'?'':(item.comment||item.subject||''),preview:item.channel==='correo'?(item.comment||carteraEmailPreviewText(item)):''})));
  rows.sort((a,b)=>String(b.at||'').localeCompare(String(a.at||'')));
- const items=rows.map(item=>`<li><span><strong>${escapeHtml(item.label)}</strong> · ${escapeHtml(String(item.at||'').slice(0,10))}</span>${item.preview?`<pre class="cartera-fase1">${escapeHtml(item.preview)}</pre>`:`<span>${escapeHtml(item.text||'')}</span>`}</li>`).join('');
+ const items=rows.map(item=>`<li><span><strong>${escapeHtml(item.label)}</strong> · ${escapeHtml(carteraVisibleStamp(item.at))}</span>${item.preview?`<pre class="cartera-fase1">${escapeHtml(item.preview)}</pre>`:`<span>${escapeHtml(item.text||'')}</span>`}</li>`).join('');
  return `<div class="cartera-profile-block"><h4>Historial de contacto</h4>${items?`<ul class="cartera-profile-list">${items}</ul>`:'<p>Sin contactos registrados.</p>'}</div>`;
 }
 function carteraCreditWorkspaceHtml(req){
@@ -713,7 +730,12 @@ function carteraRulesFold(){
  const on=CARTERA_MAIL_STAGES.filter(([key])=>mail.stages&&mail.stages[key]).map(([,label])=>label);
  return `<details class="cartera-rules-fold"><summary>Reglas de envío automático</summary><p>Modo demo · no hay envío real. ${mail.enabled?'Encendido':'Apagado'} · ${escapeHtml(mail.sendTime||'09:00')} · ${escapeHtml(CARTERA_MAIL_TIMEZONE)}.</p>${on.length?`<p>${escapeHtml(on.join(', '))}.</p>`:''}<button type="button" class="btn btn-secondary" onclick="carteraOpenMailRules()">Editar reglas</button></details>`;
 }
-function carteraCollectionsHtml(){
+const carteraCampaignSelection=new Set();
+let carteraCampaignSeq=0;
+function carteraCampaignAllowed(){try{return typeof can==='function'&&can('manageCollections');}catch(error){return false;}}
+function carteraCampaignActor(){try{return session&&session.email||'sistema-demo';}catch(error){return 'sistema-demo';}}
+function carteraCampaignTemplateLabel(id){const row=CARTERA_TEMPLATE_IDS.find(item=>item[0]===id);return row?row[1]:String(id||'');}
+function carteraCollectionModel(){
  const all=typeof portfolioCredits==='function'?portfolioCredits():[];
  const book=all.filter(credit=>credit&&!credit.settled);
  const state=typeof portfolioState!=='undefined'?portfolioState:{};
@@ -722,9 +744,7 @@ function carteraCollectionsHtml(){
  const to=state.to||'';
  const stageFilter=state.stage||'all';
  const agingFilter=state.aging||'all';
- const focusLabels={cobranza:'En cobranza',vence_hoy:'Vence hoy',precobranza:'Precobranza',sin_accion:'Sin acción'};
  const digest=carteraMailDigest(book);
- const digestLabels={actions:'Acciones de hoy',paused:'Pausados',mora:'Mora 31+',vence_hoy:'Vence hoy'};
  const idsOf=rows=>new Set((rows||[]).map(row=>row.id));
  let listed=all.filter(credit=>typeof portfolioCreditMatches==='function'?portfolioCreditMatches(credit):credit&&!credit.settled);
  if(from||to)listed=listed.filter(credit=>{const date=(carteraCreditFacts(credit).next||{}).date||'';return !!date&&(!from||date>=from)&&(!to||date<=to);});
@@ -735,6 +755,167 @@ function carteraCollectionsHtml(){
  else if(carteraDigestFocus==='paused'){const ids=idsOf(digest.paused);listed=listed.filter(credit=>ids.has(credit.id));}
  else if(carteraDigestFocus==='mora'){const ids=idsOf(digest.mora);listed=listed.filter(credit=>ids.has(credit.id));}
  else if(carteraDigestFocus==='vence_hoy')listed=listed.filter(credit=>carteraCollectionStage(credit).id==='vence_hoy');
+ return {all,book,listed,digest,focus,from,to,stageFilter,agingFilter,state};
+}
+function carteraCampaignPrune(listed){
+ const ids=new Set((listed||[]).map(credit=>credit.id));
+ [...carteraCampaignSelection].forEach(id=>{if(!ids.has(id))carteraCampaignSelection.delete(id);});
+}
+function carteraCampaignSelected(){return [...carteraCampaignSelection];}
+function carteraCampaignToggle(id,on){
+ if(!carteraCampaignAllowed())return false;
+ const listed=carteraCollectionModel().listed;
+ if(!listed.some(credit=>credit.id===id)){carteraCampaignSelection.delete(id);return false;}
+ if(on)carteraCampaignSelection.add(id);else carteraCampaignSelection.delete(id);
+ carteraPaintCollections();
+ return carteraCampaignSelection.has(id);
+}
+function carteraCampaignSelectFiltered(on){
+ if(!carteraCampaignAllowed())return [];
+ const ids=carteraCollectionModel().listed.map(credit=>credit.id);
+ if(on)ids.forEach(id=>carteraCampaignSelection.add(id));
+ else ids.forEach(id=>carteraCampaignSelection.delete(id));
+ carteraPaintCollections();
+ return ids;
+}
+function carteraCampaignCredit(id){
+ const all=typeof portfolioCredits==='function'?portfolioCredits():[];
+ return all.find(credit=>credit&&credit.id===id)||null;
+}
+function carteraCampaignPlan(ids,templateId){
+ templateId=CARTERA_TEMPLATE_IDS.some(item=>item[0]===templateId)?templateId:'precobranza';
+ const today=carteraStampDay(new Date());
+ const classified=(Array.isArray(ids)?ids:[]).map(carteraCampaignCredit).filter(Boolean).map(credit=>{
+  const patient=credit.record&&credit.record.patient||{};
+  const stage=carteraCollectionStage(credit);
+  const email=String(patient.email||'').trim();
+  let reason='';
+  if(stage.id==='acuerdo_vigente')reason='Acuerdo vigente';
+  else if(carteraMessageLog(credit.record).some(item=>item&&item.channel==='correo'&&carteraStampDay(item.at)===today))reason='Ya recibió un mensaje hoy';
+  else if(!email||email.indexOf('@')<0)reason='Sin correo';
+  else if(stage.pause)reason='Pausado';
+  return {id:credit.id,name:credit.name,email,reason,credit};
+ });
+ const included=classified.filter(row=>!row.reason);
+ const excluded=classified.filter(row=>row.reason);
+ const sample=included[0]||classified[0]||null;
+ let subject='',body='',preview='';
+ if(sample&&sample.credit&&sample.credit.record){
+  const vars=carteraVars(sample.credit.record);
+  subject=carteraFill(carteraTemplate(templateId,'subject'),vars);
+  body=carteraFill(carteraTemplate(templateId,'email'),vars);
+  preview=carteraEmailPreviewText({to:sample.email||'Sin correo',cc:carteraCobranzaRead().mail.cc||'',subject,body});
+ }
+ return {templateId,templateLabel:carteraCampaignTemplateLabel(templateId),included:included.map(row=>({id:row.id,name:row.name,email:row.email})),excluded:excluded.map(row=>({id:row.id,name:row.name,reason:row.reason})),subject,body,preview,sampleName:sample?sample.name:''};
+}
+function carteraCampaignDialogHtml(ids,templateId,name){
+ const plan=carteraCampaignPlan(ids,templateId);
+ const options=CARTERA_TEMPLATE_IDS.map(([id,label])=>`<option value="${escapeAttr(id)}"${id===plan.templateId?' selected':''}>${escapeHtml(label)}</option>`).join('');
+ const counts={};
+ plan.excluded.forEach(row=>{counts[row.reason]=(counts[row.reason]||0)+1;});
+ const exclusion=plan.excluded.length?Object.keys(counts).map(reason=>`<li>${escapeHtml(reason)}: ${counts[reason]}</li>`).join(''):'<li>Sin exclusiones.</li>';
+ const title=name||(plan.templateLabel+' · '+carteraSheetDate(carteraToday()));
+ return `<div class="modal-head"><div><h3>Campaña de correo</h3><p>Enviado (demo). No sale ningún correo real.</p></div><button class="x" type="button" onclick="closeModal()">×</button></div><div class="modal-body"><div class="cartera-form cartera-form-stack"><label class="field">Nombre<input id="campanaNombre" value="${escapeAttr(title)}"></label><label class="field">Plantilla<select id="campanaPlantilla" onchange="carteraRefreshCampaignDialog()">${options}</select></label></div><p>Vista previa · ${escapeHtml(plan.sampleName||'Sin muestra')}</p><pre class="cartera-fase1">${escapeHtml(plan.preview||'Sin vista previa.')}</pre><p>Destinatarios: ${plan.included.length}</p><ul>${exclusion}</ul></div><div class="modal-actions"><button type="button" class="btn btn-secondary" onclick="closeModal()">Cerrar</button><button type="button" class="btn btn-primary" onclick="carteraConfirmCampaign()">Enviar (demo)</button></div>`;
+}
+function carteraOpenCampaign(){
+ if(!carteraCampaignAllowed())return false;
+ const ids=carteraCampaignSelected();
+ if(!ids.length)return false;
+ const templateId='precobranza';
+ if(typeof carteraUiState!=='undefined')carteraUiState.campaignDraft={ids,templateId};
+ const html=carteraCampaignDialogHtml(ids,templateId);
+ if(typeof modal==='function')modal(html);
+ carteraMarkCampaignModal();
+ return html;
+}
+function carteraRefreshCampaignDialog(){
+ const draft=typeof carteraUiState!=='undefined'&&carteraUiState.campaignDraft||{ids:carteraCampaignSelected()};
+ const template=document.getElementById('campanaPlantilla');
+ const name=document.getElementById('campanaNombre');
+ const templateId=template&&template.value||draft.templateId||'precobranza';
+ const title=name&&name.value||'';
+ if(typeof carteraUiState!=='undefined')carteraUiState.campaignDraft={ids:draft.ids,templateId};
+ const html=carteraCampaignDialogHtml(draft.ids||[],templateId,title);
+ if(typeof modal==='function')modal(html);
+ carteraMarkCampaignModal();
+ return html;
+}
+function carteraMarkCampaignModal(){
+ const box=document.getElementById&&document.getElementById('modal');
+ if(box)box.className='modal cartera-campaign-modal';
+}
+function carteraSendCampaign(input){
+ input=input||{};
+ if(!carteraCampaignAllowed())return {ok:false,error:'Tu sesión no puede enviar campañas de cobranza.'};
+ const ids=Array.isArray(input.ids)?input.ids:carteraCampaignSelected();
+ const templateId=CARTERA_TEMPLATE_IDS.some(item=>item[0]===input.templateId)?input.templateId:'precobranza';
+ const plan=carteraCampaignPlan(ids,templateId);
+ if(!plan.included.length)return {ok:false,error:'Nadie queda para enviar. Revisa las exclusiones.',plan};
+ carteraCampaignSeq+=1;
+ const id='CAM-'+carteraToday().replace(/-/g,'')+'-'+String(carteraCampaignSeq).padStart(3,'0');
+ const name=String(input.name||'').trim()||(plan.templateLabel+' · '+carteraSheetDate(carteraToday()));
+ const user=carteraCampaignActor();
+ const date=carteraToday();
+ const at=new Date().toISOString();
+ plan.included.forEach(row=>{
+  const credit=carteraCampaignCredit(row.id);
+  if(!credit||!credit.record)return;
+  const vars=carteraVars(credit.record);
+  const subject=carteraFill(carteraTemplate(templateId,'subject'),vars);
+  const body=carteraFill(carteraTemplate(templateId,'email'),vars);
+  const preview=[carteraEmailPreviewText({to:row.email,cc:carteraCobranzaRead().mail.cc||'',subject,body}),'Campaña: '+name,'Plantilla: '+plan.templateLabel,'Fecha: '+carteraSheetDate(date),'Usuario: '+user,'Enviado (demo)'].join('\n');
+  carteraLogDemoEmail(credit.record,{key:'campana|'+id+'|'+row.id+'|correo',comment:preview,campaignName:name,templateId,templateLabel:plan.templateLabel,actor:user,subject,body,to:row.email,at});
+ });
+ const campaigns=carteraCobranzaRead().campaigns.slice();
+ campaigns.unshift({id,name,date,template:templateId,templateLabel:plan.templateLabel,sent:plan.included.length,excluded:plan.excluded.length,user,at,channel:'correo'});
+ carteraCobranzaWrite({campaigns});
+ return {ok:true,sent:plan.included.length,excluded:plan.excluded.length,campaign:campaigns[0],plan};
+}
+function carteraConfirmCampaign(){
+ const draft=typeof carteraUiState!=='undefined'&&carteraUiState.campaignDraft||{};
+ const name=document.getElementById('campanaNombre');
+ const template=document.getElementById('campanaPlantilla');
+ const result=carteraSendCampaign({name:name&&name.value,templateId:template&&template.value||draft.templateId,ids:draft.ids||carteraCampaignSelected()});
+ if(!result.ok){if(typeof toast==='function')toast(result.error||'No se envió la campaña.');return result;}
+ carteraCampaignSelection.clear();
+ if(typeof toast==='function')toast('Enviado (demo). No salió ningún correo real.');
+ if(typeof closeModal==='function')closeModal();
+ carteraRefreshSurface();
+ return result;
+}
+function carteraCampaignPick(credit){
+ if(!carteraCampaignAllowed())return '';
+ const on=carteraCampaignSelection.has(credit.id);
+ return `<label class="cartera-pick"><input type="checkbox" aria-label="${escapeAttr('Seleccionar '+credit.name)}"${on?' checked':''} onchange="carteraCampaignToggle('${escapeAttr(credit.id)}',this.checked)"></label>`;
+}
+function carteraCampaignBarHtml(listed){
+ if(!carteraCampaignAllowed())return '';
+ const ids=listed.map(credit=>credit.id);
+ const n=ids.filter(id=>carteraCampaignSelection.has(id)).length;
+ const all=ids.length>0&&ids.every(id=>carteraCampaignSelection.has(id));
+ const action=n?`<button type="button" class="btn btn-sm btn-primary" onclick="carteraOpenCampaign()">${n} seleccionados · Enviar campaña de correo</button>`:'';
+ return `<div class="cartera-campaign-bar"><label class="cartera-pick"><input type="checkbox"${all?' checked':''} onchange="carteraCampaignSelectFiltered(this.checked)" aria-label="Seleccionar todos (filtrados)"> <span>Seleccionar todos (filtrados)</span></label>${action}</div>`;
+}
+function carteraCampaignFoldHtml(){
+ if(!carteraCampaignAllowed())return '';
+ const rows=carteraCobranzaRead().campaigns||[];
+ const body=rows.length?`<ul class="cartera-campaign-log">${rows.map(item=>`<li><strong>${escapeHtml(item.name)}</strong> · ${escapeHtml(carteraSheetDate(item.date))} · ${escapeHtml(item.templateLabel||item.template)} · enviados ${item.sent} · excluidos ${item.excluded} · ${escapeHtml(item.user)}</li>`).join('')}</ul>`:'<p>Sin campañas registradas.</p>';
+ return `<details class="cartera-campaign-fold"><summary>Campañas</summary>${body}</details>`;
+}
+function carteraCollectionsHtml(){
+ const model=carteraCollectionModel();
+ const book=model.book;
+ const state=model.state;
+ const focus=model.focus;
+ const from=model.from;
+ const to=model.to;
+ const stageFilter=model.stageFilter;
+ const agingFilter=model.agingFilter;
+ const digest=model.digest;
+ const listed=model.listed;
+ carteraCampaignPrune(listed);
+ const focusLabels={cobranza:'En cobranza',vence_hoy:'Vence hoy',precobranza:'Precobranza',sin_accion:'Sin acción'};
+ const digestLabels={actions:'Acciones de hoy',paused:'Pausados',mora:'Mora 31+',vence_hoy:'Vence hoy'};
  const banner=focus?`<p class="portfolio-summary-note">Bandeja de hoy: ${focusLabels[focus]||''}. <button type="button" class="portfolio-link" data-collection="clear">Ver toda la cobranza</button></p>`:(carteraDigestFocus?`<p class="portfolio-summary-note">Mostrando ${digestLabels[carteraDigestFocus]||''}. <button type="button" class="portfolio-link" data-digest="${escapeAttr(carteraDigestFocus)}">Ver toda la cobranza</button></p>`:'');
  const rows=listed.map(credit=>{
   const stage=carteraCollectionStage(credit);
@@ -746,7 +927,7 @@ function carteraCollectionsHtml(){
   const oldest=carteraSheetDate(facts.oldest&&facts.oldest.date);
   const reminder=sent?escapeHtml((sent.action||'Recordatorio')+' · '+carteraSheetDate(sent.at)):'—';
   const deal=escapeHtml(carteraAgreementLabel(agreement));
-  return `<tr><td class="cartera-col-client"><span class="cartera-who"><button type="button" class="portfolio-link" data-credit="${escapeAttr(credit.id)}" data-action="detail">${escapeHtml(credit.name)}</button><small>${escapeHtml(credit.code)}</small></span></td><td class="cartera-col-stage"><span class="cartera-stage" data-tone="${carteraStageTone(stage)}" title="${escapeAttr(stage.label)}">${escapeHtml(carteraStageShort(stage))}</span></td><td class="cartera-col-days">${facts.dpd||0}</td><td class="cartera-col-money">${carteraMoney(stage.amount||facts.amount||0)}</td><td class="cartera-col-date">${escapeHtml(next)}</td><td class="cartera-col-contact">${carteraCollectionContact(patient)}</td><td class="cartera-col-actions">${carteraRowMenu(credit,stage,sent,{oldest,reminder,deal})}</td></tr>`;
+  return `<tr><td class="cartera-col-client"><span class="cartera-client-line">${carteraCampaignPick(credit)}<span class="cartera-who"><button type="button" class="portfolio-link" data-credit="${escapeAttr(credit.id)}" data-action="detail">${escapeHtml(credit.name)}</button><small>${escapeHtml(credit.code)}</small></span></span></td><td class="cartera-col-stage"><span class="cartera-stage" data-tone="${carteraStageTone(stage)}" title="${escapeAttr(stage.label)}">${escapeHtml(carteraStageShort(stage))}</span></td><td class="cartera-col-days">${facts.dpd||0}</td><td class="cartera-col-money">${carteraMoney(stage.amount||facts.amount||0)}</td><td class="cartera-col-date">${escapeHtml(next)}</td><td class="cartera-col-contact">${carteraCollectionContact(patient)}</td><td class="cartera-col-actions">${carteraRowMenu(credit,stage,sent,{oldest,reminder,deal})}</td></tr>`;
  }).join('');
  const cards=listed.map(credit=>{
   const stage=carteraCollectionStage(credit);
@@ -754,17 +935,18 @@ function carteraCollectionsHtml(){
   const patient=credit.record.patient||{};
   const sent=carteraMessageLog(credit.record).slice(-1)[0];
   const detail={oldest:carteraSheetDate(facts.oldest&&facts.oldest.date),reminder:sent?escapeHtml((sent.action||'Recordatorio')+' · '+carteraSheetDate(sent.at)):'—',deal:escapeHtml(carteraAgreementLabel(carteraDeriveAgreement(credit.record)))};
-  return `<article class="portfolio-mobile-card"><div class="portfolio-card-head"><div class="cartera-who"><button type="button" class="portfolio-link" data-credit="${escapeAttr(credit.id)}" data-action="detail">${escapeHtml(credit.name)}</button><small>${escapeHtml(credit.code)}</small></div><span class="cartera-stage" data-tone="${carteraStageTone(stage)}">${escapeHtml(carteraStageShort(stage))}</span></div><p class="cartera-money">${carteraMoney(stage.amount||facts.amount||0)} · ${escapeHtml(carteraSheetDate(facts.next&&facts.next.date))}</p>${carteraCollectionContact(patient)}${carteraRowMenu(credit,stage,sent,detail)}</article>`;
+  return `<article class="portfolio-mobile-card"><div class="portfolio-card-head">${carteraCampaignPick(credit)}<div class="cartera-who"><button type="button" class="portfolio-link" data-credit="${escapeAttr(credit.id)}" data-action="detail">${escapeHtml(credit.name)}</button><small>${escapeHtml(credit.code)}</small></div><span class="cartera-stage" data-tone="${carteraStageTone(stage)}">${escapeHtml(carteraStageShort(stage))}</span></div><p class="cartera-money">${carteraMoney(stage.amount||facts.amount||0)} · ${escapeHtml(carteraSheetDate(facts.next&&facts.next.date))}</p>${carteraCollectionContact(patient)}${carteraRowMenu(credit,stage,sent,detail)}</article>`;
  }).join('');
  const vence=book.filter(credit=>carteraCollectionStage(credit).id==='vence_hoy').length;
  const empty=focus||carteraDigestFocus?'Sin créditos en esta bandeja.':(from||to||stageFilter!=='all'||agingFilter!=='all'||state.query)?'Sin créditos con estos filtros.':'Sin créditos en cartera.';
- return carteraMailSummaryHtml(book,digest,vence)+banner+`<div class="table-wrap cartera-sheet-wrap"><table class="cartera-sheet"><colgroup><col class="cartera-col-client"><col class="cartera-col-stage"><col class="cartera-col-days"><col class="cartera-col-money"><col class="cartera-col-date"><col class="cartera-col-contact"><col class="cartera-col-actions"></colgroup><thead><tr><th class="cartera-col-client" scope="col">Cliente</th><th class="cartera-col-stage" scope="col">Etapa</th><th class="cartera-col-days" scope="col">Días atraso</th><th class="cartera-col-money" scope="col">Monto</th><th class="cartera-col-date" scope="col">Próximo venc.</th><th class="cartera-col-contact" scope="col">Contacto</th><th class="cartera-col-actions" scope="col">Acciones</th></tr></thead><tbody>${rows||`<tr><td class="portfolio-empty" colspan="7">${empty}</td></tr>`}</tbody></table></div><div class="portfolio-mobile-cards">${cards||'<p class="portfolio-empty">Sin créditos en esta bandeja.</p>'}</div>`;
+ const headPick=carteraCampaignAllowed()?`<label class="cartera-pick"><input type="checkbox" aria-label="Seleccionar todos (filtrados)"${listed.length&&listed.every(credit=>carteraCampaignSelection.has(credit.id))?' checked':''} onchange="carteraCampaignSelectFiltered(this.checked)"></label>`:'';
+ return carteraMailSummaryHtml(book,digest,vence)+banner+carteraCampaignBarHtml(listed)+`<div class="table-wrap cartera-sheet-wrap"><table class="cartera-sheet"><colgroup><col class="cartera-col-client"><col class="cartera-col-stage"><col class="cartera-col-days"><col class="cartera-col-money"><col class="cartera-col-date"><col class="cartera-col-contact"><col class="cartera-col-actions"></colgroup><thead><tr><th class="cartera-col-client" scope="col">${headPick}<span class="cartera-head-label">Cliente</span></th><th class="cartera-col-stage" scope="col">Etapa</th><th class="cartera-col-days" scope="col">Días atraso</th><th class="cartera-col-money" scope="col">Monto</th><th class="cartera-col-date" scope="col">Próximo venc.</th><th class="cartera-col-contact" scope="col">Contacto</th><th class="cartera-col-actions" scope="col">Acciones</th></tr></thead><tbody>${rows||`<tr><td class="portfolio-empty" colspan="7">${empty}</td></tr>`}</tbody></table></div><div class="portfolio-mobile-cards">${cards||'<p class="portfolio-empty">Sin créditos en esta bandeja.</p>'}</div>`;
 }
 function carteraMailSummaryHtml(credits,digest,vence){
  digest=digest||carteraMailDigest(credits||[]);
  if(vence==null)vence=(credits||[]).filter(credit=>carteraCollectionStage(credit).id==='vence_hoy').length;
  const tiles=[['actions','aqua','Acciones de hoy',digest.actions.length],['paused','mute','Pausados',digest.paused.length],['mora','alert','Mora 31+',digest.mora.length],['vence_hoy','warn','Vence hoy',vence]];
- return `<section class="cartera-mail-summary" aria-label="Resumen diario de cobranza"><header class="cartera-sheet-head"><div><h3>Cobranza de hoy</h3><p>Modo demo · no hay envío real.</p></div><div class="cartera-sheet-tools"><span class="pill pill-gray">Correo no conectado · modo demo</span><button type="button" class="btn btn-primary" onclick="carteraRunMailNow()">Ejecutar ahora</button></div></header><div class="portfolio-today-grid">${tiles.map(([id,tone,label,count])=>`<button type="button" class="portfolio-today-card" data-digest="${id}" data-tone="${tone}" aria-pressed="${carteraDigestFocus===id?'true':'false'}"><span>${label}</span><strong>${count}</strong></button>`).join('')}</div>${carteraRulesFold()}</section>`;
+ return `<section class="cartera-mail-summary" aria-label="Resumen diario de cobranza"><header class="cartera-sheet-head"><div><h3>Cobranza de hoy</h3><p>Modo demo · no hay envío real.</p></div><div class="cartera-sheet-tools"><span class="pill pill-gray">Correo no conectado · modo demo</span><button type="button" class="btn btn-primary" onclick="carteraRunMailNow()">Ejecutar ahora</button></div></header><div class="portfolio-today-grid">${tiles.map(([id,tone,label,count])=>`<button type="button" class="portfolio-today-card" data-digest="${id}" data-tone="${tone}" aria-pressed="${carteraDigestFocus===id?'true':'false'}"><span>${label}</span><strong>${count}</strong></button>`).join('')}</div>${carteraRulesFold()}${carteraCampaignFoldHtml()}</section>`;
 }
 function carteraPaintCollections(){if(typeof portfolioState!=='undefined'&&portfolioState.from&&portfolioState.to&&portfolioState.from>portfolioState.to)return;const target=document.getElementById('portfolioContent');if(target)target.innerHTML=carteraCollectionsHtml();}
 function carteraOpenAgreement(id){
@@ -869,5 +1051,5 @@ if(typeof renderSettings==='function'){
 }
 try{carteraSeedStageCredits();}catch(error){}
 try{carteraRunAutomaticMail({source:'load'});}catch(error){}
-Object.assign(globalThis,{carteraToday,carteraAddDays,carteraCobranzaRead,carteraCobranzaWrite,carteraTemplate,carteraFill,carteraCollectionStage,carteraCreditFacts,carteraFactsForPatient,carteraDeriveAgreement,carteraAgreementLabel,carteraMessageKey,carteraMessageSent,carteraRememberMessage,carteraWhatsappLink,carteraOpenWhatsapp,carteraMarkWhatsapp,carteraOpenMailPreview,carteraLogMail,carteraLogContact,carteraRegisterAgreement,carteraApplyForgiveness,carteraPresentReceipt,carteraReceiptFromResult,carteraReceiptDocument,carteraDownloadReceipt,carteraPrintReceipt,carteraOpenAgreement,carteraSaveAgreement,carteraChooseForgiveness,carteraApplyForgivenessUi,carteraOpenContact,carteraSaveContact,carteraAging,carteraSeedStageCredits,carteraBuildStageCredit,carteraSaveCobranzaSettings,carteraCobranzaSettingsHtml,carteraCreditWorkspaceHtml,carteraDownloadStoredReceipt,carteraOpenReceiptPreview,carteraCopyContact,carteraPhoneActions,carteraMailActions,carteraRunAutomaticMail,carteraRunMailNow,carteraEmailPreviewText,carteraMailDigest,carteraMailToggleForStage,carteraToggleDigest,carteraClearDigest,carteraStageGroup,carteraOpenMailRules,CARTERA_COBRANZA_KEY,CARTERA_MAIL_STAGES,CARTERA_MAIL_TIMEZONE});
+Object.assign(globalThis,{carteraVisibleStamp,carteraToday,carteraAddDays,carteraCobranzaRead,carteraCobranzaWrite,carteraTemplate,carteraFill,carteraCollectionStage,carteraCreditFacts,carteraFactsForPatient,carteraDeriveAgreement,carteraAgreementLabel,carteraMessageKey,carteraMessageSent,carteraRememberMessage,carteraWhatsappLink,carteraOpenWhatsapp,carteraMarkWhatsapp,carteraOpenMailPreview,carteraLogMail,carteraLogContact,carteraRegisterAgreement,carteraApplyForgiveness,carteraPresentReceipt,carteraReceiptFromResult,carteraReceiptDocument,carteraDownloadReceipt,carteraPrintReceipt,carteraOpenAgreement,carteraSaveAgreement,carteraChooseForgiveness,carteraApplyForgivenessUi,carteraOpenContact,carteraSaveContact,carteraAging,carteraSeedStageCredits,carteraBuildStageCredit,carteraSaveCobranzaSettings,carteraCobranzaSettingsHtml,carteraCreditWorkspaceHtml,carteraDownloadStoredReceipt,carteraOpenReceiptPreview,carteraCopyContact,carteraPhoneActions,carteraMailActions,carteraRunAutomaticMail,carteraRunMailNow,carteraEmailPreviewText,carteraMailDigest,carteraMailToggleForStage,carteraToggleDigest,carteraClearDigest,carteraStageGroup,carteraOpenMailRules,carteraCampaignAllowed,carteraCampaignToggle,carteraCampaignSelectFiltered,carteraCampaignSelected,carteraCampaignPlan,carteraCampaignDialogHtml,carteraOpenCampaign,carteraRefreshCampaignDialog,carteraSendCampaign,carteraConfirmCampaign,CARTERA_COBRANZA_KEY,CARTERA_MAIL_STAGES,CARTERA_MAIL_TIMEZONE});
 })();

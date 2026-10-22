@@ -85,7 +85,8 @@ for(const term of [6,12,18,24])for(const frequency of ['Mensual','Quincenal']){
   assert.equal(rows.length,term*(frequency==='Mensual'?1:2));
   assert.equal(Math.round(rows.reduce((n,r)=>n+r.paymentAmount,0)*100),100001*term);
   assert.equal(rows[0].isoDate,frequency==='Mensual'?'2026-02-28':'2026-02-05');
-  if(frequency==='Quincenal')assert.equal(rows[1].isoDate,'2026-02-20');
+  assert.equal(rows[0].date,frequency==='Mensual'?'28/02/2026':'05/02/2026');
+  if(frequency==='Quincenal'){assert.equal(rows[1].isoDate,'2026-02-20');assert.equal(rows[1].date,'20/02/2026');}
 }
 assert.deepEqual(Demo.paymentSchedule({termMonths:2,monthlyPayment:100,frequency:'Quincenal',paymentDay:'15 y fin de mes',start:new Date('2028-01-31T12:00:00Z')}).map(r=>r.isoDate),['2028-02-15','2028-02-29','2028-03-15','2028-03-31']);
 assert.deepEqual(Demo.paymentSchedule({termMonths:2,monthlyPayment:100,paymentDay:'Último día del mes',start:new Date('2026-01-31T12:00:00Z')}).map(r=>r.isoDate),['2026-02-28','2026-03-31']);
