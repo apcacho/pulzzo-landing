@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Registra tu consultorio, clínica u hospital en Pulzzo y ofrece financiamiento médico a tus pacientes.">
+<meta name="description" content="Registra tu consultorio, clínica u hospital en Pulzzo. Tus pacientes eligen un plazo claro y tú te enfocas en atenderlos.">
 <meta name="theme-color" content="#07142F">
 <link rel="icon" type="image/png" href="assets/favicon/favicon-v1337.png">
 <link rel="apple-touch-icon" href="assets/favicon/apple-touch-icon-v1337.png">
@@ -1144,11 +1144,11 @@ body.profile-mode #doctorProfilePanel .profile-attention-card .profile-section-c
     <!-- Columna izquierda: copy -->
     <div class="auth-copy">
       <div class="auth-pill">Acceso médico</div>
-      <h1 class="auth-title">Ofrece financiamiento médico a tus <span>pacientes.</span></h1>
-      <p class="auth-subtitle">Registra tu perfil para que Pulzzo valide tu información y active tu cuenta médica.</p>
+      <h1 class="auth-title">Más pacientes dicen que <span>sí.</span></h1>
+      <p class="auth-subtitle">Tus pacientes eligen un plazo claro y tú te enfocas en atenderlos.</p>
       <div class="auth-points" aria-label="Beneficios de registro médico">
-        <div class="auth-point"><span class="auth-point-icon">✓</span><span><strong>Alta digital de tu cuenta médica.</strong> Completa tu información principal para iniciar la validación.</span></div>
-        <div class="auth-point"><span class="auth-point-icon">✓</span><span><strong>Pagos claros y coordinados.</strong> Pulzzo coordina el pago del procedimiento conforme al proceso autorizado.</span></div>
+        <div class="auth-point"><span class="auth-point-icon">✓</span><span><strong>Cierra más procedimientos.</strong> Menos pacientes se quedan por el precio.</span></div>
+        <div class="auth-point"><span class="auth-point-icon">✓</span><span><strong>Pulzzo coordina el pago contigo.</strong> Sin trámites de crédito en tu consultorio.</span></div>
       </div>
     </div>
 
@@ -1330,7 +1330,7 @@ body.profile-mode #doctorProfilePanel .profile-attention-card .profile-section-c
       <span class="profile-hero-status-badge">EN REVISIÓN</span>
       <span class="profile-hero-status-text">Tu perfil médico está en revisión</span>
     </div>
-    <p class="profile-hero-copy">Gestiona tu perfil y cirugías, conecta y financia en un solo lugar.</p>
+    <p class="profile-hero-copy">Gestiona tu perfil, tus procedimientos y tus pacientes en un solo lugar.</p>
   </section>
   <nav class="profile-tabs" id="doctorProfileTabs" aria-label="Secciones del perfil médico"></nav>
   <div class="profile-mobile-section-nav" id="doctorProfileMobileNav" aria-label="Secciones del perfil médico en móvil">
@@ -2464,7 +2464,7 @@ setProcedureSummary();
     }
     const accountType=(s.profile?.accountType||localStorage.getItem('pulzzoDoctorAccountType')||'doctor').toLowerCase();
     const copy=document.querySelector('.profile-hero-copy');
-    if(copy) copy.textContent='Gestiona tu perfil y cirugías, conecta y financia en un solo lugar.';
+    if(copy) copy.textContent='Gestiona tu perfil, tus procedimientos y tus pacientes en un solo lugar.';
   }
   function openProfileDoc(title){
     const modal=document.getElementById('profileDocModal');
