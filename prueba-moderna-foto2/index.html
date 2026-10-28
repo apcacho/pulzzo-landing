@@ -3469,6 +3469,18 @@ html, body {
 /* foto2: 16:9 photo, reframe so her head keeps the same spacing under the nav as the current photo */
 html body .hero .hero-bg-mobile-photo img.hero-photo-img{object-position:64% 18% !important;}
 @media (min-width:1024px){html body .hero .hero-bg-mobile-photo img.hero-photo-img{object-position:63% 16% !important;}}
+/* foto2: hero without chips - intentional rhythm title > paragraph > buttons > stats */
+html body .hero .hero-inner .hero-title{margin-bottom:26px !important;}
+html body .hero .hero-inner .hero-subtitle{margin-top:0 !important;margin-bottom:40px !important;}
+html body .hero .hero-inner .hero-ctas-main{margin-top:0 !important;margin-bottom:36px !important;}
+html body .hero .hero-inner .hero-stats-main{margin-top:0 !important;}
+@media (max-width:1023px){
+  /* keep the mobile photo crop as before: the chips row was ~110px tall, hero is now shorter */
+  html body .hero .hero-bg-mobile-photo{bottom:auto !important;height:calc(100% + 110px) !important;}
+  html body .hero .hero-inner .hero-title{margin-bottom:20px !important;}
+  html body .hero .hero-inner .hero-subtitle{margin-bottom:28px !important;}
+  html body .hero .hero-inner .hero-ctas-main{margin-bottom:28px !important;}
+}
 </style>
 </head>
 <body>
@@ -3644,13 +3656,6 @@ html body .hero .hero-bg-mobile-photo img.hero-photo-img{object-position:64% 18%
       <h1 class="hero-title" style="opacity:0;animation:heroTitleIn .8s cubic-bezier(.22,1,.36,1) .3s forwards;">
         Tu salud no tiene<br>que <span class="underline-cyan" style="display:inline-block;animation:heroCyanWord .6s cubic-bezier(.22,1,.36,1) .9s both;opacity:0;">esperar</span>
       </h1>
-
-      <!-- Chips -->
-      <div class="hero-chips hero-chips-main animate delay-2">
-        <span class="hero-chip"><svg class="pz-i pz-inl" aria-hidden="true" focusable="false"><use href="#pzi-clipboard-list"></use></svg>Procedimientos programados</span>
-        <span class="hero-chip"><svg class="pz-i pz-inl" aria-hidden="true" focusable="false"><use href="#pzi-credit-card"></use></svg>Pago coordinado</span>
-        <span class="hero-chip"><svg class="pz-i pz-inl" aria-hidden="true" focusable="false"><use href="#pzi-circle-check"></use></svg>Mensualidades claras</span>
-      </div>
 
       <!-- Subtitle -->
       <p class="hero-subtitle hero-copy animate delay-3" style="max-width:420px;">
