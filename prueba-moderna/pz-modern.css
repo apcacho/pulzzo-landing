@@ -1,0 +1,183 @@
+/* PULZZO · modern refinements (test copy only).
+   One line-icon system + timeline treatment. Copy, colors and section order untouched. */
+
+/* ---------- 1. Icon system ---------- */
+.pz-i{
+  width:1em;height:1em;display:inline-block;flex-shrink:0;
+  fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;
+  color:var(--aqua);vertical-align:-.14em;overflow:visible;
+}
+.pz-i.pz-inl{margin-right:.5em}
+/* inside tabs/buttons the icon follows the label color */
+.hiw-tab .pz-i,.spec-tab .pz-i,.faq-tab .pz-i,.refer-tipo-btn .pz-i{color:inherit;font-size:1.15em;vertical-align:-.2em;margin-right:.45em}
+/* doctor-side items keep their coral treatment */
+.login-option-icon.doctor .pz-i,.drawer-option-icon.doctor .pz-i,.prov-benefit-icon .pz-i{color:inherit}
+.pulzzo-warning .pz-i{color:inherit}
+.hero-chip .pz-i{font-size:13px;margin-right:6px;vertical-align:-2px;color:var(--cyan-soft)}
+.spec-emoji{line-height:1}
+.spec-emoji .pz-i{font-size:26px;vertical-align:top}
+.prov-benefit-icon .pz-i{font-size:20px}
+.flow-step-icon{display:inline-flex;align-items:center;justify-content:center;line-height:1}
+.flow-step-icon .pz-i{font-size:18px}
+.pulzzo-success-icon{line-height:1}
+.pulzzo-success-icon .pz-i{font-size:48px;stroke-width:1.5}
+
+/* ---------- 2. ¿Cómo funciona? — timeline ---------- */
+#como-funciona .hiw-content.active{gap:0 28px;align-items:start}
+#como-funciona #tab-paciente.active{grid-template-columns:repeat(5,minmax(0,1fr))}
+#como-funciona #tab-doctor.active{grid-template-columns:repeat(3,minmax(0,1fr));max-width:900px;margin:0 auto}
+#como-funciona .step-card{
+  background:none;border:0;border-radius:0;padding:0;overflow:visible;box-shadow:none;transform:none;
+}
+#como-funciona .step-card:hover{box-shadow:none;transform:none;border:0}
+#como-funciona .step-num{
+  position:static;width:auto;height:auto;border-radius:0;background:none;
+  display:flex;align-items:center;gap:0;margin:0 0 22px;
+  font-family:var(--font-display);font-size:44px;font-weight:300;letter-spacing:-1px;line-height:1;
+  color:var(--aqua);
+}
+#como-funciona .step-num::before{content:"0"}
+#como-funciona .step-num::after{content:"";flex:1;height:1px;margin:0 -14px 0 16px;background:rgba(32,199,212,.45)}
+#como-funciona #tab-paciente .step-card:nth-child(5) .step-num::after,
+#como-funciona #tab-doctor .step-card:nth-child(3) .step-num::after{background:none}
+#como-funciona .step-icon{
+  width:44px;height:44px;border-radius:50%;margin:0 0 18px;
+  background:rgba(32,199,212,.10);box-shadow:none;color:var(--aqua);font-size:21px;
+}
+#como-funciona .step-title{font-family:var(--font-display);font-size:16px;font-weight:700;line-height:1.35;margin-bottom:8px}
+#como-funciona .step-desc{font-size:14px;line-height:1.6}
+#como-funciona .hiw-notes{grid-column:1/-1;max-width:760px;margin:44px auto 0;padding-top:24px;border-top:1px solid var(--gray-light);text-align:center}
+#como-funciona .hiw-note{display:flex;justify-content:center;align-items:flex-start;gap:8px;margin:0;font-size:13px;line-height:1.6;color:var(--gray-dark)}
+#como-funciona .hiw-note + .hiw-note{margin-top:8px}
+#como-funciona .hiw-note .pz-i{font-size:15px;margin-top:3px}
+#como-funciona .hiw-note-warn .pz-i{color:var(--amber)}
+#como-funciona .hiw-note-info{font-size:12px;color:var(--gray-mid)}
+#como-funciona .hiw-note-info .pz-i{font-size:14px;color:var(--gray-mid)}
+#como-funciona #tab-doctor > p{grid-column:1/-1}
+
+@media (max-width:1023px){
+  #como-funciona .hiw-content.active,
+  #como-funciona #tab-paciente.active,
+  #como-funciona #tab-doctor.active{grid-template-columns:1fr !important;gap:0 !important;max-width:560px;margin:0 auto}
+  #como-funciona .step-card{
+    display:grid;grid-template-columns:44px 1fr;column-gap:16px;position:relative;
+    padding:0 0 30px !important;text-align:left;
+  }
+  #como-funciona .step-card::before{
+    content:"";position:absolute;left:21.5px;top:52px;bottom:8px;width:1px;background:rgba(32,199,212,.35);
+  }
+  #como-funciona #tab-paciente .step-card:nth-child(5),
+  #como-funciona #tab-doctor .step-card:nth-child(3){padding-bottom:0 !important}
+  #como-funciona #tab-paciente .step-card:nth-child(5)::before,
+  #como-funciona #tab-doctor .step-card:nth-child(3)::before{display:none}
+  #como-funciona .step-icon{grid-column:1;grid-row:1 / span 3;margin:0}
+  #como-funciona .step-num{grid-column:2;grid-row:1;justify-self:start;margin:4px 0 6px;font-size:13px;font-weight:600;letter-spacing:1px}
+  #como-funciona .step-num::after{display:none}
+  #como-funciona .step-title{grid-column:2;font-size:17px !important;line-height:1.35 !important;margin-bottom:6px}
+  #como-funciona .step-desc{grid-column:2;font-size:15px !important;line-height:1.55 !important}
+  #como-funciona .hiw-notes{margin-top:32px;text-align:left}
+  #como-funciona .hiw-note{justify-content:flex-start}
+}
+
+/* ---------- 3. ¿Cuánto tarda? — same timeline language ---------- */
+.pz-tl.timeline-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0 32px;max-width:1040px;margin:0 auto;align-items:start}
+.pz-tl .tl-arrow{display:none !important}
+.pz-tl .tl-step{max-width:none;position:relative;padding:0}
+.pz-tl .tl-step:not(:last-child)::after{
+  content:"";position:absolute;top:28px;height:1px;
+  left:calc(50% + 40px);right:calc(-50% - 32px + 40px);background:rgba(32,199,212,.45);
+}
+.pz-tl .tl-icon-wrap{
+  width:56px;height:56px;border-radius:50%;margin:0 auto 18px;
+  background:var(--white);border:1px solid rgba(32,199,212,.30);box-shadow:none;
+}
+.pz-tl .tl-icon-wrap:hover{background:var(--white);transform:none}
+.pz-tl .tl-icon-active{background:rgba(32,199,212,.10);border-color:rgba(32,199,212,.30)}
+.pz-tl .tl-icon{font-size:24px;line-height:0;color:var(--aqua)}
+.pz-tl .tl-icon-wrap-logo{border-radius:50%;box-shadow:none !important;border-color:var(--navy) !important}
+.pz-tl .tl-icon-wrap-logo .tl-icon-logo,
+.pz-tl .tl-icon-wrap-logo .tl-icon-logo picture,
+.pz-tl .tl-icon-wrap-logo .tl-icon-logo img{width:30px;height:30px}
+
+@media (max-width:1023px){
+  .pz-tl.timeline-row{grid-template-columns:1fr;gap:0 !important;max-width:560px}
+  .timeline-row.pz-tl .tl-step{display:grid;grid-template-columns:56px 1fr;column-gap:16px;padding:0 0 30px !important;text-align:left}
+  .timeline-row.pz-tl .tl-step:last-child{padding-bottom:0 !important}
+  .pz-tl .tl-step:not(:last-child)::after{left:27.5px;right:auto;width:1px;height:auto;top:64px;bottom:8px;background:rgba(32,199,212,.35)}
+  .pz-tl .tl-icon-wrap{grid-column:1;grid-row:1 / span 3;margin:0}
+  .pz-tl .tl-time,.pz-tl .tl-title,.pz-tl .tl-desc{grid-column:2}
+  .pz-tl .tl-time{margin:4px 0 6px}
+  .timeline-row.pz-tl .tl-title{font-size:17px !important;line-height:1.35 !important;margin-bottom:6px}
+  .timeline-row.pz-tl .tl-desc{font-size:15px !important;line-height:1.55 !important}
+}
+
+/* ---------- 4. Financiamiento simple — lighter cards ---------- */
+#bloque-section #bloque-cards > div{
+  border:0 !important;border-radius:16px !important;padding:28px 20px !important;
+  transition:transform .25s ease, box-shadow .25s ease;
+}
+#bloque-section #bloque-cards > div:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(7,20,47,.06)}
+.pz-ico-circle{
+  width:48px;height:48px;border-radius:50%;margin:0 auto 16px;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(32,199,212,.12);color:var(--aqua);font-size:22px;
+}
+@media (max-width:767px){
+  #bloque-section #bloque-cards > div{padding:24px 18px !important}
+}
+
+/* ---------- 5. Pulzzo acompaña — list icons ---------- */
+.pz-tile{
+  width:40px;height:40px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(32,199,212,.12);color:var(--aqua);font-size:20px;
+}
+
+/* ---------- 6. Doctores y clínicas — lighter cards + thin flow timeline (orange accents) ---------- */
+#proveedores .prov-benefits{gap:12px}
+#proveedores .prov-benefit{
+  border:0;border-radius:16px;background:rgba(255,255,255,.78);padding:18px 20px;gap:16px;
+  box-shadow:0 1px 2px rgba(7,20,47,.04);transition:transform .25s ease, box-shadow .25s ease;
+}
+#proveedores .prov-benefit:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(7,20,47,.06);border:0}
+#proveedores .prov-benefit-icon{
+  width:40px;height:40px;border-radius:50%;border:0 !important;
+  background:var(--coral-s) !important;color:var(--coral-d) !important;
+}
+#proveedores .prov-benefit-icon .pz-i{font-size:19px}
+
+#proveedores .prov-visual{border:0;border-radius:24px}
+#proveedores .prov-flow{gap:0 !important}
+#proveedores .prov-flow .flow-arrow{display:none !important}
+#proveedores .prov-flow .flow-step{
+  position:relative;display:grid !important;grid-template-columns:32px minmax(0,1fr) auto !important;
+  align-items:center !important;column-gap:12px !important;row-gap:2px !important;
+  padding:9px 0 !important;background:none !important;border:0 !important;border-radius:0 !important;
+}
+#proveedores .prov-flow .flow-step:not(:last-child)::before{
+  content:"";position:absolute;left:15.5px;top:45px;bottom:-5px;width:1px;background:rgba(255,138,91,.35);
+}
+#proveedores .prov-flow .flow-step-icon{
+  grid-column:1 !important;grid-row:1 !important;
+  width:32px !important;height:32px !important;border-radius:50%;
+  background:var(--coral-s);display:flex !important;align-items:center !important;justify-content:center !important;
+}
+#proveedores .prov-flow .flow-step-icon .pz-i{font-size:16px !important;color:var(--coral-d)}
+#proveedores .prov-flow .flow-step-text{grid-column:2 !important;grid-row:1;font-size:13px;line-height:1.4}
+#proveedores .prov-flow .flow-step-time{
+  grid-column:3 !important;grid-row:1;justify-self:end !important;
+  padding:3px 10px;border-radius:999px;background:rgba(32,199,212,.10);
+  font-size:11px;line-height:1.4 !important;white-space:nowrap !important;margin:0 !important;
+}
+#proveedores .prov-flow .flow-step-time[style*="--green"]{background:rgba(22,163,74,.08)}
+
+@media (max-width:767px){
+  #proveedores .prov-benefit{padding:18px 16px !important}
+  #proveedores .prov-flow .flow-step{grid-template-columns:32px minmax(0,1fr) !important;align-items:start !important;padding:10px 0 !important}
+  #proveedores .prov-flow .flow-step:not(:last-child)::before{top:46px;bottom:-6px}
+  #proveedores .prov-flow .flow-step-icon{grid-row:1 / span 2 !important}
+  #proveedores .prov-flow .flow-step-text{grid-row:1}
+  #proveedores .prov-flow .flow-step-time{grid-row:2 !important}
+  #proveedores .prov-flow .flow-step-text{font-size:15px !important;line-height:1.35 !important;padding-top:5px}
+  #proveedores .prov-flow .flow-step-time{grid-column:2 !important;grid-row:auto;justify-self:start !important;margin-top:6px !important;font-size:11.5px !important}
+}
