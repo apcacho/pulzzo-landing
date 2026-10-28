@@ -181,3 +181,51 @@
   #proveedores .prov-flow .flow-step-text{font-size:15px !important;line-height:1.35 !important;padding-top:5px}
   #proveedores .prov-flow .flow-step-time{grid-column:2 !important;grid-row:auto;justify-self:start !important;margin-top:6px !important;font-size:11.5px !important}
 }
+
+/* ---------- 7. Round 3: doctor tab in orange ---------- */
+#como-funciona .hiw-tabs{max-width:460px}
+#como-funciona .hiw-tab{white-space:nowrap}
+#como-funciona .hiw-tab:nth-child(1).active{background:var(--aqua);color:var(--midnight);box-shadow:none}
+#como-funciona .hiw-tab:nth-child(2).active{background:var(--coral);color:var(--midnight);box-shadow:none}
+#como-funciona .hiw-tab:nth-child(2):not(.active):hover{color:var(--coral-d)}
+#como-funciona .hiw-tab:nth-child(1):not(.active):hover{color:var(--navy)}
+#como-funciona #tab-doctor .step-num{color:var(--coral)}
+#como-funciona #tab-doctor .step-num::after{background:rgba(255,138,91,.7)}
+#como-funciona #tab-doctor .step-card:nth-child(3) .step-num::after{background:none}
+#como-funciona #tab-doctor .step-icon{background:var(--coral-s)}
+#como-funciona #tab-doctor .step-icon .pz-i{color:var(--coral-d)}
+@media (max-width:1023px){
+  #como-funciona .hiw-tab{white-space:normal}
+  #como-funciona #tab-doctor .step-card::before{background:rgba(255,138,91,.4)}
+}
+
+/* ---------- 8. Round 3: alternating section backgrounds ---------- */
+/* hero(navy) · simple(tint) · cómo funciona(white) · simulador(navy) · tarda(white) · especialidades(grey) · acompaña(white) · doctores(mint) · directorio(white) · faq(grey) */
+#bloque-section{background:#F0FAFB !important;padding-top:64px !important;padding-bottom:64px !important}
+.pz-bg-white{background:var(--white) !important}
+#bloque-section #bloque-cards > div{
+  background:var(--white) !important;
+  box-shadow:0 1px 2px rgba(7,20,47,.04),0 6px 20px rgba(7,20,47,.05);
+  padding:30px 22px !important;
+}
+#bloque-section #bloque-cards > div:hover{box-shadow:0 1px 2px rgba(7,20,47,.04),0 12px 28px rgba(7,20,47,.08)}
+#bloque-section #bloque-cards > div > div:nth-child(2){font-size:15px !important}
+#bloque-section #bloque-cards > div > div:nth-child(3){font-size:13.5px !important;line-height:1.55 !important}
+#bloque-section .pz-ico-circle{width:52px;height:52px;font-size:24px;margin-bottom:18px}
+/* white sections: soft tint for the icon wells that used to be white */
+.pz-bg-white .pz-tl .tl-icon-wrap{background:#F5FCFD}
+.pz-bg-white .pz-tl .tl-icon-active{background:rgba(32,199,212,.12)}
+.pz-bg-white .pz-tl .tl-icon-wrap-logo{background:var(--navy) !important}
+@media (max-width:767px){
+  #bloque-section{padding-top:48px !important;padding-bottom:48px !important}
+  #bloque-section #bloque-cards > div{padding:26px 20px !important}
+}
+
+/* ---------- 9. Round 3: hero photo breathing room under the nav (desktop) ---------- */
+@media (min-width:1024px){
+  .hero .hero-bg-mobile-photo{top:64px !important}
+  .hero .hero-bg-mobile-photo::before{
+    content:"";position:absolute;left:0;right:0;top:0;height:56px;z-index:1;pointer-events:none;
+    background:linear-gradient(to bottom,var(--navy),rgba(7,20,47,0));
+  }
+}
