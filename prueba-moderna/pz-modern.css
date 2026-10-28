@@ -249,3 +249,18 @@
   #como-funciona #tab-doctor .step-card:nth-child(3)::after{display:none}
   #como-funciona #tab-doctor .step-card::after{background:rgba(255,138,91,.7)}
 }
+
+/* ---------- 11. Round 5: new section order — background rhythm ----------
+   hero navy · cómo funciona tint · simulador navy · tarda white · simple tint · especialidades white ·
+   acompaña grey · doctores mint · directorio white · franja navy · faq grey · cta navy */
+#como-funciona{background:#F0FAFB !important;padding-top:88px !important}
+#como-funciona .hiw-tabs{background:var(--white)}
+#como-funciona #tab-paciente .step-icon{background:var(--white);box-shadow:0 0 0 1px rgba(32,199,212,.18)}
+#como-funciona #tab-doctor .step-icon{background:var(--white);box-shadow:0 0 0 1px rgba(255,138,91,.25)}
+#como-funciona .hiw-notes{border-top-color:rgba(7,20,47,.08)}
+#especialidades{background:var(--white) !important}
+#especialidades .spec-card{background:#F8FAFC;border-color:#EDF1F5}
+#especialidades .spec-card:hover{background:var(--white)}
+#especialidades .spec-note{background:var(--white) !important}
+#especialidades .spec-tab:not(.active){background:#F8FAFC}
+@media (max-width:767px){#como-funciona{padding-top:64px !important}}
