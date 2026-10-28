@@ -3973,6 +3973,7 @@
 <link rel="stylesheet" href="assets/css/doctor-publication-backoffice.css">
 <link rel="stylesheet" href="assets/css/backoffice-insights.css">
 <link rel="stylesheet" href="assets/css/backoffice-tablas-v722.css">
+<link rel="stylesheet" href="assets/css/backoffice-resumen-v723.css">
 
 </head>
 <body class="backoffice-typography">
@@ -5102,7 +5103,7 @@ function renderDashboard(){
       <div class="dashboard-block-head">
         <div><h3>Resumen financiero</h3><p>Montos simulados por periodo seleccionado.</p></div>
       </div>
-      <div class="financial-grid">${financialCards.map(x=>`<div class="kpi"><small>${x[0]}</small><strong>${x[1]}</strong><span>${x[2]}</span>${can('viewPatients')?`<button class="dashboard-metric-view" type="button" data-dashboard-financial="${x[3]}" onclick="openDashboardFinancialDetail('${x[3]}')">Ver</button>`:''}</div>`).join('')}</div>
+      <div class="financial-grid">${financialCards.map(x=>`<div class="kpi" data-kpi="${x[3]}"><small>${x[0]}</small><strong>${x[1]}</strong><span>${x[2]}</span>${can('viewPatients')?`<button class="dashboard-metric-view" type="button" data-dashboard-financial="${x[3]}" onclick="openDashboardFinancialDetail('${x[3]}')">Ver</button>`:''}</div>`).join('')}</div>
     </section>
 
     ${renderDashboardCharts(patients,providers)}
@@ -5421,11 +5422,12 @@ function pzContactNational(value){
   const n=d.length===13&&d.startsWith('521')?d.slice(3):d.length===12&&d.startsWith('52')?d.slice(2):d;
   return /^\d{10}$/.test(n)?n:'';
 }
-function pzContactCell(phone,email,emptyPhone,emptyEmail){
+function pzContactCell(phone,email,emptyPhone,emptyEmail,waPhone){
   const shown=phone?pzPhone(phone):'';
   const n=pzContactNational(phone);
+  const wa=pzContactNational(waPhone)||n;
   const phoneHtml=n
-    ?`<span class="pz-contact-line"><a class="pz-contact-link pz-contact-tel" href="tel:+52${n}">${escapeHtml(shown)}</a><a class="pz-wa-link" href="https://wa.me/52${n}" target="_blank" rel="noopener noreferrer" aria-label="Abrir chat de WhatsApp" title="Abrir chat de WhatsApp">${PZ_WA_ICON}</a></span>`
+    ?`<span class="pz-contact-line"><a class="pz-contact-link pz-contact-tel" href="tel:+52${n}">${escapeHtml(shown)}</a><a class="pz-wa-link" href="https://wa.me/52${wa}" target="_blank" rel="noopener noreferrer" aria-label="Abrir chat de WhatsApp" title="Abrir chat de WhatsApp">${PZ_WA_ICON}</a></span>`
     :`<span class="pz-contact-line pz-contact-empty">${escapeHtml(shown||emptyPhone)}</span>`;
   const mail=String(email||'').trim();
   const emailHtml=/^[^\s@<>"'`]+@[^\s@<>"'`]+\.[^\s@<>"'`]+$/.test(mail)
@@ -12204,10 +12206,11 @@ function renderProviders(){
 function renderProviderList(){
   const rows=filteredProviders();
   providerElement('providerCount').textContent=`${rows.length} ${currentView==='providerRequests'?(rows.length===1?'solicitud':'solicitudes'):(rows.length===1?'perfil':'perfiles')}`;
-  providerElement('providerList').innerHTML=rows.length?pzTable('providers',['Doctor o clínica','Ubicación y tipo','Estado','Expediente',''],rows.map(p=>`<div class="patient-profile-row pz-dt-row" role="row">
+  providerElement('providerList').innerHTML=rows.length?pzTable('providers',['Doctor o clínica','Ubicación y tipo','Contacto','Estado','Expediente',''],rows.map(p=>`<div class="patient-profile-row pz-dt-row" role="row">
     <div class="pz-dt-cell pz-dt-main patient-profile-identity" role="cell"><div class="patient-profile-name pz-dt-name">${escapeHtml(providerDisplayName(p))}</div>
       <div class="patient-profile-ids pz-dt-sub">${escapeHtml(p.id)} · RFC: ${escapeHtml(p.fiscal.rfc)}</div></div>
     <div class="pz-dt-cell" role="cell" data-label="Ubicación y tipo"><span class="patient-profile-contact pz-dt-text">${escapeHtml(p.profile.city)}, ${escapeHtml(p.profile.state)} · ${escapeHtml(p.profile.accountType)}</span></div>
+    <div class="pz-dt-cell" role="cell" data-label="Contacto">${pzContactCell(p.contact?.registered||p.contact?.officePhone,p.profile?.email||p.contact?.email,'—','—',p.contact?.officeWhats)}</div>
     <div class="pz-dt-cell pz-dt-status" role="cell" data-label="Estado"><div class="pz-dt-pills">${providerMembershipHtml(p)}${providerReviewHtml(p)}${window.PulzzoDoctorPublicationBO?.badge(p)||''}</div></div>
     <div class="pz-dt-cell pz-dt-status" role="cell" data-label="Expediente"><div class="pz-dt-pills"><span class="pill provider-identity">${p.procedures.length} procedimientos</span><span class="pill pill-gray">Documentos: ${p.files.filter(d=>d.status==='approved').length}/${p.files.length}</span><span class="pill pill-gray">${escapeHtml(p.profile.establishmentType)}</span></div></div>
     <div class="pz-dt-cell pz-dt-action patient-profile-actions" role="cell"><button class="btn btn-secondary patient-profile-view-btn" type="button" data-provider-id="${escapeAttr(p.id)}">${p.profile.accountType==='Clínica u hospital'?'Ver clínica':'Ver doctor'}</button></div></div>`)):`<div class="empty">${currentView==='providerRequests'?'Sin solicitudes encontradas':'Sin perfiles encontrados'}<br><small>Ajusta los filtros o busca con otro dato.</small></div>`;
@@ -13233,5 +13236,5 @@ document.addEventListener('DOMContentLoaded',()=>{
   try{session=staffAccess?.getSession()||null;if(session){$('#loginView').classList.add('hidden');$('#appView').classList.remove('hidden');initApp();}}catch(error){session=null;staffShowLoggedOut();}
 });
 </script>
-<aside aria-label="Estado de revisión" style="position:fixed;bottom:6px;right:8px;z-index:2147483647;background:#fff;color:#334155;border:1px solid #cbd5e1;border-radius:6px;padding:4px 8px;font:11px system-ui;pointer-events:none">v72.2.2 · demo local</aside></body>
+<aside aria-label="Estado de revisión" style="position:fixed;bottom:6px;right:8px;z-index:2147483647;background:#fff;color:#334155;border:1px solid #cbd5e1;border-radius:6px;padding:4px 8px;font:11px system-ui;pointer-events:none">v72.3 · demo local</aside></body>
 </html>

@@ -4,7 +4,7 @@
 .pz-dt-head,.pz-dt .pz-dt-row{display:grid;gap:16px;align-items:center;padding:12px 18px}
 .pz-dt--requests .pz-dt-head,.pz-dt--requests .pz-dt-row{grid-template-columns:minmax(94px,.85fr) minmax(152px,1fr) minmax(128px,1.7fr) 102px 184px 102px 100px;gap:12px}
 .pz-dt--patients .pz-dt-head,.pz-dt--patients .pz-dt-row{grid-template-columns:minmax(220px,1.4fr) minmax(220px,1.2fr) minmax(150px,.8fr) 124px}
-.pz-dt--providers .pz-dt-head,.pz-dt--providers .pz-dt-row{grid-template-columns:minmax(180px,1.3fr) minmax(150px,1fr) minmax(190px,1.2fr) minmax(190px,1.2fr) 124px}
+.pz-dt--providers .pz-dt-head,.pz-dt--providers .pz-dt-row{grid-template-columns:minmax(150px,1.15fr) minmax(130px,.95fr) minmax(150px,1fr) minmax(176px,1.15fr) minmax(176px,1.15fr) 104px;gap:12px}
 .pz-dt-head{background:#F7FAFC;border-bottom:1px solid var(--line2,#E8EEF6);padding-top:10px;padding-bottom:10px}
 body.backoffice-typography .pz-dt .pz-dt-th{font-family:var(--bo-font)!important;font-size:11.5px!important;font-weight:500!important;line-height:1.3!important;color:var(--muted,#64748B);letter-spacing:normal!important;text-transform:none!important;white-space:nowrap!important}
 /* v72.2.1 · Cada título usa la misma alineación que el contenido de su columna: texto a la izquierda, montos a la derecha,
@@ -12,8 +12,8 @@ body.backoffice-typography .pz-dt .pz-dt-th{font-family:var(--bo-font)!important
 .pz-dt--requests>.pz-dt-head>.pz-dt-th:nth-child(4){text-align:right}
 .pz-dt--requests>:is(.pz-dt-head,.pz-dt-row)>:is(:nth-child(5),:nth-child(6),:nth-child(7)),
 .pz-dt--patients>:is(.pz-dt-head,.pz-dt-row)>:is(:nth-child(3),:nth-child(4)),
-.pz-dt--providers>:is(.pz-dt-head,.pz-dt-row)>:is(:nth-child(3),:nth-child(5)){text-align:center;justify-items:center;justify-content:center}
-.pz-dt--requests>.pz-dt-row>:nth-child(5) .pz-dt-pills,.pz-dt--providers>.pz-dt-row>:nth-child(3) .pz-dt-pills{justify-content:center}
+.pz-dt--providers>:is(.pz-dt-head,.pz-dt-row)>:is(:nth-child(4),:nth-child(6)){text-align:center;justify-items:center;justify-content:center}
+.pz-dt--requests>.pz-dt-row>:nth-child(5) .pz-dt-pills,.pz-dt--providers>.pz-dt-row>:nth-child(4) .pz-dt-pills{justify-content:center}
 /* Filas: sin tarjeta, separadas por línea fina. */
 body.backoffice-typography .pz-dt .pz-dt-row{margin:0;border:0;border-bottom:1px solid var(--line2,#E8EEF6);border-radius:0;background:#fff;box-shadow:none;transform:none;min-height:0;transition:background .15s ease}
 .pz-dt .pz-dt-row:last-child{border-bottom:0}
@@ -44,6 +44,10 @@ body.backoffice-typography .pz-dt a.pz-contact-link:hover{color:#086A74;text-dec
 .pz-wa-link:hover{background:#E8FBF0}
 .pz-wa-link svg{display:block}
 body.backoffice-typography .pz-dt .pz-contact-empty{font-weight:400!important;color:var(--muted,#64748B)}
+/* v72.3 · PZ-010: en las tablas de doctores y clínicas el contacto va en naranja (lado doctor); el ícono de WhatsApp conserva su verde. */
+body.backoffice-typography .pz-dt--providers a.pz-contact-link{color:#B9531F}
+body.backoffice-typography .pz-dt--providers a.pz-contact-link:hover{color:#9A431D}
+.pz-dt--providers a.pz-contact-link:focus-visible,.pz-dt--providers a.pz-wa-link:focus-visible{outline-color:var(--orange,#F4814E)}
 .pz-sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 /* Títulos de sección de estas cuatro listas sin pesos por encima de 600 (el título de la página conserva el suyo). */
 body.backoffice-typography :is(#patients .patient-request-list-head h2,#patientProfiles .patient-profiles-head h2,#providers .patient-profiles-head h2,#providerRequests .patient-profiles-head h2){font-weight:600!important}
