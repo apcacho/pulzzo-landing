@@ -27,7 +27,7 @@
  $('reload').onclick=()=>run(load);
  // v70 · D-12: el servicio real exige origen HTTPS (MAIL_ORIGIN). En la demo local (http/file) no se consulta
  // /api/crm/status, así no aparece un 404 en consola; la pantalla queda inactiva con el mismo aviso.
- const localDemo=window.location.protocol!=='https:'&&!/(?:^|[?&])mailApi=1(?:&|$)/.test(window.location.search.slice(1));
+ const localDemo=(window.location.protocol!=='https:'||/\.github\.io$/.test(window.location.hostname))&&!/(?:^|[?&])mailApi=1(?:&|$)/.test(window.location.search.slice(1));
  if(localDemo){$('connectionStatus').textContent='Correo real no disponible';tell(errors.mail_not_configured);$('connect').disabled=true;}
  else run(async()=>{const status=await api('/status');csrf=status.csrf;connected=status.connected;$('workspace').hidden=false;$('sender').textContent=status.mailbox?.email||status.expectedAccount;$('connectionStatus').textContent=connected?`Conectado: ${status.mailbox.email}`:`Sin conectar · ${status.expectedAccount}`;$('connect').textContent=connected?'Volver a conectar Gmail':'Conectar Gmail';await load();}).then(()=>{if(!csrf)$('connectionStatus').textContent='Correo real no disponible';});
 })();
