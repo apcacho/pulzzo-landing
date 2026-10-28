@@ -3505,6 +3505,37 @@ html body .mobile-drawer a.drawer-nav-link[href="#proveedores"].active{color:var
 @media (max-width:767px){
   #como-funciona .hiw-notes.pz-notecard{flex-direction:column;gap:12px;padding:18px;margin-top:32px;}
 }
+
+/* Ronda 10 · normalización tipográfica (H1/H2 700 · títulos de tarjeta 600 · cuerpo 400 · labels 500 · botones 600) */
+html body h2[style*="font-weight:800"]{font-weight:700 !important}
+html body .cta-final .cta-title{font-weight:700 !important;letter-spacing:-0.01em !important}
+html body .refer-header h2{font-weight:700 !important}
+html body .step-card .step-title,
+html body .tl-step .tl-title,
+html body h3[style*="font-weight:700"],
+html body div[style*="font-weight:700"]:not([id^="sum-"]),
+html body .refer-success h3{font-weight:600 !important}
+html body .hero-stat-num,html body .hero-stat-num[style],html body .hero-stat-num span,html body .hero-stat-num span[style]{font-weight:600 !important;letter-spacing:-0.01em !important}
+html body .sc2-plan-monthly{font-weight:700 !important}
+html body [id^="sum-"][style*="font-weight:700"]{font-weight:600 !important}
+html body span[style*="font-weight:700"],
+html body .flow-step-time{font-weight:600 !important}
+html body .login-option-label,
+html body .drawer-option-copy strong{font-weight:600 !important}
+html body .mobile-drawer .drawer-section-title{font-weight:600 !important}
+html body .btn.btn-primary.sc2-cta-button{font-weight:600 !important;letter-spacing:0 !important}
+html body .mobile-drawer .drawer-primary-wrap .btn.btn-primary,
+html body .mobile-drawer .btn.btn-primary,
+html body .provider-cta-mobile,
+html body .faq-tab,
+html body .refer-tipo-btn,
+html body .ref-ms-clear,
+html body .refer-submit{font-weight:600 !important}
+html body .refer-kicker,
+html body .refer-section-label{font-weight:600 !important}
+html body .refer-field label,
+html body .refer-field label span,
+html body .ref-ms-toolbar span{font-weight:500 !important}
 </style>
 </head>
 <body>
@@ -3541,7 +3572,7 @@ html body .mobile-drawer a.drawer-nav-link[href="#proveedores"].active{color:var
           </svg>
         </button>
         <div class="login-menu">
-          <a href="../login-paciente.html" class="login-option">
+          <a href="login-paciente.html" class="login-option">
             <div class="login-option-icon patient"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-user"></use></svg></div>
             <div>
               <span class="login-option-label">Soy Paciente</span>
@@ -3549,7 +3580,7 @@ html body .mobile-drawer a.drawer-nav-link[href="#proveedores"].active{color:var
             </div>
           </a>
           <div class="login-divider"></div>
-          <a href="../login-doctor.html" class="login-option">
+          <a href="login-doctor.html" class="login-option">
             <div class="login-option-icon doctor"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-stethoscope"></use></svg></div>
             <div>
               <span class="login-option-label">Soy Doctor / Clínica</span>
@@ -3608,14 +3639,14 @@ html body .mobile-drawer a.drawer-nav-link[href="#proveedores"].active{color:var
 
   <div class="drawer-section">
     <p class="drawer-section-title">Iniciar sesión</p>
-    <a href="../login-paciente.html" onclick="toggleDrawer()" class="drawer-option-card">
+    <a href="login-paciente.html" onclick="toggleDrawer()" class="drawer-option-card">
       <span class="drawer-option-icon patient"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-user"></use></svg></span>
       <span class="drawer-option-copy">
         <strong>Soy Paciente</strong>
         <small>Accede a tu solicitud</small>
       </span>
     </a>
-    <a href="../login-doctor.html" onclick="toggleDrawer()" class="drawer-option-card">
+    <a href="login-doctor.html" onclick="toggleDrawer()" class="drawer-option-card">
       <span class="drawer-option-icon doctor"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-stethoscope"></use></svg></span>
       <span class="drawer-option-copy">
         <strong>Soy Doctor / Clínica</strong>
