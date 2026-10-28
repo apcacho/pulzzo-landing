@@ -18,7 +18,7 @@
 <title>Pulzzo: Financiamiento Médico para Procedimientos Programados</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   /* =============================================
      PULZZO DESIGN SYSTEM: CSS VARIABLES
@@ -3463,8 +3463,103 @@ html, body {
 .idx-opt.selected{background:#E0FAF9;font-weight:600;color:#0D7A82}
 .idx-no-results{padding:10px;font-size:13px;color:#94A3B8;text-align:center}
 </style>
+<link rel="stylesheet" href="assets/css/pz-modern.css">
+<style id="foto2-encuadre">
+/* foto2: 16:9 photo, reframe so her head keeps the same spacing under the nav as the current photo */
+html body .hero .hero-bg-mobile-photo img.hero-photo-img{object-position:64% 18% !important;}
+@media (min-width:1024px){html body .hero .hero-bg-mobile-photo img.hero-photo-img{object-position:63% 16% !important;}}
+/* foto2: hero without chips - intentional rhythm title > paragraph > buttons > stats */
+html body .hero .hero-inner .hero-title{margin-bottom:26px !important;}
+html body .hero .hero-inner .hero-subtitle{margin-top:0 !important;margin-bottom:40px !important;}
+html body .hero .hero-inner .hero-ctas-main{margin-top:0 !important;margin-bottom:36px !important;}
+html body .hero .hero-inner .hero-stats-main{margin-top:0 !important;}
+@media (max-width:1023px){
+  /* keep the mobile photo crop as before: the chips row was ~110px tall, hero is now shorter */
+  html body .hero .hero-bg-mobile-photo{bottom:auto !important;height:calc(100% + 110px) !important;}
+  html body .hero .hero-inner .hero-title{margin-bottom:20px !important;}
+  html body .hero .hero-inner .hero-subtitle{margin-bottom:28px !important;}
+  html body .hero .hero-inner .hero-ctas-main{margin-bottom:28px !important;}
+}
+/* foto2: Doctores nav link is the doctor side -> coral on hover / focus / active (other links keep aqua) */
+html body .navbar-links a[href="#proveedores"]:hover,
+html body .navbar-links a[href="#proveedores"]:focus-visible,
+html body .navbar-links a[href="#proveedores"]:active,
+html body .navbar-links a[href="#proveedores"].active{color:var(--coral) !important;}
+html body .navbar-links a[href="#proveedores"].active::after{background:var(--coral) !important;}
+html body .mobile-drawer a.drawer-nav-link[href="#proveedores"]:hover,
+html body .mobile-drawer a.drawer-nav-link[href="#proveedores"]:focus-visible,
+html body .mobile-drawer a.drawer-nav-link[href="#proveedores"]:active,
+html body .mobile-drawer a.drawer-nav-link[href="#proveedores"].active{color:var(--coral) !important;background:rgba(255,138,91,.12) !important;border-color:rgba(255,138,91,.22) !important;}
+/* foto2: patient timeline notes as one Pulzzo info card */
+#como-funciona .hiw-notes.pz-notecard{display:flex;align-items:flex-start;gap:16px;text-align:left;max-width:760px;margin:44px auto 0;padding:20px 24px;background:#fff;border:1px solid rgba(32,199,212,.28);border-radius:16px;box-shadow:0 6px 20px rgba(7,20,47,.06);}
+#como-funciona .pz-notecard-ic{flex:0 0 40px;width:40px;height:40px;border-radius:50%;background:rgba(32,199,212,.12);color:#0EA5B3;display:flex;align-items:center;justify-content:center;}
+#como-funciona .pz-notecard-ic .pz-i{font-size:20px;margin:0;}
+#como-funciona .pz-notecard-body{flex:1;min-width:0;}
+#como-funciona .pz-notecard .hiw-note{justify-content:flex-start;text-align:left;}
+#como-funciona .pz-notecard .hiw-note-warn{font-size:14px;line-height:1.6;color:var(--gray-dark);}
+#como-funciona .pz-notecard .hiw-note-warn strong{font-weight:600;color:var(--navy);}
+#como-funciona .pz-notecard .hiw-note + .hiw-note{margin-top:12px;padding-top:12px;border-top:1px solid rgba(7,20,47,.07);}
+#como-funciona .pz-notecard .hiw-note-info{font-size:12.5px;gap:6px;color:var(--gray-mid);}
+#como-funciona .pz-notecard .hiw-note-info .pz-i{font-size:13px;margin-top:4px;flex:0 0 auto;}
+@media (max-width:767px){
+  #como-funciona .hiw-notes.pz-notecard{flex-direction:column;gap:12px;padding:18px;margin-top:32px;}
+}
+
+/* Ronda 10 · normalización tipográfica (H1/H2 700 · títulos de tarjeta 600 · cuerpo 400 · labels 500 · botones 600) */
+html body h2[style*="font-weight:800"]{font-weight:700 !important}
+html body .cta-final .cta-title{font-weight:700 !important;letter-spacing:-0.01em !important}
+html body .refer-header h2{font-weight:700 !important}
+html body .step-card .step-title,
+html body .tl-step .tl-title,
+html body h3[style*="font-weight:700"],
+html body div[style*="font-weight:700"]:not([id^="sum-"]),
+html body .refer-success h3{font-weight:600 !important}
+html body .hero-stat-num,html body .hero-stat-num[style],html body .hero-stat-num span,html body .hero-stat-num span[style]{font-weight:600 !important;letter-spacing:-0.01em !important}
+html body .sc2-plan-monthly{font-weight:700 !important}
+html body [id^="sum-"][style*="font-weight:700"]{font-weight:600 !important}
+html body span[style*="font-weight:700"],
+html body .flow-step-time{font-weight:600 !important}
+html body .login-option-label,
+html body .drawer-option-copy strong{font-weight:600 !important}
+html body .mobile-drawer .drawer-section-title{font-weight:600 !important}
+html body .btn.btn-primary.sc2-cta-button{font-weight:600 !important;letter-spacing:0 !important}
+html body .mobile-drawer .drawer-primary-wrap .btn.btn-primary,
+html body .mobile-drawer .btn.btn-primary,
+html body .provider-cta-mobile,
+html body .faq-tab,
+html body .refer-tipo-btn,
+html body .ref-ms-clear,
+html body .refer-submit{font-weight:600 !important}
+html body .refer-kicker,
+html body .refer-section-label{font-weight:600 !important}
+html body .refer-field label,
+html body .refer-field label span,
+html body .ref-ms-toolbar span{font-weight:500 !important}
+
+/* Ronda 11 · hero ~15% más bajo en escritorio para que asome la siguiente sección */
+@media (min-width:1024px){
+  html body .hero,html body .hero .hero-inner{min-height:636px !important;}
+  html body .hero .hero-inner > div:first-child{padding-top:112px !important;padding-bottom:54px !important;}
+}
+@media (min-width:1024px) and (max-width:1280px){
+  html body .hero,html body .hero .hero-inner{min-height:612px !important;}
+  html body .hero .hero-inner > div:first-child{padding-top:112px !important;padding-bottom:50px !important;}
+}
+
+/* Ronda 12 · subtítulo del hero: una oración por línea en ≥768px; en móvil ajuste natural sin palabra huérfana */
+html body .hero .hero-subtitle{text-wrap:pretty;}
+@media (min-width:768px){
+  html body .hero .hero-subtitle{max-width:none !important;}
+  html body .hero .hero-subtitle .pz-sub-l{display:block;white-space:nowrap;}
+}
+
+/* Ronda 13 · más contraste en las etiquetas de los stats del hero (mismo peso) */
+html body .hero .hero-stats-main .hero-stat-item .hero-stat-label{color:rgba(255,255,255,.72) !important;}
+</style>
 </head>
 <body>
+<!-- Icon set: Lucide (ISC license, lucide.dev), inlined; custom tooth glyph drawn in the same style -->
+<svg width="0" height="0" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true" focusable="false"><defs><symbol id="pzi-bandage" viewBox="0 0 24 24"><path d="M10 10.01h.01"/><path d="M10 14.01h.01"/><path d="M14 10.01h.01"/><path d="M14 14.01h.01"/><path d="M18 6v12"/><path d="M6 6v12"/><rect x="2" y="6" width="20" height="12" rx="2"/></symbol><symbol id="pzi-banknote" viewBox="0 0 24 24"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></symbol><symbol id="pzi-bone" viewBox="0 0 24 24"><path d="M17 10c.7-.7 1.69 0 2.5 0a2.5 2.5 0 1 0 0-5 .5.5 0 0 1-.5-.5 2.5 2.5 0 1 0-5 0c0 .81.7 1.8 0 2.5l-7 7c-.7.7-1.69 0-2.5 0a2.5 2.5 0 0 0 0 5c.28 0 .5.22.5.5a2.5 2.5 0 1 0 5 0c0-.81-.7-1.8 0-2.5Z"/></symbol><symbol id="pzi-brain" viewBox="0 0 24 24"><path d="M12 18V5"/><path d="M15 13a4.17 4.17 0 01-3-4 4.17 4.17 0 01-3 4"/><path d="M17.707 6.294A3 3 0 1012 5a3 3 0 10-5.707 1.294"/><path d="M17.996 5.125a4 4 0 012.526 5.77"/><path d="M18 18a4 4 0 002-7.465"/><path d="M19.967 17.482a4 4 0 11-7.967.517 4 4 0 11-7.967-.517"/><path d="M6 18a4 4 0 01-2-7.465"/><path d="M6.004 5.125a4 4 0 00-2.526 5.77"/></symbol><symbol id="pzi-calendar-days" viewBox="0 0 24 24"><path d="M8 2v3"/><path d="M16 2v3"/><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M8 13h.01"/><path d="M12 13h.01"/><path d="M16 13h.01"/><path d="M8 17h.01"/><path d="M12 17h.01"/><path d="M16 17h.01"/></symbol><symbol id="pzi-calendar-sync" viewBox="0 0 24 24"><path d="M11 10v4h4"/><path d="m11 14 1.535-1.605a5 5 0 018 1.5"/><path d="M16 2v3"/><path d="m21 18-1.535 1.605a5 5 0 01-8-1.5"/><path d="M21 22v-4h-4"/><path d="M21 8.517V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2h3.517"/><path d="M3 9h4"/><path d="M8 2v3"/></symbol><symbol id="pzi-chart-column" viewBox="0 0 24 24"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></symbol><symbol id="pzi-circle-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m16 9-5.5 5.5L8 12"/></symbol><symbol id="pzi-clipboard-check" viewBox="0 0 24 24"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></symbol><symbol id="pzi-clipboard-list" viewBox="0 0 24 24"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></symbol><symbol id="pzi-credit-card" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/><path d="M6 14h2"/></symbol><symbol id="pzi-dna" viewBox="0 0 24 24"><path d="m10 16 1.5 1.5"/><path d="m14 8-1.5-1.5"/><path d="M15 2c-1.798 1.998-2.518 3.995-2.807 5.993"/><path d="m16.5 10.5 1 1"/><path d="m17 6-2.891-2.891"/><path d="M2 15c6.667-6 13.333 0 20-6"/><path d="m20 9 .891.891"/><path d="M3.109 14.109 4 15"/><path d="m6.5 12.5 1 1"/><path d="m7 18 2.891 2.891"/><path d="M9 22c1.798-1.998 2.518-3.995 2.807-5.993"/></symbol><symbol id="pzi-dumbbell" viewBox="0 0 24 24"><path d="M17.596 12.768a2 2 0 1 0 2.829-2.829l-1.768-1.767a2 2 0 0 0 2.828-2.829l-2.828-2.828a2 2 0 0 0-2.829 2.828l-1.767-1.768a2 2 0 1 0-2.829 2.829z"/><path d="m2.5 21.5 1.4-1.4"/><path d="m20.1 3.9 1.4-1.4"/><path d="M5.343 21.485a2 2 0 1 0 2.829-2.828l1.767 1.768a2 2 0 1 0 2.829-2.829l-6.364-6.364a2 2 0 1 0-2.829 2.829l1.768 1.767a2 2 0 0 0-2.828 2.829z"/><path d="m9.6 14.4 4.8-4.8"/></symbol><symbol id="pzi-ear" viewBox="0 0 24 24"><path d="M6 8.5a6.5 6.5 0 1 1 13 0c0 6-6 6-6 10a3.5 3.5 0 1 1-7 0"/><path d="M15 8.5a2.5 2.5 0 0 0-5 0v1a2 2 0 1 1 0 4"/></symbol><symbol id="pzi-eye" viewBox="0 0 24 24"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></symbol><symbol id="pzi-heart-pulse" viewBox="0 0 24 24"><path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5"/><path d="M3.22 13H9.5l.5-1 2 4.5 2-7 1.5 3.5h5.27"/></symbol><symbol id="pzi-hospital" viewBox="0 0 24 24"><path d="M12 7v4"/><path d="M14 21v-3a2 2 0 0 0-4 0v3"/><path d="M14 9h-4"/><path d="M18 11h2a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2h2"/><path d="M18 21V5a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16"/></symbol><symbol id="pzi-house-heart" viewBox="0 0 24 24"><path d="M8.62 13.8A2.25 2.25 0 1 1 12 10.836a2.25 2.25 0 1 1 3.38 2.966l-2.626 2.856a.998.998 0 0 1-1.507 0z"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol><symbol id="pzi-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></symbol><symbol id="pzi-lock" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol><symbol id="pzi-map-pin" viewBox="0 0 24 24"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></symbol><symbol id="pzi-message-circle-heart" viewBox="0 0 24 24"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"/><path d="M7.828 13.07A3 3 0 0 1 12 8.764a3 3 0 0 1 5.004 2.224 3 3 0 0 1-.832 2.083l-3.447 3.62a1 1 0 0 1-1.45-.001z"/></symbol><symbol id="pzi-microscope" viewBox="0 0 24 24"><path d="M6 18h8"/><path d="M3 22h18"/><path d="M14 22a7 7 0 1 0 0-14h-1"/><path d="M9 14h2"/><path d="M9 12a2 2 0 0 1-2-2V6h6v4a2 2 0 0 1-2 2Z"/><path d="M12 6V3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3"/></symbol><symbol id="pzi-party-popper" viewBox="0 0 24 24"><path d="M5.8 11.3 2 22l10.7-3.79"/><path d="M4 3h.01"/><path d="M22 8h.01"/><path d="M15 2h.01"/><path d="M22 20h.01"/><path d="m22 2-2.24.75a2.9 2.9 0 0 0-1.96 3.12c.1.86-.57 1.63-1.45 1.63h-.38c-.86 0-1.6.6-1.76 1.44L14 10"/><path d="m22 13-.82-.33c-.86-.34-1.82.2-1.98 1.11c-.11.7-.72 1.22-1.43 1.22H17"/><path d="m11 2 .33.82c.34.86-.2 1.82-1.11 1.98C9.52 4.9 9 5.52 9 6.23V7"/><path d="M11 13c1.93 1.93 2.83 4.17 2 5-.83.83-3.07-.07-5-2-1.93-1.93-2.83-4.17-2-5 .83-.83 3.07.07 5 2Z"/></symbol><symbol id="pzi-person-standing" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1"/><path d="m9 20 3-6 3 6"/><path d="m6 8 6 2 6-2"/><path d="M12 10v4"/></symbol><symbol id="pzi-pill" viewBox="0 0 24 24"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/><path d="m8.5 8.5 7 7"/></symbol><symbol id="pzi-plus" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></symbol><symbol id="pzi-salad" viewBox="0 0 24 24"><path d="M19.496 12a2.5 2.5 0 00.399-2.214A2 2 0 0020.32 6.5 2 2 0 0019 3a2 2 0 00-1.5.68 2 2 0 00-3.287.424 2.5 2.5 0 00-3.189 2.06A3 3 0 0012 12l4-4"/><path d="M4 12a1 1 0 00-.99 1.133A9 9 0 0012 21a9 9 0 008.99-7.867A1 1 0 0020 12z"/><path d="M7 21h10"/><path d="M9.85 6.907A3.5 3.5 0 005.05 12"/></symbol><symbol id="pzi-scale" viewBox="0 0 24 24"><path d="M12 3v18"/><path d="m19 8 3 8a5 5 0 0 1-6 0zV7"/><path d="M3 7h1a17 17 0 0 0 8-2 17 17 0 0 0 8 2h1"/><path d="m5 8 3 8a5 5 0 0 1-6 0zV7"/><path d="M7 21h10"/></symbol><symbol id="pzi-share-2" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/></symbol><symbol id="pzi-shield-check" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></symbol><symbol id="pzi-smartphone" viewBox="0 0 24 24"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></symbol><symbol id="pzi-sparkle" viewBox="0 0 24 24"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"/></symbol><symbol id="pzi-sparkles" viewBox="0 0 24 24"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"/><path d="M20 2v4"/><path d="M22 4h-4"/><circle cx="4" cy="20" r="2"/></symbol><symbol id="pzi-speech" viewBox="0 0 24 24"><path d="M8.8 20v-4.1l1.9.2a2.3 2.3 0 0 0 2.164-2.1V8.3A5.37 5.37 0 0 0 2 8.25c0 2.8.656 3.054 1 4.55a5.77 5.77 0 0 1 .029 2.758L2 20"/><path d="M19.8 17.8a7.5 7.5 0 0 0 .003-10.603"/><path d="M17 15a3.5 3.5 0 0 0-.025-4.975"/></symbol><symbol id="pzi-stethoscope" viewBox="0 0 24 24"><path d="M11 2v2"/><path d="M5 2v2"/><path d="M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1"/><path d="M8 15a6 6 0 0 0 12 0v-3"/><circle cx="20" cy="10" r="2"/></symbol><symbol id="pzi-syringe" viewBox="0 0 24 24"><path d="m18 2 4 4"/><path d="m17 7 3-3"/><path d="M19 9 8.7 19.3c-1 1-2.5 1-3.4 0l-.6-.6c-1-1-1-2.5 0-3.4L15 5"/><path d="m9 11 4 4"/><path d="m5 19-3 3"/><path d="m14 4 6 6"/></symbol><symbol id="pzi-tooth" viewBox="0 0 24 24"><path d="M7.5 3C5 3 3 5 3 7.6c0 2.2.9 3.5 1.5 5.2.6 1.8.8 3.7 1.2 5.6.4 1.7 1 2.6 1.9 2.6 1.3 0 1.5-1.7 1.9-3.4.3-1.4.9-2.6 2.5-2.6s2.2 1.2 2.5 2.6c.4 1.7.6 3.4 1.9 3.4.9 0 1.5-.9 1.9-2.6.4-1.9.6-3.8 1.2-5.6.6-1.7 1.5-3 1.5-5.2C21 5 19 3 16.5 3c-1.8 0-2.7 1-4.5 1S9.3 3 7.5 3z"/></symbol><symbol id="pzi-trending-up" viewBox="0 0 24 24"><path d="M16 7h6v6"/><path d="m22 7-8.5 8.5-5-5L2 17"/></symbol><symbol id="pzi-triangle-alert" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></symbol><symbol id="pzi-user" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol><symbol id="pzi-user-plus" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></symbol><symbol id="pzi-wind" viewBox="0 0 24 24"><path d="M12.8 19.6A2 2 0 1 0 14 16H2"/><path d="M17.5 8a2.5 2.5 0 1 1 2 4H2"/><path d="M9.8 4.4A2 2 0 1 1 11 8H2"/></symbol></defs></svg>
 
 <!-- =============================================
      NAVBAR
@@ -3497,7 +3592,7 @@ html, body {
         </button>
         <div class="login-menu">
           <a href="login-paciente.html" class="login-option">
-            <div class="login-option-icon patient">👤</div>
+            <div class="login-option-icon patient"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-user"></use></svg></div>
             <div>
               <span class="login-option-label">Soy Paciente</span>
               <span class="login-option-sub">Accede a tu solicitud</span>
@@ -3505,7 +3600,7 @@ html, body {
           </a>
           <div class="login-divider"></div>
           <a href="login-doctor.html" class="login-option">
-            <div class="login-option-icon doctor">🩺</div>
+            <div class="login-option-icon doctor"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-stethoscope"></use></svg></div>
             <div>
               <span class="login-option-label">Soy Doctor / Clínica</span>
               <span class="login-option-sub">Accede a tu portal médico</span>
@@ -3523,7 +3618,7 @@ html, body {
         </button>
         <div class="login-menu" style="min-width:220px;">
           <a href="registro-paciente.html" class="login-option">
-            <div class="login-option-icon patient">👤</div>
+            <div class="login-option-icon patient"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-user"></use></svg></div>
             <div>
               <span class="login-option-label">Soy Paciente</span>
               <span class="login-option-sub">Solicita tu financiamiento</span>
@@ -3531,7 +3626,7 @@ html, body {
           </a>
           <div class="login-divider"></div>
           <a href="registro-doctor.html" class="login-option">
-            <div class="login-option-icon doctor">🩺</div>
+            <div class="login-option-icon doctor"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-stethoscope"></use></svg></div>
             <div>
               <span class="login-option-label">Soy Doctor / Clínica</span>
               <span class="login-option-sub">Registra tu consultorio o clínica</span>
@@ -3564,14 +3659,14 @@ html, body {
   <div class="drawer-section">
     <p class="drawer-section-title">Iniciar sesión</p>
     <a href="login-paciente.html" onclick="toggleDrawer()" class="drawer-option-card">
-      <span class="drawer-option-icon patient">👤</span>
+      <span class="drawer-option-icon patient"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-user"></use></svg></span>
       <span class="drawer-option-copy">
         <strong>Soy Paciente</strong>
         <small>Accede a tu solicitud</small>
       </span>
     </a>
     <a href="login-doctor.html" onclick="toggleDrawer()" class="drawer-option-card">
-      <span class="drawer-option-icon doctor">🩺</span>
+      <span class="drawer-option-icon doctor"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-stethoscope"></use></svg></span>
       <span class="drawer-option-copy">
         <strong>Soy Doctor / Clínica</strong>
         <small>Accede a tu portal médico</small>
@@ -3582,14 +3677,14 @@ html, body {
   <div class="drawer-section">
     <p class="drawer-section-title">Regístrate</p>
     <a href="registro-paciente.html" onclick="toggleDrawer()" class="drawer-option-card">
-      <span class="drawer-option-icon patient">👤</span>
+      <span class="drawer-option-icon patient"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-user"></use></svg></span>
       <span class="drawer-option-copy">
         <strong>Soy Paciente</strong>
         <small>Solicita tu financiamiento</small>
       </span>
     </a>
     <a href="registro-doctor.html" onclick="toggleDrawer()" class="drawer-option-card">
-      <span class="drawer-option-icon doctor">🩺</span>
+      <span class="drawer-option-icon doctor"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-stethoscope"></use></svg></span>
       <span class="drawer-option-copy">
         <strong>Soy Doctor / Clínica</strong>
         <small>Registra tu consultorio o clínica</small>
@@ -3609,8 +3704,9 @@ html, body {
   <!-- Full-bleed hero background -->
   <div class="hero-bg-mobile-photo" style="position:absolute;inset:0;z-index:0;">
     <picture>
-      <source srcset="assets/images/hero-paciente.webp" type="image/webp">
-      <img class="hero-photo-img" src="assets/images/hero-paciente.jpg"
+      <source type="image/webp" media="(min-width:1024px)" srcset="assets/images/hero-foto2/hero-foto2-1488.webp 1x, assets/images/hero-foto2/hero-foto2-2976.webp 2x">
+      <source type="image/webp" srcset="assets/images/hero-foto2/hero-foto2-1488-m.webp">
+      <img class="hero-photo-img" src="assets/images/hero-foto2/hero-foto2-1488.jpg" width="1488" height="837" fetchpriority="high"
         alt="Mujer feliz con financiamiento Pulzzo"
         style="width:100%;height:100%;object-fit:cover;object-position:right center;display:block;">
     </picture>
@@ -3635,16 +3731,9 @@ html, body {
         Tu salud no tiene<br>que <span class="underline-cyan" style="display:inline-block;animation:heroCyanWord .6s cubic-bezier(.22,1,.36,1) .9s both;opacity:0;">esperar</span>
       </h1>
 
-      <!-- Chips -->
-      <div class="hero-chips hero-chips-main animate delay-2">
-        <span class="hero-chip">📋 Procedimientos programados</span>
-        <span class="hero-chip">💳 Pago coordinado</span>
-        <span class="hero-chip">✅ Mensualidades claras</span>
-      </div>
-
       <!-- Subtitle -->
       <p class="hero-subtitle hero-copy animate delay-3" style="max-width:420px;">
-        Paga tu procedimiento en mensualidades claras. Pulzzo coordina el proceso de pago con tu doctor o clínica.
+        <span class="pz-sub-l">Realiza tu procedimiento con plazos claros.</span> <span class="pz-sub-l">Pulzzo coordina el pago con tu doctor o clínica.</span>
       </p>
 
       <!-- CTAs -->
@@ -3671,7 +3760,7 @@ html, body {
         </div>
         <div style="width:1px;height:36px;background:rgba(255,255,255,.15);"></div>
         <div class="hero-stat-item">
-          <div class="hero-stat-num">$<span style="font-size:20px;">0</span></div>
+          <div class="hero-stat-num" style="font-size:18px;"><span style="color:var(--cyan);">Sin</span></div>
           <div class="hero-stat-label">COSTOS OCULTOS</div>
         </div>
       </div>
@@ -3680,58 +3769,9 @@ html, body {
     <!-- RIGHT: Floating badges only (photo is absolute background) -->
     <div class="hero-side-panel" style="position:relative;z-index:3;display:flex;flex-direction:column;justify-content:center;align-items:flex-end;padding:140px 40px 80px 0;gap:16px;">
 
-      <!-- Badge 1: Aprobado -->
-      <div class="hero-offer-card" style="background:var(--white);border-radius:16px;padding:14px 20px;display:flex;align-items:center;gap:12px;box-shadow:0 8px 32px rgba(7,20,47,.25);animation:float1 4s ease-in-out infinite;min-width:220px;">
-        <div style="width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#16A34A,#059669);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 10l5 5 7-8" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
-        <div>
-          <div style="font-size:15px;font-weight:800;color:var(--navy);">Oferta estimada</div>
-          <div style="font-size:12px;color:var(--gray-mid);">$75,000 · 12 meses</div>
-        </div>
-      </div>
-
     </div>
   </div>
 </section>
-
-<!-- BLOQUE SIMPLE CLARO DIRECTO -->
-<section id="bloque-section" style="background:var(--white);padding:40px 60px;">
-  <div style="max-width:1280px;margin:0 auto;">
-    <div style="text-align:center;margin-bottom:48px;">
-      <h2 style="font-family:var(--font-display);font-size:36px;font-weight:800;color:var(--navy);margin-bottom:12px;">Financiamiento médico simple, claro y directo</h2>
-      <p style="font-size:17px;color:var(--gray-dark);max-width:580px;margin:0 auto;">Pulzzo te ayuda a pagar tu procedimiento en mensualidades, mientras tu doctor o clínica recibe el pago antes de realizarlo.</p>
-    </div>
-    <div id="bloque-cards" style="display:grid;grid-template-columns:repeat(5,1fr);gap:20px;">
-      <div style="text-align:center;padding:24px 16px;background:var(--offwhite);border-radius:var(--radius-lg);border:1px solid var(--gray-light);">
-        <div style="font-size:28px;margin-bottom:12px;">📱</div>
-        <div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:6px;">Solicitud en línea</div>
-        <div style="font-size:13px;color:var(--gray-dark);line-height:1.5;">Completa tu solicitud desde tu celular o computadora.</div>
-      </div>
-      <div style="text-align:center;padding:24px 16px;background:var(--offwhite);border-radius:var(--radius-lg);border:1px solid var(--gray-light);">
-        <div style="font-size:28px;margin-bottom:12px;">💳</div>
-        <div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:6px;">Pago coordinado</div>
-        <div style="font-size:13px;color:var(--gray-dark);line-height:1.5;">Pulzzo coordina el pago con tu doctor o clínica antes del procedimiento.</div>
-      </div>
-      <div style="text-align:center;padding:24px 16px;background:var(--offwhite);border-radius:var(--radius-lg);border:1px solid var(--gray-light);">
-        <div style="font-size:28px;margin-bottom:12px;">📊</div>
-        <div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:6px;">Mensualidades claras</div>
-        <div style="font-size:13px;color:var(--gray-dark);line-height:1.5;">Conoce plazo, comisión, tasa y total a pagar antes de aceptar.</div>
-      </div>
-      <div style="text-align:center;padding:24px 16px;background:var(--offwhite);border-radius:var(--radius-lg);border:1px solid var(--gray-light);">
-        <div style="font-size:28px;margin-bottom:12px;">📋</div>
-        <div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:6px;">Procedimientos programados</div>
-        <div style="font-size:13px;color:var(--gray-dark);line-height:1.5;">Aplicamos para cirugías y tratamientos planeados, no urgencias médicas.</div>
-      </div>
-      <div style="text-align:center;padding:24px 16px;background:var(--offwhite);border-radius:var(--radius-lg);border:1px solid var(--gray-light);">
-        <div style="font-size:28px;margin-bottom:12px;">🇲🇽</div>
-        <div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:6px;">Operación en México</div>
-        <div style="font-size:13px;color:var(--gray-dark);line-height:1.5;">Atendemos pacientes, doctores y clínicas dentro de nuestra red operativa.</div>
-      </div>
-    </div>
-  </div>
-</section>
-
 
 <section class="section hiw" id="como-funciona" style="padding-top:40px;">
   <div class="section-inner">
@@ -3740,64 +3780,65 @@ html, body {
       <h2 class="h1 section-title">¿Cómo funciona Pulzzo?</h2>
       <p class="body-l section-subtitle">Un proceso simple para pacientes, doctores y clínicas.</p>
       <div class="hiw-tabs" style="margin-bottom:48px;">
-        <button class="hiw-tab active" onclick="document.querySelectorAll('.hiw-tab').forEach(t=>t.classList.remove('active'));this.classList.add('active');document.getElementById('tab-paciente').classList.add('active');document.getElementById('tab-doctor').classList.remove('active');">👤 Soy Paciente</button>
-        <button class="hiw-tab" onclick="document.querySelectorAll('.hiw-tab').forEach(t=>t.classList.remove('active'));this.classList.add('active');document.getElementById('tab-doctor').classList.add('active');document.getElementById('tab-paciente').classList.remove('active');">🏥 Soy Doctor o Clínica</button>
+        <button class="hiw-tab active" onclick="document.querySelectorAll('.hiw-tab').forEach(t=>t.classList.remove('active'));this.classList.add('active');document.getElementById('tab-paciente').classList.add('active');document.getElementById('tab-doctor').classList.remove('active');"><svg class="pz-i pz-inl" aria-hidden="true" focusable="false"><use href="#pzi-user"></use></svg>Soy Paciente</button>
+        <button class="hiw-tab" onclick="document.querySelectorAll('.hiw-tab').forEach(t=>t.classList.remove('active'));this.classList.add('active');document.getElementById('tab-doctor').classList.add('active');document.getElementById('tab-paciente').classList.remove('active');"><svg class="pz-i pz-inl" aria-hidden="true" focusable="false"><use href="#pzi-hospital"></use></svg>Soy Doctor o Clínica</button>
       </div>
     </div>
     <div class="hiw-content active" id="tab-paciente">
       <div class="step-card reveal">
         <div class="step-num">1</div>
-        <div class="step-icon">📋</div>
+        <div class="step-icon"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-clipboard-list"></use></svg></div>
         <div class="step-title">Solicita en línea</div>
         <p class="step-desc">Completa tu solicitud en minutos desde tu celular o computadora.</p>
       </div>
       <div class="step-card reveal" style="transition-delay:.08s">
         <div class="step-num">2</div>
-        <div class="step-icon">✅</div>
+        <div class="step-icon"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-circle-check"></use></svg></div>
         <div class="step-title">Recibe una oferta personalizada</div>
         <p class="step-desc">Si tu solicitud es aprobada, te mostramos monto, plazo, mensualidad, comisión y total a pagar.</p>
       </div>
       <div class="step-card reveal" style="transition-delay:.16s">
         <div class="step-num">3</div>
-        <div class="step-icon">🩺</div>
+        <div class="step-icon"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-stethoscope"></use></svg></div>
         <div class="step-title">Tu doctor o clínica confirma el procedimiento</div>
         <p class="step-desc">Valida la información necesaria antes de avanzar con el pago.</p>
       </div>
       <div class="step-card reveal" style="transition-delay:.24s">
         <div class="step-num">4</div>
-        <div class="step-icon">💳</div>
+        <div class="step-icon"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-credit-card"></use></svg></div>
         <div class="step-title">Pulzzo coordina el pago</div>
         <p class="step-desc">El pago se realiza al doctor o clínica conforme a las condiciones acordadas.</p>
       </div>
       <div class="step-card reveal" style="transition-delay:.32s">
         <div class="step-num">5</div>
-        <div class="step-icon">📅</div>
+        <div class="step-icon"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-calendar-days"></use></svg></div>
         <div class="step-title">Tú pagas a meses</div>
-        <p class="step-desc">Pagas tus mensualidades conforme al plazo elegido.
-          <span style="display:block;margin-top:10px;padding:10px 12px;background:#FEF3C7;border:1px solid #F59E0B;border-radius:8px;font-size:11px;color:#92400E;line-height:1.5;">⚠️ Pulzzo no financia urgencias médicas. El financiamiento aplica para procedimientos programados, sujetos a evaluación, aprobación y confirmación del doctor o clínica.</span>
-        </p>
-
-    <p style="font-size:12px;color:var(--gray-dark);opacity:.7;text-align:center;margin-top:16px;max-width:560px;margin-left:auto;margin-right:auto;line-height:1.6;">
-      ℹ️ El pago al doctor o clínica se coordina una vez confirmado el procedimiento y cumplidas las condiciones aplicables.
-    </p>
-          </div>
+        <p class="step-desc">Pagas tus mensualidades conforme al plazo elegido.</p>
+      </div>
+      <div class="hiw-notes pz-notecard">
+        <span class="pz-notecard-ic"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-shield-check"></use></svg></span>
+        <div class="pz-notecard-body">
+          <p class="hiw-note hiw-note-warn"><span><strong>Pulzzo no financia urgencias médicas.</strong> El financiamiento aplica para procedimientos programados, sujetos a evaluación, aprobación y confirmación del doctor o clínica.</span></p>
+          <p class="hiw-note hiw-note-info"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-info"></use></svg><span>El pago al doctor o clínica se coordina una vez confirmado el procedimiento y cumplidas las condiciones aplicables.</span></p>
+        </div>
+      </div>
     </div>
     <div class="hiw-content" id="tab-doctor" style="display:none;">
       <div class="step-card reveal">
         <div class="step-num">1</div>
-        <div class="step-icon">🩺</div>
+        <div class="step-icon"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-stethoscope"></use></svg></div>
         <div class="step-title">Registra tu consultorio o clínica</div>
         <p class="step-desc">Da de alta tu clínica o consultorio sin costo de inscripción.</p>
       </div>
       <div class="step-card reveal" style="transition-delay:.1s">
         <div class="step-num">2</div>
-        <div class="step-icon">📲</div>
+        <div class="step-icon"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-share-2"></use></svg></div>
         <div class="step-title">Comparte Pulzzo con tus pacientes</div>
         <p class="step-desc">Tus pacientes pueden solicitar financiamiento para procedimientos programados.</p>
       </div>
       <div class="step-card reveal" style="transition-delay:.2s">
         <div class="step-num">3</div>
-        <div class="step-icon">💰</div>
+        <div class="step-icon"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-banknote"></use></svg></div>
         <div class="step-title">Confirma y recibe el pago</div>
         <p class="step-desc">Validas los datos del procedimiento. Pulzzo coordina el pago al doctor o clínica conforme a las condiciones acordadas, antes del procedimiento.</p>
       </div>
@@ -3846,11 +3887,11 @@ html, body {
         </div>
         <!-- Slider -->
         <div style="margin-top:16px;">
-          <input type="range" class="sc-slider" id="sc2-slider" min="10000" max="300000" step="5000" value="75000"
+          <input type="range" class="sc-slider" id="sc2-slider" min="0" max="300000" step="5000" value="75000"
             oninput="sc2SliderUpdate(this)"
-            style="width:100%;height:6px;border-radius:3px;background:linear-gradient(to right,var(--cyan) 0%,var(--cyan) 21.6%,rgba(255,255,255,.12) 21.6%,rgba(255,255,255,.12) 100%);">
+            style="width:100%;height:6px;border-radius:3px;background:linear-gradient(to right,var(--cyan) 0%,var(--cyan) 25%,rgba(255,255,255,.12) 25%,rgba(255,255,255,.12) 100%);">
           <div style="display:flex;justify-content:space-between;margin-top:8px;">
-            <span style="font-size:12px;color:rgba(255,255,255,.3);">$10,000</span>
+            <span style="font-size:12px;color:rgba(255,255,255,.3);">$0</span>
             <span style="font-size:12px;color:rgba(255,255,255,.3);">$300,000</span>
           </div>
         </div>
@@ -3930,21 +3971,58 @@ html, body {
 </section>
 
 <!-- TIMELINE -->
-<section class="section" style="background:var(--offwhite);padding:72px 60px;">
+<section class="section pz-bg-white" style="background:var(--offwhite);padding:72px 60px;">
   <div class="section-inner">
     <div class="section-center reveal" style="margin-bottom:56px;">
       <span class="section-tag">Rapidez que importa</span>
       <h2 class="h1 section-title" style="color:var(--navy);">¿Cuánto tarda el proceso?</h2>
       <p class="body-l" style="color:var(--gray-dark);max-width:560px;margin:0 auto;">Sin filas, sin sucursales y sin semanas de espera. Pulzzo está diseñado para procedimientos médicos programados.</p>
     </div>
-    <div class="timeline-row reveal">
-      <div class="tl-step"><div class="tl-icon-wrap"><div class="tl-icon">📋</div></div><div class="tl-time">Hoy · 5 min</div><div class="tl-title">Solicitas</div><div class="tl-desc">Llenas tu solicitud digital desde tu celular.</div></div>
+    <div class="timeline-row pz-tl reveal">
+      <div class="tl-step"><div class="tl-icon-wrap"><div class="tl-icon"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-clipboard-list"></use></svg></div></div><div class="tl-time">Hoy · 5 min</div><div class="tl-title">Solicitas</div><div class="tl-desc">Llenas tu solicitud digital desde tu celular.</div></div>
       <div class="tl-arrow">→</div>
-      <div class="tl-step"><div class="tl-icon-wrap tl-icon-active"><div class="tl-icon">✅</div></div><div class="tl-time">Hoy · mismo día</div><div class="tl-title">Te evaluamos</div><div class="tl-desc">Revisamos tu perfil y, si aplica, te mostramos una oferta.</div></div>
+      <div class="tl-step"><div class="tl-icon-wrap tl-icon-active"><div class="tl-icon"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-circle-check"></use></svg></div></div><div class="tl-time">Hoy · mismo día</div><div class="tl-title">Te evaluamos</div><div class="tl-desc">Revisamos tu perfil y, si aplica, te mostramos una oferta.</div></div>
       <div class="tl-arrow">→</div>
-      <div class="tl-step"><div class="tl-icon-wrap"><div class="tl-icon">🩺</div></div><div class="tl-time">Esta semana</div><div class="tl-title">Tu doctor o clínica confirma</div><div class="tl-desc">Valida el procedimiento, monto y datos necesarios.</div></div>
+      <div class="tl-step"><div class="tl-icon-wrap"><div class="tl-icon"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-stethoscope"></use></svg></div></div><div class="tl-time">Esta semana</div><div class="tl-title">Tu doctor o clínica confirma</div><div class="tl-desc">Valida el procedimiento, monto y datos necesarios.</div></div>
       <div class="tl-arrow">→</div>
       <div class="tl-step"><div class="tl-icon-wrap tl-icon-wrap-logo"><div class="tl-icon tl-icon-logo"><picture><source srcset="assets/images/logo-pulzzo.webp" type="image/webp"><img src="assets/images/logo-pulzzo.png" alt="Pulzzo" loading="lazy"></picture></div></div><div class="tl-time">Antes del procedimiento</div><div class="tl-title">Pulzzo coordina el pago</div><div class="tl-desc">El pago se realiza al doctor o clínica conforme a las condiciones acordadas.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- BLOQUE SIMPLE CLARO DIRECTO -->
+<section id="bloque-section" style="background:var(--white);padding:40px 60px;">
+  <div style="max-width:1280px;margin:0 auto;">
+    <div style="text-align:center;margin-bottom:48px;">
+      <h2 style="font-family:var(--font-display);font-size:36px;font-weight:800;color:var(--navy);margin-bottom:12px;">Financiamiento médico simple, claro y directo</h2>
+      <p style="font-size:17px;color:var(--gray-dark);max-width:580px;margin:0 auto;">Pulzzo te ayuda a pagar tu procedimiento en mensualidades, mientras tu doctor o clínica recibe el pago antes de realizarlo.</p>
+    </div>
+    <div id="bloque-cards" style="display:grid;grid-template-columns:repeat(5,1fr);gap:20px;">
+      <div style="text-align:center;padding:24px 16px;background:var(--offwhite);border-radius:var(--radius-lg);border:1px solid var(--gray-light);">
+        <div class="pz-ico-circle"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-smartphone"></use></svg></div>
+        <div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:6px;">Solicitud en línea</div>
+        <div style="font-size:13px;color:var(--gray-dark);line-height:1.5;">Completa tu solicitud desde tu celular o computadora.</div>
+      </div>
+      <div style="text-align:center;padding:24px 16px;background:var(--offwhite);border-radius:var(--radius-lg);border:1px solid var(--gray-light);">
+        <div class="pz-ico-circle"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-credit-card"></use></svg></div>
+        <div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:6px;">Pago coordinado</div>
+        <div style="font-size:13px;color:var(--gray-dark);line-height:1.5;">Pulzzo coordina el pago con tu doctor o clínica antes del procedimiento.</div>
+      </div>
+      <div style="text-align:center;padding:24px 16px;background:var(--offwhite);border-radius:var(--radius-lg);border:1px solid var(--gray-light);">
+        <div class="pz-ico-circle"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-chart-column"></use></svg></div>
+        <div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:6px;">Mensualidades claras</div>
+        <div style="font-size:13px;color:var(--gray-dark);line-height:1.5;">Conoce plazo, comisión, tasa y total a pagar antes de aceptar.</div>
+      </div>
+      <div style="text-align:center;padding:24px 16px;background:var(--offwhite);border-radius:var(--radius-lg);border:1px solid var(--gray-light);">
+        <div class="pz-ico-circle"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-clipboard-list"></use></svg></div>
+        <div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:6px;">Procedimientos programados</div>
+        <div style="font-size:13px;color:var(--gray-dark);line-height:1.5;">Aplicamos para cirugías y tratamientos planeados, no urgencias médicas.</div>
+      </div>
+      <div style="text-align:center;padding:24px 16px;background:var(--offwhite);border-radius:var(--radius-lg);border:1px solid var(--gray-light);">
+        <div class="pz-ico-circle"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-map-pin"></use></svg></div>
+        <div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:6px;">Operación en México</div>
+        <div style="font-size:13px;color:var(--gray-dark);line-height:1.5;">Atendemos pacientes, doctores y clínicas dentro de nuestra red operativa.</div>
+      </div>
     </div>
   </div>
 </section>
@@ -3958,35 +4036,35 @@ html, body {
       <p class="body-l section-subtitle">Apoyamos una amplia variedad de especialidades médicas, quirúrgicas y postoperatorias en México.</p>
     </div>
     <div style="display:flex;gap:8px;justify-content:center;margin-bottom:32px;flex-wrap:wrap;">
-      <button class="spec-tab active" onclick="switchSpec('cirugia',this)">🏥 Procedimientos</button>
-      <button class="spec-tab" onclick="switchSpec('postop',this)">🩹 Post-operatorio y Rehabilitación</button>
+      <button class="spec-tab active" onclick="switchSpec('cirugia',this)"><svg class="pz-i pz-inl" aria-hidden="true" focusable="false"><use href="#pzi-hospital"></use></svg>Procedimientos</button>
+      <button class="spec-tab" onclick="switchSpec('postop',this)"><svg class="pz-i pz-inl" aria-hidden="true" focusable="false"><use href="#pzi-bandage"></use></svg>Post-operatorio y Rehabilitación</button>
     </div>
     <div class="spec-grid reveal" id="spec-cirugia">
-      <a href="#simulador" class="spec-card"><span class="spec-emoji">✨</span><div class="spec-name">Cirugía Plástica</div></a>
-      <a href="#simulador" class="spec-card"><span class="spec-emoji">⚖️</span><div class="spec-name">Cirugía Bariátrica</div></a>
-      <a href="#simulador" class="spec-card"><span class="spec-emoji">🦷</span><div class="spec-name">Dental</div></a>
-      <a href="#simulador" class="spec-card"><span class="spec-emoji">👁️</span><div class="spec-name">Oftalmología</div></a>
-      <a href="#simulador" class="spec-card"><span class="spec-emoji">🦴</span><div class="spec-name">Ortopedia</div></a>
-      <a href="#simulador" class="spec-card"><span class="spec-emoji">👂</span><div class="spec-name">Otorrinolaringología</div></a>
-      <a href="#simulador" class="spec-card"><span class="spec-emoji">🧬</span><div class="spec-name">Reproducción asistida</div></a>
-      <a href="#simulador" class="spec-card"><span class="spec-emoji">🔬</span><div class="spec-name">Cirugía general</div></a>
-      <a href="#simulador" class="spec-card"><span class="spec-emoji">🧠</span><div class="spec-name">Neurocirugía</div></a>
-      <a href="#simulador" class="spec-card"><span class="spec-emoji">💆</span><div class="spec-name">Medicina estética</div></a>
-      <a href="#simulador" class="spec-card"><span class="spec-emoji">🩺</span><div class="spec-name">Ginecología</div></a>
-      <div class="spec-card spec-note"><span class="spec-emoji">➕</span><div class="spec-name">Más especialidades</div></div>
+      <a href="#simulador" class="spec-card"><span class="spec-emoji"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-sparkles"></use></svg></span><div class="spec-name">Cirugía Plástica</div></a>
+      <a href="#simulador" class="spec-card"><span class="spec-emoji"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-scale"></use></svg></span><div class="spec-name">Cirugía Bariátrica</div></a>
+      <a href="#simulador" class="spec-card"><span class="spec-emoji"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-tooth"></use></svg></span><div class="spec-name">Dental</div></a>
+      <a href="#simulador" class="spec-card"><span class="spec-emoji"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-eye"></use></svg></span><div class="spec-name">Oftalmología</div></a>
+      <a href="#simulador" class="spec-card"><span class="spec-emoji"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-bone"></use></svg></span><div class="spec-name">Ortopedia</div></a>
+      <a href="#simulador" class="spec-card"><span class="spec-emoji"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-ear"></use></svg></span><div class="spec-name">Otorrinolaringología</div></a>
+      <a href="#simulador" class="spec-card"><span class="spec-emoji"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-dna"></use></svg></span><div class="spec-name">Reproducción asistida</div></a>
+      <a href="#simulador" class="spec-card"><span class="spec-emoji"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-microscope"></use></svg></span><div class="spec-name">Cirugía general</div></a>
+      <a href="#simulador" class="spec-card"><span class="spec-emoji"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-brain"></use></svg></span><div class="spec-name">Neurocirugía</div></a>
+      <a href="#simulador" class="spec-card"><span class="spec-emoji"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-sparkle"></use></svg></span><div class="spec-name">Medicina estética</div></a>
+      <a href="#simulador" class="spec-card"><span class="spec-emoji"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-stethoscope"></use></svg></span><div class="spec-name">Ginecología</div></a>
+      <div class="spec-card spec-note"><span class="spec-emoji"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-plus"></use></svg></span><div class="spec-name">Más especialidades</div></div>
     </div>
     <div class="spec-grid reveal" id="spec-postop" style="display:none;">
-      <a href="#simulador" class="spec-card"><span class="spec-emoji">🏃</span><div class="spec-name">Fisioterapia</div></a>
-      <a href="#simulador" class="spec-card"><span class="spec-emoji">💪</span><div class="spec-name">Rehabilitación post-quirúrgica</div></a>
-      <a href="#simulador" class="spec-card"><span class="spec-emoji">🥗</span><div class="spec-name">Nutrición post-bariátrica</div></a>
-      <a href="#simulador" class="spec-card"><span class="spec-emoji">🧘</span><div class="spec-name">Psicología</div></a>
-      <a href="#simulador" class="spec-card"><span class="spec-emoji">💊</span><div class="spec-name">Medicina del dolor</div></a>
-      <a href="#simulador" class="spec-card"><span class="spec-emoji">🩺</span><div class="spec-name">Enfermería domiciliaria</div></a>
-      <a href="#simulador" class="spec-card"><span class="spec-emoji">🫁</span><div class="spec-name">Terapia respiratoria</div></a>
-      <a href="#simulador" class="spec-card"><span class="spec-emoji">🗣️</span><div class="spec-name">Terapia del lenguaje</div></a>
-      <a href="#simulador" class="spec-card"><span class="spec-emoji">🛁</span><div class="spec-name">Cuidados post-operatorios</div></a>
-      <a href="#simulador" class="spec-card"><span class="spec-emoji">💉</span><div class="spec-name">Medicina estética</div></a>
-      <div class="spec-card spec-note"><span class="spec-emoji">➕</span><div class="spec-name">Otros cuidados</div></div>
+      <a href="#simulador" class="spec-card"><span class="spec-emoji"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-person-standing"></use></svg></span><div class="spec-name">Fisioterapia</div></a>
+      <a href="#simulador" class="spec-card"><span class="spec-emoji"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-dumbbell"></use></svg></span><div class="spec-name">Rehabilitación post-quirúrgica</div></a>
+      <a href="#simulador" class="spec-card"><span class="spec-emoji"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-salad"></use></svg></span><div class="spec-name">Nutrición post-bariátrica</div></a>
+      <a href="#simulador" class="spec-card"><span class="spec-emoji"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-message-circle-heart"></use></svg></span><div class="spec-name">Psicología</div></a>
+      <a href="#simulador" class="spec-card"><span class="spec-emoji"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-pill"></use></svg></span><div class="spec-name">Medicina del dolor</div></a>
+      <a href="#simulador" class="spec-card"><span class="spec-emoji"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-house-heart"></use></svg></span><div class="spec-name">Enfermería domiciliaria</div></a>
+      <a href="#simulador" class="spec-card"><span class="spec-emoji"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-wind"></use></svg></span><div class="spec-name">Terapia respiratoria</div></a>
+      <a href="#simulador" class="spec-card"><span class="spec-emoji"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-speech"></use></svg></span><div class="spec-name">Terapia del lenguaje</div></a>
+      <a href="#simulador" class="spec-card"><span class="spec-emoji"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-heart-pulse"></use></svg></span><div class="spec-name">Cuidados post-operatorios</div></a>
+      <a href="#simulador" class="spec-card"><span class="spec-emoji"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-syringe"></use></svg></span><div class="spec-name">Medicina estética</div></a>
+      <div class="spec-card spec-note"><span class="spec-emoji"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-plus"></use></svg></span><div class="spec-name">Otros cuidados</div></div>
     </div>
   </div>
 </section>
@@ -4004,28 +4082,28 @@ html, body {
         <p class="body-l" style="color:var(--gray-dark);margin-bottom:32px;">Pulzzo te ayuda a coordinar el financiamiento, confirmar el pago con tu doctor o clínica y considerar gastos relacionados con tu procedimiento programado.</p>
         <div style="display:flex;flex-direction:column;gap:16px;">
           <div style="display:flex;gap:14px;align-items:flex-start;">
-            <div style="width:40px;height:40px;border-radius:8px;background:var(--aqua);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🛡️</div>
+            <div class="pz-tile"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-shield-check"></use></svg></div>
             <div>
               <div style="font-size:15px;font-weight:600;color:var(--navy);margin-bottom:4px;">Protección de saldo deudor <span style="color:#16A34A;font-weight:700;margin-left:6px;">✓</span></div>
               <div style="font-size:13px;color:var(--gray-dark);line-height:1.6;">Si aplica y está contratada, esta protección podría liquidar el saldo pendiente en caso de fallecimiento del titular.</div>
             </div>
           </div>
           <div style="display:flex;gap:14px;align-items:flex-start;">
-            <div style="width:40px;height:40px;border-radius:8px;background:var(--aqua);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">📅</div>
+            <div class="pz-tile"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-calendar-sync"></use></svg></div>
             <div>
               <div style="font-size:15px;font-weight:600;color:var(--navy);margin-bottom:4px;">Reagendamiento del procedimiento</div>
               <div style="font-size:13px;color:var(--gray-dark);line-height:1.6;">Si necesitas cambiar la fecha, Pulzzo puede ayudarte a coordinarlo con el doctor o clínica, sujeto a disponibilidad y condiciones aplicables.</div>
             </div>
           </div>
           <div style="display:flex;gap:14px;align-items:flex-start;">
-            <div style="width:40px;height:40px;border-radius:8px;background:var(--aqua);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">📋</div>
+            <div class="pz-tile"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-clipboard-check"></use></svg></div>
             <div>
               <div style="font-size:15px;font-weight:600;color:var(--navy);margin-bottom:4px;">Confirmación de pago al doctor o clínica</div>
               <div style="font-size:13px;color:var(--gray-dark);line-height:1.6;">Antes de tu procedimiento, recibirás una confirmación de que el pago fue realizado al doctor o clínica conforme a las condiciones acordadas.</div>
             </div>
           </div>
           <div style="display:flex;gap:14px;align-items:flex-start;">
-            <div style="width:40px;height:40px;border-radius:8px;background:var(--aqua);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🏃</div>
+            <div class="pz-tile"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-person-standing"></use></svg></div>
             <div>
               <div style="font-size:15px;font-weight:600;color:var(--navy);margin-bottom:4px;">Gastos relacionados al procedimiento</div>
               <div style="font-size:13px;color:var(--gray-dark);line-height:1.6;">Puedes incluir conceptos como fisioterapia, rehabilitación o cuidados postoperatorios, si forman parte del financiamiento aprobado.</div>
@@ -4059,19 +4137,19 @@ html, body {
       <p class="prov-desc">Tus pacientes pueden solicitar financiamiento para procedimientos programados. Una vez aprobado y confirmado el procedimiento, Pulzzo coordina el pago con tu clínica, consultorio u hospital conforme a las condiciones acordadas.</p>
       <div class="prov-benefits">
         <div class="prov-benefit reveal">
-          <div class="prov-benefit-icon">💰</div>
+          <div class="prov-benefit-icon"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-banknote"></use></svg></div>
           <div><div class="prov-benefit-title">Recibe el pago antes del procedimiento</div><div class="prov-benefit-desc">Pulzzo coordina el pago con tu doctor o clínica antes del procedimiento, una vez cumplidas las condiciones aplicables.</div></div>
         </div>
         <div class="prov-benefit reveal" style="transition-delay:.1s">
-          <div class="prov-benefit-icon">📈</div>
+          <div class="prov-benefit-icon"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-trending-up"></use></svg></div>
           <div><div class="prov-benefit-title">Facilita el cierre de tratamientos</div><div class="prov-benefit-desc">Ofrece a tus pacientes una alternativa de pago en mensualidades para procedimientos programados.</div></div>
         </div>
         <div class="prov-benefit reveal" style="transition-delay:.2s">
-          <div class="prov-benefit-icon">🆓</div>
+          <div class="prov-benefit-icon"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-user-plus"></use></svg></div>
           <div><div class="prov-benefit-title">Registro sin costo inicial</div><div class="prov-benefit-desc">Registra tu consultorio o clínica sin costo de inscripción. Las condiciones comerciales se informan durante el registro.</div></div>
         </div>
         <div class="prov-benefit reveal" style="transition-delay:.3s">
-          <div class="prov-benefit-icon">📋</div>
+          <div class="prov-benefit-icon"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-clipboard-list"></use></svg></div>
           <div><div class="prov-benefit-title">Confirmación clara para el paciente</div><div class="prov-benefit-desc">Pulzzo confirma al paciente las condiciones del financiamiento y del pago al doctor o clínica.</div></div>
         </div>
       </div>
@@ -4086,17 +4164,17 @@ html, body {
         </div>
         <div class="prov-flow">
         <div style="font-size:12px;font-weight:600;color:var(--gray-mid);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px;font-size:13px;color:var(--navy);font-weight:700;">Flujo del doctor o clínica</div>
-        <div class="flow-step"><span class="flow-step-icon">👤</span><span class="flow-step-text">Paciente consulta contigo</span><span class="flow-step-time">Paso 1</span></div>
+        <div class="flow-step"><span class="flow-step-icon"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-user"></use></svg></span><span class="flow-step-text">Paciente consulta contigo</span><span class="flow-step-time">Paso 1</span></div>
         <div class="flow-arrow">↓</div>
-        <div class="flow-step"><span class="flow-step-icon">📋</span><span class="flow-step-text">Paciente solicita financiamiento en Pulzzo desde su celular.</span><span class="flow-step-time">Paso 2</span></div>
+        <div class="flow-step"><span class="flow-step-icon"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-clipboard-list"></use></svg></span><span class="flow-step-text">Paciente solicita financiamiento en Pulzzo desde su celular.</span><span class="flow-step-time">Paso 2</span></div>
         <div class="flow-arrow">↓</div>
-        <div class="flow-step"><span class="flow-step-icon">✅</span><span class="flow-step-text">Pulzzo evalúa y aprueba, si aplica</span><span class="flow-step-time">Mismo día</span></div>
+        <div class="flow-step"><span class="flow-step-icon"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-circle-check"></use></svg></span><span class="flow-step-text">Pulzzo evalúa y aprueba, si aplica</span><span class="flow-step-time">Mismo día</span></div>
         <div class="flow-arrow">↓</div>
-        <div class="flow-step"><span class="flow-step-icon">🩺</span><span class="flow-step-text">Doctor o clínica confirma el procedimiento</span><span class="flow-step-time">Paso 4</span></div>
+        <div class="flow-step"><span class="flow-step-icon"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-stethoscope"></use></svg></span><span class="flow-step-text">Doctor o clínica confirma el procedimiento</span><span class="flow-step-time">Paso 4</span></div>
         <div class="flow-arrow">↓</div>
-        <div class="flow-step"><span class="flow-step-icon">💳</span><span class="flow-step-text">Pulzzo coordina el pago</span><span class="flow-step-time" style="color:var(--green);font-weight:700;">Antes del procedimiento ✓</span></div>
+        <div class="flow-step"><span class="flow-step-icon"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-credit-card"></use></svg></span><span class="flow-step-text">Pulzzo coordina el pago</span><span class="flow-step-time" style="color:var(--green);font-weight:700;">Antes del procedimiento ✓</span></div>
         <div class="flow-arrow">↓</div>
-        <div class="flow-step"><span class="flow-step-icon">🏥</span><span class="flow-step-text">El procedimiento se lleva a cabo en la fecha acordada.</span><span class="flow-step-time" style="color:var(--green);font-weight:700;">Día del procedimiento ✓</span></div>
+        <div class="flow-step"><span class="flow-step-icon"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-hospital"></use></svg></span><span class="flow-step-text">El procedimiento se lleva a cabo en la fecha acordada.</span><span class="flow-step-time" style="color:var(--green);font-weight:700;">Día del procedimiento ✓</span></div>
       </div>
       <button type="button" class="btn btn-primary provider-cta-mobile doctor-cta-solid">Registrar consultorio o clínica</button>
     </div>
@@ -4215,8 +4293,8 @@ html, body {
       <p class="body-l" style="color:var(--gray-dark);max-width:600px;margin:0 auto 32px;text-align:center;">Resolvemos las más comunes. Si necesitas más ayuda, escríbenos a <a href="mailto:hola@pulzzo.mx" style="color:var(--cyan);">hola@pulzzo.mx</a></p>
     </div>
     <div class="faq-tabs reveal" style="margin-bottom:28px;">
-      <button class="faq-tab faq-paciente active" onclick="switchFaqTab('paciente',this)">👤 Pacientes</button>
-      <button class="faq-tab faq-doctor" onclick="switchFaqTab('doctor',this)">🩺 Doctores y clínicas</button>
+      <button class="faq-tab faq-paciente active" onclick="switchFaqTab('paciente',this)"><svg class="pz-i pz-inl" aria-hidden="true" focusable="false"><use href="#pzi-user"></use></svg>Pacientes</button>
+      <button class="faq-tab faq-doctor" onclick="switchFaqTab('doctor',this)"><svg class="pz-i pz-inl" aria-hidden="true" focusable="false"><use href="#pzi-stethoscope"></use></svg>Doctores y clínicas</button>
       <button class="faq-tab faq-pulzzo" onclick="switchFaqTab('pulzzo',this)" style="display:inline-flex;align-items:center;gap:8px;"><span class="faq-logo-chip-small"><img src="assets/images/logo-pulzzo.png" alt="Pulzzo"></span> Pulzzo y legal</button>
     </div>
 
@@ -4332,8 +4410,8 @@ html, body {
       <div class="form-group"><label>Monto aproximado</label>
         <select><option>$10,000 – $30,000 MXN</option><option>$30,000 – $60,000 MXN</option><option>$60,000 – $100,000 MXN</option><option>$100,000 – $200,000 MXN</option><option>Más de $200,000 MXN</option></select>
       </div>
-      <div class="pulzzo-note">🔒 Tus datos están protegidos. Al continuar aceptas nuestro <a href="aviso-privacidad.html" style="color:var(--cyan);">Aviso de Privacidad</a>.</div>
-      <div class="pulzzo-warning">⚠️ Pulzzo financia únicamente procedimientos programados. No atendemos urgencias. Tu doctor debe aprobar el procedimiento antes de proceder.</div>
+      <div class="pulzzo-note"><svg class="pz-i pz-inl" aria-hidden="true" focusable="false"><use href="#pzi-lock"></use></svg>Tus datos están protegidos. Al continuar aceptas nuestro <a href="aviso-privacidad.html" style="color:var(--cyan);">Aviso de Privacidad</a>.</div>
+      <div class="pulzzo-warning"><svg class="pz-i pz-inl" aria-hidden="true" focusable="false"><use href="#pzi-triangle-alert"></use></svg>Pulzzo financia únicamente procedimientos programados. No atendemos urgencias. Tu doctor debe aprobar el procedimiento antes de proceder.</div>
       <button onclick="submitLead()" class="btn btn-primary btn-full pulzzo-modal-action">Quiero que me contacten</button>
       <p class="pulzzo-modal-footnote">El proceso completo de documentos se hace con tu asesor</p>
     </div>
@@ -4368,7 +4446,7 @@ html, body {
         <div><div class="pulzzo-switch-title">Activar perfil público en el directorio</div><div class="pulzzo-switch-subtitle">Tus pacientes podrán encontrarte y solicitar crédito contigo</div></div>
         <label class="pulzzo-switch"><input type="checkbox" checked><span class="pulzzo-switch-track"></span><span class="pulzzo-switch-thumb"></span></label>
       </div>
-      <div class="pulzzo-note">🔒 Validamos tu cédula con el SIRVOES de la SEP. Tu perfil queda activo en 48 horas.</div>
+      <div class="pulzzo-note"><svg class="pz-i pz-inl" aria-hidden="true" focusable="false"><use href="#pzi-lock"></use></svg>Validamos tu cédula con el SIRVOES de la SEP. Tu perfil queda activo en 48 horas.</div>
       <button onclick="submitDoctor()" class="btn btn-primary btn-full doctor-cta-solid pulzzo-modal-action">Enviar registro gratuito</button>
     </div>
   </div>
@@ -4388,13 +4466,13 @@ html, body {
     if(!name.trim()){showToast('Por favor ingresa tu nombre para continuar.');return;}
     const firstName=name.split(' ')[0];
     const modal=document.getElementById('modal-solicitar');
-    if(modal){const body=modal.querySelector('.pulzzo-modal-body');if(body){body.innerHTML='<div class="pulzzo-success-state"><div class="pulzzo-success-icon">🎉</div><div class="pulzzo-success-title">¡Listo '+firstName+'!</div><div class="pulzzo-success-text">Un asesor de Pulzzo te contactará en menos de 30 minutos.</div></div>';}}
+    if(modal){const body=modal.querySelector('.pulzzo-modal-body');if(body){body.innerHTML='<div class="pulzzo-success-state"><div class="pulzzo-success-icon"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-party-popper"></use></svg></div><div class="pulzzo-success-title">¡Listo '+firstName+'!</div><div class="pulzzo-success-text">Un asesor de Pulzzo te contactará en menos de 30 minutos.</div></div>';}}
   }
   function submitDoctor() {
     const modal=document.getElementById('modal-doctor');
     if(modal){
       const body=modal.querySelector('.pulzzo-modal-body');
-      if(body){body.innerHTML='<div class="pulzzo-success-state"><div class="pulzzo-success-icon">✅</div><div class="pulzzo-success-title">Registro enviado</div><div class="pulzzo-success-text">Validaremos tu cédula y te notificaremos en 48 horas.</div></div>';}
+      if(body){body.innerHTML='<div class="pulzzo-success-state"><div class="pulzzo-success-icon"><svg class="pz-i" aria-hidden="true" focusable="false"><use href="#pzi-circle-check"></use></svg></div><div class="pulzzo-success-title">Registro enviado</div><div class="pulzzo-success-text">Validaremos tu cédula y te notificaremos en 48 horas.</div></div>';}
     }
     showToast('Registro enviado. Validaremos tu información y te notificaremos en 48 horas.');
   }
@@ -4452,16 +4530,19 @@ document.addEventListener('keydown', function(e){ if(e.key === 'Escape') toggleD
     return SIMULATOR_CONFIG.costFactorsFlat[months] || 0;
   }
   let sc2Amount=75000;
+  const SC2_MIN=0, SC2_MAX=300000;
+  const sc2Fmt=n=>n.toLocaleString('es-MX');
   function setAmount(amount) {
     sc2Amount = amount;
     const inp = document.getElementById('sc2-input');
     const slider = document.getElementById('sc2-slider');
-    if(inp) inp.value = amount.toLocaleString('es-MX');
+    if(inp) inp.value = sc2Fmt(amount);
     if(slider) slider.value = amount;
     sc2CalcAll();
   }
   function sc2CalcAll(){
     const a=sc2Amount;
+    const none=!(a>0);
     // Get active term
     const activePlan = document.querySelector('.sc2-plan-active');
     const activeTerm = activePlan ? parseInt(activePlan.dataset.months) : 12;
@@ -4470,8 +4551,8 @@ document.addEventListener('keydown', function(e){ if(e.key === 'Escape') toggleD
       const monthly=Math.round(total/m);
       const mEl=document.getElementById('sc2-m'+m);
       const tEl=document.getElementById('sc2-t'+m);
-      if(mEl)mEl.textContent='$'+monthly.toLocaleString('es-MX');
-      if(tEl)tEl.textContent='Total $'+total.toLocaleString('es-MX');
+      if(mEl)mEl.textContent=none?'—':'$'+sc2Fmt(monthly);
+      if(tEl)tEl.textContent=none?'Total —':'Total $'+sc2Fmt(total);
     });
     // Update dynamic summary row with the selected term
     const sumTerm = activeTerm;
@@ -4481,12 +4562,12 @@ document.addEventListener('keydown', function(e){ if(e.key === 'Escape') toggleD
     const sterm = document.getElementById('sum-term');
     const sm = document.getElementById('sum-monthly');
     const st = document.getElementById('sum-total');
-    if(sp) sp.textContent = '$' + a.toLocaleString('es-MX');
+    if(sp) sp.textContent = none ? '—' : '$' + sc2Fmt(a);
     if(sterm) sterm.textContent = sumTerm + ' meses';
-    if(sm) sm.textContent = '$' + sumMonthly.toLocaleString('es-MX');
-    if(st) st.textContent = '$' + sumTotal.toLocaleString('es-MX');
+    if(sm) sm.textContent = none ? '—' : '$' + sc2Fmt(sumMonthly);
+    if(st) st.textContent = none ? '—' : '$' + sc2Fmt(sumTotal);
     const slider=document.getElementById('sc2-slider');
-    if(slider){const p=(a-10000)/(300000-10000)*100;slider.style.background=`linear-gradient(to right,var(--cyan) 0%,var(--cyan) ${p}%,rgba(255,255,255,.15) ${p}%,rgba(255,255,255,.15) 100%)`;}
+    if(slider){const p=Math.max(0,Math.min(100,(a-SC2_MIN)/(SC2_MAX-SC2_MIN)*100))||0;slider.style.background=`linear-gradient(to right,var(--cyan) 0%,var(--cyan) ${p}%,rgba(255,255,255,.15) ${p}%,rgba(255,255,255,.15) 100%)`;}
   }
   function sc2Select(months){
     document.querySelectorAll('.sc2-plan').forEach(p=>p.classList.remove('sc2-plan-active'));
@@ -4495,20 +4576,34 @@ document.addEventListener('keydown', function(e){ if(e.key === 'Escape') toggleD
     sc2CalcAll();
   }
   function sc2SliderUpdate(el){
-    sc2Amount=parseInt(el.value);
+    sc2Amount=parseInt(el.value)||0;
     const inp=document.getElementById('sc2-input');
-    if(inp)inp.value=sc2Amount.toLocaleString('es-MX');
+    if(inp)inp.value=sc2Fmt(sc2Amount);
     sc2CalcAll();
   }
   function sc2HandleInput(el){
-    const raw=el.value.replace(/[^0-9]/g,'');
-    sc2Amount=Math.max(10000,Math.min(300000,parseInt(raw)||10000));
-    el.value=raw;
+    const val=el.value;
+    const caret=(el.selectionStart==null)?val.length:el.selectionStart;
+    const digitsBefore=val.slice(0,caret).replace(/[^0-9]/g,'').replace(/^0+(?=\d)/,'').length;
+    let raw=val.replace(/[^0-9]/g,'').replace(/^0+(?=\d)/,'');
+    let n=raw===''?0:parseInt(raw,10);
+    let capped=false;
+    if(n>SC2_MAX){n=SC2_MAX;capped=true;}
+    sc2Amount=n;
+    const shown=raw===''?'':sc2Fmt(n);
+    if(el.value!==shown){
+      el.value=shown;
+      if(document.activeElement===el&&el.setSelectionRange){
+        let pos=shown.length;
+        if(!capped){let d=0;pos=0;while(pos<shown.length&&d<digitsBefore){if(/\d/.test(shown[pos]))d++;pos++;}}
+        try{el.setSelectionRange(pos,pos);}catch(e){}
+      }
+    }
     const slider=document.getElementById('sc2-slider');
     if(slider)slider.value=sc2Amount;
     sc2CalcAll();
   }
-  function sc2FormatInput(el){el.value=sc2Amount.toLocaleString('es-MX');}
+  function sc2FormatInput(el){el.value=(el.value===''&&!(sc2Amount>0))?'':sc2Fmt(sc2Amount);}
   sc2CalcAll();
 
   // ---- FAQ TABS ----
@@ -5064,8 +5159,8 @@ document.addEventListener('keydown', function(e){ if(e.key === 'Escape') toggleD
       </div>
       <!-- Toggle tipo -->
       <div class="refer-tipo-toggle" id="refer-tipo-toggle">
-        <button type="button" class="refer-tipo-btn active" id="btn-tipo-doctor" onclick="setReferTipo('doctor')">👤 Doctor</button>
-        <button type="button" class="refer-tipo-btn" id="btn-tipo-clinica" onclick="setReferTipo('clinica')">🏥 Clínica u hospital</button>
+        <button type="button" class="refer-tipo-btn active" id="btn-tipo-doctor" onclick="setReferTipo('doctor')"><svg class="pz-i pz-inl" aria-hidden="true" focusable="false"><use href="#pzi-user"></use></svg>Doctor</button>
+        <button type="button" class="refer-tipo-btn" id="btn-tipo-clinica" onclick="setReferTipo('clinica')"><svg class="pz-i pz-inl" aria-hidden="true" focusable="false"><use href="#pzi-hospital"></use></svg>Clínica u hospital</button>
       </div>
     </div>
 
