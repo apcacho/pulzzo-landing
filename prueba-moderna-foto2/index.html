@@ -3536,6 +3536,16 @@ html body .refer-section-label{font-weight:600 !important}
 html body .refer-field label,
 html body .refer-field label span,
 html body .ref-ms-toolbar span{font-weight:500 !important}
+
+/* Ronda 11 · hero ~15% más bajo en escritorio para que asome la siguiente sección */
+@media (min-width:1024px){
+  html body .hero,html body .hero .hero-inner{min-height:636px !important;}
+  html body .hero .hero-inner > div:first-child{padding-top:112px !important;padding-bottom:54px !important;}
+}
+@media (min-width:1024px) and (max-width:1280px){
+  html body .hero,html body .hero .hero-inner{min-height:612px !important;}
+  html body .hero .hero-inner > div:first-child{padding-top:112px !important;padding-bottom:50px !important;}
+}
 </style>
 </head>
 <body>
