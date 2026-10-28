@@ -229,3 +229,23 @@
     background:linear-gradient(to bottom,var(--navy),rgba(7,20,47,0));
   }
 }
+
+/* ---------- 10. Round 4: centered ¿Cómo funciona? timelines (desktop) ---------- */
+@media (min-width:1024px){
+  #como-funciona #tab-paciente.active{max-width:1180px;margin:0 auto}
+  #como-funciona #tab-doctor.active{max-width:860px;margin:0 auto}
+  #como-funciona .step-card{position:relative;text-align:center}
+  #como-funciona .step-num{display:block;text-align:center;margin:0 0 22px;position:relative;top:auto;left:auto;z-index:1}
+  #como-funciona .step-num::after{display:none}
+  #como-funciona .step-icon{margin:0 auto 18px}
+  #como-funciona .step-title,#como-funciona .step-desc{text-align:center}
+  /* connector: from just right of this numeral to just left of the next one (gap = 28px) */
+  #como-funciona .step-card::after{
+    content:"";position:absolute;top:22px;height:1px;
+    left:calc(50% + 56px);width:calc(100% + 28px - 112px);
+    background:rgba(32,199,212,.45);
+  }
+  #como-funciona #tab-paciente .step-card:nth-child(5)::after,
+  #como-funciona #tab-doctor .step-card:nth-child(3)::after{display:none}
+  #como-funciona #tab-doctor .step-card::after{background:rgba(255,138,91,.7)}
+}

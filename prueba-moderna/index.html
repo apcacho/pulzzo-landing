@@ -3848,11 +3848,11 @@ html, body {
         </div>
         <!-- Slider -->
         <div style="margin-top:16px;">
-          <input type="range" class="sc-slider" id="sc2-slider" min="10000" max="300000" step="5000" value="75000"
+          <input type="range" class="sc-slider" id="sc2-slider" min="0" max="300000" step="5000" value="75000"
             oninput="sc2SliderUpdate(this)"
-            style="width:100%;height:6px;border-radius:3px;background:linear-gradient(to right,var(--cyan) 0%,var(--cyan) 21.6%,rgba(255,255,255,.12) 21.6%,rgba(255,255,255,.12) 100%);">
+            style="width:100%;height:6px;border-radius:3px;background:linear-gradient(to right,var(--cyan) 0%,var(--cyan) 25%,rgba(255,255,255,.12) 25%,rgba(255,255,255,.12) 100%);">
           <div style="display:flex;justify-content:space-between;margin-top:8px;">
-            <span style="font-size:12px;color:rgba(255,255,255,.3);">$10,000</span>
+            <span style="font-size:12px;color:rgba(255,255,255,.3);">$0</span>
             <span style="font-size:12px;color:rgba(255,255,255,.3);">$300,000</span>
           </div>
         </div>
@@ -4454,16 +4454,19 @@ document.addEventListener('keydown', function(e){ if(e.key === 'Escape') toggleD
     return SIMULATOR_CONFIG.costFactorsFlat[months] || 0;
   }
   let sc2Amount=75000;
+  const SC2_MIN=0, SC2_MAX=300000;
+  const sc2Fmt=n=>n.toLocaleString('es-MX');
   function setAmount(amount) {
     sc2Amount = amount;
     const inp = document.getElementById('sc2-input');
     const slider = document.getElementById('sc2-slider');
-    if(inp) inp.value = amount.toLocaleString('es-MX');
+    if(inp) inp.value = sc2Fmt(amount);
     if(slider) slider.value = amount;
     sc2CalcAll();
   }
   function sc2CalcAll(){
     const a=sc2Amount;
+    const none=!(a>0);
     // Get active term
     const activePlan = document.querySelector('.sc2-plan-active');
     const activeTerm = activePlan ? parseInt(activePlan.dataset.months) : 12;
@@ -4472,8 +4475,8 @@ document.addEventListener('keydown', function(e){ if(e.key === 'Escape') toggleD
       const monthly=Math.round(total/m);
       const mEl=document.getElementById('sc2-m'+m);
       const tEl=document.getElementById('sc2-t'+m);
-      if(mEl)mEl.textContent='$'+monthly.toLocaleString('es-MX');
-      if(tEl)tEl.textContent='Total $'+total.toLocaleString('es-MX');
+      if(mEl)mEl.textContent=none?'—':'$'+sc2Fmt(monthly);
+      if(tEl)tEl.textContent=none?'Total —':'Total $'+sc2Fmt(total);
     });
     // Update dynamic summary row with the selected term
     const sumTerm = activeTerm;
@@ -4483,12 +4486,12 @@ document.addEventListener('keydown', function(e){ if(e.key === 'Escape') toggleD
     const sterm = document.getElementById('sum-term');
     const sm = document.getElementById('sum-monthly');
     const st = document.getElementById('sum-total');
-    if(sp) sp.textContent = '$' + a.toLocaleString('es-MX');
+    if(sp) sp.textContent = none ? '—' : '$' + sc2Fmt(a);
     if(sterm) sterm.textContent = sumTerm + ' meses';
-    if(sm) sm.textContent = '$' + sumMonthly.toLocaleString('es-MX');
-    if(st) st.textContent = '$' + sumTotal.toLocaleString('es-MX');
+    if(sm) sm.textContent = none ? '—' : '$' + sc2Fmt(sumMonthly);
+    if(st) st.textContent = none ? '—' : '$' + sc2Fmt(sumTotal);
     const slider=document.getElementById('sc2-slider');
-    if(slider){const p=(a-10000)/(300000-10000)*100;slider.style.background=`linear-gradient(to right,var(--cyan) 0%,var(--cyan) ${p}%,rgba(255,255,255,.15) ${p}%,rgba(255,255,255,.15) 100%)`;}
+    if(slider){const p=Math.max(0,Math.min(100,(a-SC2_MIN)/(SC2_MAX-SC2_MIN)*100))||0;slider.style.background=`linear-gradient(to right,var(--cyan) 0%,var(--cyan) ${p}%,rgba(255,255,255,.15) ${p}%,rgba(255,255,255,.15) 100%)`;}
   }
   function sc2Select(months){
     document.querySelectorAll('.sc2-plan').forEach(p=>p.classList.remove('sc2-plan-active'));
@@ -4497,20 +4500,34 @@ document.addEventListener('keydown', function(e){ if(e.key === 'Escape') toggleD
     sc2CalcAll();
   }
   function sc2SliderUpdate(el){
-    sc2Amount=parseInt(el.value);
+    sc2Amount=parseInt(el.value)||0;
     const inp=document.getElementById('sc2-input');
-    if(inp)inp.value=sc2Amount.toLocaleString('es-MX');
+    if(inp)inp.value=sc2Fmt(sc2Amount);
     sc2CalcAll();
   }
   function sc2HandleInput(el){
-    const raw=el.value.replace(/[^0-9]/g,'');
-    sc2Amount=Math.max(10000,Math.min(300000,parseInt(raw)||10000));
-    el.value=raw;
+    const val=el.value;
+    const caret=(el.selectionStart==null)?val.length:el.selectionStart;
+    const digitsBefore=val.slice(0,caret).replace(/[^0-9]/g,'').replace(/^0+(?=\d)/,'').length;
+    let raw=val.replace(/[^0-9]/g,'').replace(/^0+(?=\d)/,'');
+    let n=raw===''?0:parseInt(raw,10);
+    let capped=false;
+    if(n>SC2_MAX){n=SC2_MAX;capped=true;}
+    sc2Amount=n;
+    const shown=raw===''?'':sc2Fmt(n);
+    if(el.value!==shown){
+      el.value=shown;
+      if(document.activeElement===el&&el.setSelectionRange){
+        let pos=shown.length;
+        if(!capped){let d=0;pos=0;while(pos<shown.length&&d<digitsBefore){if(/\d/.test(shown[pos]))d++;pos++;}}
+        try{el.setSelectionRange(pos,pos);}catch(e){}
+      }
+    }
     const slider=document.getElementById('sc2-slider');
     if(slider)slider.value=sc2Amount;
     sc2CalcAll();
   }
-  function sc2FormatInput(el){el.value=sc2Amount.toLocaleString('es-MX');}
+  function sc2FormatInput(el){el.value=(el.value===''&&!(sc2Amount>0))?'':sc2Fmt(sc2Amount);}
   sc2CalcAll();
 
   // ---- FAQ TABS ----
