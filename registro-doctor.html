@@ -1118,6 +1118,20 @@ body.profile-mode #doctorProfilePanel .profile-attention-card .profile-section-c
   body.profile-mode #doctorProfilePanel .profile-attention-card .profile-optional-badge{margin-bottom:16px!important;}
 }
 </style>
+<style id="pz013-panel">
+/* PZ-013: panel izquierdo del registro (igual en paciente y doctor) */
+html body .auth-copy .auth-title{font-weight:700 !important;}
+html body .auth-copy .auth-points{gap:14px;}
+html body .auth-copy .auth-point{font-size:14px;}
+html body .auth-copy .auth-point strong{font-weight:600 !important;}
+.pz-steps{--pz-step:32,199,212;list-style:none;margin:30px 0 0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));max-width:500px;}
+.pz-steps.pz-steps-doctor{--pz-step:255,138,91;}
+.pz-step{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:10px;padding-right:14px;}
+.pz-step:not(:last-child)::after{content:"";position:absolute;top:14px;left:38px;right:10px;height:1px;background:rgba(var(--pz-step),.35);}
+.pz-step-num{width:28px;height:28px;border-radius:50%;border:1px solid rgba(var(--pz-step),.6);background:rgba(var(--pz-step),.08);color:rgb(var(--pz-step));display:flex;align-items:center;justify-content:center;font-family:var(--font-body,inherit);font-size:12px;font-weight:500;line-height:1;}
+.pz-step-label{font-size:13px;font-weight:500;line-height:1.4;color:rgba(255,255,255,.78);}
+@media (max-width:1023px){.pz-steps{display:none !important;}}
+</style>
 </head>
 <body class="doctor-page">
 
@@ -1149,7 +1163,13 @@ body.profile-mode #doctorProfilePanel .profile-attention-card .profile-section-c
       <div class="auth-points" aria-label="Beneficios de registro médico">
         <div class="auth-point"><span class="auth-point-icon">✓</span><span><strong>Cierra más procedimientos.</strong> Menos pacientes se quedan por el precio.</span></div>
         <div class="auth-point"><span class="auth-point-icon">✓</span><span><strong>Pulzzo coordina el pago contigo.</strong> Sin trámites de crédito en tu consultorio.</span></div>
+        <div class="auth-point"><span class="auth-point-icon">✓</span><span><strong>Registro en minutos.</strong> Te avisamos cuando tu cuenta esté activa.</span></div>
       </div>
+      <ol class="pz-steps pz-steps-doctor" aria-label="Pasos del registro">
+        <li class="pz-step"><span class="pz-step-num">1</span><span class="pz-step-label">Regístrate</span></li>
+        <li class="pz-step"><span class="pz-step-num">2</span><span class="pz-step-label">Validamos tu perfil</span></li>
+        <li class="pz-step"><span class="pz-step-num">3</span><span class="pz-step-label">Recibe pacientes</span></li>
+      </ol>
     </div>
 
     <!-- Columna derecha: formulario -->

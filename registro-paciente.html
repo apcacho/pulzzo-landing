@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Crea tu cuenta y empieza tu solicitud de financiamiento médico en minutos. Pulzzo te acompaña para validar tu perfil y preparar una oferta personalizada.">
+<meta name="description" content="Crea tu cuenta en minutos. Pulzzo coordina el pago con tu doctor o clínica y te acompaña para validar tu perfil y preparar una oferta personalizada.">
 <meta name="theme-color" content="#07142F">
 <link rel="icon" type="image/png" href="assets/favicon/favicon-v1337.png">
 <link rel="apple-touch-icon" href="assets/favicon/apple-touch-icon-v1337.png">
@@ -4725,6 +4725,20 @@ img{max-width:100%;display:block}
 }
 </style>
 
+<style id="pz013-panel">
+/* PZ-013: panel izquierdo del registro (igual en paciente y doctor) */
+html body .auth-copy .auth-title{font-weight:700 !important;}
+html body .auth-copy .auth-points{gap:14px;}
+html body .auth-copy .auth-point{font-size:14px;}
+html body .auth-copy .auth-point strong{font-weight:600 !important;}
+.pz-steps{--pz-step:32,199,212;list-style:none;margin:30px 0 0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));max-width:500px;}
+.pz-steps.pz-steps-doctor{--pz-step:255,138,91;}
+.pz-step{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:10px;padding-right:14px;}
+.pz-step:not(:last-child)::after{content:"";position:absolute;top:14px;left:38px;right:10px;height:1px;background:rgba(var(--pz-step),.35);}
+.pz-step-num{width:28px;height:28px;border-radius:50%;border:1px solid rgba(var(--pz-step),.6);background:rgba(var(--pz-step),.08);color:rgb(var(--pz-step));display:flex;align-items:center;justify-content:center;font-family:var(--font-body,inherit);font-size:12px;font-weight:500;line-height:1;}
+.pz-step-label{font-size:13px;font-weight:500;line-height:1.4;color:rgba(255,255,255,.78);}
+@media (max-width:1023px){.pz-steps{display:none !important;}}
+</style>
 </head>
 <body class="patient-page">
 
@@ -4750,13 +4764,18 @@ img{max-width:100%;display:block}
   <section class="auth-wrap">
     <div class="auth-copy">
       <div class="auth-pill">Registro paciente</div>
-      <h1 class="auth-title">El financiamiento médico que tu salud <span>merece.</span></h1>
-      <p class="auth-subtitle">Crea tu cuenta en minutos y da el primer paso para financiar tu procedimiento médico en mensualidades claras y sin sorpresas.</p>
+      <h1 class="auth-title">Tu procedimiento, con <span>plazos claros.</span></h1>
+      <p class="auth-subtitle">Crea tu cuenta en minutos. Pulzzo coordina el pago con tu doctor o clínica.</p>
       <div class="auth-points" aria-label="Beneficios de registro">
         <div class="auth-point"><span class="auth-point-icon">✓</span><span>Registro rápido</span></div>
         <div class="auth-point"><span class="auth-point-icon">✓</span><span>Solo pagas si aceptas una oferta aprobada.</span></div>
         <div class="auth-point"><span class="auth-point-icon">✓</span><span>Tu información está protegida y podrás dar seguimiento en tu portal.</span></div>
       </div>
+      <ol class="pz-steps" aria-label="Pasos del registro">
+        <li class="pz-step"><span class="pz-step-num">1</span><span class="pz-step-label">Crea tu cuenta</span></li>
+        <li class="pz-step"><span class="pz-step-num">2</span><span class="pz-step-label">Recibe tu oferta</span></li>
+        <li class="pz-step"><span class="pz-step-num">3</span><span class="pz-step-label">Realiza tu procedimiento</span></li>
+      </ol>
     </div>
 
     <section class="auth-card" aria-labelledby="registro-title">
