@@ -1,0 +1,74 @@
+/* v72.2 · Solicitudes de pacientes, Pacientes, Solicitudes de doctores y clínicas y Doctores y clínicas en formato tabla.
+   Mismos datos y textos que las tarjetas anteriores; solo cambia el acomodo. En pantallas angostas cada fila se apila. */
+.pz-dt{container-type:inline-size;width:100%;border:1px solid var(--line2,#E8EEF6);border-radius:14px;background:#fff;overflow:hidden}
+.pz-dt-head,.pz-dt .pz-dt-row{display:grid;gap:16px;align-items:center;padding:12px 18px}
+.pz-dt--requests .pz-dt-head,.pz-dt--requests .pz-dt-row{grid-template-columns:minmax(94px,.85fr) minmax(152px,1fr) minmax(128px,1.7fr) 102px 184px 102px 100px;gap:12px}
+.pz-dt--patients .pz-dt-head,.pz-dt--patients .pz-dt-row{grid-template-columns:minmax(220px,1.4fr) minmax(220px,1.2fr) minmax(150px,.8fr) 124px}
+.pz-dt--providers .pz-dt-head,.pz-dt--providers .pz-dt-row{grid-template-columns:minmax(180px,1.3fr) minmax(150px,1fr) minmax(190px,1.2fr) minmax(190px,1.2fr) 124px}
+.pz-dt-head{background:#F7FAFC;border-bottom:1px solid var(--line2,#E8EEF6);padding-top:10px;padding-bottom:10px}
+body.backoffice-typography .pz-dt .pz-dt-th{font-family:var(--bo-font)!important;font-size:11.5px!important;font-weight:500!important;line-height:1.3!important;color:var(--muted,#64748B);letter-spacing:normal!important;text-transform:none!important;white-space:nowrap!important}
+/* v72.2.1 · Cada título usa la misma alineación que el contenido de su columna: texto a la izquierda, montos a la derecha,
+   y Estado, Fecha y Ver centrados (título y contenido). Los títulos van en una sola línea. */
+.pz-dt--requests>.pz-dt-head>.pz-dt-th:nth-child(4){text-align:right}
+.pz-dt--requests>:is(.pz-dt-head,.pz-dt-row)>:is(:nth-child(5),:nth-child(6),:nth-child(7)),
+.pz-dt--patients>:is(.pz-dt-head,.pz-dt-row)>:is(:nth-child(3),:nth-child(4)),
+.pz-dt--providers>:is(.pz-dt-head,.pz-dt-row)>:is(:nth-child(3),:nth-child(5)){text-align:center;justify-items:center;justify-content:center}
+.pz-dt--requests>.pz-dt-row>:nth-child(5) .pz-dt-pills,.pz-dt--providers>.pz-dt-row>:nth-child(3) .pz-dt-pills{justify-content:center}
+/* Filas: sin tarjeta, separadas por línea fina. */
+body.backoffice-typography .pz-dt .pz-dt-row{margin:0;border:0;border-bottom:1px solid var(--line2,#E8EEF6);border-radius:0;background:#fff;box-shadow:none;transform:none;min-height:0;transition:background .15s ease}
+.pz-dt .pz-dt-row:last-child{border-bottom:0}
+.pz-dt--requests .pz-dt-row{cursor:pointer}
+body.backoffice-typography .pz-dt .pz-dt-row:hover{background:#F7FDFE;transform:none;box-shadow:none}
+body.backoffice-typography #providers .pz-dt .pz-dt-row:hover,body.backoffice-typography #providerRequests .pz-dt .pz-dt-row:hover,
+body.backoffice-typography #providers .pz-dt .pz-dt-row:has(:focus-visible),body.backoffice-typography #providerRequests .pz-dt .pz-dt-row:has(:focus-visible){background:#FFFCFA;border-color:var(--line2,#E8EEF6)}
+.pz-dt-cell{min-width:0;display:grid;gap:4px;align-content:center}
+body.backoffice-typography .pz-dt .pz-dt-cell,body.backoffice-typography .pz-dt .pz-dt-text,body.backoffice-typography .pz-dt .pz-dt-lines{font-family:var(--bo-font)!important;font-size:13px!important;font-weight:400!important;line-height:1.45!important;color:var(--navy,#07142F);overflow-wrap:anywhere}
+body.backoffice-typography .pz-dt .pz-dt-lines,body.backoffice-typography .pz-dt .patient-request-more{font-size:12px!important;color:var(--muted,#64748B)}
+body.backoffice-typography .pz-dt .pz-dt-name{font-family:var(--bo-font)!important;font-size:14.5px!important;font-weight:500!important;line-height:1.35!important;letter-spacing:-.01em!important;color:var(--navy,#07142F);white-space:normal!important;overflow:visible;text-overflow:clip;overflow-wrap:anywhere}
+body.backoffice-typography .pz-dt .pz-dt-sub{font-size:12px!important;font-weight:400!important;line-height:1.4!important;color:var(--muted,#64748B);overflow-wrap:anywhere}
+body.backoffice-typography .pz-dt .pz-dt-num{font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+body.backoffice-typography .pz-dt .pz-dt-date{font-variant-numeric:tabular-nums;white-space:nowrap}
+.pz-dt-status{justify-items:start}
+.pz-dt-pills{display:flex;flex-wrap:wrap;gap:4px}
+body.backoffice-typography .pz-dt .pill{font-size:11px!important;font-weight:500!important;line-height:1.3!important;min-height:0;padding:3px 8px;border-radius:999px;white-space:normal;max-width:100%;overflow-wrap:break-word}
+body.backoffice-typography .pz-dt .request-status-inline{font-size:11.5px!important;padding:4px 10px;white-space:nowrap}
+.pz-dt .pz-dt-action{display:grid;justify-items:center;justify-content:stretch}
+body.backoffice-typography .pz-dt .pz-dt-action .btn{white-space:nowrap!important;width:auto!important;min-width:max-content!important;justify-self:center}
+/* Contacto: enlaces turquesa 500; el resto 400. */
+.pz-contact{display:grid;gap:2px;min-width:0}
+.pz-contact-line{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}
+body.backoffice-typography .pz-dt a.pz-contact-link{font-size:13px!important;font-weight:500!important;color:#0B7F8B;text-decoration:none;overflow-wrap:break-word}
+body.backoffice-typography .pz-dt a.pz-contact-link:hover{color:#086A74;text-decoration:underline;text-underline-offset:2px}
+.pz-dt a.pz-contact-link:focus-visible,.pz-dt a.pz-wa-link:focus-visible{outline:2px solid var(--aqua,#20C7D4);outline-offset:2px;border-radius:4px}
+.pz-wa-link{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:999px;flex:0 0 auto}
+.pz-wa-link:hover{background:#E8FBF0}
+.pz-wa-link svg{display:block}
+body.backoffice-typography .pz-dt .pz-contact-empty{font-weight:400!important;color:var(--muted,#64748B)}
+.pz-sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+/* Títulos de sección de estas cuatro listas sin pesos por encima de 600 (el título de la página conserva el suyo). */
+body.backoffice-typography :is(#patients .patient-request-list-head h2,#patientProfiles .patient-profiles-head h2,#providers .patient-profiles-head h2,#providerRequests .patient-profiles-head h2){font-weight:600!important}
+/* La lista ya no necesita el espacio entre tarjetas. */
+#patientList:has(> .pz-dt),#patientDirectoryList:has(> .pz-dt),#providers .patient-directory-list:has(> .pz-dt),#providerRequests .patient-directory-list:has(> .pz-dt){display:block}
+/* Responsivo: filas apiladas con la etiqueta de cada dato. */
+@container (max-width:980px){
+ .pz-dt-head{display:none}
+ .pz-dt .pz-dt-row,.pz-dt--requests .pz-dt-row,.pz-dt--patients .pz-dt-row,.pz-dt--providers .pz-dt-row{grid-template-columns:minmax(0,1fr);gap:10px;padding:14px 16px}
+ .pz-dt>.pz-dt-row>.pz-dt-cell{text-align:left;justify-items:start;justify-content:stretch}
+ .pz-dt>.pz-dt-row>.pz-dt-cell .pz-dt-pills{justify-content:flex-start}
+ .pz-dt-cell[data-label]::before{content:attr(data-label);font-size:11px;font-weight:400;color:var(--muted,#64748B);line-height:1.3}
+ body.backoffice-typography .pz-dt .pz-dt-num{text-align:left}
+ .pz-dt .pz-dt-action{justify-items:stretch}
+ body.backoffice-typography .pz-dt .pz-dt-action .btn{width:100%!important;min-width:0!important;min-height:44px;justify-self:stretch}
+ .pz-wa-link{width:32px;height:32px}
+ .pz-contact{gap:0}
+ body.backoffice-typography .pz-dt a.pz-contact-link{display:inline-block;padding:3px 0}
+ .pz-dt--requests .pz-dt-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+ .pz-dt--requests .pz-dt-cell{grid-column:1/-1}
+ .pz-dt--requests .pz-dt-cell.pz-dt-num,.pz-dt--requests .pz-dt-cell.pz-dt-date{grid-column:auto;order:1}
+ .pz-dt--requests .pz-dt-status{order:2}
+ .pz-dt--requests .pz-dt-action{order:3}
+}
+@container (min-width:520px) and (max-width:980px){
+ .pz-dt .pz-dt-row,.pz-dt--requests .pz-dt-row,.pz-dt--patients .pz-dt-row,.pz-dt--providers .pz-dt-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+ .pz-dt-main,.pz-dt-action{grid-column:1/-1}
+}

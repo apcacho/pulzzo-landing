@@ -43,3 +43,19 @@
 #appView>#sidebar{overflow:hidden}
 #appView>#sidebar>.side-brand,#appView>#sidebar>.internal-pill,#appView>#sidebar>.side-footer{flex:0 0 auto}
 #appView>#sidebar>#nav{flex:1 1 auto;min-height:0;overflow-y:auto;align-content:start;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.25) transparent}
+/* v72.2.2 · PZ-009: la barra de scroll del menú ya no se encima en los botones (abierto ni cerrado).
+   El área que se desplaza se extiende 11px hacia el margen interno del menú y reserva ahí un carril de 6px
+   para la barra (scrollbar-gutter), así el ancho de los botones y el centrado de los íconos no cambian.
+   Barra delgada (6px), sin carril visible; muy tenue en reposo y más visible al pasar el cursor o con el foco en el menú. */
+#appView>#sidebar>#nav{grid-template-columns:minmax(0,1fr);margin-right:-11px;padding-right:5px;scrollbar-gutter:stable;scrollbar-width:auto;scrollbar-color:auto}
+#appView>#sidebar>#nav::-webkit-scrollbar{width:6px;height:6px;background:transparent}
+#appView>#sidebar>#nav::-webkit-scrollbar-track{background:transparent}
+#appView>#sidebar>#nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,.14);border-radius:999px}
+#appView>#sidebar>#nav:is(:hover,:focus-within)::-webkit-scrollbar-thumb{background:rgba(255,255,255,.30)}
+#appView>#sidebar>#nav::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.42)}
+#appView>#sidebar>#nav::-webkit-scrollbar-button{display:none;width:0;height:0}
+/* Firefox no tiene ::-webkit-scrollbar: barra delgada con el mismo comportamiento. */
+@supports (-moz-appearance:none){
+  #appView>#sidebar>#nav{scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.14) transparent}
+  #appView>#sidebar>#nav:is(:hover,:focus-within){scrollbar-color:rgba(255,255,255,.30) transparent}
+}

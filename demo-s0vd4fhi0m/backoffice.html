@@ -3972,6 +3972,7 @@
 <link rel="stylesheet" href="assets/css/backoffice-crm.css">
 <link rel="stylesheet" href="assets/css/doctor-publication-backoffice.css">
 <link rel="stylesheet" href="assets/css/backoffice-insights.css">
+<link rel="stylesheet" href="assets/css/backoffice-tablas-v722.css">
 
 </head>
 <body class="backoffice-typography">
@@ -5412,6 +5413,31 @@ function patientContactLine(patient){
   const email=patient?.email||patient?.correo||'Sin correo';
   return `<strong>Contacto:</strong> ${pzPhone(phone)} · ${email}`;
 }
+// v72.2 · Listas en tabla. Contacto con enlaces que solo abren la app del dispositivo
+// (tel:, chat de WhatsApp, correo); no hay texto prellenado ni envío automático.
+const PZ_WA_ICON='<svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" focusable="false"><path fill="#25D366" d="M12 2.2a9.8 9.8 0 0 0-8.4 14.8L2.2 21.8l4.9-1.3A9.8 9.8 0 1 0 12 2.2z"/><path fill="#fff" d="M9.2 7.3c-.2-.4-.4-.5-.6-.5h-.5c-.2 0-.5.1-.7.3-.3.3-.9.9-.9 2.2s.9 2.5 1 2.7c.1.2 1.8 2.9 4.5 4 2.2.9 2.7.7 3.2.7.5-.1 1.6-.7 1.8-1.3.2-.6.2-1.2.2-1.3-.1-.1-.3-.2-.6-.3l-1.9-.9c-.3-.1-.5-.1-.7.1l-.8 1c-.1.2-.3.2-.6.1-.3-.1-1.1-.4-2.1-1.3-.8-.7-1.3-1.5-1.4-1.8-.2-.3 0-.4.1-.5l.4-.5.3-.5c.1-.2 0-.4 0-.5l-.9-2.2z"/></svg>';
+function pzContactNational(value){
+  const d=String(value||'').replace(/\D/g,'');
+  const n=d.length===13&&d.startsWith('521')?d.slice(3):d.length===12&&d.startsWith('52')?d.slice(2):d;
+  return /^\d{10}$/.test(n)?n:'';
+}
+function pzContactCell(phone,email,emptyPhone,emptyEmail){
+  const shown=phone?pzPhone(phone):'';
+  const n=pzContactNational(phone);
+  const phoneHtml=n
+    ?`<span class="pz-contact-line"><a class="pz-contact-link pz-contact-tel" href="tel:+52${n}">${escapeHtml(shown)}</a><a class="pz-wa-link" href="https://wa.me/52${n}" target="_blank" rel="noopener noreferrer" aria-label="Abrir chat de WhatsApp" title="Abrir chat de WhatsApp">${PZ_WA_ICON}</a></span>`
+    :`<span class="pz-contact-line pz-contact-empty">${escapeHtml(shown||emptyPhone)}</span>`;
+  const mail=String(email||'').trim();
+  const emailHtml=/^[^\s@<>"'`]+@[^\s@<>"'`]+\.[^\s@<>"'`]+$/.test(mail)
+    ?`<a class="pz-contact-link pz-contact-mail" href="mailto:${escapeAttr(mail)}">${escapeHtml(mail).replace('@','<wbr>@')}</a>`
+    :`<span class="pz-contact-empty">${escapeHtml(mail||emptyEmail)}</span>`;
+  return `<div class="pz-contact">${phoneHtml}${emailHtml}</div>`;
+}
+function pzTable(kind,headers,rows){
+  const head=`<div class="pz-dt-head" role="row">${headers.map(h=>`<div class="pz-dt-th" role="columnheader">${h?escapeHtml(h):'<span class="pz-sr-only">Acción</span>'}</div>`).join('')}</div>`;
+  return `<div class="pz-dt pz-dt--${kind}" role="table">${head}${rows.join('')}</div>`;
+}
+function pzRowHasLink(e){return !!(e&&e.target&&typeof e.target.closest==='function'&&e.target.closest('a[href]'));}
 
 
 function patientProcedureProviderSummary(p){
@@ -5576,7 +5602,7 @@ function renderPatientList(){
   const pageData=patientRequestPagination(rows.length);
   const visible=rows.slice((patientRequestPage-1)*PATIENT_REQUESTS_PAGE_SIZE,patientRequestPage*PATIENT_REQUESTS_PAGE_SIZE);
 
-  list.innerHTML=visible.map(p=>{
+  list.innerHTML=visible.length?pzTable('requests',['Paciente','Procedimiento y proveedor','Contacto','Monto al paciente','Estado','Fecha de solicitud',''],visible.map(p=>{
     const app=p.application||{};
     const patient=p.patient||{};
     const docs=Array.isArray(p.documents)?p.documents:[];
@@ -5587,17 +5613,18 @@ function renderPatientList(){
     const status=patientRequestNormalizedStatus(p)||app.applicationStatus||currentPatientStage(p)||'created';
     const reapplyChip=patientRequestReapplyChip(app,status,offerStatus);
     const procSummary=patientProcedureProviderSummary(p);
-    return `<div class="row-item patient-request-row" data-id="${p.id}">
-      <div class="patient-request-row-main">
-        <div class="patient-request-row-title"><span class="request-title-name">${escapeHtml(patient.fullName||app.patientName||app.borrowerName||p.id)}</span><span class="pill request-status-inline ${statusPillClass(status)}">${escapeHtml(patientStatusLabel(status))}</span></div>
-        <div class="row-sub mono patient-request-operational-line">${p.id} · Monto al paciente: ${fmtMoney((()=>{const b=normalizeFinancialBreakdown(p);return b.patientProcedureAmount;})())} · Solicitud: ${formatPatientRequestDate(p)}</div>
-        <div class="row-sub patient-request-row-meta">${procSummary.title}</div>
-        ${procSummary.lines.length?`<div class="patient-request-procedure-lines">
+    return `<div class="pz-dt-row" role="row" data-id="${p.id}">
+      <div class="pz-dt-cell pz-dt-main" role="cell"><span class="request-title-name pz-dt-name">${escapeHtml(patient.fullName||app.patientName||app.borrowerName||p.id)}</span><span class="pz-dt-sub mono">${p.id}</span></div>
+      <div class="pz-dt-cell" role="cell" data-label="Procedimiento y proveedor"><span class="pz-dt-text">${procSummary.title}</span>
+        ${procSummary.lines.length?`<div class="pz-dt-lines">
           ${procSummary.lines.map(line=>`<div>${line}</div>`).join('')}
           ${procSummary.hasMore?`<div class="patient-request-more">Ver detalle de procedimientos</div>`:''}
         </div>`:''}
-        <div class="row-sub patient-request-contact">${patientContactLine(patient)}</div>
-        <div class="row-meta patient-request-row-chips">
+      </div>
+      <div class="pz-dt-cell" role="cell" data-label="Contacto">${pzContactCell(patient?.phone||patient?.telefono||patient?.mobile||patient?.whatsapp,patient?.email||patient?.correo,'Sin teléfono','Sin correo')}</div>
+      <div class="pz-dt-cell pz-dt-num" role="cell" data-label="Monto al paciente">${fmtMoney((()=>{const b=normalizeFinancialBreakdown(p);return b.patientProcedureAmount;})())}</div>
+      <div class="pz-dt-cell pz-dt-status" role="cell" data-label="Estado"><span class="pill request-status-inline ${statusPillClass(status)}">${escapeHtml(patientStatusLabel(status))}</span>
+        <div class="pz-dt-pills">
           <span class="pill pill-aqua">Buró: ${app.requiresBureauNip?'NIP requerido':'vigente'}</span>
           <span class="pill pill-gray">Docs: ${approved}/${totalDocs}</span>
           <span class="pill ${p.offer?patientOfferPillClass(offerStatus):'pill-gray'}">Oferta: ${offerLabel}</span>
@@ -5605,11 +5632,12 @@ function renderPatientList(){
           ${app.dispersionDemoScenario?`<span class="pill pill-blue">Demo pagos: ${escapeHtml(app.dispersionDemoScenario)}</span>`:''}
         </div>
       </div>
-      <div class="patient-request-row-side">
+      <div class="pz-dt-cell pz-dt-date" role="cell" data-label="Fecha de solicitud">${formatPatientRequestDate(p)}</div>
+      <div class="pz-dt-cell pz-dt-action" role="cell">
         <button class="btn btn-secondary patient-request-open" type="button" onclick="event.stopPropagation();openPatientRequestDetail('${p.id}')">Ver solicitud</button>
       </div>
     </div>`;
-  }).join('')||`<div class="empty-detail patient-request-empty"><strong>Sin solicitudes encontradas</strong><p class="muted">Ajusta los filtros o busca con otro dato del paciente o solicitud.</p></div>`;
+  })):`<div class="empty-detail patient-request-empty"><strong>Sin solicitudes encontradas</strong><p class="muted">Ajusta los filtros o busca con otro dato del paciente o solicitud.</p></div>`;
 
   const pagination=$('#patientPagination');
   if(pagination){
@@ -5622,7 +5650,8 @@ function renderPatientList(){
   }
 
   list.onclick=e=>{
-    const r=e.target.closest('.row-item');
+    if(pzRowHasLink(e))return;
+    const r=e.target.closest('.pz-dt-row[data-id]');
     if(r)openPatientRequestDetail(r.dataset.id);
   };
 }
@@ -11869,7 +11898,7 @@ function refreshPatientProfilesList(){
   const count=$('#patientProfilesCount');
   const list=$('#patientDirectoryList');
   if(count) count.textContent=`${profiles.length} pacientes`;
-  if(list) list.innerHTML=profiles.map(renderPatientProfileRow).join('')||'<div class="empty">Sin pacientes encontrados<br><small>Ajusta los filtros o busca con otro dato del paciente.</small></div>';
+  if(list) list.innerHTML=renderPatientProfileRows(profiles);
 }
 function setPatientProfilesSearch(value){
   patientProfileFilters.query=String(value||'');
@@ -11908,7 +11937,7 @@ function renderPatientProfiles(){
           <select id="ppStatus" aria-label="Estatus del paciente" onchange="setPatientProfilesStatus(this.value)">${patientProfileStatusOptions().map(([v,l])=>`<option value="${v}" ${patientProfileFilters.status===v?'selected':''}>${l}</option>`).join('')}</select>
         </div>
       </div>
-      <div class="patient-directory-list" id="patientDirectoryList">${profiles.map(renderPatientProfileRow).join('')||'<div class="empty">Sin pacientes encontrados<br><small>Ajusta los filtros o busca con otro dato del paciente.</small></div>'}</div>
+      <div class="patient-directory-list" id="patientDirectoryList">${renderPatientProfileRows(profiles)}</div>
     </div>
   </div>`;
   const search=$('#ppSearch'), list=$('#patientDirectoryList');
@@ -11923,19 +11952,20 @@ function renderPatientProfiles(){
     openPatientProfileFromButton(btn);
   };
 }
+function renderPatientProfileRows(profiles){
+  return profiles.length?pzTable('patients',['Paciente','Contacto','Estado',''],profiles.map(renderPatientProfileRow)):'<div class="empty">Sin pacientes encontrados<br><small>Ajusta los filtros o busca con otro dato del paciente.</small></div>';
+}
 function renderPatientProfileRow(profile){
   const pt=profile.patient||{};
-  return `<div class="patient-profile-row">
-    <div class="patient-profile-identity">
-      <div class="patient-profile-name-line">
-        <div class="patient-profile-name">${escapeHtml(pt.fullName||'Paciente sin nombre')}</div>
-        ${statusPill(profile.status).replace('class="pill ', 'class="pill patient-profile-status-inline ')}
-      </div>
-      <div class="patient-profile-contact">${escapeHtml(pzPhone(pt.phone)||'Sin celular')} · ${escapeHtml(pt.email||'Sin correo')}</div>
-      ${!profile.identityResolved?'<div class="patient-profile-ids">Identidad pendiente de conciliar: solicitud conservada por separado.</div>':''}
-      <div class="patient-profile-ids">CURP: ${escapeHtml(pt.curp||'No especificado')} · RFC: ${escapeHtml(pt.rfc||'No especificado')}</div>
+  return `<div class="patient-profile-row pz-dt-row" role="row">
+    <div class="pz-dt-cell pz-dt-main patient-profile-identity" role="cell">
+      <div class="patient-profile-name pz-dt-name">${escapeHtml(pt.fullName||'Paciente sin nombre')}</div>
+      <div class="patient-profile-ids pz-dt-sub">CURP: ${escapeHtml(pt.curp||'No especificado')} · RFC: ${escapeHtml(pt.rfc||'No especificado')}</div>
+      ${!profile.identityResolved?'<div class="patient-profile-ids pz-dt-sub">Identidad pendiente de conciliar: solicitud conservada por separado.</div>':''}
     </div>
-    <div class="patient-profile-actions">
+    <div class="pz-dt-cell" role="cell" data-label="Contacto">${pzContactCell(pt.phone,pt.email,'Sin celular','Sin correo')}</div>
+    <div class="pz-dt-cell pz-dt-status" role="cell" data-label="Estado">${statusPill(profile.status).replace('class="pill ', 'class="pill patient-profile-status-inline ')}</div>
+    <div class="pz-dt-cell pz-dt-action patient-profile-actions" role="cell">
       <button class="btn btn-secondary patient-profile-view-btn" type="button" data-patient-key="${escapeAttr(profile.key)}" onclick="window.openPatientProfile('${escapeAttr(profile.key)}'); return false;">Ver paciente</button>
     </div>
   </div>`;
@@ -12174,12 +12204,13 @@ function renderProviders(){
 function renderProviderList(){
   const rows=filteredProviders();
   providerElement('providerCount').textContent=`${rows.length} ${currentView==='providerRequests'?(rows.length===1?'solicitud':'solicitudes'):(rows.length===1?'perfil':'perfiles')}`;
-  providerElement('providerList').innerHTML=rows.map(p=>`<div class="patient-profile-row provider-row">
-    <div class="patient-profile-identity"><div class="patient-profile-name-line"><div class="patient-profile-name">${escapeHtml(providerDisplayName(p))}</div>${providerMembershipHtml(p)}${providerReviewHtml(p)}${window.PulzzoDoctorPublicationBO?.badge(p)||''}</div>
-      <div class="patient-profile-contact">${escapeHtml(p.profile.city)}, ${escapeHtml(p.profile.state)} · ${escapeHtml(p.profile.accountType)}</div>
-      <div class="patient-profile-ids">${escapeHtml(p.id)} · RFC: ${escapeHtml(p.fiscal.rfc)}</div>
-      <div class="row-meta"><span class="pill provider-identity">${p.procedures.length} procedimientos</span><span class="pill pill-gray">Documentos: ${p.files.filter(d=>d.status==='approved').length}/${p.files.length}</span><span class="pill pill-gray">${escapeHtml(p.profile.establishmentType)}</span></div>
-    </div><div class="patient-profile-actions"><button class="btn btn-secondary patient-profile-view-btn" type="button" data-provider-id="${escapeAttr(p.id)}">${p.profile.accountType==='Clínica u hospital'?'Ver clínica':'Ver doctor'}</button></div></div>`).join('')||`<div class="empty">${currentView==='providerRequests'?'Sin solicitudes encontradas':'Sin perfiles encontrados'}<br><small>Ajusta los filtros o busca con otro dato.</small></div>`;
+  providerElement('providerList').innerHTML=rows.length?pzTable('providers',['Doctor o clínica','Ubicación y tipo','Estado','Expediente',''],rows.map(p=>`<div class="patient-profile-row pz-dt-row" role="row">
+    <div class="pz-dt-cell pz-dt-main patient-profile-identity" role="cell"><div class="patient-profile-name pz-dt-name">${escapeHtml(providerDisplayName(p))}</div>
+      <div class="patient-profile-ids pz-dt-sub">${escapeHtml(p.id)} · RFC: ${escapeHtml(p.fiscal.rfc)}</div></div>
+    <div class="pz-dt-cell" role="cell" data-label="Ubicación y tipo"><span class="patient-profile-contact pz-dt-text">${escapeHtml(p.profile.city)}, ${escapeHtml(p.profile.state)} · ${escapeHtml(p.profile.accountType)}</span></div>
+    <div class="pz-dt-cell pz-dt-status" role="cell" data-label="Estado"><div class="pz-dt-pills">${providerMembershipHtml(p)}${providerReviewHtml(p)}${window.PulzzoDoctorPublicationBO?.badge(p)||''}</div></div>
+    <div class="pz-dt-cell pz-dt-status" role="cell" data-label="Expediente"><div class="pz-dt-pills"><span class="pill provider-identity">${p.procedures.length} procedimientos</span><span class="pill pill-gray">Documentos: ${p.files.filter(d=>d.status==='approved').length}/${p.files.length}</span><span class="pill pill-gray">${escapeHtml(p.profile.establishmentType)}</span></div></div>
+    <div class="pz-dt-cell pz-dt-action patient-profile-actions" role="cell"><button class="btn btn-secondary patient-profile-view-btn" type="button" data-provider-id="${escapeAttr(p.id)}">${p.profile.accountType==='Clínica u hospital'?'Ver clínica':'Ver doctor'}</button></div></div>`)):`<div class="empty">${currentView==='providerRequests'?'Sin solicitudes encontradas':'Sin perfiles encontrados'}<br><small>Ajusta los filtros o busca con otro dato.</small></div>`;
   providerElement('providerList').onclick=e=>{const b=e.target.closest('button[data-provider-id]');if(b)openProviderProfile(b.dataset.providerId,currentView);};
 }
 const providerTabs=['resumen','documentos','fiscal','contacto','datos','procedimientos','interesados','operar','historial'];
@@ -13202,5 +13233,5 @@ document.addEventListener('DOMContentLoaded',()=>{
   try{session=staffAccess?.getSession()||null;if(session){$('#loginView').classList.add('hidden');$('#appView').classList.remove('hidden');initApp();}}catch(error){session=null;staffShowLoggedOut();}
 });
 </script>
-<aside aria-label="Estado de revisión" style="position:fixed;bottom:6px;right:8px;z-index:2147483647;background:#fff;color:#334155;border:1px solid #cbd5e1;border-radius:6px;padding:4px 8px;font:11px system-ui;pointer-events:none">v72.1 · demo local</aside></body>
+<aside aria-label="Estado de revisión" style="position:fixed;bottom:6px;right:8px;z-index:2147483647;background:#fff;color:#334155;border:1px solid #cbd5e1;border-radius:6px;padding:4px 8px;font:11px system-ui;pointer-events:none">v72.2.2 · demo local</aside></body>
 </html>
