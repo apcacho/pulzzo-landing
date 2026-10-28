@@ -1,0 +1,76 @@
+/* PULZZO v62 · Embudo, desempeño por doctor/KAM, bitácora, búsqueda global y exportación. */
+.insights-block{margin-top:18px}
+.insights-grid-2{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:14px}
+.insights-funnel{display:grid;gap:12px}
+.insights-funnel-row{display:grid;grid-template-columns:150px minmax(120px,1fr) 150px 190px;gap:12px;align-items:center}
+.insights-funnel-label,.insights-funnel-value,.insights-funnel-stall{display:grid;gap:2px;min-width:0}
+.insights-funnel-label strong,.insights-funnel-value strong{color:var(--navy);font-weight:700}
+.insights-funnel-label span,.insights-funnel-value span,.insights-funnel-stall small,.insights-muted{color:var(--muted);font-size:12px;line-height:1.35}
+.insights-funnel-value{text-align:right}
+.insights-funnel-stall .pill{justify-self:start}
+.insights-exits{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line2)}
+.insights-exit{display:inline-flex;gap:6px;align-items:baseline;padding:6px 10px;border-radius:999px;background:var(--coral-s);color:#8A3F22;font-size:12px}
+.insights-exit strong{font-weight:700}
+.insights-exit small{color:#8A3F22;opacity:.8}
+.insights-stall-list{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.insights-stall-list li{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--line2);border-radius:12px;background:#fff}
+.insights-stall-list li div{display:grid;gap:2px;min-width:0}
+.insights-stall-list strong{color:var(--navy);font-weight:600}
+.insights-stall-list span{color:var(--muted);font-size:12px;overflow-wrap:anywhere}
+.insights-stall-days{text-align:right}
+.insights-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.insights-table-wrap{border:1px solid var(--line2);border-radius:12px;background:#fff;overflow:auto}
+.insights-table{width:100%;border-collapse:collapse;font-size:13px}
+.insights-table th{background:#F8FAFC;color:var(--muted);font-weight:600;text-align:left;padding:10px 12px;border-bottom:1px solid var(--line2);white-space:nowrap}
+.insights-table td{padding:10px 12px;border-bottom:1px solid var(--line2);vertical-align:middle}
+.insights-table td small{display:block;color:var(--muted);font-size:11.5px}
+.insights-table .insights-num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.insights-progress{display:grid;gap:4px;min-width:170px}
+.insights-progress span{color:var(--muted);font-size:11.5px;white-space:nowrap}
+.insights-goal-row{display:grid;grid-template-columns:140px 1fr 1fr;gap:12px;align-items:end;padding:10px 0;border-bottom:1px solid var(--line2)}
+.insights-kam-card{margin-top:14px}
+.insights-kam-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.insights-kam-row select{min-height:38px;border:1px solid var(--line);border-radius:10px;padding:0 10px;background:#fff;color:var(--navy)}
+.insights-activity-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.insights-activity-head p{color:var(--muted);margin:4px 0 0}
+.insights-activity-form{display:grid;grid-template-columns:160px 170px minmax(0,1fr) auto;gap:12px;align-items:end;margin:14px 0;padding:14px;border:1px solid var(--line2);border-radius:12px;background:var(--aqua-bg)}
+.insights-activity-form .insights-muted{grid-column:1/-1;margin:0}
+.insights-activity-form textarea{min-height:42px;resize:vertical}
+.insights-activity-filters{margin:4px 0 12px;flex-wrap:wrap}
+.insights-activity-filters .period-btn span{color:var(--muted);margin-left:4px}
+.insights-activity-list{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.insights-activity-item{display:grid;grid-template-columns:96px minmax(0,1fr);gap:12px;align-items:start;padding:10px 12px;border:1px solid var(--line2);border-radius:12px;background:#fff}
+.insights-activity-item[hidden]{display:none}
+.insights-activity-item .pill{justify-self:start}
+.insights-activity-item strong{color:var(--navy);font-weight:600}
+.insights-activity-item p{margin:3px 0;color:#334155;overflow-wrap:anywhere}
+.insights-activity-item strong{display:block}
+.insights-activity-item small{display:block;margin-top:2px;color:var(--muted);font-size:12px}
+.insights-search{position:relative;margin-right:auto}
+.topbar .insights-search input{width:min(340px,38vw);height:38px;border:1px solid var(--line);border-radius:10px;padding:0 12px;background:#fff;color:var(--navy);font:inherit;font-size:13px}
+.topbar .insights-search input:focus{outline:2px solid var(--aqua);outline-offset:1px;border-color:var(--aqua)}
+.insights-search-results{position:absolute;z-index:60;top:44px;left:0;width:min(460px,90vw);max-height:420px;overflow:auto;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 1px 3px rgba(7,20,47,.06), 0 1px 2px rgba(7,20,47,.04);padding:6px}
+.insights-search-results[hidden]{display:none}
+.insights-search-group>p{margin:8px 10px 4px;color:var(--muted);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.insights-search-item{display:grid;gap:2px;width:100%;text-align:left;border:0;background:transparent;border-radius:8px;padding:8px 10px;cursor:pointer;font:inherit}
+.insights-search-item:hover,.insights-search-item:focus{background:var(--aqua-bg);outline:none}
+.insights-search-item strong{color:var(--navy);font-weight:600;font-size:13px}
+.insights-search-item span{color:var(--muted);font-size:12px}
+.insights-search-empty{margin:10px;color:var(--muted);font-size:13px}
+.insights-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.insights-export{display:flex;gap:8px;align-items:center;justify-content:flex-end;flex-wrap:wrap;margin:0 0 12px}
+.insights-export span{color:var(--muted);font-size:12px;margin-right:4px}
+.patient-request-list-head .insights-export{margin:0 0 0 auto}
+@media(max-width:1100px){.insights-grid-2{grid-template-columns:1fr}.insights-funnel-row{grid-template-columns:120px minmax(80px,1fr) 120px}.insights-funnel-stall{grid-column:1/-1}.insights-activity-form{grid-template-columns:1fr 1fr}.insights-activity-text{grid-column:1/-1}}
+@media(max-width:720px){.insights-search input{width:100%}.insights-search{margin-right:0;flex:1 1 100%}.insights-goal-row{grid-template-columns:1fr}.insights-activity-item{grid-template-columns:1fr}}
+/* v62.1 · panel «Desempeño y metas KAM» para perfiles sin Dashboard */
+.insights-performance-btn{white-space:nowrap}
+.insights-performance-btn[hidden],.insights-search[hidden]{display:none!important}
+.insights-performance-host{margin:0 0 18px}
+.insights-performance-host[hidden]{display:none!important}
+.insights-performance-host .insights-block{margin-top:0}
+.insights-panel-scope{margin:8px 2px 0;font-size:12px;color:var(--muted,#64748B)}
+.insights-goals-inline #insightsGoalsForm{display:grid;gap:10px;margin:6px 0 14px}
+.insights-goals-inline .modal-actions{padding:0;border:0;justify-content:flex-end}
+/* v63: en 390 px la búsqueda global usa todo el ancho y el texto de ayuda no se corta. */
+@media(max-width:640px){.topbar .top-actions .insights-search{flex:1 1 100%;margin-right:0;min-width:0}.topbar .insights-search input{width:100%}.insights-search-results{width:min(460px,calc(100vw - 32px))}}

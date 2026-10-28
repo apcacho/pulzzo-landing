@@ -1,0 +1,51 @@
+@import url('./shared-onboarding.css');
+/* Keep native provider registration/profile geometry and headings. Registration
+   context sits beneath the navbar; profile context follows the native hero. */
+body.crm-doctor-onboarding #shared-doctor-banner{width:calc(100% - 48px);margin:80px auto 16px}
+@media(max-width:760px){
+ body.crm-doctor-onboarding #shared-doctor-banner{width:calc(100% - 24px);margin-top:72px}
+}
+
+/* Profile mode uses the same native hero, panels and responsive navigation.
+   Its background follows the hero content, never a body-coordinate cutoff:
+   long provider names, wrapped copy and text zoom remain on navy. */
+body.crm-doctor-onboarding.profile-mode{background:var(--offwhite)!important;overflow-x:clip}
+body.crm-doctor-onboarding.profile-mode .profile-hero{position:relative;isolation:isolate}
+body.crm-doctor-onboarding.profile-mode .profile-hero::before{
+ content:"";position:absolute;z-index:-1;pointer-events:none;
+ width:100vw;left:50%;transform:translateX(-50%);top:-104px;bottom:-32px;
+ background:var(--navy);
+}
+body.crm-doctor-onboarding.profile-mode #shared-doctor-banner{
+ width:100%;max-width:none;margin:48px 0 0;
+}
+@media(min-width:901px){
+ body.crm-doctor-onboarding.profile-mode .profile-tabs{margin-top:24px!important}
+}
+@media(max-width:900px){
+ body.crm-doctor-onboarding.profile-mode .profile-hero::before{top:0;bottom:0}
+ body.crm-doctor-onboarding.profile-mode #shared-doctor-banner{width:calc(100% - 24px);margin:16px 12px}
+}
+
+/* Assisted capture stays in the native data form. Only the account-marketing
+   column is omitted; the card, fields, groups and responsive sizes stay native. */
+body.crm-doctor-onboarding:not(.profile-mode) .auth-wrap{grid-template-columns:minmax(0,1fr)!important}
+@media(min-width:1024px){
+ body.crm-doctor-onboarding:not(.profile-mode) .auth-wrap{max-width:780px!important}
+}
+body.crm-doctor-onboarding:not(.profile-mode) #shared-doctor-banner{width:100%;max-width:none;margin:0 0 22px}
+body.crm-doctor-onboarding [hidden]{display:none!important}
+
+/* Visual comparison v34: fiscal capture uses the original summary-card geometry.
+   Inputs retain their labels, keyboard access, persistence and focus indication. */
+body.crm-doctor-onboarding.profile-mode #doctorProfilePanel .profile-fiscal-grid{gap:18px;}
+body.crm-doctor-onboarding.profile-mode #doctorProfilePanel .profile-fiscal-grid>.profile-edit-field{border:1px solid #E2E8F0;border-radius:20px;padding:22px;background:#fff;}
+body.crm-doctor-onboarding.profile-mode #doctorProfilePanel .profile-fiscal-grid label{font-size:13px;font-weight:600;color:#64748B;text-transform:uppercase;letter-spacing:.12em;margin-bottom:8px;}
+body.crm-doctor-onboarding.profile-mode #doctorProfilePanel .profile-fiscal-grid input{display:block;min-height:0;height:auto;border:0;border-radius:0;padding:0;background:transparent;color:#07142F;font-family:inherit;font-size:22px;font-weight:600;line-height:1.5;}
+body.crm-doctor-onboarding.profile-mode #doctorProfilePanel .profile-fiscal-grid input:focus{outline:2px solid #ff8a5b;outline-offset:4px;box-shadow:none;}
+@media(max-width:900px){
+ body.crm-doctor-onboarding.profile-mode #doctorProfilePanel .profile-fiscal-grid{grid-template-columns:1fr;gap:12px;}
+ body.crm-doctor-onboarding.profile-mode #doctorProfilePanel .profile-fiscal-grid>.profile-edit-field{padding:16px 14px;border-radius:18px;}
+ body.crm-doctor-onboarding.profile-mode #doctorProfilePanel .profile-fiscal-grid>.profile-edit-field:first-child{margin-bottom:6px;}
+ body.crm-doctor-onboarding.profile-mode #doctorProfilePanel .profile-fiscal-grid input{font-size:18px;line-height:1.25;}
+}

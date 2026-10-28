@@ -1,0 +1,521 @@
+/* Pulzzo staff directory and access policy. LOCAL DEMO ONLY.
+ * Client storage is inspectable and is not a production authentication boundary.
+ * Never enter a real password. Invite passwords use a salted PBKDF2 verifier;
+ * plaintext passwords and password hints are never persisted or returned.
+ */
+(function (root, factory) {
+  'use strict';
+  if (typeof module === 'object' && module.exports) module.exports = factory(root, require('node:crypto').webcrypto);
+  else root.PulzzoStaffAccess = factory(root, root.crypto);
+})(typeof globalThis !== 'undefined' ? globalThis : this, function (root, defaultCrypto) {
+  'use strict';
+  const STORAGE_KEY = 'pulzzo.staff.directory.v1';
+  const SESSION_KEY = 'pulzzo.staff.session.v1';
+  const SCHEMA_VERSION = 1;
+  const DAY = 86400000;
+  const own = (object, key) => Object.prototype.hasOwnProperty.call(object, key);
+  const clone = value => JSON.parse(JSON.stringify(value));
+  const lookup = (map, id) => typeof id === 'string' && own(map, id) ? map[id] : null;
+  const dictionary = value => !!value && typeof value === 'object' && !Array.isArray(value);
+  const normalizeEmail = value => String(value || '').normalize('NFKC').trim().toLowerCase();
+  const catalog = {
+    viewDashboard: ['Dashboard', 'operations'], viewPatients: ['Consultar pacientes', 'patients'],
+    viewProviders: ['Consultar doctores y clínicas', 'providers'], viewDocuments: ['Consultar documentos', 'documents'],
+    viewPortfolio: ['Consultar cartera', 'portfolio'], viewHistory: ['Consultar historial operativo', 'operations'],
+    patientActions: ['Gestión operativa de pacientes', 'patients'], riskActions: ['Análisis de riesgo y ofertas', 'patients'],
+    providerActions: ['Gestión de doctores y clínicas', 'providers'], docs: ['Revisión documental', 'documents'],
+    notes: ['Notas operativas', 'operations'], payload: ['Consultar datos técnicos', 'patients'],
+    approveCredit: ['Aprobar crédito', 'patients'], registerPayments: ['Registrar pagos', 'portfolio'],
+    authorizeDisbursement: ['Autorizar dispersiones', 'portfolio'], reversePayments: ['Revertir pagos', 'portfolio'],
+    authorizeExtensions: ['Autorizar prórrogas de pago', 'portfolio'],
+    manageCollections: ['Seguimiento de cobranza', 'portfolio'],
+    // v71 (aprobado 27/10/2026): exportar datos. Solo lectura no exporta por defecto; Admin lo otorga por persona con vencimiento.
+    exportData: ['Exportar datos (solicitudes, cartera, cobranza)', 'portfolio'],
+    crmView: ['Consultar CRM', 'crm'], crmEdit: ['Editar CRM', 'crm'], crmAssign: ['Asignar CRM', 'crm'],
+    crmManage: ['Configurar CRM', 'crm'],
+    viewKamPerformance: ['Consultar desempeño y metas KAM', 'crm'], manageKamGoals: ['Editar metas KAM', 'crm'],
+    users: ['Administrar usuarios', 'staff'],
+    roles: ['Administrar roles', 'staff'], settings: ['Configuración', 'staff']
+  };
+  const adminOnly = ['users', 'roles', 'settings', 'crmManage', 'authorizeExtensions'];
+  // Team-level KAM indicators have no per-own-portfolio meaning: only «Sin acceso» or «Todos».
+  const teamOnly = ['viewKamPerformance', 'manageKamGoals'];
+  const ownScoped = cap => catalog[cap][1] === 'crm' && !teamOnly.includes(cap);
+  const roleOrder = ['admin', 'leader', 'kam', 'operations', 'risk', 'portfolio', 'provider', 'readonly'];
+  function grants(names, scope) { return Object.fromEntries(names.map(name => [name, scope || 'all'])); }
+  function seedRoles() {
+    return {
+      admin: { id: 'admin', label: 'Admin', grants: grants(Object.keys(catalog)), system: true },
+      leader: { id: 'leader', label: 'Líder / gerente KAM', grants: grants(['crmView', 'crmAssign', 'viewKamPerformance', 'manageKamGoals']), system: true },
+      kam: { id: 'kam', label: 'KAM', grants: grants(['crmView', 'crmEdit'], 'own'), system: true },
+      operations: { id: 'operations', label: 'Operaciones', grants: grants(['viewDashboard', 'viewPatients', 'viewDocuments', 'viewPortfolio', 'viewHistory', 'patientActions', 'docs', 'notes', 'manageCollections', 'registerPayments']), system: true },
+      risk: { id: 'risk', label: 'Riesgo', grants: grants(['viewDashboard', 'viewPatients', 'viewPortfolio', 'viewHistory', 'riskActions', 'patientActions', 'notes', 'payload', 'approveCredit', 'manageCollections']), system: true },
+      portfolio: { id: 'portfolio', label: 'Cartera / cobranza', grants: grants(['viewDashboard', 'viewPatients', 'viewPortfolio', 'viewHistory', 'notes', 'registerPayments', 'manageCollections']), system: true },
+      provider: { id: 'provider', label: 'Gestión de proveedores', grants: grants(['viewDashboard', 'viewProviders', 'viewDocuments', 'viewHistory', 'providerActions', 'docs', 'notes']), system: true },
+      readonly: { id: 'readonly', label: 'Solo lectura', grants: grants(['viewDashboard', 'viewPatients', 'viewProviders', 'viewDocuments', 'viewPortfolio', 'viewHistory']), system: true }
+    };
+  }
+  const seeds = [
+    ['admin_demo', 'admin@pulzzo.mx', 'Admin Pulzzo', 'admin'],
+    ['kam_ana', 'ana.kam@pulzzo.mx', 'Ana · KAM demo', 'kam'],
+    ['kam_luis', 'luis.kam@pulzzo.mx', 'Luis · KAM demo', 'kam'],
+    ['leader_demo', 'lider.kam@pulzzo.mx', 'Líder KAM demo', 'leader'],
+    ['operations_demo', 'operaciones@pulzzo.mx', 'Operaciones Pulzzo', 'operations'],
+    ['risk_demo', 'riesgo@pulzzo.mx', 'Riesgo Pulzzo', 'risk'],
+    ['portfolio_demo', 'cartera@pulzzo.mx', 'Cartera Pulzzo', 'portfolio'],
+    ['provider_demo', 'medicos@pulzzo.mx', 'Equipo médico Pulzzo', 'provider'],
+    ['readonly_demo', 'lectura@pulzzo.mx', 'Lectura Pulzzo', 'readonly']
+  ];
+  function failure(code, message) { const error = new Error(message); error.code = code; return error; }
+  function memoryStorage() { const values = new Map(); return { getItem: key => values.has(key) ? values.get(key) : null, setItem: (key, value) => values.set(key, String(value)), removeItem: key => values.delete(key) }; }
+  function createStore(options) {
+    options = options || {};
+    let storage = options.storage;
+    if (!storage) { try { storage = root.localStorage; } catch (_) {} }
+    storage = storage || memoryStorage();
+    const crypto = options.crypto || defaultCrypto;
+    const clock = options.now || (() => Date.now());
+    const milliseconds = () => { const time = clock(); return time instanceof Date ? time.getTime() : typeof time === 'string' ? Date.parse(time) : Number(time); };
+    const stamp = () => new Date(milliseconds()).toISOString();
+    const hex = bytes => Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('');
+    const random = prefix => {
+      if (!crypto || typeof crypto.getRandomValues !== 'function') throw failure('CRYPTO_UNAVAILABLE', 'La simulación de acceso requiere un navegador con criptografía disponible.');
+      return prefix + hex(crypto.getRandomValues(new Uint8Array(24)));
+    };
+    function fresh() {
+      const at = stamp(), users = {};
+      for (const [index, [id, email, name, role]] of seeds.entries()) users[id] = { id, email, name, phone: '55000001' + String(10 + index), roles: [role], active: true, status: 'active', demoSeed: true, authentication: 'demo', sessionVersion: 1, createdAt: at, updatedAt: at };
+      return { schemaVersion: SCHEMA_VERSION, policyVersion: 4, revision: 1, users, roles: seedRoles(), sessions: {}, invitations: {}, audit: [] };
+    }
+    function save(state) {
+      try { storage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+      catch (_) { throw failure('STORAGE_UNAVAILABLE', 'No se pudo guardar el directorio local. No se aplicó el cambio.'); }
+    }
+    function load() {
+      let raw;
+      try { raw = storage.getItem(STORAGE_KEY); }
+      catch (_) { throw failure('STORAGE_UNAVAILABLE', 'No se puede leer el directorio local.'); }
+      if (raw === null || raw === undefined) { const state = fresh(); save(state); return state; }
+      let state;
+      try { state = JSON.parse(raw); } catch (_) { throw failure('DIRECTORY_INVALID', 'El directorio local no es válido; el acceso está bloqueado.'); }
+      if (!state || state.schemaVersion !== SCHEMA_VERSION || !Number.isInteger(state.revision) || !dictionary(state.users) || !dictionary(state.roles) || !dictionary(state.sessions) || !dictionary(state.invitations) || !Array.isArray(state.audit) || state.policyVersion !== undefined && (!Number.isInteger(state.policyVersion) || state.policyVersion < 1 || state.policyVersion > 4)) throw failure('DIRECTORY_INVALID', 'El directorio local no es válido; el acceso está bloqueado.');
+      // A narrowly versioned policy addition preserves all saved role edits. A
+      // pre-upgrade Admin session must sign in again before using the new grant.
+      if ((state.policyVersion || 1) < 2) {
+        const admin = lookup(state.roles, 'admin');
+        if (!dictionary(admin) || !dictionary(admin.grants) || Object.values(state.users).some(user => !dictionary(user) || !Array.isArray(user.roles) || !Number.isInteger(user.sessionVersion) || user.sessionVersion < 1)) throw failure('DIRECTORY_INVALID', 'El directorio local no tiene una estructura de usuarios y roles válida.');
+        admin.grants.authorizeExtensions = 'all';
+        for (const user of Object.values(state.users)) if (Array.isArray(user.roles) && user.roles.includes('admin')) invalidate(state, user);
+        state.policyVersion = 2;
+        state.audit.push({ id: 'migration_staff_extensions_v2', actorId: 'system_staff_policy', actorName: 'Migración demo', action: 'policy_updated', subjectId: 'admin', at: stamp(), before: { policyVersion: 1 }, after: { policyVersion: 2, authorizeExtensions: 'all' } });
+        state.revision += 1;
+        save(state);
+      }
+      // v62.1: KAM performance/goals grants are added to Admin and, unless an
+      // Admin already edited that grant, to the Líder KAM role. Other roles
+      // and saved edits stay untouched; affected sessions must sign in again.
+      if (state.policyVersion < 3) {
+        const admin = lookup(state.roles, 'admin'), leader = lookup(state.roles, 'leader');
+        if (!dictionary(admin) || !dictionary(admin.grants) || leader && (!dictionary(leader) || !dictionary(leader.grants)) || Object.values(state.users).some(user => !dictionary(user) || !Array.isArray(user.roles) || !Number.isInteger(user.sessionVersion) || user.sessionVersion < 1)) throw failure('DIRECTORY_INVALID', 'El directorio local no tiene una estructura de usuarios y roles válida.');
+        const added = { admin: [], leader: [] };
+        for (const cap of ['viewKamPerformance', 'manageKamGoals']) {
+          if (!own(admin.grants, cap)) { admin.grants[cap] = 'all'; added.admin.push(cap); }
+          if (leader && !own(leader.grants, cap)) { leader.grants[cap] = 'all'; added.leader.push(cap); }
+        }
+        for (const user of Object.values(state.users)) if (user.roles.includes('admin') && added.admin.length || user.roles.includes('leader') && added.leader.length) invalidate(state, user);
+        state.policyVersion = 3;
+        state.audit.push({ id: 'migration_staff_kam_performance_v3', actorId: 'system_staff_policy', actorName: 'Migración demo', action: 'policy_updated', subjectId: 'leader', at: stamp(), before: { policyVersion: 2 }, after: { policyVersion: 3, added } });
+        state.revision += 1;
+        save(state);
+      }
+      // v66: Operaciones registra pagos por defecto (mismo permiso «Registrar
+      // pagos» que Cartera). Solo se agrega al rol Operaciones; las demás
+      // ediciones guardadas (roles y permisos por usuario) se conservan y la
+      // sesión de quien gana el permiso debe iniciar otra vez.
+      if (state.policyVersion < 4) {
+        const operations = lookup(state.roles, 'operations');
+        if (operations && (!dictionary(operations) || !dictionary(operations.grants)) || Object.values(state.users).some(user => !dictionary(user) || !Array.isArray(user.roles) || !Number.isInteger(user.sessionVersion) || user.sessionVersion < 1)) throw failure('DIRECTORY_INVALID', 'El directorio local no tiene una estructura de usuarios y roles válida.');
+        const before = operations ? (own(operations.grants, 'registerPayments') ? operations.grants.registerPayments : 'none') : null;
+        const added = !!operations && !own(operations.grants, 'registerPayments');
+        if (added) operations.grants.registerPayments = 'all';
+        if (added) for (const user of Object.values(state.users)) if (user.roles.includes('operations')) invalidate(state, user);
+        state.policyVersion = 4;
+        state.audit.push({ id: 'migration_staff_operations_payments_v4', actorId: 'system_staff_policy', actorName: 'Migración demo', action: 'policy_updated', subjectId: 'operations', at: stamp(), before: { policyVersion: 3, registerPayments: before }, after: { policyVersion: 4, registerPayments: operations ? operations.grants.registerPayments : null, added: added ? ['registerPayments'] : [] } });
+        state.revision += 1;
+        save(state);
+      }
+      return state;
+    }
+    function effective(state, user) {
+      const result = {};
+      for (const id of user.roles || []) {
+        const role = lookup(state.roles, id);
+        if (!role) continue;
+        for (const [cap, scope] of Object.entries(role.grants || {})) {
+          if (!own(catalog, cap) || !['own', 'all'].includes(scope) || adminOnly.includes(cap) && !user.roles.includes('admin')) continue;
+          if (scope === 'all' || !result[cap]) result[cap] = scope;
+        }
+      }
+      // v36d: individual permissions per user (granted or removed by Admin), lapsing automatically at expiresAt.
+      for (const [cap, entry] of Object.entries(user.overrides || {})) {
+        if (!own(catalog, cap) || !dictionary(entry) || entry.expiresAt && Date.parse(entry.expiresAt) <= milliseconds()) continue;
+        if (entry.scope === 'none') delete result[cap];
+        else if (['own', 'all'].includes(entry.scope) && !(adminOnly.includes(cap) && !(user.roles || []).includes('admin'))) result[cap] = entry.scope;
+      }
+      return result;
+    }
+    function publicUser(state, user) {
+      const role = roleOrder.find(id => user.roles.includes(id)) || user.roles[0];
+      return { id: user.id, userId: user.id, crmActorId: user.id, name: user.name, email: user.email, phone: user.phone || '', roles: user.roles.slice(), role,
+        overrides: clone(user.overrides || {}), deactivatedAt: user.deactivatedAt || null, deactivatedBy: user.deactivatedBy || null,
+        label: user.roles.map(id => state.roles[id] ? state.roles[id].label : id).join(' + '), active: user.active,
+        status: user.status, demoSeed: !!user.demoSeed, sessionVersion: user.sessionVersion, createdAt: user.createdAt, updatedAt: user.updatedAt };
+    }
+    function savedSession() {
+      try { return JSON.parse(storage.getItem(SESSION_KEY) || 'null'); } catch (_) { return null; }
+    }
+    function resolve(state, reference) {
+      if (reference === undefined) reference = savedSession();
+      if (!reference || typeof reference !== 'object' || typeof reference.sessionId !== 'string') return null;
+      const session = lookup(state.sessions, reference.sessionId);
+      if (!session || session.expiresAt <= milliseconds()) return null;
+      const user = lookup(state.users, session.userId);
+      if (!user || user.active !== true || user.status !== 'active' || session.sessionVersion !== user.sessionVersion || reference.sessionVersion !== user.sessionVersion || reference.userId !== user.id) return null;
+      return { ...publicUser(state, user), sessionId: reference.sessionId, issuedAt: session.issuedAt, expiresAt: session.expiresAt };
+    }
+    function current(reference) { try { return resolve(load(), reference); } catch (_) { return null; } }
+    function assertActor(state, reference, cap) {
+      const actor = resolve(state, reference);
+      if (!actor) throw failure('SESSION_INVALID', 'La sesión ya no es válida. Inicia sesión otra vez.');
+      if (cap && !effective(state, state.users[actor.id])[cap]) throw failure('FORBIDDEN', 'Tu cuenta no tiene permiso para esta acción.');
+      return actor;
+    }
+    function audit(state, actor, action, subjectId, before, after) {
+      state.audit.push({ id: random('audit_'), actorId: actor.id, actorName: actor.name, action, subjectId, at: stamp(), before: clone(before === undefined ? null : before), after: clone(after === undefined ? null : after) });
+    }
+    function commit(state, expectedRevision, expectedBytes) {
+      const present = load();
+      if (present.revision !== state.revision || expectedRevision !== undefined && expectedRevision !== state.revision) throw failure('STALE_REVISION', 'El directorio cambió. Actualiza e intenta otra vez.');
+      if (expectedBytes !== undefined && storage.getItem(STORAGE_KEY) !== expectedBytes) throw failure('STALE_REVISION', 'El directorio cambió. Actualiza e intenta otra vez.');
+      state.revision += 1; save(state);
+    }
+    function invalidate(state, user) {
+      user.sessionVersion += 1;
+      for (const [id, session] of Object.entries(state.sessions)) if (session.userId === user.id) delete state.sessions[id];
+    }
+    function assertLastAdmin(state) {
+      if (!Object.values(state.users).some(user => user.active && user.status === 'active' && user.roles.includes('admin'))) throw failure('LAST_ADMIN', 'Debe permanecer al menos un Admin activo con acceso aceptado.');
+    }
+    function validRoles(state, ids) {
+      if (!Array.isArray(ids) || ids.length === 0 || ids.length > 20 || new Set(ids).size !== ids.length || ids.some(id => typeof id !== 'string' || !own(state.roles, id))) throw failure('INVALID_ROLES', 'Selecciona uno o más roles válidos, sin duplicados.');
+      return ids.slice().sort((a, b) => (roleOrder.indexOf(a) < 0 ? 99 : roleOrder.indexOf(a)) - (roleOrder.indexOf(b) < 0 ? 99 : roleOrder.indexOf(b)) || a.localeCompare(b));
+    }
+    function validIdentity(state, input, except) {
+      const name = typeof input.name === 'string' ? input.name.trim() : '';
+      const email = normalizeEmail(input.email);
+      if (!name || name.length > 160 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) throw failure('INVALID_IDENTITY', 'Escribe un nombre y correo válidos.');
+      if (Object.values(state.users).some(user => user.id !== except && user.email === email)) throw failure('DUPLICATE_EMAIL', 'Ya existe una cuenta con ese correo, incluso si está inactiva.');
+      return { name, email };
+    }
+    function validPhone(value) { const phone = String(value == null ? '' : value).replace(/\D/g, ''); if (!/^\d{10,15}$/.test(phone)) throw failure('INVALID_PHONE', 'Escribe un celular válido de 10 a 15 dígitos.'); return phone; }
+    function exactKeys(input, allowed) { if (!input || typeof input !== 'object' || Array.isArray(input) || Object.keys(input).some(key => !allowed.includes(key))) throw failure('INVALID_FIELDS', 'La solicitud contiene campos no permitidos.'); }
+    function issue(state, user) {
+      const sessionId = random('session_');
+      const entry = { userId: user.id, sessionVersion: user.sessionVersion, issuedAt: stamp(), expiresAt: milliseconds() + DAY };
+      state.sessions[sessionId] = entry;
+      return { ...publicUser(state, user), sessionId, issuedAt: entry.issuedAt, expiresAt: entry.expiresAt };
+    }
+    function persistSession(session) {
+      try { storage.setItem(SESSION_KEY, JSON.stringify({ sessionId: session.sessionId, userId: session.userId, sessionVersion: session.sessionVersion })); }
+      catch (_) { throw failure('STORAGE_UNAVAILABLE', 'No se pudo conservar la sesión local.'); }
+      return session;
+    }
+    function assertOperationCurrent(operation) {
+      if (!operation || !own(operation, 'isCurrent')) return;
+      let active = false;
+      try { active = typeof operation.isCurrent === 'function' && operation.isCurrent() === true; } catch (_) {}
+      if (!active) throw failure('OPERATION_CANCELLED', 'La operación fue cancelada. No se guardaron cambios.');
+    }
+    async function passwordVerifier(password, salt) {
+      if (typeof password !== 'string' || password.length < 10 || password.length > 256) throw failure('INVALID_PASSWORD', 'Usa una contraseña exclusiva para esta demo, de 10 a 256 caracteres.');
+      if (!crypto || !crypto.subtle || typeof root.TextEncoder !== 'function') throw failure('CRYPTO_UNAVAILABLE', 'No se puede preparar la contraseña demo en este navegador.');
+      const key = await crypto.subtle.importKey('raw', new root.TextEncoder().encode(password), 'PBKDF2', false, ['deriveBits']);
+      const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt: new root.TextEncoder().encode(salt), iterations: 210000 }, key, 256);
+      return hex(new Uint8Array(bits));
+    }
+    // v71: tope de condonación del gerente (moratorios y comisiones), configurable solo por Admin. Ejemplo aprobado: $2,000.00.
+    function forgivenessLimits(state) { const v = dictionary(state.forgivenessLimits) ? state.forgivenessLimits : {}; return { leader: own(v, 'leader') && Number.isFinite(v.leader) ? v.leader : 2000 }; }
+    // v71.1: pagos semanales. Solo Admin los permite; apagados por defecto. Cada cambio queda en el historial.
+    function paymentOptions(state) { const v = dictionary(state.paymentOptions) ? state.paymentOptions : {}; return { weekly: own(v, 'weekly') && v.weekly === true }; }
+    function approvalLimits(state) { const v = dictionary(state.approvalLimits) ? state.approvalLimits : {}; return { leader: own(v, 'leader') ? v.leader : 10000, admin: own(v, 'admin') ? v.admin : null }; }
+    function describe(state, user) {
+      const all = effective(state, user), scopes = {};
+      for (const [cap, scope] of Object.entries(all)) { const resource = catalog[cap][1]; if (!scopes[resource] || scope === 'all') scopes[resource] = scope; }
+      return { capabilities: Object.keys(all), grants: all, scopes: { crm: 'none', patients: 'none', providers: 'none', documents: 'none', portfolio: 'none', operations: 'none', staff: 'none', ...scopes } };
+    }
+    function applyUserCreate(state, actor, input) {
+      exactKeys(input, ['name', 'email', 'phone', 'roles']);
+      const identity = validIdentity(state, input), phone = validPhone(input.phone), roles = validRoles(state, input.roles), at = stamp(), id = random('staff_');
+      const user = { ...identity, phone, id, roles, active: true, status: 'invited', demoSeed: false, authentication: 'pending', sessionVersion: 1, createdAt: at, updatedAt: at };
+      state.users[id] = user; audit(state, actor, 'user_created', id, null, publicUser(state, user)); return publicUser(state, user);
+    }
+    function applyUserUpdate(state, actor, id, patch) {
+      exactKeys(patch, ['name', 'email', 'phone', 'roles', 'active']);
+      const user = lookup(state.users, id); if (!user) throw failure('USER_NOT_FOUND', 'La cuenta no existe.');
+      const before = publicUser(state, user), identity = validIdentity(state, { name: own(patch, 'name') ? patch.name : user.name, email: own(patch, 'email') ? patch.email : user.email }, id);
+      if (own(patch, 'active') && typeof patch.active !== 'boolean') throw failure('INVALID_ACTIVE', 'El estado de la cuenta no es válido.');
+      const roles = own(patch, 'roles') ? validRoles(state, patch.roles) : user.roles.slice();
+      const revoke = JSON.stringify(roles) !== JSON.stringify(user.roles) || own(patch, 'active') && patch.active !== user.active || identity.email !== user.email;
+      const phone = own(patch, 'phone') ? validPhone(patch.phone) : user.phone;
+      const deactivating = own(patch, 'active') && patch.active === false && user.active === true;
+      Object.assign(user, identity, { phone, roles, active: own(patch, 'active') ? patch.active : user.active, updatedAt: stamp() });
+      if (deactivating) { user.deactivatedAt = stamp(); user.deactivatedBy = actor.id; } else if (own(patch, 'active') && patch.active === true && user.deactivatedAt) { user.deactivatedAt = null; user.deactivatedBy = null; }
+      assertLastAdmin(state);
+      if (revoke) { invalidate(state, user); for (const [key, invite] of Object.entries(state.invitations)) if (invite.userId === id) delete state.invitations[key]; }
+      audit(state, actor, 'user_updated', id, before, publicUser(state, user)); return publicUser(state, user);
+    }
+    function applyUserPermission(state, actor, id, input) {
+      exactKeys(input, ['capability', 'scope', 'expiresAt']);
+      if (!(state.users[actor.id].roles || []).includes('admin')) throw failure('FORBIDDEN', 'Solo Administración cambia permisos individuales.');
+      const user = lookup(state.users, id); if (!user) throw failure('USER_NOT_FOUND', 'La cuenta no existe.');
+      const cap = input.capability, scope = input.scope;
+      if (!own(catalog, cap) || !['none', 'own', 'all', 'clear'].includes(scope) || scope === 'own' && !ownScoped(cap)) throw failure('INVALID_GRANTS', 'El permiso o alcance no es válido.');
+      if (adminOnly.includes(cap) && ['own', 'all'].includes(scope) && !user.roles.includes('admin')) throw failure('ADMIN_ONLY_CAPABILITY', 'Este permiso está reservado a Admin.');
+      if (adminOnly.includes(cap) && scope === 'none' && user.roles.includes('admin')) throw failure('ADMIN_REQUIRED', 'Admin conserva sus permisos obligatorios.');
+      let expiresAt = null;
+      if (input.expiresAt != null && input.expiresAt !== '') { const ms = Date.parse(input.expiresAt); if (!Number.isFinite(ms) || ms <= milliseconds()) throw failure('INVALID_EXPIRY', 'La fecha de vencimiento debe ser futura.'); expiresAt = new Date(ms).toISOString(); }
+      const before = clone(user.overrides || {});
+      user.overrides = clone(user.overrides || {});
+      if (scope === 'clear') delete user.overrides[cap]; else user.overrides[cap] = { scope, expiresAt, by: actor.id, at: stamp() };
+      user.updatedAt = stamp(); invalidate(state, user);
+      audit(state, actor, 'user_permission_changed', id, { capability: cap, entry: before[cap] || null }, { capability: cap, entry: user.overrides[cap] || null });
+      return publicUser(state, user);
+    }
+    const api = {
+      STORAGE_KEY, SESSION_KEY, SCHEMA_VERSION, normalizeEmail,
+      getVersion: () => load().revision,
+      capabilityCatalog: () => Object.entries(catalog).map(([id, pair]) => ({ id, label: pair[0], resource: pair[1], adminOnly: adminOnly.includes(id), mandatoryAdmin: adminOnly.includes(id), scopes: ownScoped(id) && !adminOnly.includes(id) ? ['none', 'own', 'all'] : ['none', 'all'] })),
+      resolveSession: current, getSession: () => current(),
+      loginDemo(email, password) {
+        const state = load(), user = Object.values(state.users).find(entry => entry.email === normalizeEmail(email));
+        if (!user || !user.active || user.status !== 'active' || !user.demoSeed || user.authentication !== 'demo' || password !== 'pulzzo-demo') throw failure('INVALID_LOGIN', 'Usuario o contraseña demo inválidos.');
+        const session = issue(state, user); commit(state); return persistSession(session);
+      },
+      async login(email, password, operation) {
+        assertOperationCurrent(operation);
+        const initial = load(), user = Object.values(initial.users).find(entry => entry.email === normalizeEmail(email));
+        if (!user || !user.active || user.status !== 'active') throw failure('INVALID_LOGIN', 'Usuario o contraseña demo inválidos.');
+        let valid = false;
+        if (user.authentication === 'demo' && user.demoSeed) valid = password === 'pulzzo-demo';
+        else if (user.authentication === 'password' && user.verifier) valid = await passwordVerifier(password, user.verifier.salt).then(value => value === user.verifier.hash, () => false);
+        assertOperationCurrent(operation);
+        if (!valid) throw failure('INVALID_LOGIN', 'Usuario o contraseña demo inválidos.');
+        const state = load(), live = state.users[user.id];
+        if (!live || !live.active || live.status !== 'active' || live.sessionVersion !== user.sessionVersion || live.authentication !== user.authentication || JSON.stringify(live.verifier) !== JSON.stringify(user.verifier)) throw failure('SESSION_INVALID', 'La cuenta cambió. Inicia sesión otra vez.');
+        const session = issue(state, live); commit(state); return persistSession(session);
+      },
+      authenticate(email, password, operation) { return api.login(email, password, operation); },
+      logout(reference) {
+        const state = load(), session = resolve(state, reference);
+        if (session) { delete state.sessions[session.sessionId]; commit(state); }
+        const saved = savedSession();
+        if (reference === undefined || saved && reference && saved.sessionId === reference.sessionId) storage.removeItem(SESSION_KEY);
+        return true;
+      },
+      can(reference, cap, record) {
+        try {
+          const state = load(), session = resolve(state, reference);
+          if (!session || !own(catalog, cap)) return false;
+          const scope = effective(state, state.users[session.id])[cap];
+          if (!scope) return false;
+          if (scope === 'all' || record === undefined || record === null) return true;
+          const owner = typeof record === 'string' ? record : record.assignedKam || record.ownerId || record.assignedTo;
+          return owner === session.id;
+        } catch (_) { return false; }
+      },
+      describePermissions(reference) { const state = load(), actor = assertActor(state, reference); return describe(state, state.users[actor.id]); },
+      scope(reference, resource) { try { return api.describePermissions(reference).scopes[resource] || 'none'; } catch (_) { return 'none'; } },
+      getActor(reference) {
+        const session = current(reference); if (!session) return null;
+        const crmScope = api.scope(session, 'crm');
+        const role = !api.can(session, 'crmView') ? null : session.roles.includes('admin') ? 'admin' : crmScope === 'all' ? 'leader' : crmScope === 'own' ? 'kam' : null;
+        return { id: session.id, userId: session.id, name: session.name, email: session.email, roles: session.roles.slice(), role, crmScope, sessionId: session.sessionId, sessionVersion: session.sessionVersion };
+      },
+      crmContext(reference) {
+        const session = current(reference), actor = session && api.getActor(session);
+        if (!session || !actor || !actor.role) return { actor: null, scope: 'none', canWrite: false, canAssign: false, canConfigure: false, isCurrent: () => false };
+        const scopes = api.describePermissions(session).grants;
+        return { actor: { id: actor.id, name: actor.name, role: actor.role }, scope: actor.crmScope, viewScope: scopes.crmView || 'none', writeScope: scopes.crmEdit || 'none', assignScope: scopes.crmAssign || 'none',
+          canWrite: api.can(session, 'crmEdit'), canAssign: api.can(session, 'crmAssign'), canConfigure: api.can(session, 'crmManage'), isCurrent: () => { const active = current(); return !!current(session) && !!active && active.sessionId === session.sessionId; } };
+      },
+      listDemoUsers() { const state = load(); return Object.values(state.users).filter(user => user.demoSeed && user.authentication === 'demo' && user.active && user.status === 'active').map(user => publicUser(state, user)); },
+      listKamRoster() { const state = load(); return Object.values(state.users).filter(user => user.active && user.status === 'active' && user.roles.includes('kam') && effective(state, user).crmView).map(user => ({ id: user.id, name: user.name, roles: user.roles.slice(), active: true })); },
+      getIntakeKamRoster() { return api.listKamRoster().map(user => ({ id: user.id, name: user.name })); },
+      // Public signup needs routing eligibility, never staff identity/contact data.
+      getIntakeRecipientRoster() {
+        const state = load();
+        return Object.values(state.users).filter(user => user.active && user.status === 'active' && effective(state, user).crmView)
+          .flatMap(user => ['admin', 'leader'].filter(role => user.roles.includes(role)).map(role => ({ id: user.id, role })));
+      },
+      getCrmRoster(reference) {
+        const state = load(); assertActor(state, reference, 'crmView');
+        return Object.values(state.users).filter(user => effective(state, user).crmView || user.roles.some(role => ['admin', 'leader', 'kam'].includes(role))).map(user => {
+          const access = describe(state, user), crmScope = access.scopes.crm;
+          const role = !access.grants.crmView ? null : user.roles.includes('admin') ? 'admin' : crmScope === 'all' ? 'leader' : crmScope === 'own' ? 'kam' : null;
+          return { id: user.id, name: user.name, role, crmScope, active: user.active && user.status === 'active' && !!access.grants.crmView };
+        });
+      },
+      listAssignableUsers(reference, capabilities) {
+        const state = load(), actor = assertActor(state, reference);
+        const access = effective(state, state.users[actor.id]);
+        if (!['viewPatients', 'viewProviders', 'viewDocuments'].some(cap => access[cap])) throw failure('FORBIDDEN', 'No tienes acceso al directorio operativo.');
+        if (!Array.isArray(capabilities) || capabilities.some(cap => !own(catalog, cap))) throw failure('INVALID_CAPABILITIES', 'Los permisos de asignación no son válidos.');
+        return Object.values(state.users).filter(user => user.active && user.status === 'active' && capabilities.every(cap => effective(state, user)[cap])).map(user => ({ id: user.id, name: user.name, email: user.email, roles: user.roles.slice(), grants: effective(state, user) }));
+      },
+      listUsers(reference) { const state = load(); assertActor(state, reference, 'users'); return Object.values(state.users).map(user => publicUser(state, user)); },
+      listRoles(reference) { const state = load(); assertActor(state, reference, 'roles'); return clone(Object.values(state.roles)); },
+      previewRoles(reference, roles) { const state = load(); assertActor(state, reference, 'roles'); return describe(state, { roles: validRoles(state, roles) }); },
+      createUser(reference, input, expectedRevision) {
+        const state = load(), actor = assertActor(state, reference, 'users');
+        const result = applyUserCreate(state, actor, input); commit(state, expectedRevision); return result;
+      },
+      updateUser(reference, id, patch, expectedRevision) {
+        const state = load(), actor = assertActor(state, reference, 'users');
+        const result = applyUserUpdate(state, actor, id, patch); commit(state, expectedRevision); return result;
+      },
+      // A staff form is one transaction: validate/mutate a detached state, then
+      // persist once. Shared helpers preserve the legacy API rules and audit events.
+      saveUserWithPermissions(reference, id, input, overrides, expectedRevision) {
+        const state = load(), actor = assertActor(state, reference, 'users');
+        const beforeBytes = storage.getItem(STORAGE_KEY);
+        if (beforeBytes == null || JSON.stringify(JSON.parse(beforeBytes)) !== JSON.stringify(state)) throw failure('STALE_REVISION', 'El directorio cambió. Actualiza e intenta otra vez.');
+        if (!dictionary(overrides)) throw failure('INVALID_GRANTS', 'Los permisos individuales no son válidos.');
+        for (const entry of Object.values(overrides)) { if (!dictionary(entry)) throw failure('INVALID_GRANTS', 'Los permisos individuales no son válidos.'); exactKeys(entry, ['scope', 'expiresAt']); }
+        const before = id ? clone(lookup(state.users, id)?.overrides || {}) : {};
+        const saved = id ? applyUserUpdate(state, actor, id, input) : applyUserCreate(state, actor, input);
+        for (const cap of Object.keys(before)) if (!own(overrides, cap)) applyUserPermission(state, actor, saved.id, { capability: cap, scope: 'clear', expiresAt: null });
+        for (const [cap, entry] of Object.entries(overrides)) {
+          const old = before[cap];
+          if (old && old.scope === entry.scope && (old.expiresAt || null) === (entry.expiresAt || null)) continue;
+          applyUserPermission(state, actor, saved.id, { capability: cap, scope: entry.scope, expiresAt: entry.expiresAt || null });
+        }
+        // Recheck the caller at commit time as well, before any real storage write.
+        assertActor(load(), reference, 'users');
+        const result = publicUser(state, state.users[saved.id]);
+        commit(state, expectedRevision, beforeBytes); return result;
+      },
+      // v36h: Admin creates a new group. It starts with no permissions (grants are set afterwards with updateRole) and is logged in history.
+      createRole(reference, input, expectedRevision) {
+        const state = load(), actor = assertActor(state, reference, 'roles'); exactKeys(input, ['label']);
+        const label = typeof input.label === 'string' ? input.label.trim() : '';
+        if (!label || label.length > 100) throw failure('INVALID_ROLE', 'El nombre del grupo no es válido.');
+        if (Object.values(state.roles).some(role => String(role.label).trim().toLowerCase() === label.toLowerCase())) throw failure('DUPLICATE_ROLE', 'Ya existe un grupo con ese nombre.');
+        if (Object.keys(state.roles).length >= 50) throw failure('TOO_MANY_ROLES', 'Se alcanzó el máximo de 50 grupos en la demo.');
+        let id; do { id = random('group_'); } while (own(state.roles, id));
+        const role = { id, label, grants: {}, system: false, createdAt: stamp(), createdBy: actor.id };
+        state.roles[id] = role; audit(state, actor, 'role_created', id, null, clone(role)); commit(state, expectedRevision); return clone(role);
+      },
+      updateRole(reference, id, patch, expectedRevision) {
+        const state = load(), actor = assertActor(state, reference, 'roles'); exactKeys(patch, ['label', 'grants']);
+        const role = lookup(state.roles, id); if (!role) throw failure('ROLE_NOT_FOUND', 'El rol no existe.');
+        const before = clone(role);
+        if (own(patch, 'label')) { if (typeof patch.label !== 'string' || !patch.label.trim() || patch.label.trim().length > 100) throw failure('INVALID_ROLE', 'El nombre del rol no es válido.'); role.label = patch.label.trim(); }
+        if (own(patch, 'grants')) {
+          if (!patch.grants || typeof patch.grants !== 'object' || Array.isArray(patch.grants)) throw failure('INVALID_GRANTS', 'Los permisos no son válidos.');
+          const next = {};
+          for (const [cap, scope] of Object.entries(patch.grants)) {
+            if (!own(catalog, cap) || !['none', 'own', 'all'].includes(scope) || scope === 'own' && !ownScoped(cap)) throw failure('INVALID_GRANTS', 'El permiso o alcance no es válido.');
+            if (id !== 'admin' && adminOnly.includes(cap) && scope !== 'none') throw failure('ADMIN_ONLY_CAPABILITY', 'Este permiso está reservado a Admin.');
+            if (scope !== 'none') next[cap] = scope;
+          }
+          if (id === 'admin' && adminOnly.some(cap => next[cap] !== 'all')) throw failure('ADMIN_REQUIRED', 'Admin debe conservar los permisos obligatorios de administración y autorización.');
+          role.grants = next;
+        }
+        if (JSON.stringify(before.grants) !== JSON.stringify(role.grants)) for (const user of Object.values(state.users)) if (user.roles.includes(id)) { invalidate(state, user); user.updatedAt = stamp(); }
+        audit(state, actor, 'role_updated', id, before, role); commit(state, expectedRevision); return clone(role);
+      },
+      createInvitation(reference, id, expectedRevision) {
+        const state = load(), actor = assertActor(state, reference, 'users'), user = lookup(state.users, id);
+        if (!user || !user.active) throw failure('USER_INACTIVE', 'La cuenta no existe o está inactiva.');
+        const token = random('invite_'), invitation = { userId: id, sessionVersion: user.sessionVersion, issuedAt: stamp(), expiresAt: milliseconds() + 7 * DAY };
+        for (const [key, old] of Object.entries(state.invitations)) if (old.userId === id) delete state.invitations[key];
+        state.invitations[token] = invitation; audit(state, actor, 'invitation_created', id, null, { userId: id, expiresAt: invitation.expiresAt }); commit(state, expectedRevision);
+        return { token, userId: id, name: user.name, email: user.email, expiresAt: invitation.expiresAt, demoOnly: true };
+      },
+      inspectInvitation(token) {
+        const state = load(), invitation = lookup(state.invitations, token), user = invitation && lookup(state.users, invitation.userId);
+        if (!invitation || !user || !user.active || invitation.expiresAt <= milliseconds() || invitation.sessionVersion !== user.sessionVersion) return null;
+        return { userId: user.id, name: user.name, email: user.email, expiresAt: invitation.expiresAt, demoOnly: true };
+      },
+      async acceptInvitation(token, password, operation) {
+        assertOperationCurrent(operation);
+        const original = api.inspectInvitation(token); if (!original) throw failure('INVITATION_INVALID', 'La invitación ya no es válida.');
+        const initial = load(), originalVersion = initial.users[original.userId].sessionVersion, salt = random('salt_');
+        const hash = await passwordVerifier(password, salt);
+        assertOperationCurrent(operation);
+        const state = load(), invitation = lookup(state.invitations, token), user = lookup(state.users, original.userId);
+        if (!invitation || !user || !user.active || invitation.userId !== user.id || user.sessionVersion !== originalVersion || invitation.sessionVersion !== user.sessionVersion || invitation.expiresAt <= milliseconds()) throw failure('INVITATION_INVALID', 'La invitación ya no es válida.');
+        invalidate(state, user); user.status = 'active'; user.authentication = 'password'; user.verifier = { algorithm: 'PBKDF2-SHA256', iterations: 210000, salt, hash }; user.updatedAt = stamp();
+        for (const [key, invite] of Object.entries(state.invitations)) if (invite.userId === user.id) delete state.invitations[key];
+        audit(state, user, 'invitation_accepted', user.id, null, { userId: user.id, status: 'active' });
+        const session = issue(state, user); commit(state); return persistSession(session);
+      },
+      // v36d: Admin grants (all/own) or removes (none) one permission for one user, with optional expiry; clear restores the groups' result.
+      setUserPermission(reference, id, input, expectedRevision) {
+        const state = load(), actor = assertActor(state, reference, 'users');
+        const result = applyUserPermission(state, actor, id, input); commit(state, expectedRevision); return result;
+      },
+      // Amount authorization remains Admin-only. Preserve legacy limits/history; tiers await an approved policy.
+      getApprovalLimits(reference) { const state = load(); assertActor(state, reference); return clone(approvalLimits(state)); },
+      setApprovalLimits(reference, input, expectedRevision) {
+        const state = load(), actor = assertActor(state, reference, 'settings'); exactKeys(input, ['leader', 'admin']);
+        if (!(state.users[actor.id].roles || []).includes('admin')) throw failure('FORBIDDEN', 'Solo Administración configura los topes.');
+        const next = approvalLimits(state);
+        for (const level of ['leader', 'admin']) if (own(input, level)) { const v = input[level]; if (v !== null && !(Number.isFinite(v) && v >= 0 && v <= 1e9)) throw failure('INVALID_LIMIT', 'El tope debe ser un monto válido en MXN o «sin tope».'); next[level] = v === null ? null : Math.round(v * 100) / 100; }
+        if (next.admin !== null && next.leader !== null && next.leader > next.admin) throw failure('INVALID_LIMIT', 'El tope del líder no puede superar el de Administración.');
+        const before = approvalLimits(state); state.approvalLimits = next; audit(state, actor, 'approval_limits_updated', 'approval_limits', before, next); commit(state, expectedRevision); return clone(next);
+      },
+      checkAmountApproval(reference, input) {
+        const state = load(), actor = assertActor(state, reference), user = state.users[actor.id], amount = Number(input && input.amount);
+        if (!Number.isFinite(amount) || amount <= 0) throw failure('INVALID_AMOUNT', 'Captura un monto válido.');
+        const limits = approvalLimits(state), roles = user.roles || [], level = roles.includes('admin') ? 'admin' : null;
+        if (!level) return { allowed: false, level: null, escalateTo: 'admin', reason: roles.includes('kam') ? 'Un KAM nunca aprueba montos. Requiere aprobación de Administración.' : 'Solo Administración aprueba estos montos; los topes por nivel están pendientes de autorización.' };
+        const cap = limits[level];
+        if (cap === null || amount <= cap) return { allowed: true, level, cap, escalateTo: null };
+        return { allowed: false, level, cap, escalateTo: level === 'admin' ? null : 'admin', reason: level === 'admin' ? 'El monto supera el tope de Administración.' : 'El monto supera tu tope; se escala a Administración.' };
+      },
+      // v71 (aprobado 27/10/2026): condonaciones. Gerente (Líder) condona moratorios y comisiones hasta su tope;
+      // arriba del tope escala a Admin. Interés ordinario: solo Admin. Capital: nunca. KAM: nunca.
+      getForgivenessLimits(reference) { const state = load(); assertActor(state, reference); return clone(forgivenessLimits(state)); },
+      setForgivenessLimits(reference, input, expectedRevision) {
+        const state = load(), actor = assertActor(state, reference, 'settings'); exactKeys(input, ['leader']);
+        if (!(state.users[actor.id].roles || []).includes('admin')) throw failure('FORBIDDEN', 'Solo Administración configura el tope de condonación.');
+        const v = input.leader; if (!(Number.isFinite(v) && v >= 0 && v <= 1e9)) throw failure('INVALID_LIMIT', 'El tope debe ser un monto válido en MXN.');
+        const before = forgivenessLimits(state), next = { leader: Math.round(v * 100) / 100 };
+        state.forgivenessLimits = next; audit(state, actor, 'forgiveness_limits_updated', 'forgiveness_limits', before, next); commit(state, expectedRevision); return clone(next);
+      },
+      getPaymentOptions(reference) { const state = load(); assertActor(state, reference); return clone(paymentOptions(state)); },
+      setPaymentOptions(reference, input, expectedRevision) {
+        const state = load(), actor = assertActor(state, reference, 'settings'); exactKeys(input, ['weekly']);
+        if (!(state.users[actor.id].roles || []).includes('admin')) throw failure('FORBIDDEN', 'Solo Administración puede permitir pagos semanales.');
+        if (typeof input.weekly !== 'boolean') throw failure('INVALID_OPTION', 'Indica si se permiten pagos semanales.');
+        const before = paymentOptions(state), next = { weekly: input.weekly };
+        state.paymentOptions = next; audit(state, actor, 'payment_options_updated', 'payment_options', before, next); commit(state, expectedRevision); return clone(next);
+      },
+      checkForgivenessApproval(reference, input) {
+        const state = load(), actor = assertActor(state, reference), user = state.users[actor.id], amount = Number(input && input.amount), concept = String(input && input.concept || 'moratory');
+        if (!Number.isFinite(amount) || amount <= 0) throw failure('INVALID_AMOUNT', 'Captura un monto válido.');
+        const roles = user.roles || [], cap = forgivenessLimits(state).leader;
+        if (concept === 'capital') return { allowed: false, level: null, cap, escalateTo: null, reason: 'El capital nunca se condona.' };
+        if (!['moratory', 'commission', 'interest'].includes(concept)) throw failure('INVALID_CONCEPT', 'Concepto de condonación no válido.');
+        if (roles.includes('admin')) return { allowed: true, level: 'admin', cap: null, escalateTo: null };
+        if (concept === 'interest') return { allowed: false, level: roles.includes('leader') ? 'leader' : null, cap, escalateTo: 'admin', reason: 'El interés ordinario solo lo condona Administración.' };
+        if (roles.includes('leader')) return amount <= cap + 1e-9 ? { allowed: true, level: 'leader', cap, escalateTo: null } : { allowed: false, level: 'leader', cap, escalateTo: 'admin', reason: 'El monto supera el tope del gerente; se escala a Administración.' };
+        return { allowed: false, level: null, cap, escalateTo: 'admin', reason: roles.includes('kam') ? 'Un KAM nunca condona. Requiere autorización de Administración.' : 'La condonación la autoriza un gerente (hasta su tope) o Administración.' };
+      },
+      listAudit(reference) { const state = load(); assertActor(state, reference, 'users'); return clone(state.audit).reverse(); }
+    };
+    return Object.freeze(api);
+  }
+  return Object.freeze({ ...createStore(), createStore });
+});

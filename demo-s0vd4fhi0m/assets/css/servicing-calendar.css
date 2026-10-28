@@ -1,0 +1,8 @@
+/* Existing calendar styles reused by the CRM holder consultation. */
+.post-note{border:1px solid rgba(32,199,216,.42);border-radius:16px;padding:13px 14px;color:var(--muted);background:#fff;font-size:13px;line-height:1.55}
+.amort-table-wrap{overflow:auto}
+.amort-table{width:100%;border-collapse:separate;border-spacing:0 8px;min-width:760px}
+.amort-table th{text-align:left;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.1em;padding:0 10px}
+.amort-table td{background:#fff;border-top:1px solid #E6EEF7;border-bottom:1px solid #E6EEF7;padding:12px 10px;font-weight:600;color:var(--navy)}
+.amort-table td:first-child{border-left:1px solid #E6EEF7;border-radius:12px 0 0 12px}
+.amort-table td:last-child{border-right:1px solid #E6EEF7;border-radius:0 12px 12px 0}
