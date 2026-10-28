@@ -3613,8 +3613,9 @@ html, body {
   <!-- Full-bleed hero background -->
   <div class="hero-bg-mobile-photo" style="position:absolute;inset:0;z-index:0;">
     <picture>
-      <source srcset="../assets/images/hero-paciente.webp" type="image/webp">
-      <img class="hero-photo-img" src="../assets/images/hero-paciente.jpg"
+      <source type="image/webp" media="(min-width:1024px)" srcset="img/hero-paciente-1488.webp 1x, img/hero-paciente-2976.webp 2x">
+      <source type="image/webp" srcset="img/hero-paciente-1488-m.webp">
+      <img class="hero-photo-img" src="img/hero-paciente-1488.jpg" width="1488" height="716" fetchpriority="high"
         alt="Mujer feliz con financiamiento Pulzzo"
         style="width:100%;height:100%;object-fit:cover;object-position:right center;display:block;">
     </picture>
