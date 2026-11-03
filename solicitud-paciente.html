@@ -1705,7 +1705,7 @@ body.portal-profile-mode .app-head{display:none!important;}
   <div class="portal-profile-hero">
     <div class="portal-profile-hero-inner">
       <div class="kicker">Perfil Pulzzo</div>
-      <h1 id="portalHello">Hola, <span id="portalHeroName">ANA PAULA</span></h1>
+      <h1 id="portalHello">Hola<span id="portalHeroName"></span></h1>
       <p><span class="portal-subtitle-desktop">Consulta el estado de tu solicitud, revisa documentos y da seguimiento a tu financiamiento.</span><span class="portal-subtitle-mobile">Consulta tu solicitud y da seguimiento a tu financiamiento.</span></p>
     </div>
   </div>
@@ -5015,16 +5015,16 @@ function renderPortalNotifications(){
 function renderPortal(){
   const p=state.procedure||{};
   const ident=state.identity||{};
-  const fullName=firstNonEmpty(getFinalIdentityName(), getRegisteredFullName(), ident.name, 'Ana Paula');
-  const displayName=(fullName||'').split(' ').slice(0,2).join(' ')||'Ana Paula';
+  const fullName=firstNonEmpty(getFinalIdentityName(), getRegisteredFullName(), ident.name, '');
+  const displayName=(fullName||'').split(' ').slice(0,2).join(' ');
   const status=getApplicationStatus();
   const shell=document.getElementById('portalShell');
   if(shell){ shell.classList.toggle('portal-denied', !!state.denied); }
   const set=(id,val)=>{const el=document.getElementById(id); if(el) el.textContent=val;};
   const heroName=document.getElementById('portalHeroName');
   const helloTitle=document.getElementById('portalHello');
-  if(heroName){ heroName.textContent=(displayName||'Ana Paula').toUpperCase(); }
-  else if(helloTitle){ helloTitle.textContent='Hola, '+displayName; }
+  if(heroName){ heroName.textContent=displayName ? ', '+displayName.toUpperCase() : ''; }
+  else if(helloTitle){ helloTitle.textContent=displayName ? 'Hola, '+displayName : 'Hola'; }
   set('portalMainStatus',status.label);
   set('portalStatusChip',status.chip);
   set('portalRequestTitle','Solicitud actual');

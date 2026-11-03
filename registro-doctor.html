@@ -89,7 +89,7 @@ button{border:0}
 .navbar-logo{
   font-family:var(--font-display);
   font-size:20px;
-  font-weight:800;
+  font-weight:700;
   color:var(--white);
   letter-spacing:-.5px;
   display:flex;
@@ -195,7 +195,7 @@ button{border:0}
   font-size:52px;
   line-height:1.06;
   letter-spacing:-.04em;
-  font-weight:800;
+  font-weight:700;
   margin-bottom:18px;
   max-width:520px;
 }
@@ -231,7 +231,7 @@ button{border:0}
   background:rgba(32,199,212,.13);
   border:1px solid rgba(32,199,212,.24);
   color:var(--aqua-l);
-  font-weight:800;
+  font-weight:700;
 }
 
 /* ── CARD ── */
@@ -246,7 +246,7 @@ button{border:0}
 .auth-card-kicker{
   color:var(--coral);
   font-size:12px;
-  font-weight:800;
+  font-weight:700;
   letter-spacing:.12em;
   text-transform:uppercase;
   margin-bottom:8px;
@@ -257,7 +257,7 @@ button{border:0}
   font-size:28px;
   line-height:1.18;
   letter-spacing:-.035em;
-  font-weight:800;
+  font-weight:700;
   margin-bottom:8px;
 }
 .auth-card p{
@@ -448,7 +448,7 @@ button{border:0}
   border-radius:999px;
   padding:6px 10px;
   font-size:11px;
-  font-weight:800;
+  font-weight:700;
   cursor:pointer;
   white-space:nowrap;
   transition:var(--transition);
@@ -546,7 +546,7 @@ button{border:0}
 .proc-group-label{
   display:flex;align-items:center;justify-content:space-between;
   padding:8px 10px 4px;
-  font-size:11px;font-weight:800;
+  font-size:11px;font-weight:700;
   color:var(--coral);text-transform:uppercase;letter-spacing:.08em;
   border-top:1px solid #F5E8E0;margin-top:4px;
   user-select:none;
@@ -579,7 +579,7 @@ button{border:0}
   width:18px;height:18px;margin-top:2px;
   accent-color:var(--coral);flex:0 0 18px;cursor:pointer;
 }
-.consent-box a{color:var(--coral);font-weight:800}
+.consent-box a{color:var(--coral);font-weight:700}
 .consent-box label{cursor:pointer}
 
 /* Botón principal */
@@ -610,7 +610,7 @@ button{border:0}
   font-size:13px;color:var(--gray-mid);
 }
 .auth-switch strong{color:var(--navy)}
-.auth-switch a{font-weight:800}
+.auth-switch a{font-weight:700}
 .auth-switch .doctor-link{color:var(--coral)}
 .auth-switch .patient-link{color:var(--aqua)}
 
@@ -646,6 +646,9 @@ button{border:0}
 .password-error{display:none;margin-top:7px;font-size:12px;color:#B91C1C;font-weight:700;}
 .field.has-error input{border-color:#EF4444!important;box-shadow:0 0 0 4px rgba(239,68,68,.10)!important;}
 .field.has-error .password-error{display:block;}
+.field.has-error select,.consent-box.has-error{border-color:#EF4444!important;box-shadow:0 0 0 4px rgba(239,68,68,.10)!important;}
+.field-error{display:none;margin-top:7px;font-size:12px;color:#B91C1C;font-weight:600;line-height:1.4;}
+.field.has-error .field-error,.consent-box.has-error .field-error{display:block;}
 @media (max-width:640px){
   .auth-subtitle{display:none!important;}
   .auth-pill{margin-bottom:18px!important;}
@@ -685,7 +688,7 @@ button{border:0}
     display:block;
     color:var(--coral);
     font-size:12px;
-    font-weight:800;
+    font-weight:700;
     letter-spacing:.12em;
     text-transform:uppercase;
     margin-bottom:10px;
@@ -722,7 +725,7 @@ button{border:0}
 #doctorProfilePanel #profileProcPicker,#doctorProfilePanel #profileSpecialtyPicker{position:relative!important;}
 #doctorProfilePanel #profileProcPicker.is-open #profileProcChips{display:none!important;}
 #doctorProfilePanel #profileProcToggle,#doctorProfilePanel #profileSpecialtyToggle{
-  width:100%!important;min-height:62px!important;border:1px solid #D7E1EE!important;border-radius:16px!important;background:#fff!important;color:var(--navy)!important;padding:0 18px!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;font-size:16px!important;font-weight:800!important;cursor:pointer!important;box-shadow:none!important;
+  width:100%!important;min-height:62px!important;border:1px solid #D7E1EE!important;border-radius:16px!important;background:#fff!important;color:var(--navy)!important;padding:0 18px!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;font-size:16px!important;font-weight:700!important;cursor:pointer!important;box-shadow:none!important;
 }
 #doctorProfilePanel #profileProcToggle:hover,#doctorProfilePanel #profileProcPicker.is-open #profileProcToggle,#doctorProfilePanel #profileSpecialtyToggle:hover,#doctorProfilePanel #profileSpecialtyPicker.is-open #profileSpecialtyToggle{border-color:var(--coral)!important;box-shadow:0 0 0 4px rgba(255,138,91,.08)!important;}
 #doctorProfilePanel #profileProcSummary.is-placeholder,#doctorProfilePanel #profileSpecialtySummary.is-placeholder{color:var(--navy)!important;}
@@ -1203,8 +1206,9 @@ html body .auth-copy .auth-point strong{font-weight:600 !important;}
               <option value="Dr.">Dr.</option>
               <option value="Dra.">Dra.</option>
             </select>
-            <input id="nombre_med" name="nombre_med" type="text" class="name-input-main" autocomplete="name" placeholder="Ana López">
+            <input id="nombre_med" name="nombre_med" type="text" class="name-input-main" autocomplete="name" placeholder="Ana López" required>
           </div>
+          <div class="field-error">Escribe tu nombre o el de tu clínica.</div>
         </div>
         <div class="field hidden" id="tipo_establecimiento_field">
           <label for="tipo_establecimiento">Tipo de establecimiento</label>
@@ -1292,11 +1296,11 @@ html body .auth-copy .auth-point strong{font-weight:600 !important;}
         <div class="form-row">
           <div class="field">
             <label for="correo_med">Correo profesional</label>
-            <input id="correo_med" name="correo_med" type="email" autocomplete="email" placeholder="contacto@tuclinica.com">
+            <input id="correo_med" name="correo_med" type="email" autocomplete="email" placeholder="contacto@tuclinica.com" required><div class="field-error">Escribe un correo válido.</div>
           </div>
           <div class="field">
             <label for="celular_med">Celular</label>
-            <input id="celular_med" name="celular_med" type="tel" autocomplete="tel" placeholder="55 1234 5678">
+            <input id="celular_med" name="celular_med" type="tel" autocomplete="tel" placeholder="55 1234 5678" required><div class="field-error">Escribe tu celular a 10 dígitos.</div>
           </div>
         </div>
 
@@ -1323,7 +1327,7 @@ html body .auth-copy .auth-point strong{font-weight:600 !important;}
 
         <!-- Consentimiento -->
         <div class="consent-box">
-          <input type="checkbox" id="consent_med" name="consent_med">
+          <input type="checkbox" id="consent_med" name="consent_med" required>
           <label for="consent_med">Acepto el <a href="aviso-privacidad.html" target="_blank">Aviso de Privacidad</a> y los <a href="terminos-condiciones.html" target="_blank">Términos y Condiciones</a> de Pulzzo.</label>
         </div>
 
@@ -2152,9 +2156,24 @@ function validatePasswordFields(){
   if(input)input.addEventListener('input',validatePasswordFields);
 });
 
+function validateDoctorRequiredFields(){
+  let first=null;
+  const mark=(id,bad)=>{const el=document.getElementById(id);const box=el?.closest('.field')||el?.closest('.consent-box');if(box)box.classList.toggle('has-error',bad);if(bad&&!first)first=el;};
+  const nombre=(document.getElementById('nombre_med')?.value||'').trim();
+  const correoEl=document.getElementById('correo_med');
+  const correo=(correoEl?.value||'').trim();
+  const cel=(document.getElementById('celular_med')?.value||'').replace(/\D/g,'');
+  mark('nombre_med',!nombre);
+  mark('correo_med',!correo||!correoEl.checkValidity());
+  mark('celular_med',cel.length!==10);
+  mark('consent_med',!document.getElementById('consent_med')?.checked);
+  if(first){first.scrollIntoView({behavior:'smooth',block:'center'});setTimeout(()=>{try{first.focus({preventScroll:true});}catch(_){first.focus();}},250);return false;}
+  return true;
+}
 document.querySelector('.form-grid').addEventListener('submit', function(e){
   e.preventDefault();
-  if(!validatePasswordFields()) return;
+  const requiredOk=validateDoctorRequiredFields();
+  if(!validatePasswordFields() || !requiredOk) return;
   const tipo=document.getElementById('tipo').value || 'doctor';
   const celular=document.getElementById('celular_med')?.value || '';
   const selectedProcedures=(typeof getSelectedProcs==='function'?getSelectedProcs():[]);
@@ -2176,7 +2195,7 @@ document.querySelector('.form-grid').addEventListener('submit', function(e){
   const municipioOperacion=(document.getElementById('municipio_med')?.value || '').trim();
   const initialOnboarding={
     currentStep:1,
-    profile:{name:nombrePerfil,prefix:prefijoPerfil,accountType:tipo,establishmentType:tipo==='clinica'?tipoEstablecimiento:'',state:estadoOperacion,city:municipioOperacion},
+    profile:{name:nombrePerfil,email:(document.getElementById('correo_med')?.value || '').trim(),prefix:prefijoPerfil,accountType:tipo,establishmentType:tipo==='clinica'?tipoEstablecimiento:'',state:estadoOperacion,city:municipioOperacion},
     files:{official_id:[],license:[],csf:[],office_address:[],bank_cover:[],profile_photo:[]},
     errors:{},
     fiscal:{rfc:'',banco:'',clabe:'',titular:''},
@@ -2193,6 +2212,8 @@ document.querySelector('.form-grid').addEventListener('submit', function(e){
   localStorage.setItem('pulzzoDoctorSpecialties', JSON.stringify(espMultiValues.map(v => especialidadesLabels[v] || v)));
   localStorage.setItem('pulzzoDoctorOnboardingCleanV3Status', 'perfil_incompleto');
   localStorage.setItem('pulzzoDoctorOnboardingCleanV3', JSON.stringify(initialOnboarding));
+  localStorage.setItem('pulzzo_doctor', JSON.stringify({nombre:nombrePerfil,prefijo:prefijoPerfil,tipo:tipo,correo:(document.getElementById('correo_med')?.value || '').trim(),celular:celular}));
+  localStorage.setItem('pulzzo_doctor_verified','false');
   window.location.href='verificacion-doctor.html';
 });
 
