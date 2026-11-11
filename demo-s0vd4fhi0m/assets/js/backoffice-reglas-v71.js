@@ -155,7 +155,7 @@ if(typeof dispersionExtensionSectionHtml==='function'&&!dispersionExtensionSecti
  dispersionExtensionSectionHtml=function(p,row){
   try{if(typeof dispersionIsExtensionActiveRow==='function'&&dispersionIsExtensionActiveRow(row))return v71OriginalExtensionSection.apply(this,arguments);}catch(error){}
   const id=v71Esc(p&&p.id||'');
-  return `<section class="amortization-manage-section v71-extension-note" data-v71-extension><h4>Extensión</h4><div class="extension-manage-card"><div class="extension-manage-note">La prórroga por cuota se retiró. Usa la extensión: «Corta, 30 días» (recomendada) o «Al final». Máximo 3 por crédito y nunca en mora. Las prórrogas anteriores siguen visibles en su cuota.</div><div class="modal-actions"><button class="btn btn-secondary btn-sm" type="button" onclick="v71OpenExtension('${id}')">Abrir extensión</button></div></div></section>`;
+  return `<section class="amortization-manage-section v71-extension-note" data-v71-extension><h4>Extensión</h4><div class="extension-manage-card"><div class="extension-manage-note">La prórroga por cuota se retiró. Usa la extensión: «${v71Esc((typeof carteraCortaLabel==='function'?carteraCortaLabel(p):'Corta, 30 días'))}» (recomendada) o «Al final». Máximo 3 por crédito y nunca en mora. Las prórrogas anteriores siguen visibles en su cuota.</div><div class="modal-actions"><button class="btn btn-secondary btn-sm" type="button" onclick="v71OpenExtension('${id}')">Abrir extensión</button></div></div></section>`;
  };
  dispersionExtensionSectionHtml.__v71=true;
 }
@@ -299,12 +299,12 @@ function v71ExtensionOptions(p){
  for(const modality of ['CORTA','COLA_FINAL']){
   let preview=null;try{preview=carteraPreviewExtension(p,{modality});}catch(error){preview={ok:false,error:error.message};}
   // v71.1: «Recomendada» solo si la opción está disponible (después de una Corta solo queda «Al final»).
-  if(!preview||!preview.ok){options.push({modality,label:modality==='CORTA'?'Corta, 30 días':'Al final',recommended:false,available:false,code:String(preview&&preview.code||''),reason:String(preview&&preview.error||'No disponible')});continue;}
+  if(!preview||!preview.ok){options.push({modality,label:modality==='CORTA'?(typeof carteraCortaLabel==='function'?carteraCortaLabel(p):'Corta, 30 días'):'Al final',recommended:false,available:false,code:String(preview&&preview.code||''),reason:String(preview&&preview.error||'No disponible')});continue;}
   const a=preview.audit||{};let nextAmount=null;
   if(modality==='CORTA'){if(typeof a.nextAmountAfter==='number')nextAmount=v71Round(a.nextAmountAfter);else{const next=(p.paymentSchedule||[]).find(row=>row.id===a.nextRowId);if(next)nextAmount=v71Round(Math.max(v71Num(next.pendingAmount,v71Num(next.totalPayment)),0)+v71Num(preview.capitalDeferred));}}
   // v71.1: datos para explicar la opción en español sencillo (última cuota, cuotas recalculadas, interés que sigue en su fecha).
   const insoluto=!!preview.insoluto,plan=preview.insolutoPlan||null;
-  options.push({modality,label:modality==='CORTA'?'Corta, 30 días':'Al final',recommended:modality==='CORTA',available:true,base:insoluto?'insoluto':'global',lastCuota:!!preview.lastCuota,amountToday:v71Round(preview.total),originalDue:preview.originalDue||'',extendedDue:preview.extendedDue||'',nextDue:a.nextDue||'',nextAmount,nextExtra:v71Round(v71Num(a.nextExtraInterest)+v71Num(a.nextExtraIva)),lastDue:a.lastDue||(preview.newCuota&&preview.newCuota.dueDate)||'',lastAmount:typeof a.lastAmountAfter==='number'?v71Round(a.lastAmountAfter):(preview.newCuota?v71Round(preview.newCuota.payment):null),regularPayment:plan&&typeof plan.regularPayment==='number'?v71Round(plan.regularPayment):null,interestStillDue:insoluto&&modality!=='CORTA'?v71Round(v71Num(a.originalInterest)+v71Num(a.originalInterestIva)):0,capitalDeferred:v71Round(preview.capitalDeferred||0),fee:v71Round(preview.fee||0),feeVat:v71Round(preview.feeVat||0)});
+  options.push({modality,label:modality==='CORTA'?(typeof carteraCortaLabel==='function'?carteraCortaLabel(p):'Corta, 30 días'):'Al final',recommended:modality==='CORTA',available:true,base:insoluto?'insoluto':'global',lastCuota:!!preview.lastCuota,amountToday:v71Round(preview.total),originalDue:preview.originalDue||'',extendedDue:preview.extendedDue||'',nextDue:a.nextDue||'',nextAmount,nextExtra:v71Round(v71Num(a.nextExtraInterest)+v71Num(a.nextExtraIva)),lastDue:a.lastDue||(preview.newCuota&&preview.newCuota.dueDate)||'',lastAmount:typeof a.lastAmountAfter==='number'?v71Round(a.lastAmountAfter):(preview.newCuota?v71Round(preview.newCuota.payment):null),regularPayment:plan&&typeof plan.regularPayment==='number'?v71Round(plan.regularPayment):null,interestStillDue:insoluto&&modality!=='CORTA'?v71Round(v71Num(a.originalInterest)+v71Num(a.originalInterestIva)):0,capitalDeferred:v71Round(preview.capitalDeferred||0),fee:v71Round(preview.fee||0),feeVat:v71Round(preview.feeVat||0)});
  }
  return {used,max,options};
 }
@@ -314,7 +314,7 @@ function v71PortalData(p){
  try{if(typeof carteraAdvanceTarget==='function'){const row=carteraAdvanceTarget(p,typeof dispersionBusinessDateMX==='function'?dispersionBusinessDateMX():v71AccrualDate());if(row)out.advance={number:Number(row.number)||0,dueDate:v71RowDue(row),pending:v71Round(Math.max(v71Num(row.pendingAmount),0))};}}catch(error){}
  const receipts=(p.application&&Array.isArray(p.application.carteraReceipts)?p.application.carteraReceipts:Array.isArray(p.carteraReceipts)?p.carteraReceipts:[]);
  const titles={extension:'Recibo de extensión',anticipo:'Recibo de cuota por adelantado',reestructura:'Comprobante de reestructura',prepago:'Recibo de prepago',liquidacion:'Recibo de liquidación',pago:'Recibo de pago'};
- out.receipts=receipts.slice(-8).reverse().map(r=>({folio:String(r.folio||r.id||''),date:v71Date(r.date||r.appliedAt||r.at),title:String(titles[r.action]||r.title||'Recibo'),detail:r.action==='extension'&&r.extensionDetail&&/corta-30-v1$/.test(String(r.extensionDetail.rule||''))?'Corta, 30 días':'',amount:v71Round(v71Num(r.amount||r.total))})).filter(r=>r.folio||r.amount);
+ out.receipts=receipts.slice(-8).reverse().map(r=>({folio:String(r.folio||r.id||''),date:v71Date(r.date||r.appliedAt||r.at),title:String(titles[r.action]||r.title||'Recibo'),detail:r.action==='extension'&&r.extensionDetail&&/corta-30-v1$/.test(String(r.extensionDetail.rule||''))?(typeof carteraCortaLabel==='function'?carteraCortaLabel(p):'Corta, 30 días'):'',amount:v71Round(v71Num(r.amount||r.total))})).filter(r=>r.folio||r.amount);
  return out;
 }
 function v71WrapProjection(){
@@ -349,8 +349,17 @@ function v71InjectStyles(){
 // v72.4 (PZ-023): pago con fecha real anterior a la captura (pago retroactivo). La mora se calcula con la fecha real del pago:
 // - fecha real igual o anterior al vencimiento: la mora devengada en esa cuota (como si no hubiera pago) se retira;
 // - fecha real después del vencimiento: la mora se deja solo hasta la fecha real (se retiran los días entre el pago y la captura).
-// Después del pago se vuelve a devengar solo sobre el capital que quede pendiente. Si la mora de la cuota no se puede
-// reconstruir con certeza (pagos parciales, cambio de tasa), no se toca y queda como antes.
+// Después del pago se vuelve a devengar solo sobre el capital que quede pendiente.
+// v72.4.1 (PZ-024): si la cuota ya tenía abonos, la mora se reconstruye por tramos con la fecha real de cada abono
+// (capital pendiente de cada tramo × tasa moratoria / 360 × días). No se toca y queda como antes solo si no se puede
+// reconstruir con certeza: un abono de esa cuota con fecha real posterior a la del pago nuevo, abonos sin desglose,
+// cambio de tasa dentro del periodo, o una condonación mayor que la mora real.
+function v71RetroMoraRaw(row,events,annual,from,to){
+ const capNow=v71RowCapitalPending(row);let raw=0;
+ const cuts=[from,...events.map(e=>e.date).filter(d=>d>from&&d<to),to].filter((d,i,a)=>a.indexOf(d)===i).sort();
+ for(let i=0;i<cuts.length-1;i++){const a=cuts[i],b=cuts[i+1],cap=capNow+events.filter(e=>e.date>a).reduce((t,e)=>t+e.amount,0);raw+=cap*annual/360*Math.max(v71Days(a,b),0);}
+ return Math.round(raw*1e6)/1e6;
+}
 function v71RetroResetMora(p,date){
  const day=v71Date(date);
  if(!p||!/^\d{4}-\d{2}-\d{2}$/.test(day)||!(day<v71AccrualDate())||!v71Eligible(p))return null;
@@ -360,20 +369,32 @@ function v71RetroResetMora(p,date){
   if(!row||!row.id||v71RowClosed(row))continue;
   const due=v71RowDue(row),st=state[row.id];
   if(!due||!st||!(v71Num(st.booked)>0||v71Num(st.bookedIva)>0))continue;
-  if(v71Num(row.moratoryPaid)>0||v71Num(row.ivaMoratorioPaid)>0||(Array.isArray(row.v71Condonations)&&row.v71Condonations.length))continue;
-  let keep={raw:0,booked:0,bookedIva:0,through:due};
-  if(day>due){
-   if(!(v71Date(st.through)>day)||v71Num(row.paidAmount)>0.009||v71Num(row.capitalPaid)>0.009)continue;
-   const app=p.application||{},from=[due,v71Date(app.v71MoraSince),v71Date(app.preventiveMoraFreezeUntil)].filter(Boolean).sort().pop();
-   const cap=v71RowCapitalPending(row),rate=v71MoraRate(p,from),factor=v71MoraIvaFactor(v71Rules(p,due));
-   if(v71Round(cap*rate.annual/360*Math.max(v71Days(from,st.through),0))!==v71Round(v71Num(st.booked)))continue;
-   const raw=Math.round(cap*rate.annual/360*Math.max(v71Days(from,day),0)*1e6)/1e6,booked=v71Round(raw);
-   keep={raw,booked,bookedIva:v71Round(booked*factor),through:from>day?from:day};if(st.label)keep.label=st.label;
+  // v72.4.1: abonos ya registrados en esta cuota, con su fecha real.
+  let allocated=false,later=false;const events=[];
+  for(const m of (Array.isArray(p.payments)?p.payments:[])){
+   const md=v71Date(m&&(m.effectiveDate||m.date));
+   for(const a of (m&&Array.isArray(m.allocations)?m.allocations:[])){
+    if(!a||a.rowId!==row.id)continue;allocated=true;if(!md||md>day)later=true;
+    if(a.concept==='capital')events.push({date:md,amount:v71Num(a.amount)});
+   }
   }
+  if(later)continue;
+  const capitalEvents=v71Round(events.reduce((t,e)=>t+e.amount,0));
+  if(Math.abs(capitalEvents-v71Round(v71Num(row.capitalPaid)))>0.009)continue;
+  if(!allocated&&v71Num(row.paidAmount)>0.009)continue;
+  const app=p.application||{},from=[due,v71Date(app.v71MoraSince),v71Date(app.preventiveMoraFreezeUntil)].filter(Boolean).sort().pop();
+  const rate=v71MoraRate(p,from),factor=v71MoraIvaFactor(v71Rules(p,due)),through=v71Date(st.through);
+  if(!(through>=day))continue;
+  if(v71Round(v71RetroMoraRaw(row,events,rate.annual,from,through))!==v71Round(v71Num(st.booked)))continue;
+  const keepThrough=from>day?from:day,raw=v71RetroMoraRaw(row,events,rate.annual,from,keepThrough),booked=v71Round(raw);
+  const keep={raw,booked,bookedIva:v71Round(booked*factor),through:keepThrough};if(st.label)keep.label=st.label;
   const dMora=v71Round(v71Num(st.booked)-keep.booked),dIva=v71Round(v71Num(st.bookedIva)-keep.bookedIva);
   if(!(dMora>0||dIva>0))continue;
-  row.moratory=v71Round(Math.max(v71Num(row.moratory)-dMora,0));row.interesMora=row.moratory;
-  row.moratoryIva=v71Round(Math.max(v71Num(row.moratoryIva)-dIva,0));row.ivaMora=row.moratoryIva;
+  // condonaciones o moratorio ya pagado: la mora que queda no puede bajar de lo ya pagado ni quedar negativa.
+  const newMora=v71Round(v71Num(row.moratory)-dMora),newIva=v71Round(v71Num(row.moratoryIva)-dIva);
+  if(newMora<-0.004||newIva<-0.004||newMora<v71Round(v71Num(row.moratoryPaid))-0.004||newIva<v71Round(v71Num(row.ivaMoratorioPaid))-0.004)continue;
+  row.moratory=v71Round(Math.max(newMora,0));row.interesMora=row.moratory;
+  row.moratoryIva=v71Round(Math.max(newIva,0));row.ivaMora=row.moratoryIva;
   row.totalPayment=v71Round(v71Num(row.totalPayment)-dMora-dIva);
   state[row.id]=keep;
   if(typeof dispersionRecalculateRowTotals==='function')dispersionRecalculateRowTotals(row);
