@@ -267,6 +267,9 @@ function carteraQuoteExtension(p,input={}){
  if(dispersionIsCreditLiquidated(p))return {ok:false,error:'Este crédito ya está liquidado.'};
  if(carteraHasMora(rows))return {ok:false,error:'La extensión preventiva solo está disponible si el crédito no tiene mora.'};
  if(carteraExtensionCount(p)>=max)return {ok:false,error:'Este crédito ya tiene el máximo de extensiones ('+max+'). La siguiente operación debe ser una reestructura.'};
+ // v72.4 (PZ-023): no se extiende la cuota siguiente mientras la cuota de hoy (o una vencida) siga sin pagar.
+ const unpaidDue=carteraOpenRows(rows).filter(item=>carteraDue(item)&&carteraDue(item)<=todayMx&&dispersionNumber(item.pendingAmount,dispersionNumber(item.payment,0))>0.009).sort((a,b)=>carteraDue(a).localeCompare(carteraDue(b)))[0];
+ if(unpaidDue)return {ok:false,code:'EXTENSION_DUES_FIRST',error:'Primero paga la cuota del '+carteraDmy(carteraDue(unpaidDue))+' ('+fmtMoney(roundToCents(dispersionNumber(unpaidDue.pendingAmount,dispersionNumber(unpaidDue.payment,0))))+'). Después puedes pedir la extensión de la siguiente cuota.'};
  const candidates=carteraOpenRows(rows).filter(row=>carteraDue(row)>todayMx&&carteraCapitalPending(row)>0).sort((a,b)=>carteraDue(a).localeCompare(carteraDue(b)));
  const row=input.rowId?rows.find(item=>item.id===input.rowId):candidates[0];
  if(!row)return {ok:false,error:'No hay una cuota vigente para extender.'};
@@ -292,7 +295,8 @@ function carteraQuoteExtension(p,input={}){
    // v71 «Corta, 30 días»: el capital pasa a la cuota siguiente. Globales: interés extra de 30 días hoy.
    // v71.1 insolutos: el interés extra va en la cuota siguiente (fecha de referencia = esa cuota).
    if(carteraLastExtensionWasCorta(p))return {ok:false,code:'EXTENSION_CORTA_REPETIDA',error:CARTERA_CORTA_REPETIDA_MSG};
-   requested=terms.interestCalculationBase==='outstanding_balance'?nextDue:dispersionAddDaysToDateString(originalDue,30);
+   // v72.4 (PZ-023): en quincenal la Corta cobra los días reales hasta la siguiente cuota (no 30). Mensual sin cambio.
+   requested=terms.interestCalculationBase==='outstanding_balance'||terms.paymentFrequency==='biweekly'?nextDue:dispersionAddDaysToDateString(originalDue,30);
   }else if(!/^\d{4}-\d{2}-\d{2}$/.test(requested)||requested<=originalDue||requested>maxDue)return {ok:false,error:'La nueva fecha debe ser posterior a la cuota y como máximo un día antes de la siguiente.'};
  }
  const modality=lastCuota?'CUOTA_NUEVA_FINAL':['COLA_FINAL','PRORRATEADO','CORTA'].includes(input.modality)?input.modality:(rules.preventiveExtensionModality==='PRORRATEADO'?'PRORRATEADO':'COLA_FINAL');
@@ -529,7 +533,7 @@ function carteraPreviewPrepay(p,input={}){
   const total=carteraBalance(targets.length?rows:rows);
   const applied=roundToCents(Math.min(amount,total));
   let left=applied;
-  targets.forEach((row,index)=>{
+  if(!carteraInsolutoReduceCuota(p,rows,targets,applied,date))targets.forEach((row,index)=>{
    const cap=carteraCapitalPending(row);
    const share=index===targets.length-1?left:roundToCents(Math.min(left,applied*cap/total));
    row.capital=roundToCents(dispersionNumber(row.capitalPaid,0)+Math.max(cap-share,0));
@@ -546,6 +550,54 @@ function carteraPreviewPrepay(p,input={}){
  if(settleLocked&&carteraBalance(afterRows)<=0.009)return {ok:false,code:'ABONO_COVERS_ALL',error:carteraSettlementLockedText(p,date)};
  return carteraAddDuplicate(p,{ok:true,modality:'reduce_plazo',effect:'reduce_term',balanceBefore,balanceAfter:carteraBalance(afterRows),periodsBefore,periodsAfter:carteraPeriods(afterRows),amount,appliedToCapital:roundToCents(preview.appliedToCapital||0)},input,date);
 }
+// v72.4 (PZ-023): «Reducir cuota» en saldo insoluto. El interés de las cuotas que faltan se recalcula sobre el saldo real
+// después del abono (días reales/360 + IVA vigente de cada cuota) y la cuota queda pareja; la última absorbe los centavos.
+// Global no cambia (regla pendiente de AP). Si el plan no se puede calcular con certeza, se usa el reparto anterior.
+function carteraInsolutoReduceCuota(p,rows,targets,applied,date){
+ const terms=dispersionTerms(p);
+ if(terms.interestCalculationBase!=='outstanding_balance'||!targets.length)return false;
+ const annual=Number(terms.ordinaryAnnualRate)||0;
+ const list=targets.slice().sort((a,b)=>carteraDue(a).localeCompare(carteraDue(b)));
+ const firstDue=carteraDue(list[0]),lastDue=carteraDue(list[list.length-1]);
+ const others=(rows||[]).filter(r=>r&&r.type!=='Pago inicial requerido'&&!list.includes(r)&&carteraDue(r));
+ if(others.some(r=>carteraDue(r)>=firstDue&&carteraDue(r)<=lastDue))return false;
+ const earlier=others.filter(r=>carteraDue(r)<firstDue).map(carteraDue).sort();
+ const start=earlier.length?earlier[earlier.length-1]:dispersionDateOnly(terms.dispersionDate||'');
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(String(start||''))||!(firstDue>start))return false;
+ const before=roundToCents(list.reduce((s,r)=>s+carteraCapitalPending(r),0));
+ const after=roundToCents(before-applied);
+ if(!(after>0.009))return false;
+ const day=String(date||'');
+ const days=(a,b)=>Math.max(0,Math.round((Date.parse(b+'T12:00:00Z')-Date.parse(a+'T12:00:00Z'))/86400000));
+ const factors=list.map(r=>carteraIvaInterestFactor(carteraRules(p,carteraDue(r))));
+ const booked=list.map(r=>carteraRowBooked(r));
+ const interestFor=(i,balance)=>{
+  if(booked[i])return roundToCents(dispersionNumber(list[i].interest,0));
+  const from=i===0?start:carteraDue(list[i-1]),to=carteraDue(list[i]);
+  if(i===0&&day>start&&day<to)return roundToCents((before*days(start,day)+balance*days(day,to))*annual/360);
+  return roundToCents(balance*annual/360*days(from,to));
+ };
+ const ivaFor=(i,interest)=>booked[i]?roundToCents(dispersionNumber(list[i].interestIva,0)):roundToCents(interest*factors[i]);
+ const simulate=payment=>{let balance=after;for(let i=0;i<list.length;i++){const it=interestFor(i,balance),iv=ivaFor(i,it);const cap=Math.min(Math.max(roundToCents(payment-it-iv),0),balance);balance=roundToCents(balance-cap);}return balance;};
+ let low=roundToCents(after/list.length),high=Math.max(roundToCents(after*2),1),guard=0;
+ while(simulate(high)>0.005&&guard<40){high=roundToCents(high*2);guard++;}
+ for(let k=0;k<60;k++){const mid=(low+high)/2;if(simulate(mid)>0.005)low=mid;else high=mid;}
+ const build=payment=>{const out=[];let balance=after;for(let i=0;i<list.length;i++){const it=interestFor(i,balance),iv=ivaFor(i,it);const cap=i===list.length-1?balance:Math.min(Math.max(roundToCents(payment-it-iv),0),balance);out.push({interest:it,interestIva:iv,capitalPending:cap,balanceStart:balance});balance=roundToCents(balance-cap);}return {out,balance,gap:Math.abs(roundToCents(out[out.length-1].capitalPending+out[out.length-1].interest+out[out.length-1].interestIva-payment))};};
+ // Cuota pareja: de las dos cuotas candidatas (al centavo) se usa la que deja la última cuota más cerca de las demás.
+ const base=roundToCents(high);
+ const chosen=[base+0.01,base,base-0.01,base-0.02].map(v=>build(roundToCents(v))).filter(x=>x.balance<=0.009&&x.out.every(y=>y.capitalPending>=0)).reduce((best,x)=>!best||x.gap<best.gap-0.004?x:best,null)||build(base);
+ const plan=chosen.out;let balance=chosen.balance;
+ if(balance>0.009||plan.some((x,i)=>x.interest<dispersionNumber(list[i].interestPaid,0)-0.004||x.interestIva<dispersionNumber(list[i].ivaInteresPaid,0)-0.004))return false;
+ list.forEach((row,i)=>{
+  const x=plan[i];
+  row.capital=roundToCents(dispersionNumber(row.capitalPaid,0)+x.capitalPending);
+  row.interest=x.interest;row.interestIva=x.interestIva;
+  if(Object.prototype.hasOwnProperty.call(row,'balanceStart'))row.balanceStart=x.balanceStart;
+  if(Object.prototype.hasOwnProperty.call(row,'balanceEnd'))row.balanceEnd=roundToCents(x.balanceStart-x.capitalPending);
+  row.payment=roundToCents(dispersionNumber(row.capital,0)+row.interest+row.interestIva);
+ });
+ return true;
+}
 function carteraApplyReduceCuota(p,input){
  const preview=carteraPreviewPrepay(p,input);
  if(!preview.ok)return preview;
@@ -555,7 +607,7 @@ function carteraApplyReduceCuota(p,input){
   const total=carteraBalance(rows);
   const applied=roundToCents(Math.min(roundToCents(input.amount),total));
   let left=applied;
-  targets.forEach((row,index)=>{
+  if(!carteraInsolutoReduceCuota(p,rows,targets,applied,input.date))targets.forEach((row,index)=>{
    const cap=carteraCapitalPending(row);
    const share=index===targets.length-1?left:roundToCents(Math.min(left,applied*cap/(total||1)));
    const cut=roundToCents(Math.min(left,cap,Math.max(share,0)));

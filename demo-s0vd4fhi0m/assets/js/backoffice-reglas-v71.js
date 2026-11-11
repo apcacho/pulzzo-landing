@@ -346,6 +346,75 @@ function v71InjectStyles(){
  document.head.appendChild(style);
 }
 
+// v72.4 (PZ-023): pago con fecha real anterior a la captura (pago retroactivo). La mora se calcula con la fecha real del pago:
+// - fecha real igual o anterior al vencimiento: la mora devengada en esa cuota (como si no hubiera pago) se retira;
+// - fecha real después del vencimiento: la mora se deja solo hasta la fecha real (se retiran los días entre el pago y la captura).
+// Después del pago se vuelve a devengar solo sobre el capital que quede pendiente. Si la mora de la cuota no se puede
+// reconstruir con certeza (pagos parciales, cambio de tasa), no se toca y queda como antes.
+function v71RetroResetMora(p,date){
+ const day=v71Date(date);
+ if(!p||!/^\d{4}-\d{2}-\d{2}$/.test(day)||!(day<v71AccrualDate())||!v71Eligible(p))return null;
+ const state=p.application&&p.application.v71MoraAccrual;if(!state)return null;
+ const touched=[];
+ for(const row of p.paymentSchedule){
+  if(!row||!row.id||v71RowClosed(row))continue;
+  const due=v71RowDue(row),st=state[row.id];
+  if(!due||!st||!(v71Num(st.booked)>0||v71Num(st.bookedIva)>0))continue;
+  if(v71Num(row.moratoryPaid)>0||v71Num(row.ivaMoratorioPaid)>0||(Array.isArray(row.v71Condonations)&&row.v71Condonations.length))continue;
+  let keep={raw:0,booked:0,bookedIva:0,through:due};
+  if(day>due){
+   if(!(v71Date(st.through)>day)||v71Num(row.paidAmount)>0.009||v71Num(row.capitalPaid)>0.009)continue;
+   const app=p.application||{},from=[due,v71Date(app.v71MoraSince),v71Date(app.preventiveMoraFreezeUntil)].filter(Boolean).sort().pop();
+   const cap=v71RowCapitalPending(row),rate=v71MoraRate(p,from),factor=v71MoraIvaFactor(v71Rules(p,due));
+   if(v71Round(cap*rate.annual/360*Math.max(v71Days(from,st.through),0))!==v71Round(v71Num(st.booked)))continue;
+   const raw=Math.round(cap*rate.annual/360*Math.max(v71Days(from,day),0)*1e6)/1e6,booked=v71Round(raw);
+   keep={raw,booked,bookedIva:v71Round(booked*factor),through:from>day?from:day};if(st.label)keep.label=st.label;
+  }
+  const dMora=v71Round(v71Num(st.booked)-keep.booked),dIva=v71Round(v71Num(st.bookedIva)-keep.bookedIva);
+  if(!(dMora>0||dIva>0))continue;
+  row.moratory=v71Round(Math.max(v71Num(row.moratory)-dMora,0));row.interesMora=row.moratory;
+  row.moratoryIva=v71Round(Math.max(v71Num(row.moratoryIva)-dIva,0));row.ivaMora=row.moratoryIva;
+  row.totalPayment=v71Round(v71Num(row.totalPayment)-dMora-dIva);
+  state[row.id]=keep;
+  if(typeof dispersionRecalculateRowTotals==='function')dispersionRecalculateRowTotals(row);
+  touched.push(row.id);
+ }
+ return touched;
+}
+function v71WrapRetroPayment(){
+ const find=id=>(typeof db!=='undefined'&&db&&db.patients||[]).find(item=>item&&item.id===id);
+ const snap=p=>JSON.stringify({s:p.paymentSchedule,a:p.application&&p.application.v71MoraAccrual||null});
+ const restore=(p,saved)=>{if(!p)return;const x=JSON.parse(saved);p.paymentSchedule=x.s;p.application=p.application||{};if(x.a)p.application.v71MoraAccrual=x.a;else delete p.application.v71MoraAccrual;};
+ if(typeof carteraPreviewOrdinary==='function'&&!carteraPreviewOrdinary.__v724){
+  const originalPreview=carteraPreviewOrdinary;
+  carteraPreviewOrdinary=function(p,input){
+   const date=input&&input.date;let saved=null;
+   try{if(p&&date&&Array.isArray(p.paymentSchedule)){const s=snap(p);const t=v71RetroResetMora(p,date);if(t&&t.length)saved=s;}}catch(error){saved=null;}
+   try{return originalPreview.apply(this,arguments);}finally{if(saved)restore(p,saved);}
+  };
+  carteraPreviewOrdinary.__v724=true;
+ }
+ if(typeof dispersionApplyPayment==='function'&&!dispersionApplyPayment.__v724){
+  const originalApply=dispersionApplyPayment;
+  dispersionApplyPayment=function(input){
+   const id=input&&input.creditId,date=input&&input.date,p=id&&find(id);
+   if(!p||!date||(input.type&&input.type!=='ordinary')||!Array.isArray(p.paymentSchedule))return originalApply.apply(this,arguments);
+   const saved=snap(p);let touched=null;
+   try{touched=v71RetroResetMora(p,date);}catch(error){restore(p,saved);touched=null;}
+   if(!touched||!touched.length)return originalApply.apply(this,arguments);
+   let ok=false;
+   try{ok=originalApply.apply(this,arguments);}
+   finally{
+    const q=find(id);
+    if(!ok)restore(q,saved);
+    else{try{v71AccrueCredit(q);}catch(error){}}
+    if(typeof carteraResave==='function')try{carteraResave();}catch(error){}
+   }
+   return ok;
+  };
+  dispersionApplyPayment.__v724=true;
+ }
+}
 function v71Boot(){
  try{v71InjectStyles();}catch(error){}
  try{v71MigrateDoctor();}catch(error){}
@@ -353,6 +422,7 @@ function v71Boot(){
  try{v71AccrueAll();}catch(error){}
  v71WrapProjection();
  v71WrapOpenPayment();
+ v71WrapRetroPayment();
 }
 v71Boot();
 Object.assign(globalThis,{V71_DOCTOR,v71MoraRate,v71MoraLabel,v71MoraQuote,v71AccrueCredit,v71AccrueAll,v71AccrualDate,v71MigrateDoctor,v711Migrate1001,v711Fix1001,v71RenameDoctorIn,v71ForgivenessPending,v71ApplyForgiveness,v71EscalateForgiveness,v71RejectForgiveness,v71OpenForgiveness,v71SubmitForgiveness,v71ChooseForgiveness,v71ApproveForgivenessUi,v71RejectForgivenessUi,v71ForgivenessCapCard,v71SaveForgivenessCap,v71ExtensionOptions,v71PortalData,v71WrapProjection,v71OpenExtension});
