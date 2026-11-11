@@ -353,7 +353,10 @@ function v71InjectStyles(){
 // v72.4.1 (PZ-024): si la cuota ya tenía abonos, la mora se reconstruye por tramos con la fecha real de cada abono
 // (capital pendiente de cada tramo × tasa moratoria / 360 × días). No se toca y queda como antes solo si no se puede
 // reconstruir con certeza: un abono de esa cuota con fecha real posterior a la del pago nuevo, abonos sin desglose,
-// cambio de tasa dentro del periodo, o una condonación mayor que la mora real.
+// cambio de tasa dentro del periodo.
+// v72.4.2 (PZ-025): si la condonación ya aplicada es mayor que la mora real, la condonación efectiva se topa en la mora real
+// + IVA que faltaba por pagar (la mora queda en $0.00). El excedente no genera saldo a favor ni se aplica a interés o capital.
+// El registro original se conserva; el ajuste se anota en la cuota y en la bitácora solo cuando el pago se aplica.
 function v71RetroMoraRaw(row,events,annual,from,to){
  const capNow=v71RowCapitalPending(row);let raw=0;
  const cuts=[from,...events.map(e=>e.date).filter(d=>d>from&&d<to),to].filter((d,i,a)=>a.indexOf(d)===i).sort();
@@ -364,7 +367,7 @@ function v71RetroResetMora(p,date){
  const day=v71Date(date);
  if(!p||!/^\d{4}-\d{2}-\d{2}$/.test(day)||!(day<v71AccrualDate())||!v71Eligible(p))return null;
  const state=p.application&&p.application.v71MoraAccrual;if(!state)return null;
- const touched=[];
+ const touched=[],adjustments=[];
  for(const row of p.paymentSchedule){
   if(!row||!row.id||v71RowClosed(row))continue;
   const due=v71RowDue(row),st=state[row.id];
@@ -392,15 +395,47 @@ function v71RetroResetMora(p,date){
   if(!(dMora>0||dIva>0))continue;
   // condonaciones o moratorio ya pagado: la mora que queda no puede bajar de lo ya pagado ni quedar negativa.
   const newMora=v71Round(v71Num(row.moratory)-dMora),newIva=v71Round(v71Num(row.moratoryIva)-dIva);
-  if(newMora<-0.004||newIva<-0.004||newMora<v71Round(v71Num(row.moratoryPaid))-0.004||newIva<v71Round(v71Num(row.ivaMoratorioPaid))-0.004)continue;
-  row.moratory=v71Round(Math.max(newMora,0));row.interesMora=row.moratory;
-  row.moratoryIva=v71Round(Math.max(newIva,0));row.ivaMora=row.moratoryIva;
-  row.totalPayment=v71Round(v71Num(row.totalPayment)-dMora-dIva);
+  const paidM=v71Round(v71Num(row.moratoryPaid)),paidI=v71Round(v71Num(row.ivaMoratorioPaid));
+  let setMora=newMora,setIva=newIva;
+  if(newMora<-0.004||newIva<-0.004||newMora<paidM-0.004||newIva<paidI-0.004){
+   // v72.4.2: condonación registrada en la cuota (condonaciones v71 de moratorios + condonación de acuerdo de pago).
+   const condoned=v71Round((Array.isArray(row.v71Condonations)?row.v71Condonations:[]).filter(c=>c&&c.concept==='moratory').reduce((t,c)=>t+v71Num(c.amount),0)+v71Num(row.condonacionApplied));
+   const gap=v71Round(v71Num(st.booked)+v71Num(st.bookedIva)-v71Num(row.moratory)-v71Num(row.moratoryIva));
+   if(!(condoned>0.004)||Math.abs(condoned-gap)>0.011)continue; // la diferencia no se explica con condonaciones registradas: queda como antes
+   const remaining=v71Round(Math.max(keep.booked+keep.bookedIva-paidM-paidI,0));
+   if(condoned+0.004<remaining)continue;
+   setMora=paidM;setIva=paidI;
+   if(condoned>remaining+0.004)adjustments.push({rowId:row.id,number:Number(row.number)||0,from:condoned,to:remaining,realMora:keep.booked,realIva:keep.bookedIva,paid:v71Round(paidM+paidI),date:day});
+  }
+  const cutM=v71Round(v71Num(row.moratory)-setMora),cutI=v71Round(v71Num(row.moratoryIva)-setIva);
+  row.moratory=v71Round(Math.max(setMora,0));row.interesMora=row.moratory;
+  row.moratoryIva=v71Round(Math.max(setIva,0));row.ivaMora=row.moratoryIva;
+  row.totalPayment=v71Round(v71Num(row.totalPayment)-cutM-cutI);
   state[row.id]=keep;
   if(typeof dispersionRecalculateRowTotals==='function')dispersionRecalculateRowTotals(row);
   touched.push(row.id);
  }
+ touched.adjustments=adjustments;
  return touched;
+}
+// v72.4.2 (PZ-025): deja constancia del tope de la condonación (solo después de aplicar el pago). No borra el registro
+// original: la cuota guarda el ajuste y la condonación efectiva, y cada condonación afectada guarda su monto efectivo.
+function v71RecordCondonationAdjustments(p,adjustments){
+ if(!p||!Array.isArray(adjustments)||!adjustments.length)return;
+ const at=new Date().toISOString(),by=v71Actor(),app=p.application||(p.application={});
+ for(const a of adjustments){
+  const row=(p.paymentSchedule||[]).find(r=>r&&r.id===a.rowId);
+  if(row){(row.v71CondonationAdjustments||(row.v71CondonationAdjustments=[])).push({from:a.from,to:a.to,realMora:a.realMora,realIva:a.realIva,paid:a.paid,paymentDate:a.date,at,by});row.v71CondonationEffective=a.to;}
+  let cut=v71Round(a.from-a.to);
+  for(const entry of (Array.isArray(app.v71Forgiveness)?app.v71Forgiveness:[]).slice().reverse()){
+   if(cut<=0.004)break;
+   if(!entry||entry.concept!=='moratory'||!Array.isArray(entry.rows))continue;
+   const item=entry.rows.find(x=>x&&x.rowId===a.rowId);if(!item)continue;
+   const current=v71Num(item.effectiveAmount!==undefined?item.effectiveAmount:item.amount),take=v71Round(Math.min(cut,current));
+   item.effectiveAmount=v71Round(current-take);entry.effectiveAmount=v71Round(v71Num(entry.effectiveAmount!==undefined?entry.effectiveAmount:entry.amount)-take);cut=v71Round(cut-take);
+  }
+  v71Log(p,'Condonación ajustada','Cuota '+a.number+': la condonación de moratorios se ajustó de '+v71Money(a.from)+' a '+v71Money(a.to)+' porque la mora real era menor (pago con fecha real '+v71Dmy(a.date)+'; mora real '+v71Money(a.realMora)+' + IVA '+v71Money(a.realIva)+', ya pagado '+v71Money(a.paid)+'). El excedente no genera saldo a favor ni se aplica a interés o capital. El registro original se conserva.');
+ }
 }
 function v71WrapRetroPayment(){
  const find=id=>(typeof db!=='undefined'&&db&&db.patients||[]).find(item=>item&&item.id===id);
@@ -428,7 +463,7 @@ function v71WrapRetroPayment(){
    finally{
     const q=find(id);
     if(!ok)restore(q,saved);
-    else{try{v71AccrueCredit(q);}catch(error){}}
+    else{try{v71RecordCondonationAdjustments(q,touched.adjustments);}catch(error){}try{v71AccrueCredit(q);}catch(error){}}
     if(typeof carteraResave==='function')try{carteraResave();}catch(error){}
    }
    return ok;
